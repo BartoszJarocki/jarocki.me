@@ -34,7 +34,7 @@ const Post = ({ source, frontMatter, readingTime }: Props) => {
     <Layout>
       <Head>
         <title>{frontMatter.title}</title>
-        <meta property="og:image" content={'TODO'} />
+        <meta property="og:image" content={''} />
       </Head>
       <PostHeader
         title={frontMatter.title}
