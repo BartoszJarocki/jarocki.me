@@ -20,7 +20,7 @@ export async function getScreenshot({
 }) {
   const { page, browser } = await getPage(isDev);
   await page.setViewport({ width, height });
-  await page.setContent(html, { waitUntil: "networkidle" });
+  await page.setContent(html, { waitUntil: "networkidle2" });
 
   const screenshot = await page.screenshot({ type });
 
