@@ -172,6 +172,10 @@ pre[data-line] {
   content: none;
 }
 
+.post-body.prose {
+  max-width: 100%;
+}
+
 .post-body.prose blockquote {
   padding: 0 0 0 1.42188rem;
   margin: 0 1.75rem 1.75rem -1.75rem;

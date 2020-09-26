@@ -20,11 +20,11 @@ const background = {
 export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime }) => {
   return (
     <div style={background}>
-      <div className="container mx-auto max-w-3xl flex flex-col flex-grow justify-center px-5">
+      <div className="container mx-auto max-w-3xl flex flex-col flex-grow justify-center px-5 overflow-x-hidden">
         <div className="mt-20">
           <Title>{title}</Title>
         </div>
-        <div className="my-8 flex justify-between items-center mt-5">
+        <div className="my-8 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:items-center mt-5">
           <Avatar name={author.name} picture={author.picture} />
           <div className="text-base text-gray-700">
             {format(parseISO(date), 'LLLL d, yyyy')} • {readingTime}
