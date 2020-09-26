@@ -1,10 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import { NextSeo } from 'next-seo';
 
 import { getAllPosts } from '../lib/api';
 
 import { Projects } from '../_data/projects';
 import { Travel } from '../_data/travel';
+import { SiteDescription, SiteTitle } from '../_data/about';
 
 import { Post } from '../types/post';
 
@@ -20,7 +22,19 @@ type Props = {
 
 const Index = ({ allPosts }: Props) => {
   return (
-    <Layout title="Bartosz Jarocki - Personal website">
+    <Layout>
+      <NextSeo
+        title={SiteTitle}
+        description={SiteDescription}
+        canonical={process.env.NEXT_PUBLIC_SITE_URL}
+        openGraph={{
+          url: process.env.NEXT_PUBLIC_SITE_URL,
+          title: SiteTitle,
+          description: SiteDescription,
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${SiteTitle}` }],
+          site_name: SiteTitle,
+        }}
+      />
       <Container>
         <Header />
         <Section title={'Blog'} hasMore link={'/blog'}>

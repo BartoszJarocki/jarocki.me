@@ -14,6 +14,8 @@ import { Container } from '../../components/container';
 import { PostHeader } from '../../components/post-header';
 import { PostBody } from '../../components/post-body';
 import { Author } from '../../types/author';
+import { ArticleJsonLd, NextSeo } from 'next-seo';
+import { BlogSiteUrl } from '../../_data/about';
 
 type Props = {
   readingTime: {
@@ -25,22 +27,39 @@ type Props = {
     author: Author;
     description: string;
   };
+  slug: string;
   source: any;
 };
 
-const Post = ({ source, frontMatter, readingTime }: Props) => {
+const Post = ({ source, frontMatter, readingTime, slug }: Props) => {
   const content = hydrate(source);
 
   return (
     <Layout>
-      <Head>
-        <title>{frontMatter.title}</title>
-        <meta name="description" content={frontMatter.description} />
-        <meta
-          property="og:image"
-          content={`${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${frontMatter.title}`}
-        />
-      </Head>
+      <NextSeo
+        title={frontMatter.title}
+        description={frontMatter.description}
+        canonical={`${BlogSiteUrl}/${slug}`}
+        openGraph={{
+          url: `${BlogSiteUrl}/${slug}`,
+          title: frontMatter.title,
+          description: frontMatter.description,
+          images: [
+            { url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${frontMatter.title}` },
+          ],
+          site_name: frontMatter.title,
+        }}
+      />
+      <ArticleJsonLd
+        url={`${BlogSiteUrl}/${slug}`}
+        title={frontMatter.title}
+        images={[`${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${frontMatter.title}`]}
+        datePublished={frontMatter.date}
+        authorName={frontMatter.author.name}
+        publisherName={frontMatter.author.name}
+        publisherLogo={frontMatter.author.picture}
+        description={frontMatter.description}
+      />
       <PostHeader
         title={frontMatter.title}
         date={frontMatter.date}
@@ -91,6 +110,7 @@ export async function getStaticProps({ params }: Params) {
 
   return {
     props: {
+      slug: params.slug,
       readingTime: readingTime(content),
       source: mdxSource,
       frontMatter: data,

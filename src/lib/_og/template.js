@@ -6,7 +6,7 @@ export function getHtml({ title }) {
         <title>Generated Image</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@700;800&display=swap");
+            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@700;800:500&display=swap");
             
             html,
             body {
@@ -36,10 +36,13 @@ export function getHtml({ title }) {
               flex-direction: column;
               justify-content: center;
               align-items: center;
+              padding: 48px;
             }
             
             .title {
-              font-size: 3rem;
+              font-size: 5rem;
+              word-wrap: break-word;
+              letter-spacing: -0.05em;
             }
         </style>
         <body>

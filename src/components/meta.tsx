@@ -20,10 +20,6 @@ export const Meta: React.FC<Props> = ({
       <link rel="manifest" href="/favicon/site.webmanifest" />
       <link rel="shortcut icon" href="/favicon/favicon.ico" />
       <meta name="theme-color" content="#6B46C1" />
-      <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
-      <title>{title}</title>
-      <meta name="description" content={description} />
-      <meta property="og:image" content={ogImageUrl} />
     </Head>
   );
 };

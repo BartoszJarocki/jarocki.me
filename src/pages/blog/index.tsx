@@ -7,6 +7,8 @@ import { getAllPosts } from '../../lib/api';
 import { Section } from '../../components/section';
 import { Container } from '../../components/container';
 import { Layout } from '../../components/layout';
+import { NextSeo } from 'next-seo';
+import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../_data/about';
 
 type Props = {
   allPosts: Post[];
@@ -14,7 +16,19 @@ type Props = {
 
 const Blog = ({ allPosts }: Props) => {
   return (
-    <Layout title="Bartosz Jarocki - Blog">
+    <Layout>
+      <NextSeo
+        title={BlogSiteTitle}
+        description={BlogSiteDescription}
+        canonical={BlogSiteUrl}
+        openGraph={{
+          url: BlogSiteUrl,
+          title: BlogSiteTitle,
+          description: BlogSiteDescription,
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${BlogSiteTitle}` }],
+          site_name: BlogSiteTitle,
+        }}
+      />
       <Container>
         <Section title={'Blog'}>
           {allPosts.map((post) => {
