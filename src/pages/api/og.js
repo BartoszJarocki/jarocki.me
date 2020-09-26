@@ -7,7 +7,7 @@ export default async (req, res) => {
     const file = await getScreenshot({
       html,
       width: 1200,
-      height: 500,
+      height: 630,
       isDev: !process.env.IS_PRODUCTION,
     });
 
