@@ -9,8 +9,8 @@ type Props = {
 
 export const Meta: React.FC<Props> = ({
   title = 'Bartosz Jarocki - personal site',
-  description = '',
-  ogImageUrl = '',
+  description = 'My personal piece of internet. I write about React, Android and everything else that I found interesting.',
+  ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${title}`,
 }) => {
   return (
     <Head>

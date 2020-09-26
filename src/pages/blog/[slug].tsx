@@ -23,6 +23,7 @@ type Props = {
     title: string;
     date: string;
     author: Author;
+    description: string;
   };
   source: any;
 };
@@ -34,7 +35,11 @@ const Post = ({ source, frontMatter, readingTime }: Props) => {
     <Layout>
       <Head>
         <title>{frontMatter.title}</title>
-        <meta property="og:image" content={''} />
+        <meta name="description" content={frontMatter.description} />
+        <meta
+          property="og:image"
+          content={`${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${frontMatter.title}`}
+        />
       </Head>
       <PostHeader
         title={frontMatter.title}
