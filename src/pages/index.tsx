@@ -29,7 +29,7 @@ const Index = ({ allPosts }: Props) => {
               <Link href={`/blog/${post.slug}`}>
                 <div className="bg-white hover:bg-gray-100 border border-gray-400 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer">
                   <div className="p-4 flex flex-col justify-between leading-normal">
-                    <div className="text-gray-900 font-bold text-xl mb-2">{post.title}</div>
+                    <div className="text-gray-900 font-bold text-lg sm:text:xl mb-2">{post.title}</div>
                     <p className="text-gray-700 text-base">{post.description}</p>
                   </div>
                 </div>
@@ -43,13 +43,13 @@ const Index = ({ allPosts }: Props) => {
               <a href={project.link} target="_blank">
                 <div className="bg-white hover:bg-gray-100 border border-gray-400 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer">
                   <div className="p-4 flex flex-col flex-grow justify-between leading-normal">
-                    <div className="flex flex-grow text-gray-900 font-bold text-xl mb-2">
+                    <div className="flex flex-col sm:flex-row flex-grow text-gray-900 font-bold text-lg sm:text:xl mb-2">
                       {project.title}
-                      <span className="flex space-x-2 ml-auto">
+                      <div className="flex space-x-2 sm:ml-auto">
                         {project.techStack.map((tech) => {
                           return <Badge>{tech}</Badge>;
                         })}
-                      </span>
+                      </div>
                     </div>
                     <p className="text-gray-700 text-base">{project.description}</p>
                   </div>

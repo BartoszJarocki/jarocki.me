@@ -1,7 +1,7 @@
 export const Projects = [
   {
     title: 'Barepapers',
-    techStack: ['Next.js', 'Headless Chrome', '▲Vercel '],
+    techStack: ['Next.js', 'Puppeteer', '▲Vercel '],
     description: 'Minimalist wallpapers generator.',
     link: 'https://barepapers.com',
   },

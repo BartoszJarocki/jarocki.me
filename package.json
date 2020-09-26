@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.2.0",
+    "@tailwindcss/ui": "^0.6.2",
+    "chrome-aws-lambda": "^5.2.1",
     "classnames": "2.2.6",
     "date-fns": "2.10.0",
     "fathom-client": "^3.0.0",
@@ -18,12 +20,11 @@
     "next-mdx-remote": "^1.0.0",
     "postcss-preset-env": "^6.7.0",
     "prettier": "^2.1.1",
+    "puppeteer-core": "^5.2.1",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "rehype": "^11.0.0",
-    "typescript": "^3.9.2",
-    "chrome-aws-lambda": "^5.2.1",
-    "puppeteer-core": "^5.2.1"
+    "typescript": "^3.9.2"
   },
   "devDependencies": {
     "@mdx-js/loader": "1.5.8",
