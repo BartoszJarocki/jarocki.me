@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 
 import { Post } from '../../types/post';
-import { getAllPosts } from '../../lib/api';
+import { getAllPosts } from '../../lib/blogApi';
 
 import { Section } from '../../components/section';
 import { Container } from '../../components/container';

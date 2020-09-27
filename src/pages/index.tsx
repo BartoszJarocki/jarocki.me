@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 
-import { getAllPosts } from '../lib/api';
+import { getAllPosts } from '../lib/blogApi';
 
 import { Projects } from '../_data/projects';
 import { Travel } from '../_data/travel';

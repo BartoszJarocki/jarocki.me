@@ -1,4 +1,4 @@
-export function getHtml({ title }) {
+export function getHtml(title: string) {
   return `
     <!DOCTYPE html>
     <html>
