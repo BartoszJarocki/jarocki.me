@@ -15,6 +15,11 @@ import { Section } from '../components/section';
 import { Layout } from '../components/layout';
 import { Container } from '../components/container';
 import { Header } from '../components/header';
+import { OutlinedCard } from '../components/outlined-card';
+import { OutlinedCardTitle } from '../components/outlined-card-title';
+import { OutlinedCardDescription } from '../components/outlined-card-description';
+import { PhotoCard } from '../components/photo-card';
+import { ExternalLink } from '../components/external-link';
 
 type Props = {
   allPosts: Post[];
@@ -40,15 +45,11 @@ const Index = ({ allPosts }: Props) => {
         <Section title={'Blog'} hasMore link={'/blog'}>
           {allPosts.map((post) => {
             return (
-              <Link href={`/blog/${post.slug}`}>
-                <div className="bg-white hover:bg-gray-100 border border-gray-400 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer">
-                  <div className="p-4 flex flex-col justify-between leading-normal">
-                    <div className="text-gray-900 font-bold text-lg sm:text:xl mb-2">
-                      {post.title}
-                    </div>
-                    <p className="text-gray-700 text-base">{post.description}</p>
-                  </div>
-                </div>
+              <Link key={post.title} href={`/blog/${post.slug}`}>
+                <OutlinedCard>
+                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
+                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
+                </OutlinedCard>
               </Link>
             );
           })}
@@ -56,21 +57,19 @@ const Index = ({ allPosts }: Props) => {
         <Section title={'Projects'}>
           {Projects.map((project) => {
             return (
-              <a href={project.link} target="_blank">
-                <div className="bg-white hover:bg-gray-100 border border-gray-400 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer">
-                  <div className="p-4 flex flex-col flex-grow justify-between leading-normal">
-                    <div className="flex flex-col sm:flex-row flex-grow text-gray-900 font-bold text-lg sm:text:xl mb-2">
-                      {project.title}
-                      <div className="flex space-x-2 sm:ml-auto">
-                        {project.techStack.map((tech) => {
-                          return <Badge>{tech}</Badge>;
-                        })}
-                      </div>
+              <ExternalLink key={project.title} href={project.link}>
+                <OutlinedCard>
+                  <OutlinedCardTitle>
+                    {project.title}
+                    <div className="flex space-x-2 sm:ml-auto">
+                      {project.techStack.map((tech) => {
+                        return <Badge key={tech}>{tech}</Badge>;
+                      })}
                     </div>
-                    <p className="text-gray-700 text-base">{project.description}</p>
-                  </div>
-                </div>
-              </a>
+                  </OutlinedCardTitle>
+                  <OutlinedCardDescription>{project.description}</OutlinedCardDescription>
+                </OutlinedCard>
+              </ExternalLink>
             );
           })}
         </Section>
@@ -78,17 +77,12 @@ const Index = ({ allPosts }: Props) => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Travel.map((dest) => {
               return (
-                <div className="rounded overflow-hidden shadow-md">
-                  <img
-                    className="w-full"
-                    src={`/assets/travel/${dest.imgKey}.jpeg`}
-                    alt="Sunset in the mountains"
-                  />
-                  <div className="px-4 py-4">
-                    <div className="font-bold text-l mb-2">{dest.title}</div>
-                    <p className="text-gray-700 text-base">{dest.placesVisited}</p>
-                  </div>
-                </div>
+                <PhotoCard
+                  key={dest.title}
+                  imgSrc={`/assets/travel/${dest.imgKey}.jpeg`}
+                  title={dest.title}
+                  subTitle={dest.placesVisited}
+                />
               );
             })}
           </div>

@@ -9,6 +9,9 @@ import { Container } from '../../components/container';
 import { Layout } from '../../components/layout';
 import { NextSeo } from 'next-seo';
 import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../_data/about';
+import { OutlinedCard } from '../../components/outlined-card';
+import { OutlinedCardTitle } from '../../components/outlined-card-title';
+import { OutlinedCardDescription } from '../../components/outlined-card-description';
 
 type Props = {
   allPosts: Post[];
@@ -33,13 +36,11 @@ const Blog = ({ allPosts }: Props) => {
         <Section title={'Blog'}>
           {allPosts.map((post) => {
             return (
-              <Link href={`/blog/${post.slug}`}>
-                <div className="bg-white hover:bg-gray-100 border border-gray-400 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer">
-                  <div className="p-4 flex flex-col justify-between leading-normal">
-                    <div className="text-gray-900 font-bold text-xl mb-2">{post.title}</div>
-                    <p className="text-gray-700 text-base">{post.description}</p>
-                  </div>
-                </div>
+              <Link key={post.title} href={`/blog/${post.slug}`}>
+                <OutlinedCard>
+                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
+                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
+                </OutlinedCard>
               </Link>
             );
           })}

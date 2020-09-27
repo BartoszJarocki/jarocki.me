@@ -16,6 +16,8 @@ import { PostBody } from '../../components/post-body';
 import { Author } from '../../types/author';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import { BlogSiteUrl } from '../../_data/about';
+import { ExternalLink } from '../../components/external-link';
+import { OpenGraph, SocialMedia } from '../../_data/social-media';
 
 type Props = {
   readingTime: {
@@ -69,10 +71,9 @@ const Post = ({ source, frontMatter, readingTime, slug }: Props) => {
       <Container>
         <article className="mb-32">
           <PostBody>{content}</PostBody>
-          <a
+          <ExternalLink
             className="block text-xl md:text-3xl font-semibold text-center"
-            target="_blank"
-            href={`https://twitter.com/intent/tweet?text=${frontMatter.title} by @BartoszJarocki`}
+            href={`https://twitter.com/intent/tweet?text=${frontMatter.title} by ${OpenGraph.twitter.handle}`}
           >
             <div className="flex flex-col place-items-center m-5 sm:m-20 text-gray-700 hover:text-gray-600 cursor-pointer">
               <svg className="h-10 w-10 m-6" fill="currentColor" viewBox="0 0 24 24">
@@ -80,7 +81,7 @@ const Post = ({ source, frontMatter, readingTime, slug }: Props) => {
               </svg>
               Click here to share this article with your friends on Twitter if you liked it.
             </div>
-          </a>
+          </ExternalLink>
         </article>
       </Container>
     </Layout>

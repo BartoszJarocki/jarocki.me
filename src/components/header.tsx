@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Title } from './title';
+import { ExternalLink } from './external-link';
 
 export const Header: React.FC = () => {
   return (
@@ -11,23 +12,16 @@ export const Header: React.FC = () => {
         JavaScript applications. I especially enjoy working with React and creating great user
         experiences. This is my personal piece of the internet. If you have any questions or just
         want to say hi -{' '}
-        <a
+        <ExternalLink
           className="underline"
-          target="_blank"
-          rel="noopener noreferrer"
           href="https://twitter.com/messages/compose?recipient_id=512460212"
         >
           DM me on Twitter
-        </a>{' '}
+        </ExternalLink>{' '}
         or just{' '}
-        <a
-          className="underline"
-          target="_blank"
-          rel="noopener noreferrer"
-          href="mailto:bartosz.jarocki@icloud.com"
-        >
+        <ExternalLink className="underline" href="mailto:bartosz.jarocki@icloud.com">
           email me.
-        </a>
+        </ExternalLink>
       </p>
     </header>
   );
