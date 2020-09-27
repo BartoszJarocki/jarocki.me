@@ -1,5 +1,4 @@
 import React from 'react';
-import Head from 'next/head';
 import readingTime from 'reading-time';
 import mdxPrism from 'mdx-prism';
 import renderToString from 'next-mdx-remote/render-to-string';
@@ -17,7 +16,7 @@ import { Author } from '../../types/author';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import { BlogSiteUrl } from '../../_data/about';
 import { ExternalLink } from '../../components/external-link';
-import { OpenGraph, SocialMedia } from '../../_data/social-media';
+import { OpenGraph } from '../../_data/social-media';
 
 type Props = {
   readingTime: {

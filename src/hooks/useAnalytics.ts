@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import * as Fathom from 'fathom-client';
 
 const Config = {
-  siteId: 'WIBCGWCK',
-  domains: ['jarocki.me'],
+  siteId: process.env.NEXT_PUBLIC_ANALYTICS_ID!,
+  domains: process.env.NEXT_PUBLIC_ANALYTICS_DOMAINS!.split(','),
 };
 
 export const useAnalytics = () => {

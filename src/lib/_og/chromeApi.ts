@@ -21,7 +21,7 @@ export async function getScreenshot({
   html: string;
   width: number;
   height: number;
-  type: string;
+  type?: string;
   isDev: boolean;
 }) {
   const { page, browser } = await getPage(isDev);

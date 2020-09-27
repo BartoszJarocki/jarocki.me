@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppProps, Container } from 'next/app';
+import { AppProps } from 'next/app';
 import { DefaultSeo } from 'next-seo';
 
 import '../styles/index.css';
@@ -11,9 +11,9 @@ export default function App({ Component, pageProps }: AppProps) {
   useAnalytics();
 
   return (
-    <Container>
+    <>
       <DefaultSeo {...OpenGraph} />
       <Component {...pageProps} />
-    </Container>
+    </>
   );
 }

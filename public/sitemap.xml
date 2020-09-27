@@ -5,10 +5,18 @@
   </url>
 
   <url>
-    <loc>https://jarocki.me/blog/[slug]</loc>
+    <loc>https://jarocki.me/blog/index</loc>
   </url>
 
   <url>
-    <loc>https://jarocki.me/blog/index</loc>
+    <loc>https://jarocki.me/blog/custom-hooks</loc>
+  </url>
+
+  <url>
+    <loc>https://jarocki.me/blog/hello-world</loc>
+  </url>
+
+  <url>
+    <loc>https://jarocki.me/blog/react-hooks-rules</loc>
   </url>
 </urlset>
