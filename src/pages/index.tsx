@@ -15,7 +15,7 @@ import { Section } from '../components/section';
 import { Layout } from '../components/layout';
 import { Container } from '../components/container';
 import { Header } from '../components/header';
-import { OutlinedCard } from '../components/outlined-card';
+import { LinkOutlinedCard, OutlinedCard } from '../components/outlined-card';
 import { OutlinedCardTitle } from '../components/outlined-card-title';
 import { OutlinedCardDescription } from '../components/outlined-card-description';
 import { PhotoCard } from '../components/photo-card';
@@ -45,12 +45,10 @@ const Index = ({ allPosts }: Props) => {
         <Section title={'Blog'} hasMore link={'/blog'}>
           {allPosts.map((post) => {
             return (
-              <Link key={post.title} href={`/blog/${post.slug}`}>
-                <OutlinedCard>
-                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
-                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
-                </OutlinedCard>
-              </Link>
+              <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
+                <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
+                <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
+              </LinkOutlinedCard>
             );
           })}
         </Section>
