@@ -2,7 +2,7 @@ export const Travel = [
   {
     title: 'Switzerland',
     imgKey: 'switzerland',
-    placesVisited: 'Geneve, Zurich, Lucerne, Ponte dei Salti',
+    placesVisited: 'Geneve, Zurich, Stein am Rhein, Szafuza, Lucerne, Pilatus, Ponte dei Salti',
   },
   {
     title: 'USA',
@@ -10,7 +10,11 @@ export const Travel = [
     placesVisited: 'Los Angeles, Phoenix, Sedona, Page, Grand Canyon Village, Las Vegas',
   },
   { title: 'Croatia', imgKey: 'croatia', placesVisited: 'Pula, Makarska, Dubrovnik' },
-  { title: 'United Kingdom', imgKey: 'uk', placesVisited: 'London, Southampton, Bournemouth' },
+  {
+    title: 'United Kingdom',
+    imgKey: 'uk',
+    placesVisited: 'London, Southampton, Bournemouth, Winchester',
+  },
   {
     title: 'Italy',
     imgKey: 'italy',
