@@ -6,7 +6,7 @@ import { ExternalLink } from './external-link';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="pt-8 pb-8 h-48 flex items-center flex-shrink-0">
+    <footer className="pt-8 h-48 flex items-center flex-shrink-0">
       <Container>
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex justify-center md:order-2">

@@ -17,6 +17,7 @@ import { ArticleJsonLd, NextSeo } from 'next-seo';
 import { BlogSiteUrl } from '../../_data/about';
 import { ExternalLink } from '../../components/external-link';
 import { OpenGraph } from '../../_data/social-media';
+import { Navigation } from '../../components/navigation';
 
 type Props = {
   readingTime: {
@@ -61,6 +62,7 @@ const Post = ({ source, frontMatter, readingTime, slug }: Props) => {
         publisherLogo={frontMatter.author.picture}
         description={frontMatter.description}
       />
+      <Navigation />
       <PostHeader
         title={frontMatter.title}
         date={frontMatter.date}

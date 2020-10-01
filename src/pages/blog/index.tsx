@@ -12,6 +12,7 @@ import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../_data/abo
 import { LinkOutlinedCard, OutlinedCard } from '../../components/outlined-card';
 import { OutlinedCardTitle } from '../../components/outlined-card-title';
 import { OutlinedCardDescription } from '../../components/outlined-card-description';
+import { Navigation } from '../../components/navigation';
 
 type Props = {
   allPosts: Post[];
@@ -32,6 +33,7 @@ const Blog = ({ allPosts }: Props) => {
           site_name: BlogSiteTitle,
         }}
       />
+      <Navigation />
       <Container>
         <Section title={'Blog'}>
           {allPosts.map((post) => {

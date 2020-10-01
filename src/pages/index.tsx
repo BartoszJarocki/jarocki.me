@@ -20,6 +20,7 @@ import { OutlinedCardTitle } from '../components/outlined-card-title';
 import { OutlinedCardDescription } from '../components/outlined-card-description';
 import { PhotoCard } from '../components/photo-card';
 import { ExternalLink } from '../components/external-link';
+import { Navigation } from '../components/navigation';
 
 type Props = {
   allPosts: Post[];
@@ -40,6 +41,7 @@ const Index = ({ allPosts }: Props) => {
           site_name: SiteTitle,
         }}
       />
+      <Navigation />
       <Container>
         <Header />
         <Section title={'Blog'} hasMore link={'/blog'}>

@@ -15,11 +15,9 @@ type Props = {
 
 export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime }) => {
   return (
-    <div className="top-background">
+    <div className="">
       <div className="container mx-auto max-w-3xl flex flex-col flex-grow justify-center px-5 overflow-x-hidden">
-        <div className="mt-20">
-          <Title>{title}</Title>
-        </div>
+        <Title>{title}</Title>
         <div className="my-8 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:items-center mt-5">
           <Avatar name={author.name} picture={author.picture} />
           <div className="text-base text-gray-700">
