@@ -21,15 +21,15 @@ const prettier = require('prettier');
               .map((page) => {
                 const path = page
                   .replace('pages', '')
+                  .replace('/index', '')
                   .replace('_posts', '/blog')
                   .replace('.tsx', '')
                   .replace('.mdx', '')
                   .replace('src/', '');
-                const route = path === '/index' ? '' : path;
 
                 return `
                         <url>
-                            <loc>https://jarocki.me${route}</loc>
+                            <loc>https://jarocki.me${path}</loc>
                         </url>
                     `;
               })

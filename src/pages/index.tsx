@@ -14,7 +14,6 @@ import { Badge } from '../components/badge';
 import { Section } from '../components/section';
 import { Layout } from '../components/layout';
 import { Container } from '../components/container';
-import { Header } from '../components/header';
 import { LinkOutlinedCard, OutlinedCard } from '../components/outlined-card';
 import { OutlinedCardTitle } from '../components/outlined-card-title';
 import { OutlinedCardDescription } from '../components/outlined-card-description';
