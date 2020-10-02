@@ -1,13 +1,24 @@
 import React from 'react';
 
 type Props = {
-  className?: string;
+  className?: string | null;
   href: string;
 };
 
-export const ExternalLink: React.FC<Props> = ({ className, href, children, ...otherProps }) => {
+export const ExternalLink: React.FC<Props> = ({
+  className = 'underline',
+  href,
+  children,
+  ...otherProps
+}) => {
   return (
-    <a className={className} target="_blank" rel="noopener noreferrer" href={href} {...otherProps}>
+    <a
+      className={className ?? undefined}
+      target="_blank"
+      rel="noopener noreferrer"
+      href={href}
+      {...otherProps}
+    >
       {children}
     </a>
   );
