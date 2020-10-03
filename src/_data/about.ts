@@ -45,15 +45,15 @@ export const CompaniesLinks = [
 export const Books = [
   {
     name: 'Daily stoic by Ryan Holiday',
-    link: 'https://www.amazon.com/Daily-Stoic-Meditations-Wisdom-Perseverance/dp/0735211736/',
+    link: 'https://amzn.to/3n8ATuC',
   },
   {
     name: 'A Guide to the Good Life: The Ancient Art of Stoic Joy by William B. Irvine',
-    link: 'https://www.amazon.com/Guide-Good-Life-Ancient-Stoic-ebook/dp/B0040JHNQG/',
+    link: 'https://amzn.to/3iuL1ud',
   },
   {
     name: 'Atomic Habits by James Clear',
-    link: 'https://www.amazon.com/Atomic-Habits-Proven-Build-Break/dp/0735211299/',
+    link: 'https://amzn.to/3iqimpZ',
   },
 ];
 
