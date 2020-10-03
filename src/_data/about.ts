@@ -223,10 +223,6 @@ export const Quotes = [
     author: '― Marcus Aurelius',
   },
   {
-    content: 'It is not death that a man should fear, but he should fear never beginning to live.',
-    author: '― Marcus Aurelius',
-  },
-  {
     content: 'If it is not right do not do it; if it is not true do not say it.',
     author: '― Marcus Aurelius',
   },
