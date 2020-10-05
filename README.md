@@ -1,33 +1,39 @@
-# A statically generated blog example using Next.js, Markdown, and TypeScript
+# Bartosz Jarocki - Personal site / Blog / Portfolio
 
-This is the existing [blog-starter](https://github.com/vercel/next.js/tree/canary/examples/blog-starter) plus TypeScript.
+This is my personal website built using 
+* [TypeScript](https://www.typescriptlang.org/)
+* [Next JS](https://nextjs.org/)
+* [Gray Matter](https://github.com/jonschlinkert/gray-matter)
+* [Next MDX Remote](https://github.com/hashicorp/next-mdx-remote)
+* [MDX Prism](https://github.com/j0lv3r4/mdx-prism)
+* [Puppeteer](https://github.com/puppeteer/puppeteer)
+* [Tailwind CSS](https://tailwindcss.com)
+* [Fathom Analytics](https://usefathom.com/ref/Z9A64P)
 
-This example showcases Next.js's [Static Generation](https://nextjs.org/docs/basic-features/pages) feature using markdown files as the data source.
+## Running locally
 
-The blog posts are stored in `/_posts` as markdown files with front matter support. Adding a new markdown file in there will create a new blog post.
+Add an .env file with the following values
 
-To create the blog posts we use [`remark`](https://github.com/remarkjs/remark) and [`remark-html`](https://github.com/remarkjs/remark-html) to convert the markdown files into an HTML string, and then send it down as a prop to the page. The metadata of every post is handled by [`gray-matter`](https://github.com/jonschlinkert/gray-matter) and also sent in props to the page.
+```env
+# Used by API to determine how to run headless chrome
+IS_PRODUCTION=
 
-## How to use
+# Where the app is currently running? Used to create links
+NEXT_PUBLIC_SITE_URL=
 
-## Deploy your own
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/git?c=1&s=https://github.com/vercel/next.js/tree/canary/examples/blog-starter-typescript)
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
-
-```bash
-npx create-next-app --example blog-starter-typescript blog-starter-typescript-app
-# or
-yarn create next-app --example blog-starter-typescript blog-starter-typescript-app
+# Fathom analytics
+NEXT_PUBLIC_ANALYTICS_ID=
+NEXT_PUBLIC_ANALYTICS_DOMAINS=
 ```
 
-Your blog should be up and running on [http://localhost:3000](http://localhost:3000)! If it doesn't work, post on [GitHub discussions](https://github.com/vercel/next.js/discussions).
+Clone the repository, run the application
 
-Deploy it to the cloud with [Vercel](https://vercel.com/import?filter=next.js&utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+```bash
+$ git clone https://github.com/BartoszJarocki/web-jarocki-me
+$ cd web-jarocki-me
+$ yarn
+$ yarn dev
+```
 
-# Notes
-
-This blog-starter-typescript uses [Tailwind CSS](https://tailwindcss.com). To control the generated stylesheet's filesize, this example uses Tailwind CSS' v1.4 [`purge` option](https://tailwindcss.com/docs/controlling-file-size/#removing-unused-css) to remove unused CSS.
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
