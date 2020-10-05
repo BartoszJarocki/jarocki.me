@@ -1,4 +1,4 @@
-![website screenshot](screenshot.png)
+![website screenshot](screenshots/screenshot.png)
 
 # Bartosz Jarocki - Personal site / Blog / Portfolio
 
@@ -11,6 +11,7 @@ This is my personal website built using
 - [MDX Prism](https://github.com/j0lv3r4/mdx-prism)
 - [Puppeteer](https://github.com/puppeteer/puppeteer)
 - [Tailwind CSS](https://tailwindcss.com)
+- [NextSEO](https://github.com/garmeeh/next-seo)
 - [Fathom Analytics](https://usefathom.com/ref/Z9A64P)
 
 ## Running locally
@@ -37,6 +38,19 @@ $ cd web-jarocki-me
 $ yarn
 $ yarn dev
 ```
+
+## OG images generation
+
+Application generates Open Graph images automatically using lambda functions and Puppetter
+
+Main page example
+![main page OG image](https://jarocki.me/api/og?title=Bartosz%20Jarocki%20-%20Personal%20website)
+
+Blog post example
+![blog post OG image](https://jarocki.me/api/og?title=React%20Hooks%20-%20a%20few%20rules,%20common%20problems%20and%20how%20to%20solve%20them)
+
+## Credits
+Design inspired by [https://leerob.io/](https://leerob.io/)
 
 ## License
 
