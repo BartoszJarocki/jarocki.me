@@ -1,4 +1,4 @@
-![website screenshot](screenshots/screenshot.png)
+![website screenshot](screenshots/jarocki-me.gif)
 
 # Bartosz Jarocki - Personal site / Blog / Portfolio
 

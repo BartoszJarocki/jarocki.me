@@ -1,6 +1,9 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import {SecondaryButton} from "./secondary-button";
+
+
 
 export const Navigation: React.FC = () => {
   const router = useRouter();
@@ -35,21 +38,15 @@ export const Navigation: React.FC = () => {
             </div>
           )}
         </div>
-        <div className="flex flex-row">
+        <div className="flex flex-row space-x-4">
           <Link href="/">
-            <div className="px-3 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
-              Home
-            </div>
+            <SecondaryButton>Home</SecondaryButton>
           </Link>
           <Link href="/blog">
-            <div className="ml-4 px-3 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
-              Blog
-            </div>
+            <SecondaryButton>Blog</SecondaryButton>
           </Link>
           <Link href="/about">
-            <div className="ml-4 px-3 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
-              About me
-            </div>
+            <SecondaryButton>About me</SecondaryButton>
           </Link>
         </div>
       </div>
