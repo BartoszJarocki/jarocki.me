@@ -55,8 +55,8 @@ const Index = ({ allPosts }: Props) => {
             </ExternalLink>{' '}
             or just <ExternalLink href="mailto:bartosz.jarocki@icloud.com">email me.</ExternalLink>{' '}
             If you're curious, you can read more about me{' '}
-            <Link href={'/about'}>
-              <span className="underline cursor-pointer">here.</span>
+            <Link href={'/about'} passHref={true}>
+              <a className="underline cursor-pointer">here.</a>
             </Link>
           </p>
         </header>

@@ -24,6 +24,7 @@
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "rehype": "^11.0.0",
+    "remark-external-links": "^8.0.0",
     "typescript": "^3.9.2"
   },
   "devDependencies": {

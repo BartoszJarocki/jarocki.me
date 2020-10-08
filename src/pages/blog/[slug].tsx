@@ -2,6 +2,7 @@ import React from 'react';
 import readingTime from 'reading-time';
 import mdxPrism from 'mdx-prism';
 import renderToString from 'next-mdx-remote/render-to-string';
+import externalLinks from 'remark-external-links'
 import hydrate from 'next-mdx-remote/hydrate';
 import path from 'path';
 import fs from 'fs';
@@ -104,7 +105,7 @@ export async function getStaticProps({ params }: Params) {
 
   const mdxSource = await renderToString(content, {
     mdxOptions: {
-      remarkPlugins: [],
+      remarkPlugins: [externalLinks],
       rehypePlugins: [mdxPrism],
     },
     scope: data,
