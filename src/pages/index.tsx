@@ -77,7 +77,7 @@ const Index = ({ allPosts }: Props) => {
                 <OutlinedCard>
                   <OutlinedCardTitle>
                     {project.title}
-                    <div className="flex space-x-2 sm:ml-auto">
+                    <div className="flex space-x-2 sm:ml-auto my-2 sm:my-0">
                       {project.techStack.map((tech) => {
                         return <Badge key={tech}>{tech}</Badge>;
                       })}

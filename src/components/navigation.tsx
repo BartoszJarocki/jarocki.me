@@ -14,8 +14,8 @@ export const Navigation: React.FC = () => {
       <div className="container mx-auto px-5 max-w-3xl flex flex-row justify-end">
         <div className="mr-auto">
           {isBackButtonVisible && (
-            <div
-              className="w-22 flex flex-row justify-center items-center px-4 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none bg-gray-100 hover:bg-gray-300 cursor-pointer"
+            <button
+              className="flex flex-row justify-center items-center px-3 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none bg-gray-100 hover:bg-gray-300 cursor-pointer"
               onClick={() => router.back()}
             >
               <span className="mr-1">
@@ -35,10 +35,10 @@ export const Navigation: React.FC = () => {
                 </svg>
               </span>
               Back
-            </div>
+            </button>
           )}
         </div>
-        <div className="flex flex-row space-x-4">
+        <div className="flex flex-row space-x-2">
           <Link href="/">
             <SecondaryButton>Home</SecondaryButton>
           </Link>
