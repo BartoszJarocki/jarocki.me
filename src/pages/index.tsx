@@ -44,7 +44,7 @@ const Index = ({ allPosts }: Props) => {
         <header>
           <Title>Hey, I’m Bartosz Jarocki</Title>
           <p className="text-base text-gray-700 mt-2">
-            For over decade I work as a software developer. These days I mostly work with full stack
+            For over a decade I work as a software developer. These days I mostly work with full stack
             JavaScript applications. I especially enjoy working with React and creating great user
             experiences. This is my personal piece of the internet. If you have any questions or
             just want to say hi -{' '}

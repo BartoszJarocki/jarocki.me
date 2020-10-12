@@ -12,11 +12,10 @@ export const AboutMeSiteTitle = 'Bartosz Jarocki - About me';
 export const AboutMeSiteDescription = 'Who am I? What am I doing? Everything, and more, is here.';
 export const AboutMeSiteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/about`;
 export const AboutMeContent = `
-  Hey! I'm Bartosz Jarocki and I live in Wrocław, Poland. I grew up in small town Góra. I
-  graduated with a bachelor's degree in Control systems engineering and Robotics on
-  Wrocław University of Technology. I like bikes, books, plants, programming and exploring
-  the world with my wonderful wife Kasia. Also, I’m fascinated by the cosmos and I find
-  great pleasure in watching stars.
+  Hey! I'm Bartosz Jarocki and I live in Wrocław, Poland. I grew up in a small town Góra. 
+  I graduated with a bachelor's degree in Control systems engineering and Robotics at the Wrocław University of Technology. 
+  I like bikes, books, plants, programming, and traveling the world with my wonderful wife Kasia. 
+  Also, I’m fascinated by the cosmos and I find great pleasure in watching stars.
 `;
 
 export const CompaniesLinks = [
@@ -60,13 +59,13 @@ export const Books = [
 export const VideosWorthWatching = [
   {
     name: 'Steve Jobs 2005 Stanford Commencement Address',
-    link: 'https://www.youtube.com/watch?v=UF8uR6Z6KLc'
+    link: 'https://www.youtube.com/watch?v=UF8uR6Z6KLc',
   },
   {
     name: 'Falcon Heavy & Starman',
-    link: 'https://www.youtube.com/watch?v=A0FZIwabctw'
+    link: 'https://www.youtube.com/watch?v=A0FZIwabctw',
   },
-]
+];
 
 export const Podcasts = [
   {
@@ -128,7 +127,7 @@ export const PeopleWorthFollowingOnTwitter = [
     link: 'https://twitter.com/paulg',
   },
   {
-    name: 'John O\'Nolan',
+    name: "John O'Nolan",
     link: 'https://twitter.com/JohnONolan',
   },
   {

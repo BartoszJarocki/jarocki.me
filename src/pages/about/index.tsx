@@ -79,7 +79,7 @@ const AboutMe = () => {
           </p>
         </Section>
         <Section title={'Books'}>
-          Books I think are must read or I simply enjoyed a lot
+          Books I think are must-read or I simply enjoyed a lot
           <ul className="list-disc mt-1">
             {Books.map((book) => (
               <li key={book.name}>
