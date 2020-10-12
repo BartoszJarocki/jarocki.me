@@ -1,6 +1,10 @@
 import React from 'react';
 
-export const Button = React.forwardRef<HTMLButtonElement>(
+type Props = {
+  children?: React.ReactNode;
+};
+
+export const Button = React.forwardRef<HTMLButtonElement, Props>(
   ({ children, ...otherProps }, ref: React.Ref<HTMLButtonElement>) => {
     return (
       <button
