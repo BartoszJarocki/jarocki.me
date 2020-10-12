@@ -10,6 +10,7 @@
   "dependencies": {
     "@tailwindcss/typography": "^0.2.0",
     "@tailwindcss/ui": "^0.6.2",
+    "@types/nprogress": "^0.2.0",
     "chrome-aws-lambda": "^5.2.1",
     "classnames": "2.2.6",
     "date-fns": "2.10.0",
