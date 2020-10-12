@@ -18,6 +18,7 @@
     "mdx-prism": "^0.3.1",
     "next": "latest",
     "next-mdx-remote": "^1.0.0",
+    "nprogress": "^0.2.0",
     "postcss-preset-env": "^6.7.0",
     "prettier": "^2.1.1",
     "puppeteer-core": "^5.2.1",
