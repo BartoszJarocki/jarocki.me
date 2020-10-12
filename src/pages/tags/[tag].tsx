@@ -1,27 +1,23 @@
 import React from 'react';
 
-import { Section } from '../../components/section';
-import { Container } from '../../components/container';
 import { Layout } from '../../components/layout';
 import { NextSeo } from 'next-seo';
 import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../_data/about';
+import { Navigation } from '../../components/navigation';
+import { Container } from '../../components/container';
+import { Section } from '../../components/section';
 import { LinkOutlinedCard } from '../../components/outlined-card';
 import { OutlinedCardTitle } from '../../components/outlined-card-title';
 import { OutlinedCardDescription } from '../../components/outlined-card-description';
-import { Navigation } from '../../components/navigation';
 import { blogApi } from '../../lib/blog/fs-blog-api';
 import { Post } from '../../lib/blog/blog-api';
-import { Badge } from '../../components/badge';
-import { useRouter } from 'next/router';
 
 type Props = {
-  posts: Post[];
-  tags: Array<string>;
+  tag: string;
+  relatedPosts: Post[];
 };
 
-const Blog = ({ posts, tags }: Props) => {
-  const router = useRouter();
-
+const Tag = ({ tag, relatedPosts }: Props) => {
   return (
     <Layout>
       <NextSeo
@@ -38,23 +34,8 @@ const Blog = ({ posts, tags }: Props) => {
       />
       <Navigation />
       <Container>
-        <Section title={'Tags'}>
-          <div className="flex space-x-2 font-mono text-sm text-gray-800 flex-wrap">
-            {tags.map((tag) => (
-              <Badge
-                key={tag}
-                className="cursor-pointer"
-                onClick={() => {
-                  router.push(`/tags/${tag}`);
-                }}
-              >
-                #{tag}
-              </Badge>
-            ))}
-          </div>
-        </Section>
-        <Section title={'All posts'}>
-          {posts.map((post) => {
+        <Section title={`#${tag}`}>
+          {relatedPosts.map((post) => {
             return (
               <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
                 <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
@@ -68,19 +49,41 @@ const Blog = ({ posts, tags }: Props) => {
   );
 };
 
-export default Blog;
+export default Tag;
 
-export const getStaticProps = async () => {
+type Params = {
+  params: {
+    tag: string;
+  };
+};
+
+export async function getStaticProps({ params: { tag } }: Params) {
   return {
     props: {
-      posts: blogApi.getAllPosts([
+      tag,
+      relatedPosts: blogApi.getPostsByTag(tag, [
         'title',
         'date',
         'slug',
         'author',
+        'coverImage',
+        'excerpt',
         'description',
+        'tags',
       ]),
-      tags: blogApi.getAllTags(),
     },
   };
-};
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: blogApi.getAllTags().map((tag) => {
+      return {
+        params: {
+          tag,
+        },
+      };
+    }),
+    fallback: false,
+  };
+}

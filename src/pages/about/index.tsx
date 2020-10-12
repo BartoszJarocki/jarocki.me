@@ -129,7 +129,9 @@ const AboutMe = () => {
         <Section title={'People'}>
           People I think are worth following on Twitter:{' '}
           {PeopleWorthFollowingOnTwitter.map<React.ReactNode>((personOnTwitter) => (
-            <ExternalLink href={personOnTwitter.link}>{personOnTwitter.name}</ExternalLink>
+            <ExternalLink key={personOnTwitter.name} href={personOnTwitter.link}>
+              {personOnTwitter.name}
+            </ExternalLink>
           )).reduce((prev, curr) => [prev, ', ', curr])}
           .
         </Section>

@@ -2,13 +2,9 @@ import React from 'react';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 
-import { getAllPosts } from '../lib/blogApi';
-
 import { Projects } from '../_data/projects';
 import { Travel } from '../_data/travel';
 import { SiteDescription, SiteTitle } from '../_data/about';
-
-import { Post } from '../types/post';
 
 import { Badge } from '../components/badge';
 import { Section } from '../components/section';
@@ -21,6 +17,8 @@ import { PhotoCard } from '../components/photo-card';
 import { ExternalLink } from '../components/external-link';
 import { Navigation } from '../components/navigation';
 import { Title } from '../components/title';
+import { Post } from '../lib/blog/blog-api';
+import { blogApi } from '../lib/blog/fs-blog-api';
 
 type Props = {
   allPosts: Post[];
@@ -111,7 +109,7 @@ const Index = ({ allPosts }: Props) => {
 export default Index;
 
 export const getStaticProps = async () => {
-  const allPosts = getAllPosts(['title', 'slug', 'description', 'date']);
+  const allPosts = blogApi.getAllPosts(['title', 'slug', 'description', 'date']);
 
   return {
     props: { allPosts },

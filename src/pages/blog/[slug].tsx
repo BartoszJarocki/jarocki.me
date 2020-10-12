@@ -2,23 +2,23 @@ import React from 'react';
 import readingTime from 'reading-time';
 import mdxPrism from 'mdx-prism';
 import renderToString from 'next-mdx-remote/render-to-string';
-import externalLinks from 'remark-external-links'
+import externalLinks from 'remark-external-links';
 import hydrate from 'next-mdx-remote/hydrate';
 import path from 'path';
 import fs from 'fs';
 import matter from 'gray-matter';
 
 import { Layout } from '../../components/layout';
-import { getAllPosts } from '../../lib/blogApi';
 import { Container } from '../../components/container';
 import { PostHeader } from '../../components/post-header';
 import { PostBody } from '../../components/post-body';
-import { Author } from '../../types/author';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import { BlogSiteUrl } from '../../_data/about';
 import { ExternalLink } from '../../components/external-link';
 import { OpenGraph } from '../../_data/social-media';
 import { Navigation } from '../../components/navigation';
+import { Author } from '../../lib/blog/blog-api';
+import { blogApi } from '../../lib/blog/fs-blog-api';
 
 type Props = {
   readingTime: {
@@ -32,9 +32,10 @@ type Props = {
   };
   slug: string;
   source: any;
+  tags: Array<string>;
 };
 
-const Post = ({ source, frontMatter, readingTime, slug }: Props) => {
+const Post = ({ source, frontMatter, readingTime, slug, tags }: Props) => {
   const content = hydrate(source);
 
   return (
@@ -69,6 +70,7 @@ const Post = ({ source, frontMatter, readingTime, slug }: Props) => {
         date={frontMatter.date}
         author={frontMatter.author}
         readingTime={readingTime.text}
+        tags={tags}
       />
       <Container>
         <article className="mb-32">
@@ -99,9 +101,7 @@ type Params = {
 };
 
 export async function getStaticProps({ params }: Params) {
-  const postFilePath = path.join('src/_posts', `${params.slug}.mdx`);
-  const source = fs.readFileSync(postFilePath);
-  const { content, data } = matter(source);
+  const { content, data } = blogApi.getRawPostBySlug(params.slug);
 
   const mdxSource = await renderToString(content, {
     mdxOptions: {
@@ -110,6 +110,7 @@ export async function getStaticProps({ params }: Params) {
     },
     scope: data,
   });
+  const tags = data.tags ?? [];
 
   return {
     props: {
@@ -117,12 +118,13 @@ export async function getStaticProps({ params }: Params) {
       readingTime: readingTime(content),
       source: mdxSource,
       frontMatter: data,
+      tags,
     },
   };
 }
 
 export async function getStaticPaths() {
-  const posts = getAllPosts(['slug']);
+  const posts = blogApi.getAllPosts(['slug']);
 
   return {
     paths: posts.map((posts) => {

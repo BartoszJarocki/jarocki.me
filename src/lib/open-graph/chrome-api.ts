@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer-core');
-import { getOptions } from './chromeOptions';
+import { getOptions } from './chrome-options';
 
 async function getPage(isDev: boolean) {
   const options = await getOptions(isDev);

@@ -13,6 +13,10 @@
   </url>
 
   <url>
+    <loc>https://jarocki.me/tags/[tag]</loc>
+  </url>
+
+  <url>
     <loc>https://jarocki.me/blog/being-a-leader</loc>
   </url>
 

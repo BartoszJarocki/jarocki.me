@@ -1,9 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import {SecondaryButton} from "./secondary-button";
-
-
+import { SecondaryButton } from './secondary-button';
 
 export const Navigation: React.FC = () => {
   const router = useRouter();

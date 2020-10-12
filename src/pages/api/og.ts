@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { getScreenshot } from '../../lib/_og/chromeApi';
-import { getHtml } from '../../lib/_og/htmlTemplate';
+import { getScreenshot } from '../../lib/open-graph/chrome-api';
+import { getHtml } from '../../lib/open-graph/html-template';
 
 /**
  * Most common OG image size
