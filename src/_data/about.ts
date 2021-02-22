@@ -54,6 +54,18 @@ export const Books = [
     name: 'Atomic Habits by James Clear',
     link: 'https://amzn.to/3iqimpZ',
   },
+  {
+    name: 'The Black Swan: The Impact of the Highly Improbable by Nassim Nicholas Taleb',
+    link: 'https://amzn.to/2NwihaS',
+  },
+  {
+    name: 'Antifragile: Things That Gain from Disorder by Nassim Nicholas Taleb',
+    link: 'https://amzn.to/3aIG805',
+  },
+  {
+    name: 'Fooled by Randomness: The Hidden Role of Chance in Life and in the Markets by Nassim Nicholas Taleb',
+    link: 'https://amzn.to/3kbvaD9',
+  },
 ];
 
 export const VideosWorthWatching = [
