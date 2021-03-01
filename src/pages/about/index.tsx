@@ -39,10 +39,10 @@ const AboutMe = () => {
       <Container>
         <header>
           <Title>About me</Title>
-          <p className="text-base text-gray-700 mt-2">{AboutMeContent}</p>
+          <p className="prose lg:prose-lg mt-2">{AboutMeContent}</p>
         </header>
         <Section title={'Work'}>
-          <p className="text-base text-gray-700">
+          <p className="prose lg:prose-lg">
             I'm a software developer with over 10 years of experience. I started as a C/C++
             developer, then transitioned to Android world and now I'm mostly focused on developing
             great user experiences using React.
@@ -79,67 +79,79 @@ const AboutMe = () => {
           </p>
         </Section>
         <Section title={'Books'}>
-          Books I think are must-read or I simply enjoyed a lot
-          <ul className="list-disc mt-1">
-            {Books.map((book) => (
-              <li key={book.name}>
-                <ExternalLink href={book.link}>{book.name}</ExternalLink>
-              </li>
-            ))}
-          </ul>
+          <div className="prose lg:prose-lg">
+            Books I think are must-read or I simply enjoyed a lot
+            <ul className="mt-1">
+              {Books.map((book) => (
+                <li key={book.name}>
+                  <ExternalLink href={book.link}>{book.name}</ExternalLink>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Section>
         <Section title={'Videos'}>
-          Random videos I think are worth watching
-          <ul className="list-disc mt-1">
-            {VideosWorthWatching.map((video) => (
-              <li key={video.name}>
-                <ExternalLink href={video.link}>{video.name}</ExternalLink>
-              </li>
-            ))}
-          </ul>
+          <div className="prose lg:prose-lg">
+            Random videos I think are worth watching
+            <ul className="mt-1">
+              {VideosWorthWatching.map((video) => (
+                <li key={video.name}>
+                  <ExternalLink href={video.link}>{video.name}</ExternalLink>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Section>
         <Section title={'Podcasts'}>
-          Podcasts I think are worth listening to
-          <ul className="list-disc mt-1">
-            {Podcasts.map((podcast) => (
-              <li key={podcast.name}>
-                <ExternalLink href={podcast.link}>{podcast.name}</ExternalLink>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4">Episodes I'd recommend the most</p>
-          <ul className="list-disc mt-1">
-            {RecommendedPodcastEpisodes.map((episode) => (
-              <li key={episode.name}>
-                <ExternalLink href={episode.link}>{episode.name}</ExternalLink>
-              </li>
-            ))}
-          </ul>
+          <div className="prose lg:prose-lg">
+            Podcasts I think are worth listening to
+            <ul className="mt-1">
+              {Podcasts.map((podcast) => (
+                <li key={podcast.name}>
+                  <ExternalLink href={podcast.link}>{podcast.name}</ExternalLink>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4">Episodes I'd recommend the most</p>
+            <ul className="mt-1">
+              {RecommendedPodcastEpisodes.map((episode) => (
+                <li key={episode.name}>
+                  <ExternalLink href={episode.link}>{episode.name}</ExternalLink>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Section>
         <Section title={'Blogs'}>
-          Blogs I read
-          <ul className="list-disc mt-1">
-            {Blogs.map((blog) => (
-              <li key={blog.name}>
-                <ExternalLink href={blog.link}>{blog.name}</ExternalLink>
-              </li>
-            ))}
-          </ul>
+          <div className="prose lg:prose-lg">
+            Blogs I read
+            <ul className="mt-1">
+              {Blogs.map((blog) => (
+                <li key={blog.name}>
+                  <ExternalLink href={blog.link}>{blog.name}</ExternalLink>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Section>
         <Section title={'People'}>
-          People I think are worth following on Twitter:{' '}
-          {PeopleWorthFollowingOnTwitter.map<React.ReactNode>((personOnTwitter) => (
-            <ExternalLink key={personOnTwitter.name} href={personOnTwitter.link}>
-              {personOnTwitter.name}
-            </ExternalLink>
-          )).reduce((prev, curr) => [prev, ', ', curr])}
-          .
+          <div className="prose lg:prose-lg">
+            People I think are worth following on Twitter:{' '}
+            {PeopleWorthFollowingOnTwitter.map<React.ReactNode>((personOnTwitter) => (
+              <ExternalLink key={personOnTwitter.name} href={personOnTwitter.link}>
+                {personOnTwitter.name}
+              </ExternalLink>
+            )).reduce((prev, curr) => [prev, ', ', curr])}
+            .
+          </div>
         </Section>
         <Section title={'Quotes'}>
-          Random quotes I found inspirational and meaningful
-          {Quotes.map((quote, index) => (
-            <Quote key={index} quote={quote.content} author={quote.author} />
-          ))}
+          <div className="prose lg:prose-lg">
+            Random quotes I found inspirational and meaningful
+            {Quotes.map((quote, index) => (
+              <Quote key={index} quote={quote.content} author={quote.author} />
+            ))}
+          </div>
         </Section>
       </Container>
     </Layout>

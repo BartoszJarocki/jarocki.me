@@ -7,7 +7,7 @@ type Props = {
 
 export const Quote: React.FC<Props> = ({ quote, author, ...otherProps }) => {
   return (
-    <div className="prose" {...otherProps}>
+    <div {...otherProps}>
       <blockquote>
         <p>{quote}</p>
         {author}

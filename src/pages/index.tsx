@@ -43,7 +43,7 @@ const Index = ({ allPosts }: Props) => {
       <Container>
         <header>
           <Title>Hey, I’m Bartosz Jarocki</Title>
-          <p className="text-base text-gray-700 mt-2">
+          <p className="prose lg:prose-lg">
             For over a decade, I've worked as a software developer. Currently, I'm most skilled in
             full stack Javascript/Typescript development and especially enjoy working with React.
             This is my personal slice of internet, so please enjoy exploring. If you have any
