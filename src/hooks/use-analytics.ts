@@ -11,18 +11,16 @@ export const useAnalytics = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Initialize Fathom when the app loads
     Fathom.load(Config.siteId, {
       includedDomains: Config.domains,
     });
 
-    function onRouteChangeComplete() {
+    const onRouteChangeComplete = (url: string) => {
+      console.log(`Route change completed: ${url}.`);
       Fathom.trackPageview();
-    }
-    // Record a page view when route changes
+    };
     router.events.on('routeChangeComplete', onRouteChangeComplete);
 
-    // Unassign event listener
     return () => {
       router.events.off('routeChangeComplete', onRouteChangeComplete);
     };
