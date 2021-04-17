@@ -13,7 +13,7 @@ export const Navigation: React.FC = () => {
         <div className="mr-auto">
           {isBackButtonVisible && (
             <button
-              className="flex flex-row justify-center items-center px-3 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none bg-gray-100 hover:bg-gray-300 cursor-pointer"
+              className="flex flex-row justify-center items-center px-3 py-2 font-medium text-sm leading-5 rounded-md text-gray-500 hover:text-gray-700 hover:outline-none bg-gray-100 hover:bg-gray-300 duration-200 ease-in-out cursor-pointer"
               onClick={() => router.back()}
             >
               <span className="mr-1">
