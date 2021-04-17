@@ -1,5 +1,12 @@
 export const Projects = [
   {
+    title: 'Monito',
+    techStack: ['Chrome Extension', 'Next.js', '▲Vercel'],
+    description:
+      'Monito records everything that is happening in a web application and allows you to generate test reports quickly.',
+    link: 'https://getmonito.com',
+  },
+  {
     title: 'Barepapers',
     techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
     description: 'Minimalist wallpapers generator.',
