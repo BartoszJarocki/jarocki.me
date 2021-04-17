@@ -29,7 +29,7 @@ export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime, 
             {format(parseISO(date), 'LLLL d, yyyy')} • {readingTime}
           </div>
         </div>
-        <div className="flex flex-row-reverse space-x-2 font-mono text-sm text-gray-800 flex-wrap mb-7">
+        <div className="mt-1 flex sm:flex-row-reverse space-x-2 font-mono text-sm text-gray-800 flex-wrap mb-7">
           {tags.map((tag) => (
             <Badge
               key={tag}
