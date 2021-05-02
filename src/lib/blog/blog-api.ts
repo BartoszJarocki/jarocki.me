@@ -28,6 +28,7 @@ export interface BlogApi {
   getAllSlugs: () => Array<string>;
   getPostBySlug: (slug: string, fields: string[]) => BlogPost;
   getAllPosts: (fields: string[]) => Array<BlogPost>;
+  getLatestPosts: (fields: string[]) => Array<BlogPost>;
   getPostsByTag: (tag: string, fields: string[]) => Array<BlogPost>;
   getAllTags: () => Array<string>;
 }

@@ -1,9 +1,10 @@
 import fs from 'fs';
 import { join } from 'path';
-import matter, { GrayMatterFile } from 'gray-matter';
+import matter from 'gray-matter';
 
 import { BlogApi, BlogPost } from './blog-api';
 
+const latestPostsLimit = 5;
 const postsDirectory = join(process.cwd(), 'src/_posts');
 
 function getRawPostBySlug(slug: string): matter.GrayMatterFile<string> {
@@ -49,6 +50,10 @@ function getAllPosts(fields: string[] = []): Array<BlogPost> {
   );
 }
 
+function getLatestPosts(fields: string[] = []): Array<BlogPost> {
+  return getAllPosts(fields).slice(0, latestPostsLimit);
+}
+
 function getPostsByTag(tag: string, fields: string[] = []): Array<BlogPost> {
   return getAllPosts(fields).filter((post) => {
     const tags = post.tags ?? [];
@@ -72,6 +77,7 @@ export const blogApi: BlogApi = {
   getRawPostBySlug,
   getAllSlugs,
   getAllPosts,
+  getLatestPosts,
   getPostsByTag,
   getPostBySlug,
   getAllTags,

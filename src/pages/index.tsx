@@ -21,10 +21,10 @@ import { Post } from '../lib/blog/blog-api';
 import { blogApi } from '../lib/blog/fs-blog-api';
 
 type Props = {
-  allPosts: Post[];
+  latestPosts: Post[];
 };
 
-const Index = ({ allPosts }: Props) => {
+const Index = ({ latestPosts }: Props) => {
   return (
     <Layout>
       <NextSeo
@@ -59,7 +59,7 @@ const Index = ({ allPosts }: Props) => {
           </p>
         </header>
         <Section title={'Blog'} hasMore link={'/blog'}>
-          {allPosts.map((post) => {
+          {latestPosts.map((post) => {
             return (
               <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
                 <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
@@ -109,9 +109,9 @@ const Index = ({ allPosts }: Props) => {
 export default Index;
 
 export const getStaticProps = async () => {
-  const allPosts = blogApi.getAllPosts(['title', 'slug', 'description', 'date']);
+  const latestPosts = blogApi.getLatestPosts(['title', 'slug', 'description', 'date']);
 
   return {
-    props: { allPosts },
+    props: { latestPosts },
   };
 };
