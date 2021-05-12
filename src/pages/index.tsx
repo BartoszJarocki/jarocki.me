@@ -61,11 +61,7 @@ const Index = ({ latestPosts }: Props) => {
         <Section title={'Blog'} hasMore link={'/blog'}>
           {latestPosts.map((post) => {
             return (
-              <LinkOutlinedCard
-                key={post.title}
-                href={`/blog/${post.slug}`}
-                data-testid={post.title}
-              >
+              <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
                 <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
                 <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
               </LinkOutlinedCard>
