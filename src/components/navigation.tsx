@@ -38,13 +38,13 @@ export const Navigation: React.FC = () => {
         </div>
         <div className="flex flex-row space-x-2">
           <Link href="/">
-            <SecondaryButton>Home</SecondaryButton>
+            <SecondaryButton data-testid={'home'}>Home</SecondaryButton>
           </Link>
           <Link href="/blog">
-            <SecondaryButton>Blog</SecondaryButton>
+            <SecondaryButton data-testid={'blog'}>Blog</SecondaryButton>
           </Link>
           <Link href="/about">
-            <SecondaryButton>About me</SecondaryButton>
+            <SecondaryButton data-testid={'about'}>About me</SecondaryButton>
           </Link>
         </div>
       </div>

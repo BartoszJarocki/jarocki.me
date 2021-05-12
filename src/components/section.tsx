@@ -15,7 +15,7 @@ export const Section: React.FC<Props> = ({ title, hasMore, link, children }) => 
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">{title}</h2>
         {hasMore && (
           <Link href={link!}>
-            <Button>Show all</Button>
+            <Button data-testid={link}>Show all</Button>
           </Link>
         )}
       </div>

@@ -61,7 +61,11 @@ const Index = ({ latestPosts }: Props) => {
         <Section title={'Blog'} hasMore link={'/blog'}>
           {latestPosts.map((post) => {
             return (
-              <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
+              <LinkOutlinedCard
+                key={post.title}
+                href={`/blog/${post.slug}`}
+                data-testid={post.title}
+              >
                 <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
                 <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
               </LinkOutlinedCard>
@@ -71,7 +75,12 @@ const Index = ({ latestPosts }: Props) => {
         <Section title={'Projects'}>
           {Projects.map((project) => {
             return (
-              <ExternalLink className={null} key={project.title} href={project.link}>
+              <ExternalLink
+                className={null}
+                key={project.title}
+                href={project.link}
+                data-testid={project.title}
+              >
                 <OutlinedCard>
                   <OutlinedCardTitle>
                     {project.title}
