@@ -98,7 +98,7 @@ const Index = ({ latestPosts }: Props) => {
               return (
                 <PhotoCard
                   key={dest.title}
-                  imgSrc={`/assets/travel/${dest.imgKey}.jpeg`}
+                  img={dest.img}
                   title={dest.title}
                   subTitle={dest.placesVisited}
                 />
