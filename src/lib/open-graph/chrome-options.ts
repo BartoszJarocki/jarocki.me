@@ -14,7 +14,8 @@ const exePath =
 export async function getOptions(isDev: boolean) {
   let options;
 
-  if (isDev) {
+  const isProduction = process.env.VERCEL_ENV === 'production';
+  if (!isProduction) {
     options = {
       args: [],
       executablePath: exePath,

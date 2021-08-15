@@ -18,7 +18,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       html,
       width: DefaultImageSize.width,
       height: DefaultImageSize.height,
-      isDev: !process.env.IS_PRODUCTION,
     });
 
     res.statusCode = 200;

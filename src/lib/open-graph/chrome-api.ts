@@ -1,8 +1,8 @@
 const puppeteer = require('puppeteer-core');
 import { getOptions } from './chrome-options';
 
-async function getPage(isDev: boolean) {
-  const options = await getOptions(isDev);
+async function getPage() {
+  const options = await getOptions();
   const browser = await puppeteer.launch(options);
 
   return {
@@ -16,7 +16,6 @@ export async function getScreenshot({
   width,
   height,
   type = 'png',
-  isDev,
 }: {
   html: string;
   width: number;
@@ -24,7 +23,7 @@ export async function getScreenshot({
   type?: string;
   isDev: boolean;
 }) {
-  const { page, browser } = await getPage(isDev);
+  const { page, browser } = await getPage();
   await page.setViewport({ width, height });
   await page.setContent(html, { waitUntil: 'networkidle2' });
 

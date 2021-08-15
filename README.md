@@ -19,9 +19,6 @@ This is my personal website built using
 Add an .env file with the following values
 
 ```env
-# Used by API to determine how to run headless chrome
-IS_PRODUCTION=
-
 # Where the app is currently running? Used to create links
 NEXT_PUBLIC_SITE_URL=
 
