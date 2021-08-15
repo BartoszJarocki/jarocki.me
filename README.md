@@ -19,9 +19,6 @@ This is my personal website built using
 Add an .env file with the following values
 
 ```env
-# Where the app is currently running? Used to create links
-NEXT_PUBLIC_SITE_URL=
-
 # Fathom analytics
 NEXT_PUBLIC_ANALYTICS_ID=
 NEXT_PUBLIC_ANALYTICS_DOMAINS=
