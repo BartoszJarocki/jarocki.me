@@ -11,7 +11,7 @@ const exePath =
     ? LinuxChromePath
     : MacOSChromePath;
 
-export async function getOptions(isDev: boolean) {
+export async function getOptions() {
   let options;
 
   const isProduction = process.env.VERCEL_ENV === 'production';
