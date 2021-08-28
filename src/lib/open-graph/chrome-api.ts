@@ -21,7 +21,6 @@ export async function getScreenshot({
   width: number;
   height: number;
   type?: string;
-  isDev: boolean;
 }) {
   const { page, browser } = await getPage();
   await page.setViewport({ width, height });
