@@ -43,7 +43,7 @@ const Index = ({ latestPosts }: Props) => {
       <Container>
         <header>
           <Title>Hey, I’m Bartosz Jarocki</Title>
-          <p className="prose lg:prose-lg">
+          <p className="w-max prose lg:prose-lg">
             For over a decade, I've worked as a software developer. Currently, I'm most skilled in
             full stack Javascript/Typescript development and especially enjoy working with React.
             This is my personal slice of internet, so please enjoy exploring. If you have any
@@ -80,7 +80,7 @@ const Index = ({ latestPosts }: Props) => {
                 <OutlinedCard>
                   <OutlinedCardTitle>
                     {project.title}
-                    <div className="flex space-x-2 sm:ml-auto my-2 sm:my-0">
+                    <div className="flex space-x-2 sm:ml-auto my-2 sm:my-0 font-normal">
                       {project.techStack.map((tech) => {
                         return <Badge key={tech}>{tech}</Badge>;
                       })}

@@ -39,11 +39,11 @@ const Blog = ({ posts, tags }: Props) => {
       <Navigation />
       <Container>
         <Section title={'Tags'}>
-          <div className="flex space-x-2 font-mono text-sm text-gray-800 flex-wrap">
+          <div className="flex font-mono text-sm text-gray-800 flex-wrap">
             {tags.map((tag) => (
               <Badge
                 key={tag}
-                className="cursor-pointer"
+                className="m-1 cursor-pointer"
                 onClick={() => {
                   router.push(`/tags/${tag}`);
                 }}
@@ -73,13 +73,7 @@ export default Blog;
 export const getStaticProps = async () => {
   return {
     props: {
-      posts: blogApi.getAllPosts([
-        'title',
-        'date',
-        'slug',
-        'author',
-        'description',
-      ]),
+      posts: blogApi.getAllPosts(['title', 'date', 'slug', 'author', 'description']),
       tags: blogApi.getAllTags(),
     },
   };

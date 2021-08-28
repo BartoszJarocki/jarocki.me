@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 type Props = {
   name: string;
@@ -8,8 +9,8 @@ type Props = {
 export const Avatar: React.FC<Props> = ({ name, picture }) => {
   return (
     <div className="flex items-center">
-      <img src={picture} className="w-8 h-8 rounded-full mr-2" alt={name} />
-      <div className="text-base text-gray-700">{name}</div>
+      <Image src={picture} width="40" height="40" className="rounded-full" alt={name} />
+      <div className="ml-2 text-base text-gray-700">{name}</div>
     </div>
   );
 };

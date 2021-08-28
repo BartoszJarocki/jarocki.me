@@ -29,11 +29,11 @@ export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime, 
             {format(parseISO(date), 'LLLL d, yyyy')} • {readingTime}
           </div>
         </div>
-        <div className="mt-1 flex sm:flex-row-reverse space-x-2 font-mono text-sm text-gray-800 flex-wrap mb-7">
+        <div className="mt-1 flex sm:flex-row-reverse font-mono text-sm text-gray-800 flex-wrap mb-7">
           {tags.map((tag) => (
             <Badge
               key={tag}
-              className="cursor-pointer duration-200 ease-in-out hover:bg-gray-200"
+              className="m-1 cursor-pointer duration-200 ease-in-out hover:bg-gray-200"
               onClick={() => {
                 router.push(`/tags/${tag}`);
               }}
