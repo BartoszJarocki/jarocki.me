@@ -5,8 +5,6 @@ import renderToString from 'next-mdx-remote/render-to-string';
 import externalLinks from 'remark-external-links';
 import hydrate from 'next-mdx-remote/hydrate';
 import path from 'path';
-import fs from 'fs';
-import matter from 'gray-matter';
 
 import { Layout } from '../../components/layout';
 import { Container } from '../../components/container';
