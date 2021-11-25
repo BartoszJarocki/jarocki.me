@@ -68,6 +68,15 @@ const Index = ({ latestPosts }: Props) => {
             );
           })}
         </Section>
+        <div className="mt-4 border border-gray-400 rounded overflow-hidden">
+          <iframe
+            src="https://jarocki.substack.com/embed"
+            className="w-full"
+            height="320"
+            frameBorder="0"
+            scrolling="no"
+          />
+        </div>
         <Section title={'Projects'}>
           {Projects.map((project) => {
             return (
