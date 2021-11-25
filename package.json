@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
+    "postbuild": "next-sitemap",
     "start": "next start",
     "typecheck": "tsc"
   },
@@ -35,6 +36,7 @@
     "autoprefixer": "^10.2.4",
     "globby": "^11.0.1",
     "next-seo": "^4.9.0",
+    "next-sitemap": "^1.6.203",
     "postcss": "^8.2.6",
     "prettier": "^2.1.1",
     "reading-time": "^1.2.0",
