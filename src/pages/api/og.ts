@@ -3,6 +3,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getScreenshot } from '../../lib/open-graph/chrome-api';
 import { getHtml } from '../../lib/open-graph/html-template';
 
+const cacheMaxAge = 60 * 60 * 24 * 365; // a year
+
 /**
  * Most common OG image size
  */
@@ -13,7 +15,8 @@ const DefaultImageSize = {
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const html = getHtml(req.query.title as string);
+    const title = req.query.title as string;
+    const html = getHtml(title);
     const file = await getScreenshot({
       html,
       width: DefaultImageSize.width,
@@ -22,7 +25,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.statusCode = 200;
     res.setHeader('Content-Type', `image/png`);
-    res.setHeader('Cache-Control', `max-age=${60 * 60 * 24 * 365}, public, stale-while-revalidate`);
+    res.setHeader(
+      'Cache-Control',
+      `public, max-age=${cacheMaxAge}, stale-while-revalidate=${cacheMaxAge}`,
+    );
     res.end(file);
   } catch (e) {
     console.error(e);

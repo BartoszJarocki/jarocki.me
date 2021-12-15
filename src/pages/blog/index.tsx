@@ -39,11 +39,11 @@ const Blog = ({ posts, tags }: Props) => {
       <Navigation />
       <Container>
         <Section title={'Tags'}>
-          <div className="flex font-mono text-sm text-gray-800 flex-wrap">
+          <div className="flex font-mono text-sm text-gray-800 flex-wrap gap-1">
             {tags.map((tag) => (
               <Badge
                 key={tag}
-                className="m-1 cursor-pointer"
+                className="cursor-pointer"
                 onClick={() => {
                   router.push(`/tags/${tag}`);
                 }}
@@ -54,14 +54,16 @@ const Blog = ({ posts, tags }: Props) => {
           </div>
         </Section>
         <Section title={'All posts'}>
-          {posts.map((post) => {
-            return (
-              <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
-                <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
-                <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
-              </LinkOutlinedCard>
-            );
-          })}
+          <div className="space-y-4">
+            {posts.map((post) => {
+              return (
+                <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
+                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
+                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
+                </LinkOutlinedCard>
+              );
+            })}
+          </div>
         </Section>
       </Container>
     </Layout>

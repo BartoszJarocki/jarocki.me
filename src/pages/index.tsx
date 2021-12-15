@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 
@@ -16,9 +17,11 @@ import { OutlinedCardDescription } from '../components/outlined-card-description
 import { PhotoCard } from '../components/photo-card';
 import { ExternalLink } from '../components/external-link';
 import { Navigation } from '../components/navigation';
-import { Title } from '../components/title';
 import { Post } from '../lib/blog/blog-api';
 import { blogApi } from '../lib/blog/fs-blog-api';
+
+import Avatar from '../../public/assets/blog/authors/bartosz.jpeg';
+import { ExternalLinkIcon } from '@heroicons/react/outline';
 
 type Props = {
   latestPosts: Post[];
@@ -42,31 +45,50 @@ const Index = ({ latestPosts }: Props) => {
       <Navigation />
       <Container>
         <header>
-          <Title>Hey, I’m Bartosz Jarocki</Title>
-          <p className="w-max prose lg:prose-lg">
-            For over a decade, I've worked as a software developer. Currently, I'm most skilled in
-            full stack Javascript/Typescript development and especially enjoy working with React.
-            This is my personal slice of internet, so please enjoy exploring. If you have any
-            questions or just want to say hello -{' '}
-            <ExternalLink href="https://twitter.com/messages/compose?recipient_id=512460212">
-              DM me on Twitter
-            </ExternalLink>{' '}
-            or just <ExternalLink href="mailto:bartosz.jarocki@icloud.com">email me.</ExternalLink>{' '}
-            If you're curious, you can read more about me{' '}
-            <Link href={'/about'} passHref={true}>
-              <a className="underline cursor-pointer">here.</a>
-            </Link>
-          </p>
+          <div className="flex flex-col-reverse sm:flex-row justify-between gap-x-12">
+            <div>
+              <h1 className="mt-1 text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+                Bartosz Jarocki
+              </h1>
+              <h2 className="mt-1 text-lg font-medium tracking-tight leading-tight text-gray-500">
+                Full Stack Developer at{' '}
+                <ExternalLink href="https://parabol.co">Parabol</ExternalLink>
+              </h2>
+              <p className="mt-4 text-gray-700 text-base text-left">
+                I'm a passionate software developer with an eye for details. <br />
+                You can read more about me{' '}
+                <Link href={'/about'} passHref={true}>
+                  <a className="underline cursor-pointer">here.</a>
+                </Link>{' '}
+                If out want to reach out,{' '}
+                <ExternalLink href="mailto:bartosz.jarocki@hey.com">
+                  write me an email.
+                </ExternalLink>{' '}
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <Image
+                src={Avatar}
+                width="100"
+                height="100"
+                alt="avatar"
+                className="rounded-full"
+                placeholder="blur"
+              />
+            </div>
+          </div>
         </header>
         <Section title={'Blog'} hasMore link={'/blog'}>
-          {latestPosts.map((post) => {
-            return (
-              <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
-                <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
-                <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
-              </LinkOutlinedCard>
-            );
-          })}
+          <div className="space-y-4">
+            {latestPosts.map((post) => {
+              return (
+                <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
+                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
+                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
+                </LinkOutlinedCard>
+              );
+            })}
+          </div>
         </Section>
         <div className="mt-4 border border-gray-400 rounded overflow-hidden">
           <iframe
@@ -78,28 +100,32 @@ const Index = ({ latestPosts }: Props) => {
           />
         </div>
         <Section title={'Projects'}>
-          {Projects.map((project) => {
-            return (
-              <ExternalLink
-                className={null}
-                key={project.title}
-                href={project.link}
-                data-testid={project.title}
-              >
-                <OutlinedCard>
-                  <OutlinedCardTitle>
-                    {project.title}
-                    <div className="flex space-x-2 sm:ml-auto my-2 sm:my-0 font-normal">
-                      {project.techStack.map((tech) => {
-                        return <Badge key={tech}>{tech}</Badge>;
-                      })}
-                    </div>
-                  </OutlinedCardTitle>
-                  <OutlinedCardDescription>{project.description}</OutlinedCardDescription>
-                </OutlinedCard>
-              </ExternalLink>
-            );
-          })}
+          <div className="space-y-4">
+            {Projects.map((project) => {
+              return (
+                <ExternalLink
+                  className={null}
+                  key={project.title}
+                  href={project.link}
+                  data-testid={project.title}
+                >
+                  <OutlinedCard>
+                    <OutlinedCardTitle>
+                      <span className="inline-flex items-center">
+                        {project.title} <ExternalLinkIcon className="inline h-5 w-5 ml-1" />
+                      </span>
+                      <div className="hidden sm:flex space-x-2 sm:ml-auto my-2 sm:my-0 font-normal">
+                        {project.techStack.map((tech) => {
+                          return <Badge key={tech}>{tech}</Badge>;
+                        })}
+                      </div>
+                    </OutlinedCardTitle>
+                    <OutlinedCardDescription>{project.description}</OutlinedCardDescription>
+                  </OutlinedCard>
+                </ExternalLink>
+              );
+            })}
+          </div>
         </Section>
         <Section title={'Travel'}>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

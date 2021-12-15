@@ -1,5 +1,12 @@
 export const Projects = [
   {
+    title: 'Parabol',
+    techStack: ['TypeScript', 'React', 'Node.js'],
+    description:
+      'Parabol is the Agile meeting co-pilot that helps teams connect, reflect, and progress with less up-front meeting prep. ',
+    link: 'https://github.com/ParabolInc/parabol',
+  },
+  {
     title: 'Monito',
     techStack: ['Chrome Extension', 'Next.js', '▲Vercel'],
     description:

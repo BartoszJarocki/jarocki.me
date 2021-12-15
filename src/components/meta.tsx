@@ -7,11 +7,7 @@ type Props = {
   ogImageUrl?: string;
 };
 
-export const Meta: React.FC<Props> = ({
-  title = 'Bartosz Jarocki - personal site',
-  description = 'My personal piece of internet. I write about React, Android and everything else that I found interesting.',
-  ogImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${title}`,
-}) => {
+export const Meta: React.FC<Props> = () => {
   return (
     <Head>
       <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
@@ -23,7 +19,7 @@ export const Meta: React.FC<Props> = ({
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
-        href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet"
       />
     </Head>

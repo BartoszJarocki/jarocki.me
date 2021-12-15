@@ -39,10 +39,10 @@ const AboutMe = () => {
       <Container>
         <header>
           <Title>About me</Title>
-          <p className="prose lg:prose-lg w-max mt-2">{AboutMeContent}</p>
+          <p className="mt-2 text-gray-700 text-base text-left">{AboutMeContent}</p>
         </header>
         <Section title={'Work'}>
-          <p className="prose lg:prose-lg w-max">
+          <p className="text-gray-700 text-base text-left">
             I'm a software developer with over 10 years of experience. I started as a C/C++
             developer, then transitioned to Android world and now I'm mostly focused on developing
             great user experiences using React.
@@ -79,7 +79,7 @@ const AboutMe = () => {
           </p>
         </Section>
         <Section title={'Books'}>
-          <div className="prose lg:prose-lg">
+          <div className="prose">
             Books I think are must-read or I simply enjoyed a lot
             <ul className="mt-1">
               {Books.map((book) => (
@@ -91,7 +91,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Videos'}>
-          <div className="prose lg:prose-lg">
+          <div className="prose">
             Random videos I think are worth watching
             <ul className="mt-1">
               {VideosWorthWatching.map((video) => (
@@ -103,7 +103,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Podcasts'}>
-          <div className="prose lg:prose-lg">
+          <div className="prose">
             Podcasts I think are worth listening to
             <ul className="mt-1">
               {Podcasts.map((podcast) => (
@@ -123,7 +123,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Blogs'}>
-          <div className="prose lg:prose-lg">
+          <div className="prose">
             Blogs I read
             <ul className="mt-1">
               {Blogs.map((blog) => (
@@ -135,7 +135,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'People'}>
-          <div className="prose lg:prose-lg">
+          <div className="prose">
             People I think are worth following on Twitter:{' '}
             {PeopleWorthFollowingOnTwitter.map<React.ReactNode>((personOnTwitter) => (
               <ExternalLink key={personOnTwitter.name} href={personOnTwitter.link}>
@@ -146,11 +146,13 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Quotes'}>
-          <div className="prose lg:prose-lg">
+          <div className="">
             Random quotes I found inspirational and meaningful
-            {Quotes.map((quote, index) => (
-              <Quote key={index} quote={quote.content} author={quote.author} />
-            ))}
+            <div className="mt-4 space-y-8">
+              {Quotes.map((quote, index) => (
+                <Quote key={index} quote={quote.content} author={quote.author} />
+              ))}
+            </div>
           </div>
         </Section>
       </Container>
