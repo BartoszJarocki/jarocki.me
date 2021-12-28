@@ -5,9 +5,10 @@ export function getHtml(title: string) {
         <meta charset="utf-8">
         <title>Generated Image</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com"> 
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
         <style>
-            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@800&display=swap");
-            
             html,
             body {
               padding: 0;
@@ -43,8 +44,8 @@ export function getHtml(title: string) {
               font-size: 5rem;
               word-wrap: break-word;
               letter-spacing: -0.05em;
-              font-weight: 800;
-              font-family: "Inter", sans-serif;
+              font-weight: 700;
+              font-family: "Space Grotesk", sans-serif;
             }
         </style>
         <body>

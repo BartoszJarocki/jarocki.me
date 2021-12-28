@@ -10,7 +10,7 @@ export const Navigation: React.FC = () => {
   const isBackButtonVisible = router.pathname !== '/';
 
   return (
-    <nav className="flex flex-row items-center justify-center top-background sticky w-full h-28 bg-white bg-opacity-70 z-50 top-0 mb-8 backdrop-blur-xl">
+    <nav className="flex flex-row items-center justify-center top-background sticky w-full h-20 md:h-28 bg-white bg-opacity-70 z-50 top-0 mb-8 backdrop-blur-xl">
       <div className="container mx-auto px-5 max-w-2xl flex flex-row justify-end">
         <div className="mr-auto">
           {isBackButtonVisible && (

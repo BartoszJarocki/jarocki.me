@@ -39,10 +39,10 @@ const AboutMe = () => {
       <Container>
         <header>
           <Title>About me</Title>
-          <p className="mt-2 text-gray-700 text-base text-left">{AboutMeContent}</p>
+          <p className="mt-2 prose">{AboutMeContent}</p>
         </header>
         <Section title={'Work'}>
-          <p className="text-gray-700 text-base text-left">
+          <p className="prose">
             I'm a software developer with over 10 years of experience. I started as a C/C++
             developer, then transitioned to Android world and now I'm mostly focused on developing
             great user experiences using React.

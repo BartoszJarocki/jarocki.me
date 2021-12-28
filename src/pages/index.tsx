@@ -54,7 +54,7 @@ const Index = ({ latestPosts }: Props) => {
                 Full Stack Developer at{' '}
                 <ExternalLink href="https://parabol.co">Parabol</ExternalLink>
               </h2>
-              <p className="mt-4 text-gray-700 text-base text-left">
+              <p className="mt-4 prose">
                 I'm a passionate software developer with an eye for details. <br />
                 You can read more about me{' '}
                 <Link href={'/about'} passHref={true}>
@@ -66,15 +66,8 @@ const Index = ({ latestPosts }: Props) => {
                 </ExternalLink>{' '}
               </p>
             </div>
-            <div className="flex-shrink-0">
-              <Image
-                src={Avatar}
-                width="100"
-                height="100"
-                alt="avatar"
-                className="rounded-full"
-                placeholder="blur"
-              />
+            <div className="flex-shrink-0 overflow-hidden">
+              <Image src={Avatar} width="100" height="100" alt="avatar" className="rounded-full" />
             </div>
           </div>
         </header>

@@ -35,14 +35,16 @@ const Tag = ({ tag, relatedPosts }: Props) => {
       <Navigation />
       <Container>
         <Section title={`#${tag}`}>
-          {relatedPosts.map((post) => {
-            return (
-              <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
-                <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
-                <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
-              </LinkOutlinedCard>
-            );
-          })}
+          <div className="space-y-4">
+            {relatedPosts.map((post) => {
+              return (
+                <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
+                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
+                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
+                </LinkOutlinedCard>
+              );
+            })}
+          </div>
         </Section>
       </Container>
     </Layout>
