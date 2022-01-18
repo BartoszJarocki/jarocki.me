@@ -15,7 +15,7 @@ import {
 import { Navigation } from '../../components/navigation';
 import { Container } from '../../components/container';
 import React from 'react';
-import { Title } from '../../components/title';
+import { PageTitle } from '../../components/page-title';
 import { ExternalLink } from '../../components/external-link';
 import { Section } from '../../components/section';
 import { Quote } from '../../components/quote';
@@ -38,11 +38,11 @@ const AboutMe = () => {
       <Navigation />
       <Container>
         <header>
-          <Title>About me</Title>
-          <p className="mt-2 prose">{AboutMeContent}</p>
+          <PageTitle>About me</PageTitle>
+          <p className="mt-2 prose dark:prose-dark">{AboutMeContent}</p>
         </header>
         <Section title={'Work'}>
-          <p className="prose">
+          <p className="prose dark:prose-dark">
             I'm a software developer with over 10 years of experience. I started as a C/C++
             developer, then transitioned to Android world and now I'm mostly focused on developing
             great user experiences using React.
@@ -79,7 +79,7 @@ const AboutMe = () => {
           </p>
         </Section>
         <Section title={'Books'}>
-          <div className="prose">
+          <div className="prose dark:prose-dark">
             Books I think are must-read or I simply enjoyed a lot
             <ul className="mt-1">
               {Books.map((book) => (
@@ -91,7 +91,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Videos'}>
-          <div className="prose">
+          <div className="prose dark:prose-dark">
             Random videos I think are worth watching
             <ul className="mt-1">
               {VideosWorthWatching.map((video) => (
@@ -103,7 +103,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Podcasts'}>
-          <div className="prose">
+          <div className="prose dark:prose-dark">
             Podcasts I think are worth listening to
             <ul className="mt-1">
               {Podcasts.map((podcast) => (
@@ -123,7 +123,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'Blogs'}>
-          <div className="prose">
+          <div className="prose dark:prose-dark">
             Blogs I read
             <ul className="mt-1">
               {Blogs.map((blog) => (
@@ -135,7 +135,7 @@ const AboutMe = () => {
           </div>
         </Section>
         <Section title={'People'}>
-          <div className="prose">
+          <div className="prose dark:prose-dark">
             People I think are worth following on Twitter:{' '}
             {PeopleWorthFollowingOnTwitter.map<React.ReactNode>((personOnTwitter) => (
               <ExternalLink key={personOnTwitter.name} href={personOnTwitter.link}>

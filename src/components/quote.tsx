@@ -7,7 +7,7 @@ type Props = {
 
 export const Quote: React.FC<Props> = ({ quote, author, ...otherProps }) => {
   return (
-    <blockquote className="bg-gray-100 p-6 rounded-md">
+    <blockquote className="bg-gray-100 dark:bg-gray-800 p-6 rounded-md">
       <div className="relative text-lg font-medium md:flex-grow">
         <svg
           className="absolute top-0 left-0 transform -translate-x-9 -translate-y-9 h-8 w-8 text-gray-300"

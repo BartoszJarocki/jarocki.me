@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 import { Section } from '../../components/section';
 import { Container } from '../../components/container';
@@ -12,7 +13,6 @@ import { Navigation } from '../../components/navigation';
 import { blogApi } from '../../lib/blog/fs-blog-api';
 import { Post } from '../../lib/blog/blog-api';
 import { Badge } from '../../components/badge';
-import { useRouter } from 'next/router';
 
 type Props = {
   posts: Post[];
@@ -20,8 +20,6 @@ type Props = {
 };
 
 const Blog = ({ posts, tags }: Props) => {
-  const router = useRouter();
-
   return (
     <Layout>
       <NextSeo
@@ -38,23 +36,23 @@ const Blog = ({ posts, tags }: Props) => {
       />
       <Navigation />
       <Container>
-        <Section title={'Tags'}>
-          <div className="flex font-mono text-sm text-gray-800 flex-wrap gap-1">
-            {tags.map((tag) => (
-              <Badge
-                key={tag}
-                className="cursor-pointer"
-                onClick={() => {
-                  router.push(`/tags/${tag}`);
-                }}
-              >
-                #{tag}
-              </Badge>
-            ))}
-          </div>
+        <Section>
+          <Section.Title>Tags</Section.Title>
+          <Section.Content>
+            <div className="flex font-mono flex-wrap gap-1">
+              {tags.map((tag) => (
+                <Link href={`/tags/${tag}`}>
+                  <Badge key={tag} className="cursor-pointer">
+                    #{tag}
+                  </Badge>
+                </Link>
+              ))}
+            </div>
+          </Section.Content>
         </Section>
-        <Section title={'All posts'}>
-          <div className="space-y-4">
+        <Section>
+          <Section.Title>All posts</Section.Title>
+          <Section.Content>
             {posts.map((post) => {
               return (
                 <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
@@ -63,7 +61,7 @@ const Blog = ({ posts, tags }: Props) => {
                 </LinkOutlinedCard>
               );
             })}
-          </div>
+          </Section.Content>
         </Section>
       </Container>
     </Layout>

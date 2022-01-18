@@ -11,7 +11,7 @@ export const Layout: React.FC<Props> = ({ children }) => {
   return (
     <>
       <Meta />
-      <div className="w-full h-full flex flex-col">
+      <div className="w-full h-full flex flex-col ">
         <main className="flex-auto">{children}</main>
         <Footer />
       </div>

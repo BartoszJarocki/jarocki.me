@@ -71,18 +71,18 @@ const Post = ({ source, frontMatter, readingTime, slug, tags }: Props) => {
         tags={tags}
       />
       <Container>
-        <article className="mb-32">
+        <div className="mb-32">
           <PostBody>{content}</PostBody>
           <ExternalLink
-            className="block text-xl md:text-3xl font-semibold text-center"
+            className="group block text-xl md:text-3xl font-semibold text-center"
             href={`https://twitter.com/intent/tweet?text=${frontMatter.title} by ${OpenGraph.twitter.handle}, ${BlogSiteUrl}/${slug}`}
           >
-            <h4 className="flex flex-col place-items-center m-5 sm:m-20 text-gray-700 hover:text-blue-400 cursor-pointer duration-200 ease-in-out">
-              <TwitterIcon className="h-10 w-10 m-6 transition-transform transform hover:-rotate-12" />
+            <h4 className="flex flex-col place-items-center m-5 sm:m-20 group-hover:text-blue-400 cursor-pointer duration-200 ease-in-out">
+              <TwitterIcon className="h-10 w-10 m-6 transition-transform transform group-hover:-rotate-12" />
               Click here to share this article with your friends on Twitter if you liked it.
             </h4>
           </ExternalLink>
-        </article>
+        </div>
       </Container>
     </Layout>
   );

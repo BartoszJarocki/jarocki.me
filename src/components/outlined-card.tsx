@@ -8,7 +8,7 @@ type Props = {
 export const OutlinedCard: React.FC = ({ children, ...otherProps }) => {
   return (
     <div
-      className="bg-white hover:bg-slate-100 border border-slate-400 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer"
+      className="hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded duration-200 ease-in-out mt-4 w-full lg:flex cursor-pointer"
       {...otherProps}
     >
       <div className="p-4 flex flex-col flex-grow justify-between leading-normal">{children}</div>
@@ -20,7 +20,7 @@ export const LinkOutlinedCard: React.FC<Props> = ({ children, href, ...otherProp
   return (
     <Link href={href} {...otherProps}>
       <button
-        className="bg-white hover:bg-slate-100 border border-slate-400 rounded duration-200 ease-in-out w-full"
+        className="hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded duration-200 ease-in-out w-full"
         data-testid={href}
       >
         <div className="p-4 flex flex-col flex-grow justify-between leading-normal">{children}</div>

@@ -1,28 +1,27 @@
 import React from 'react';
-import Link from 'next/link';
-import { Button } from './button';
-import { ArrowSmRightIcon } from '@heroicons/react/outline';
 
-type Props = {
-  title: string;
-  hasMore?: boolean;
-  link?: string;
-};
+type Heading = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
-export const Section: React.FC<Props> = ({ title, hasMore, link, children }) => {
+interface TitleProps {
+  as?: Heading;
+  action?: React.ReactNode;
+}
+
+const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, children }) => {
   return (
-    <section>
-      <div className="flex flex-row justify-between items-center mt-12">
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">{title}</h2>
-        {hasMore && (
-          <Link href={link!}>
-            <Button data-testid={link}>
-              Show all <ArrowSmRightIcon className="inline h-5 w-5 ml-1" />
-            </Button>
-          </Link>
-        )}
-      </div>
-      <div className="mt-6">{children}</div>
-    </section>
+    <header className="flex flex-row justify-between items-center mt-12">
+      <TitleComponent className="text-4xl font-extrabold leading-tight">{children}</TitleComponent>
+      {action}
+    </header>
   );
 };
+
+const Content: React.FC = ({ children }) => {
+  return <div className="mt-3 space-y-4">{children}</div>;
+};
+
+const SectionRoot: React.FC = ({ children }) => {
+  return <section>{children}</section>;
+};
+
+export const Section = Object.assign(SectionRoot, { Title, Content });

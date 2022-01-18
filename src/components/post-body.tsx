@@ -1,5 +1,9 @@
 import React from 'react';
 
 export const PostBody: React.FC = ({ children }) => {
-  return <div className="w-full prose lg:prose-lg overflow-y-hidden">{children}</div>;
+  return (
+    <article className="w-full prose md:prose-md dark:prose-dark overflow-y-hidden">
+      {children}
+    </article>
+  );
 };

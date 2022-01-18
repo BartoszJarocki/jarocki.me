@@ -34,8 +34,9 @@ const Tag = ({ tag, relatedPosts }: Props) => {
       />
       <Navigation />
       <Container>
-        <Section title={`#${tag}`}>
-          <div className="space-y-4">
+        <Section>
+          <Section.Title>#{tag}</Section.Title>
+          <Section.Content>
             {relatedPosts.map((post) => {
               return (
                 <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
@@ -44,7 +45,7 @@ const Tag = ({ tag, relatedPosts }: Props) => {
                 </LinkOutlinedCard>
               );
             })}
-          </div>
+          </Section.Content>
         </Section>
       </Container>
     </Layout>
