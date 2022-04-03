@@ -10,7 +10,7 @@ body,
 }
 
 body {
-  @apply antialiased dark:bg-gray-900 text-gray-900 dark:text-gray-50;
+  @apply antialiased dark:bg-gray-900 text-gray-800 dark:text-gray-200;
 }
 
 h1,
@@ -20,9 +20,8 @@ h4,
 h5,
 h6,
 h7 {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Neuton', serif;
 }
-
 
 :root {
   --inlineCode-bg: rgba(255, 229, 100, 0.2);

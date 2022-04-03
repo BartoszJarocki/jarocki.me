@@ -58,7 +58,7 @@ const Index = ({ latestPosts }: Props) => {
         <section className="flex flex-col-reverse sm:flex-row justify-between gap-x-12">
           <header>
             <PageTitle>Bartosz Jarocki</PageTitle>
-            <h2 className="mt-1 text-lg font-semibold leading-tight">
+            <h2 className="mt-1 text-xl font-bold leading-tight">
               Full Stack Developer at <ExternalLink href="https://parabol.co">Parabol</ExternalLink>
             </h2>
             <p className="mt-4 text-md">

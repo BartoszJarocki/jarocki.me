@@ -9,7 +9,7 @@ export const Substack = ({ embedUrl }: Props) => {
         src={embedUrl}
         style={{
           width: '100%',
-          backgroundColor: 'transparent',
+          backgroundColor: 'gray',
         }}
         className="w-full"
         height="320"

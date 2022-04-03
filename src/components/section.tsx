@@ -10,7 +10,7 @@ interface TitleProps {
 const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, children }) => {
   return (
     <header className="flex flex-row justify-between items-center mt-12">
-      <TitleComponent className="text-4xl font-extrabold leading-tight">{children}</TitleComponent>
+      <TitleComponent className="text-5xl font-extrabold leading-tight">{children}</TitleComponent>
       {action}
     </header>
   );
