@@ -24,9 +24,6 @@ module.exports = {
           900: '#111111',
         },
       },
-      fontFamily: {
-        sans: ['Inter', ...fontFamily.sans],
-      },
       typography: (theme) => ({
         DEFAULT: {
           css: {

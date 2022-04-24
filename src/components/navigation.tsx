@@ -19,7 +19,7 @@ export const Navigation: React.FC = () => {
 
   return (
     <nav className="flex flex-row items-center justify-center top-background sticky w-full h-20 z-50 top-0 mb-8 backdrop-blur-xl">
-      <div className="container mx-auto px-5 max-w-2xl flex flex-row justify-end">
+      <div className="container mx-auto px-5 max-w-5xl flex flex-row justify-end">
         <div className="mr-auto">
           {isBackButtonVisible && (
             <Button onClick={() => router.back()} data-testid={'back-button'}>
@@ -31,11 +31,6 @@ export const Navigation: React.FC = () => {
           <Link href="/">
             <Button data-testid={'back-btn'}>
               <HomeIcon className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link href="/blog">
-            <Button data-testid={'blog-btn'}>
-              <BookOpenIcon className="h-5 w-5" />
             </Button>
           </Link>
           <Link href="/about">

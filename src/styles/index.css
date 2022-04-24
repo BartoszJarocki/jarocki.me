@@ -9,18 +9,15 @@ body,
   height: 100%;
 }
 
-body {
-  @apply antialiased dark:bg-gray-900 text-gray-800 dark:text-gray-200;
-}
-
 h1,
 h2,
 h3,
-h4,
-h5,
-h6,
-h7 {
+h4 {
   font-family: 'Neuton', serif;
+}
+
+body {
+  @apply antialiased dark:bg-gray-900 text-gray-800 dark:text-gray-200;
 }
 
 :root {

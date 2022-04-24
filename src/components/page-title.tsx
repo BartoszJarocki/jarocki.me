@@ -1,5 +1,5 @@
 import React from 'react';
 
 export const PageTitle: React.FC = ({ children }) => {
-  return <h1 className="text-6xl font-black leading-none">{children}</h1>;
+  return <h1 className="text-4xl sm:text-6xl font-extrabold leading-none">{children}</h1>;
 };
