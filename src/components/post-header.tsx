@@ -20,7 +20,7 @@ export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime, 
   const router = useRouter();
 
   return (
-    <div className="container mx-auto max-w-2xl flex flex-col flex-grow justify-center overflow-x-hidden">
+    <div className="container mx-auto max-w-2xl px-6 sm:px-0 flex flex-col flex-grow justify-center overflow-x-hidden">
       <div className="flex font-mono text-sm text-gray-800 flex-wrap gap-1">
         {tags.map((tag) => (
           <Badge
