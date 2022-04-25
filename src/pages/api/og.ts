@@ -27,7 +27,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Content-Type', `image/png`);
     res.setHeader(
       'Cache-Control',
-      `public, max-age=${cacheMaxAge}, stale-while-revalidate=${cacheMaxAge}`,
+      `public, immutable, no-transform, s-maxage=${cacheMaxAge}, max-age=${cacheMaxAge}`,
     );
     res.end(file);
   } catch (e) {

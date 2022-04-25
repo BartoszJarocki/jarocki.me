@@ -81,7 +81,9 @@ const Index = ({ latestPosts }: Props) => {
             action={
               <Link href="/blog">
                 <Button data-testid="btn-blog-show-all">
-                  Show all <ArrowSmRightIcon className="inline h-5 w-5 ml-1" />
+                  <span className="inline-flex px-1 justify-center items-center">
+                    Show all <ArrowSmRightIcon className="inline h-5 w-5 ml-1" />
+                  </span>
                 </Button>
               </Link>
             }
@@ -116,7 +118,7 @@ const Index = ({ latestPosts }: Props) => {
                       <span className="inline-flex items-center">
                         {project.title} <ExternalLinkIcon className="inline h-5 w-5 ml-1" />
                       </span>
-                      <div className="hidden sm:flex space-x-2 sm:ml-auto my-2 sm:my-0 font-normal">
+                      <div className="hidden font-mono sm:flex space-x-2 sm:ml-auto my-2 sm:my-0">
                         {project.techStack.map((tech) => {
                           return <Badge key={tech}>{tech}</Badge>;
                         })}
