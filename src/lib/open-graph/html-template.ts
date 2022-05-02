@@ -43,7 +43,6 @@ export function getHtml(title: string) {
             .title {
               font-size: 5rem;
               word-wrap: break-word;
-              letter-spacing: -0.05em;
               font-weight: 800;
               font-family: 'Neuton', serif;
             }
