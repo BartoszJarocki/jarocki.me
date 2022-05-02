@@ -170,7 +170,7 @@ const AboutMe = () => {
           <Section.Title as="h2">Quotes</Section.Title>
           <Section.Content>
             Random quotes I found inspirational and meaningful
-            <div className="mt-8 space-y-8">
+            <div className="mt-8 space-y-8 px-4">
               {Quotes.map((quote, index) => (
                 <Quote key={index} quote={quote.content} author={quote.author} />
               ))}
