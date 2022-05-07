@@ -1,0 +1,259 @@
+---
+title: Creating custom React Hook - useMediaStream
+tags: ['react', 'javascript']
+date: "2019-07-15T23:46:37.121Z"
+description: Creating custom React Hook for getting media stream
+author:
+  name: Bartosz Jarocki
+  picture: '/assets/blog/authors/bartosz.jpeg'
+---
+
+Recently I was playing with MediaStream API. It turned out, it was a great time to play with React Hooks.
+Let's create a simple React component which displays a stream from your computer camera. And by the way, this post assumes
+you have a basic understanding of [React Hooks](https://reactjs.org/hooks).
+
+```js
+import React from "react"
+
+export const Stream = ({ className, stream }) => {
+  const setVideoRef = videoElement => {
+    if (videoElement) {
+      videoElement.srcObject = stream
+    }
+  }
+
+  return <video className={className} autoPlay={true} ref={setVideoRef} />
+}
+```
+
+Nothing really to describe here, it's just getting video object reference and setting stream as `srcObject`.
+Now, we are going to grab video stream using [getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia).
+For this blog post purpose, we are not going to dig deep into constraints creation so we're just gonna use
+
+```js
+{
+  video: true
+}
+```
+
+which basically means, we just want to grab video stream.
+
+Now it's time to create `VideoFeed` component and actually, request some streams.
+
+```jsx {2,11-26}
+export const VideoFeed = () => {
+  const [stream, setStream] = useState(null)
+
+  // we won't be using setConstraints but keeping this as state is needed
+  // to actually be able get another stream, when conststrains change
+  const [constraints, setConstraints] = useState({
+    video: true,
+  })
+
+  // initialize streams
+  useEffect(() => {
+    const getMediaStream = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        )
+
+        console.log("Setting stream", mediaStream)
+        setStream(mediaStream)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    getMediaStream()
+  })
+
+  return (
+    <div className="video-feed">
+      <Stream className="video-feed-stream" stream={stream} />
+    </div>
+  )
+}
+```
+
+Looks nice and clean. Unfortunately, when you try this you'll notice infinite loop of getting and setting the stream.
+It's happening because we forgot to pass the second argument of `useEffect` hook.
+As a result, the current flow is the following:
+
+1. After calling `getUserMedia` the stream is set as a state which causes rerendering of the component
+2. `useEffect` is rerun because we haven't specified any conditions for running it
+
+So let's specify the conditions.
+
+```jsx {26}
+export const VideoFeed = () => {
+  const [stream, setStream] = useState(null)
+
+  // we won't be using setConstraints but keeping this as state is needed
+  // to actually be able get another stream, when conststrains change
+  const [constraints, setConstraints] = useState({
+    video: true,
+  })
+
+  // initialize streams
+  useEffect(() => {
+    const getMediaStream = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        )
+
+        console.log("Setting stream", mediaStream)
+        setStream(mediaStream)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    getMediaStream()
+  }, [constraints])
+
+  return (
+    <div className="video-feed">
+      <Stream className="video-feed-stream" stream={stream} />
+    </div>
+  )
+}
+```
+
+Now it works. Well, kind of. You'll notice your camera is still on, even after navigating out of the page.
+Whenever the stream is obtained using `getUserMedia` it has to be stopped when it's no longer needed. To fix that,
+we need to use another effect, which will clean up the stream when the component is unmounted. 
+
+```jsx {29-42}
+export const VideoFeed = () => {
+  const [stream, setStream] = useState(null)
+
+  // we won't be using setConstraints but keeping this as state is needed
+  // to actually be able get another stream, when conststrains change
+  const [constraints, setConstraints] = useState({
+    video: true,
+  })
+
+  // initialize streams
+  useEffect(() => {
+    const getMediaStream = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        )
+
+        console.log("Setting stream", mediaStream)
+        setStream(mediaStream)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    getMediaStream()
+  }, [constraints])
+
+  // cleanup streams
+  useEffect(() => {
+    return () => {
+      if (!stream) {
+        return
+      }
+
+      console.log("Cleaning up stream.", stream)
+
+      const tracks = stream.getTracks()
+      tracks.forEach(track => {
+        track.stop()
+      })
+    }
+  }, [stream])
+
+  return (
+    <div className="video-feed">
+      <Stream className="video-feed-stream" stream={stream} />
+    </div>
+  )
+}
+```
+
+The effect, we've just added, will be run only when the stream's changed.
+At this point, our component starts to be a bit too complex.
+On the other hand, obtaining a stream and performing a cleanup looks like a perfect piece of code to extract as a custom hook.
+Custom hooks are just pure JavaScript functions which allow reusing stateful logic. We can just grab every single line related to this and extract a function - `useMediaStream`.
+
+```js {43}
+import { useState, useEffect } from "react"
+
+export const useMediaStream = constraints => {
+  const [stream, setStream] = useState(null)
+
+  // initialize streams
+  useEffect(() => {
+    const getMediaStream = async () => {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia(
+          constraints
+        )
+
+        console.log("Stream fetched", mediaStream)
+        setStream(mediaStream)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    if (!constraints) {
+      console.log("Constraints not provided, the stream will not be fetched.")
+      return
+    }
+
+    getMediaStream()
+  }, [constraints])
+
+  // cleanup streams
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        const tracks = stream.getTracks()
+        tracks.forEach(track => {
+          track.stop()
+        })
+
+        return
+      }
+    }
+  }, [stream])
+
+  return stream
+}
+```
+
+Now, we can use our custom hook to make our component much smaller.
+
+```jsx
+import React, { useState } from "react"
+
+import { Stream } from "./Stream"
+import { useMediaStream } from "../../media/useMediaStream"
+
+export const VideoFeed = () => {
+  const [constraints, setConstraints] = useState({
+    video: true,
+  })
+
+  const stream = useMediaStream(constraints)
+
+  return (
+    <div className="video-feed">
+      <Stream className="video-feed-stream" stream={stream} />
+    </div>
+  )
+}
+```
+
+That's it, we have a nice reusable hook. If you're interested in the more in-depth description of creating custom React Hooks check out the following
+
+1. [Building Your Own Hooks](https://reactjs.org/docs/hooks-custom.html)
+2. [Rules of Hooks](https://reactjs.org/docs/hooks-rules.html)
+3. [Why Isn’t X a Hook?](https://overreacted.io/why-isnt-x-a-hook/)

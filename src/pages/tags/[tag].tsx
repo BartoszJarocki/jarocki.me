@@ -2,20 +2,47 @@ import React from 'react';
 
 import { Layout } from '../../components/layout';
 import { NextSeo } from 'next-seo';
-import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../_data/about';
+import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 import { Navigation } from '../../components/navigation';
 import { Container } from '../../components/container';
 import { Section } from '../../components/section';
 import { LinkOutlinedCard } from '../../components/outlined-card';
 import { OutlinedCardTitle } from '../../components/outlined-card-title';
 import { OutlinedCardDescription } from '../../components/outlined-card-description';
-import { blogApi } from '../../lib/blog/fs-blog-api';
-import { Post } from '../../lib/blog/blog-api';
 
-type Props = {
+import { allBlogs } from 'contentlayer/generated';
+import type { Blog } from 'contentlayer/generated';
+
+import { compareDesc } from 'date-fns';
+
+export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
+  const relatedPosts = allBlogs
+    .sort((a, b) => {
+      return compareDesc(new Date(a.date), new Date(b.date));
+    })
+    .filter((post) => post.tags.includes(tag));
+  const tags = Array.from(new Set(relatedPosts.map((post) => post.tags).flat()));
+  return { props: { relatedPosts, tags } };
+}
+
+export async function getStaticPaths() {
+  const tags = Array.from(new Set(allBlogs.map((post) => post.tags).flat()));
+  return {
+    paths: tags.map((tag) => {
+      return {
+        params: {
+          tag,
+        },
+      };
+    }),
+    fallback: false,
+  };
+}
+
+interface Props {
   tag: string;
-  relatedPosts: Post[];
-};
+  relatedPosts: Blog[];
+}
 
 const Tag = ({ tag, relatedPosts }: Props) => {
   return (
@@ -53,40 +80,3 @@ const Tag = ({ tag, relatedPosts }: Props) => {
 };
 
 export default Tag;
-
-type Params = {
-  params: {
-    tag: string;
-  };
-};
-
-export async function getStaticProps({ params: { tag } }: Params) {
-  return {
-    props: {
-      tag,
-      relatedPosts: blogApi.getPostsByTag(tag, [
-        'title',
-        'date',
-        'slug',
-        'author',
-        'coverImage',
-        'excerpt',
-        'description',
-        'tags',
-      ]),
-    },
-  };
-}
-
-export async function getStaticPaths() {
-  return {
-    paths: blogApi.getAllTags().map((tag) => {
-      return {
-        params: {
-          tag,
-        },
-      };
-    }),
-    fallback: false,
-  };
-}

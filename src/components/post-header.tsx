@@ -6,12 +6,11 @@ import { PageTitle } from './page-title';
 import { Avatar } from './avatar';
 
 import { Badge } from './badge';
-import { Author } from '../lib/blog/blog-api';
 
 type Props = {
   title: string;
   date: string;
-  author: Author;
+  author: { name: string; picture: string };
   readingTime: string;
   tags: Array<string>;
 };

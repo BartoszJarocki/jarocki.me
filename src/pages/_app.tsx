@@ -6,7 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import '../styles/index.css';
 
 import { useAnalytics } from '../hooks/use-analytics';
-import { OpenGraph } from '../_data/social-media';
+import { OpenGraph } from '../data/social-media';
 
 export default function App({ Component, pageProps }: AppProps) {
   useAnalytics();

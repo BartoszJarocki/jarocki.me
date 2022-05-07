@@ -1,0 +1,175 @@
+---
+title: React Hooks - a few rules, common problems and how to solve them
+tags: ['react', 'javascript']
+date: "2019-08-07T23:46:37.121Z"
+description: I thought they were confusing, now I can't really work without them.
+author:
+  name: Bartosz Jarocki
+  picture: '/assets/blog/authors/bartosz.jpeg'
+---
+
+When React introduced Hooks I was a bit skeptical. I was used to all the lifecycle methods and it felt natural.
+On the other hand, I knew I fixed (and introduced myself) countless number of bugs related to the wrong implementation of `componentDidUpdate`
+like having stale data, fetching data for wrong props, updating/recreating unnecessary objects and many more.
+React Hooks and the way they work force you to change the way you think about components. Previously it was
+about finding the right component lifecycle method, now it's when and why you want to do particular side effects.
+Here are the things I've learned past few months which I think are important to know about using Hooks.
+
+1. **Always** use [eslint-plugin-react-hooks](https://github.com/facebook/react/tree/master/packages/eslint-plugin-react-hooks). 
+  It will point you most common errors like using wrong dependencies, calling Hooks inside conditionals, loops or nested functions.
+
+2. This might seem obvious but remember to only use Hooks in React function components and custom Hooks. You **can not** use Hooks in class components.
+
+3. Do not use a single state variable for all you state data. Try to group them based on what data change together.
+  The `useState` hook replaces the state value every time you call `setState`, not merges it (it does in a class component!).
+
+    ```js
+    function MyComponent() {
+      const [state, setState] = useState({
+        someState: null,
+        otherState: "initial value",
+      })
+      // ...
+
+      // 🔴 there's no `otherState` anymore!
+      setState({ someState: "new value" })
+    }
+    ```
+
+    The recommended way is to split all you state data into a separate state like this
+
+    ```js
+    function MyComponent() {
+      const [someState, setSomeState] = useState(null)
+      const [otherState, setOtherstate] = useState("initial value")
+      // ...
+
+      // ✅ otherState remains untouched
+      setSomeState("new value") 
+    }
+    ```
+
+    If you really want to use one state variable for some reason you can do the following
+
+    ```js
+    function MyComponent() {
+      const [state, setState] = useState({
+        someState: null,
+        otherState: "initial value",
+      })
+      // ...
+
+      // ✅ otherState remains untouched too
+      setState(state => ({ ...state, someState: "new value" })) 
+    }
+    ```
+
+    or... create a custom Hook which will manage complex state for you.
+
+4. Instead of trying to mimic lifecycle method, think - with which state (by state here I mean everything - state, props, functions, and any other data) this effect synchronize with?
+
+    ```js
+    function MyComponent() {
+      // ✅ syncs with ALL the state - runs EVERY render
+      useEffect(() => {
+      // do something
+      }) 
+    }
+    ```
+
+    ```js
+    function MyComponent() {
+      // ✅ syncs with NO the state - runs ONCE after rendering
+      useEffect(() => {
+      // do something
+      }, [])
+    }
+    ```
+
+    ```js
+    function MyComponent({ myProp }) {
+      const [someState, setSomeState] = useState(null)
+
+      // ✅ syncs with myProp and someState - it'll be run every time one of them changes
+      useEffect(() => {
+      // do something
+      }, [myProp, someState])
+    }
+    ```
+
+5. Be careful when you specify dependencies of `useEffect`, they're compared using `Object.is()`
+
+    ```js
+    function MyComponent() {
+      const someObject = {
+        prop: "test",
+      }
+
+      // 🔴 it'll run EVERY render! someObject is different on every render in terms of reference!
+      useEffect(() => {
+      // do something
+      }, [someObject])
+    }
+    ```
+
+    it's because when you run the following
+
+    ```js
+    const someObject = {
+      prop: "test",
+    }
+    const verySomeObject = {
+      prop: "test",
+    }
+    Object.is(someObject, verySomeObject)
+    ```
+
+    the result will be `false`. To avoid this you can either make sure objects are recreated only when they actually change, make them a state or use
+    a custom hook which would do a deep comparison.
+
+6. Remember to clean up an effect - unsubscribe from a data source, clear intervals, stop stream or whatever might be still running after effect is done.
+ It is achieved by providing a return function to your effect.
+
+    ```js
+    function MyComponent({ id }) {
+      useEffect(() => {
+        const subscription = DataSource.subscribe(id)
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      }, [id]);
+    }
+    ```
+
+7. **Do not** use `async` function as `useEffect` param. With the following implementation
+
+    ```js
+    function MyComponent() {
+      useEffect(async () => {
+      /* ... */
+      });
+    }
+    ```
+
+    you'll get 
+    > Warning: useEffect function must return a cleanup function or nothing. Promises and useEffect(async () => …) are not supported, but you can call an async function inside an effect
+
+    it's because `async` function returns an implicit promise and `useEffect` expects `cleanup function or nothing`. Instead, you should do this
+
+    ```js
+    function MyComponent() {
+      useEffect(() => {
+        const asyncOperation = async () => { /* .... */ }
+
+        asyncOperation()
+      });
+    }
+    ```
+
+8. If you're missing `PureComponent`, `shouldComponentUpdate` and want to optimize your function component, `React.memo` will be what you are looking for.
+
+------
+
+There's probably more but all of the above happened to me. I understand if you think this might sound overwhelming but now I can say that without any doubts - **Hooks allow creating less error-prone and better-designed components with less code.**
+

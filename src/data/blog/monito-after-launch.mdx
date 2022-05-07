@@ -1,0 +1,41 @@
+---
+title: Monito, two weeks after launch
+tags: ['monito', 'browser extension', 'react', 'typescript']
+date: '2021-05-17T07:30:00Z'
+description: No audience, just Product Hunt and Hacker News launch. How did it go?
+author:
+    name: Bartosz Jarocki
+    picture: '/assets/blog/authors/bartosz.jpeg'
+---
+
+![Monito - screenshot](https://s3.eu-north-1.amazonaws.com/jarocki.me/blog/open-graph.png "Monito")
+It’s been two weeks since I launched Monito on Product Hunt and Hacker News. Initially, the number blew my mind. On the first day, the Monito landing page had 3400 unique visitors, 180 trails started, and five sales. Now, after the dust has settled, it gets around 50 unique visitors and a few trails. You can find the numbers [here.](https://app.usefathom.com/share/bpgfpxiq/getmonito.com)
+
+I consider it a success. Users who bought the extension are actively submitting feedback and using the product. I received excellent ideas for new features and improvements. What’s most important, I’m pretty sure right now the time I’ve spent on this isn’t wasted, and the idea is validated.
+
+## New features
+Since launch, I’ve added a few, the most requested features. Now, Monito automatically generates end-to-end Cypress, Playwright, and Puppeteer tests. It’s not a trivial functionality, and I’ll continue to improve it.
+
+![Monito - e2e generation](https://s3.eu-north-1.amazonaws.com/jarocki.me/blog/monito-e2e.gif "Monito")
+
+Generated logs archive currently also contains logs as static, styled HTML. It makes data easier to read and analyze. Also, all the screenshots and screen recordings made during the testing are automatically added to the generated archive. I believe it’ll save a lot of time and repetitive work. I’ve also updated UI a bit to make it more compact and precise.
+
+![Monito - static html](https://s3.eu-north-1.amazonaws.com/jarocki.me/blog/static-html.png "Monito")
+
+Screenshots and screen recordings are now also visible in logs. It's straightforward to see how the tested application looked like at the exact moment.
+
+![Monito - screen recordings in logs](https://s3.eu-north-1.amazonaws.com/jarocki.me/blog/screen-recording-logs.png "Monito")
+![Monito - screenshots in logs](https://s3.eu-north-1.amazonaws.com/jarocki.me/blog/screenshot-logs.png "Monito")
+
+The landing page was refreshed as well. Now it makes more explicit what Monito does and how it works. The performance and SEO have been also improved.
+
+![Monito - landing](https://s3.eu-north-1.amazonaws.com/jarocki.me/blog/monito-landing.png "Monito")
+
+## What’s next
+
+1. Start a blog on Monito website to improve SEO
+2. Continue improving end-to-end tests generation
+3. Start working on more advanced filters to be able to eliminate the noise from logs
+4. Start working on ‘Show suspicious’, which will only show events that might cause issues like failed network requests, error logs, timeouts, and more
+5. Improve the UI of the logs to make it more clear and easy to read
+

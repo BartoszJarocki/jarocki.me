@@ -11,7 +11,7 @@ import {
   Quotes,
   RecommendedPodcastEpisodes,
   VideosWorthWatching,
-} from '../../_data/about';
+} from '../../data/about';
 import { Navigation } from '../../components/navigation';
 import { Container } from '../../components/container';
 import React from 'react';

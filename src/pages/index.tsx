@@ -3,9 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 
-import { Projects } from '../_data/projects';
-import { Travel } from '../_data/travel';
-import { SiteDescription, SiteTitle } from '../_data/about';
+import { Projects } from '../data/projects';
+import { Travel } from '../data/travel';
+import { SiteDescription, SiteTitle } from '../data/about';
 
 import { Badge } from '../components/badge';
 import { Section } from '../components/section';
@@ -17,8 +17,6 @@ import { OutlinedCardDescription } from '../components/outlined-card-description
 import { PhotoCard } from '../components/photo-card';
 import { ExternalLink } from '../components/external-link';
 import { Navigation } from '../components/navigation';
-import { Post } from '../lib/blog/blog-api';
-import { blogApi } from '../lib/blog/fs-blog-api';
 
 import Avatar from '../../public/assets/blog/authors/bartosz.jpeg';
 import { ArrowSmRightIcon, ExternalLinkIcon } from '@heroicons/react/outline';
@@ -26,8 +24,17 @@ import { PageTitle } from '../components/page-title';
 import { Button } from '../components/button';
 import { Substack } from '../components/substack';
 
+import { compareDesc } from 'date-fns';
+import { allBlogs } from 'contentlayer/generated';
+import type { Blog } from 'contentlayer/generated';
+
+const latestPostsLimit = 5;
 export const getStaticProps = async () => {
-  const latestPosts = blogApi.getLatestPosts(['title', 'slug', 'description', 'date']);
+  const latestPosts = allBlogs
+    .sort((a, b) => {
+      return compareDesc(new Date(a.date), new Date(b.date));
+    })
+    .slice(0, latestPostsLimit);
 
   return {
     props: { latestPosts },
@@ -35,7 +42,7 @@ export const getStaticProps = async () => {
 };
 
 type Props = {
-  latestPosts: Post[];
+  latestPosts: Blog[];
 };
 
 const Index = ({ latestPosts }: Props) => {

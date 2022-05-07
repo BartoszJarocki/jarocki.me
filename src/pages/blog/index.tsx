@@ -5,19 +5,30 @@ import { Section } from '../../components/section';
 import { Container } from '../../components/container';
 import { Layout } from '../../components/layout';
 import { NextSeo } from 'next-seo';
-import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../_data/about';
+import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 import { LinkOutlinedCard } from '../../components/outlined-card';
 import { OutlinedCardTitle } from '../../components/outlined-card-title';
 import { OutlinedCardDescription } from '../../components/outlined-card-description';
 import { Navigation } from '../../components/navigation';
-import { blogApi } from '../../lib/blog/fs-blog-api';
-import { Post } from '../../lib/blog/blog-api';
 import { Badge } from '../../components/badge';
 
-type Props = {
-  posts: Post[];
+import { allBlogs } from 'contentlayer/generated';
+import type { Blog } from 'contentlayer/generated';
+
+import { compareDesc } from 'date-fns';
+
+export async function getStaticProps() {
+  const posts = allBlogs.sort((a, b) => {
+    return compareDesc(new Date(a.date), new Date(b.date));
+  });
+  const tags = Array.from(new Set(posts.map((post) => post.tags).flat()));
+  return { props: { posts, tags } };
+}
+
+interface Props {
+  posts: Blog[];
   tags: Array<string>;
-};
+}
 
 const Blog = ({ posts, tags }: Props) => {
   return (
@@ -41,10 +52,8 @@ const Blog = ({ posts, tags }: Props) => {
           <Section.Content>
             <div className="flex font-mono flex-wrap gap-1">
               {tags.map((tag) => (
-                <Link href={`/tags/${tag}`}>
-                  <Badge key={tag} className="cursor-pointer">
-                    #{tag}
-                  </Badge>
+                <Link href={`/tags/${tag}`} key={tag}>
+                  <Badge className="cursor-pointer">#{tag}</Badge>
                 </Link>
               ))}
             </div>
@@ -69,12 +78,3 @@ const Blog = ({ posts, tags }: Props) => {
 };
 
 export default Blog;
-
-export const getStaticProps = async () => {
-  return {
-    props: {
-      posts: blogApi.getAllPosts(['title', 'date', 'slug', 'author', 'description']),
-      tags: blogApi.getAllTags(),
-    },
-  };
-};

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { Container } from './container';
-import { SocialMedia } from '../_data/social-media';
+import { SocialMedia } from '../data/social-media';
 import { ExternalLink } from './external-link';
 
 export const Footer: React.FC = () => {
