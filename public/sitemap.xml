@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://jarocki.me</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/about</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/career</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/leadership</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/react</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/javascript</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/personal</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/monito</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/browser extension</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/typescript</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/life</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/time</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/software</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/tools</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/tags/links</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/being-a-leader</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/custom-hooks</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/hello-world</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/monito-after-launch</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/monito</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/react-hooks-rules</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/time</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
-<url><loc>https://jarocki.me/blog/tools</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T08:41:57.215Z</lastmod></url>
+<url><loc>https://jarocki.me</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/about</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/career</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/leadership</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/react</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/javascript</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/personal</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/monito</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/browser extension</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/typescript</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/life</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/time</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/software</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/tools</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/tags/links</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/being-a-leader</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/custom-hooks</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/hello-world</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/monito-after-launch</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/monito</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/react-hooks-rules</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/time</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
+<url><loc>https://jarocki.me/blog/tools</loc><changefreq>daily</changefreq><priority>0.7</priority><lastmod>2022-05-07T09:44:01.177Z</lastmod></url>
 </urlset>
