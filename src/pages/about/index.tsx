@@ -39,15 +39,15 @@ const AboutMe = () => {
       <Container>
         <header>
           <PageTitle>About me</PageTitle>
-          <p className="mt-2 prose dark:prose-dark">{AboutMeContent}</p>
+          <p className="prose mt-2 dark:prose-dark">{AboutMeContent}</p>
         </header>
         <Section>
           <Section.Title as="h2">Work</Section.Title>
           <Section.Content>
             <div className="prose dark:prose-dark">
-              I'm a software developer with over 10 years of experience. I started as a C/C++
-              developer, then transitioned to Android world and now I'm mostly focused on developing
-              great user experiences using React.
+              I&apos;m a software developer with over 10 years of experience. I started as a C/C++
+              developer, then transitioned to Android world and now I&apos;m mostly focused on
+              developing great user experiences using React.
               <br />
               <br />I created multiple Android applications from scratch for companies around the
               world like{' '}
@@ -75,7 +75,7 @@ const AboutMe = () => {
               . I developed a WebRTC powered video conferencing frontend application using
               React.js/GraphQL/Typescript for{' '}
               <ExternalLink href={'https://www.evercast.us'}>Evercast</ExternalLink>. I also had led
-              development teams many times. If you'd like to work with me{' '}
+              development teams many times. If you&apos;d like to work with me{' '}
               <ExternalLink href="https://twitter.com/messages/compose?recipient_id=512460212">
                 DM me on Twitter
               </ExternalLink>{' '}
@@ -126,7 +126,7 @@ const AboutMe = () => {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4">Episodes I'd recommend the most</p>
+              <p className="mt-4">Episodes I&apos;d recommend the most</p>
               <ul className="mt-1">
                 {RecommendedPodcastEpisodes.map((episode) => (
                   <li key={episode.name}>

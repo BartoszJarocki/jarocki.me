@@ -6,14 +6,13 @@ import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/abou
 import { Navigation } from '../../components/navigation';
 import { Container } from '../../components/container';
 import { Section } from '../../components/section';
-import { LinkOutlinedCard } from '../../components/outlined-card';
-import { OutlinedCardTitle } from '../../components/outlined-card-title';
-import { OutlinedCardDescription } from '../../components/outlined-card-description';
+import { Item } from '../../components/item';
 
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
 
 import { compareDesc } from 'date-fns';
+import Link from 'next/link';
 
 export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
   const relatedPosts = allBlogs
@@ -66,10 +65,12 @@ const Tag = ({ tag, relatedPosts }: Props) => {
           <Section.Content>
             {relatedPosts.map((post) => {
               return (
-                <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
-                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
-                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
-                </LinkOutlinedCard>
+                <Link key={post.title} href={`/blog/${post.slug}`}>
+                  <Item>
+                    <Item.Title>{post.title}</Item.Title>
+                    <Item.Subtitle>{post.description}</Item.Subtitle>
+                  </Item>
+                </Link>
               );
             })}
           </Section.Content>

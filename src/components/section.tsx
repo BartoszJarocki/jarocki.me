@@ -9,15 +9,17 @@ interface TitleProps {
 
 const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, children }) => {
   return (
-    <header className="flex flex-row justify-between items-center mt-12">
-      <TitleComponent className="text-3xl sm:text-4xl font-extrabold">{children}</TitleComponent>
+    <header className="mt-16 flex flex-row items-center justify-between">
+      <TitleComponent className="text-xl font-bold leading-none tracking-tight">
+        {children}
+      </TitleComponent>
       {action}
     </header>
   );
 };
 
 const Content: React.FC = ({ children }) => {
-  return <div className="mt-3 space-y-4">{children}</div>;
+  return <div className="mt-8 divide-y divide-zinc-200 dark:divide-zinc-700">{children}</div>;
 };
 
 const SectionRoot: React.FC = ({ children }) => {

@@ -4,7 +4,7 @@ interface Props {
 
 export const Substack = ({ embedUrl }: Props) => {
   return (
-    <div className="mt-4 border border-zinc-300 rounded overflow-hidden">
+    <div className="mt-16 border border-zinc-300 rounded overflow-hidden">
       <iframe
         src={embedUrl}
         style={{

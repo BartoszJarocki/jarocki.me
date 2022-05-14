@@ -11,10 +11,12 @@ export const Button = React.forwardRef<
   return (
     <button
       ref={ref}
-      className="flex items-center justify-center px-2 py-2 font-medium text-sm leading-5 rounded-md outline-current text-zinc-500 hover:text-zinc-600 dark:text-zinc-100 dark:hover-text-zinc-200 dark:bg-zinc-700 bg-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-800 duration-200 ease-in-out"
+      className="dark:hover-text-zinc-200 flex items-center justify-center rounded-md bg-zinc-100 px-2 py-2 text-sm font-medium leading-5 text-zinc-500 outline-current duration-200 ease-in-out hover:bg-zinc-200 hover:text-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
       {...otherProps}
     >
       {children}
     </button>
   );
 });
+
+Button.displayName = 'Button';

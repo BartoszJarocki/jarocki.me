@@ -23,19 +23,19 @@ export const Navigation: React.FC = () => {
         <div className="mr-auto">
           {isBackButtonVisible && (
             <Button onClick={() => router.back()} data-testid={'back-button'}>
-              <ArrowSmLeftIcon className="inline h-5 w-5" />
+              <ArrowSmLeftIcon className="h-4 w-4" />
             </Button>
           )}
         </div>
         <div className="flex flex-row space-x-2">
           <Link href="/">
             <Button data-testid={'back-btn'}>
-              <HomeIcon className="h-5 w-5" />
+              <HomeIcon className="h-4 w-4" />
             </Button>
           </Link>
           <Link href="/about">
             <Button data-testid={'about-btn'}>
-              <UserIcon className="h-5 w-5" />
+              <UserIcon className="h-4 w-4" />
             </Button>
           </Link>
           <Button
@@ -43,9 +43,9 @@ export const Navigation: React.FC = () => {
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
           >
             {resolvedTheme === 'dark' ? (
-              <SunIcon className="h-5 w-5" />
+              <SunIcon className="h-4 w-4" />
             ) : (
-              <MoonIcon className="h-5 w-5" />
+              <MoonIcon className="h-4 w-4" />
             )}
           </Button>
         </div>

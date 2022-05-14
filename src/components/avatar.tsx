@@ -9,7 +9,7 @@ type Props = {
 export const Avatar: React.FC<Props> = ({ name, picture }) => {
   return (
     <div className="flex items-center">
-      <Image src={picture} width="40" height="40" className="rounded-full" alt={name} />
+      <Image src={picture} width="20" height="20" className="rounded-full" alt={name} />
       <div className="ml-2 text-sm">{name}</div>
     </div>
   );

@@ -2,15 +2,13 @@ export const Projects = [
   {
     title: 'Parabol',
     techStack: ['TypeScript', 'React', 'Node.js'],
-    description:
-      'Parabol is the Agile meeting co-pilot that helps teams connect, reflect, and progress with less up-front meeting prep. ',
+    description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
     link: 'https://github.com/ParabolInc/parabol',
   },
   {
     title: 'Monito',
     techStack: ['Chrome Extension', 'Next.js', '▲Vercel'],
-    description:
-      'Monito records everything that is happening in a web application and allows you to generate test reports quickly.',
+    description: 'Easily generate bug reports.',
     link: 'https://getmonito.com?ref=jarocki.me',
   },
   {
@@ -22,8 +20,7 @@ export const Projects = [
   {
     title: 'Year progress',
     techStack: ['Next.js', '▲Vercel'],
-    description:
-      'Shows year progress. 15 seconds before New Year it also shows the fullscreen countdown.',
+    description: 'Year progress with new years countdown.',
     link: 'https://getyearprogress.com?ref=jarocki.me',
   },
   {

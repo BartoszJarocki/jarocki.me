@@ -11,9 +11,7 @@ import { Badge } from '../components/badge';
 import { Section } from '../components/section';
 import { Layout } from '../components/layout';
 import { Container } from '../components/container';
-import { LinkOutlinedCard, OutlinedCard } from '../components/outlined-card';
-import { OutlinedCardTitle } from '../components/outlined-card-title';
-import { OutlinedCardDescription } from '../components/outlined-card-description';
+import { Item } from '../components/item';
 import { PhotoCard } from '../components/photo-card';
 import { ExternalLink } from '../components/external-link';
 import { Navigation } from '../components/navigation';
@@ -62,20 +60,16 @@ const Index = ({ latestPosts }: Props) => {
       />
       <Navigation />
       <Container>
-        <section className="flex flex-col-reverse sm:flex-row justify-between gap-x-12">
+        <section className="flex flex-col-reverse justify-between gap-x-12 sm:flex-row">
           <header>
             <PageTitle>Bartosz Jarocki</PageTitle>
-            <h2 className="mt-1 text-xl font-bold leading-tight">
+            <h2 className="mt-1 text-lg font-semibold leading-tight tracking-tight">
               Full Stack Developer at <ExternalLink href="https://parabol.co">Parabol</ExternalLink>
             </h2>
-            <p className="mt-4 text-md">
-              I'm a passionate software developer with an eye for details. <br />
-              You can read more about me{' '}
-              <Link href={'/about'} passHref={true}>
-                <a className="underline cursor-pointer">here.</a>
-              </Link>{' '}
+            <p className="mt-4 text-base">
+              I&apos;m a passionate software developer with an eye for details. <br />
               If out want to reach out,{' '}
-              <ExternalLink href="mailto:bartosz.jarocki@hey.com">write me an email.</ExternalLink>{' '}
+              <ExternalLink href="mailto:bartosz.jarocki@hey.com">write me an email.</ExternalLink>
             </p>
           </header>
           <div className="flex-shrink-0 overflow-hidden">
@@ -88,8 +82,8 @@ const Index = ({ latestPosts }: Props) => {
             action={
               <Link href="/blog">
                 <Button data-testid="btn-blog-show-all">
-                  <span className="inline-flex px-1 justify-center items-center">
-                    Show all <ArrowSmRightIcon className="inline h-5 w-5 ml-1" />
+                  <span className="inline-flex items-center justify-center px-1">
+                    Show all <ArrowSmRightIcon className="ml-1 inline h-5 w-5" />
                   </span>
                 </Button>
               </Link>
@@ -100,10 +94,12 @@ const Index = ({ latestPosts }: Props) => {
           <Section.Content>
             {latestPosts.map((post) => {
               return (
-                <LinkOutlinedCard key={post.title} href={`/blog/${post.slug}`}>
-                  <OutlinedCardTitle>{post.title}</OutlinedCardTitle>
-                  <OutlinedCardDescription>{post.description}</OutlinedCardDescription>
-                </LinkOutlinedCard>
+                <Link key={post.title} href={`/blog/${post.slug}`}>
+                  <Item>
+                    <Item.Title>{post.title}</Item.Title>
+                    <Item.Subtitle>{post.description}</Item.Subtitle>
+                  </Item>
+                </Link>
               );
             })}
           </Section.Content>
@@ -115,24 +111,24 @@ const Index = ({ latestPosts }: Props) => {
             {Projects.map((project) => {
               return (
                 <ExternalLink
-                  className={null}
+                  className="block"
                   key={project.title}
                   href={project.link}
                   data-testid={project.title}
                 >
-                  <OutlinedCard>
-                    <OutlinedCardTitle>
+                  <Item>
+                    <Item.Title>
                       <span className="inline-flex items-center">
-                        {project.title} <ExternalLinkIcon className="inline h-5 w-5 ml-1" />
+                        {project.title} <ExternalLinkIcon className="ml-1 inline h-5 w-5" />
                       </span>
-                      <div className="hidden font-mono sm:flex space-x-2 sm:ml-auto my-2 sm:my-0">
+                      <div className="my-2 hidden space-x-2 font-mono sm:my-0 sm:ml-auto sm:flex">
                         {project.techStack.map((tech) => {
                           return <Badge key={tech}>{tech}</Badge>;
                         })}
                       </div>
-                    </OutlinedCardTitle>
-                    <OutlinedCardDescription>{project.description}</OutlinedCardDescription>
-                  </OutlinedCard>
+                    </Item.Title>
+                    <Item.Subtitle>{project.description}</Item.Subtitle>
+                  </Item>
                 </ExternalLink>
               );
             })}
@@ -141,7 +137,7 @@ const Index = ({ latestPosts }: Props) => {
         <Section>
           <Section.Title as="h2">Visited places</Section.Title>
           <Section.Content>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               {Travel.map((dest) => {
                 return (
                   <PhotoCard

@@ -20,7 +20,7 @@ export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime, 
 
   return (
     <div className="container mx-auto max-w-2xl px-6 sm:px-0 flex flex-col flex-grow justify-center overflow-x-hidden">
-      <div className="flex font-mono text-sm text-gray-800 flex-wrap gap-1">
+      <div className="flex font-mono text-sm text-gray-800 flex-wrap gap-1 mb-2">
         {tags.map((tag) => (
           <Badge
             key={tag}
@@ -34,7 +34,7 @@ export const PostHeader: React.FC<Props> = ({ title, date, author, readingTime, 
         ))}
       </div>
       <PageTitle>{title}</PageTitle>
-      <div className="mt-6 my-10 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:items-center">
+      <div className="mt-6 my-10 flex flex-col sm:flex-row justify-between space-y-2 sm:space-y-0 sm:items-center text-gray-700 dark:text-gray-300">
         <Avatar name={author.name} picture={author.picture} />
         <div className="text-sm">
           {format(parseISO(date), 'LLLL d, yyyy')} • {readingTime}

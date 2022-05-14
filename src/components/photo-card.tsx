@@ -9,17 +9,14 @@ type Props = {
 
 export const PhotoCard: React.FC<Props> = ({ img, title, subTitle, ...otherProps }) => {
   return (
-    <div
-      className="rounded overflow-hidden border border-zinc-300 dark:border-zinc-700"
-      {...otherProps}
-    >
+    <div className="overflow-hidden" {...otherProps}>
       <div className="h-28 w-full relative">
         <Image layout="fill" placeholder="blur" src={img} alt={title} />
       </div>
 
-      <div className="px-3 py-2">
-        <h3 className="font-bold text-lg leading-none mb-2">{title}</h3>
-        <p className="text-sm">{subTitle}</p>
+      <div className="py-2">
+        <h3 className="font-bold text-sm leading-none mb-2">{title}</h3>
+        <p className="text-xs">{subTitle}</p>
       </div>
     </div>
   );
