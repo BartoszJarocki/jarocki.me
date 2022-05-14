@@ -10,7 +10,7 @@ body,
 }
 
 body {
-  @apply antialiased dark:bg-gray-900 text-gray-800 dark:text-gray-200;
+  @apply text-gray-800 antialiased dark:bg-gray-900 dark:text-gray-200;
 }
 
 :root {
