@@ -1,7 +1,9 @@
 import React from 'react';
+import { format, compareDesc } from 'date-fns';
+import { NextSeo } from 'next-seo';
+import Link from 'next/link';
 
 import { Layout } from '../../components/layout';
-import { NextSeo } from 'next-seo';
 import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 import { Navigation } from '../../components/navigation';
 import { Container } from '../../components/container';
@@ -11,9 +13,6 @@ import { Item } from '../../components/item';
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
 
-import { compareDesc } from 'date-fns';
-import Link from 'next/link';
-
 export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
   const relatedPosts = allBlogs
     .sort((a, b) => {
@@ -21,7 +20,7 @@ export async function getStaticProps({ params: { tag } }: { params: { tag: strin
     })
     .filter((post) => post.tags.includes(tag));
   const tags = Array.from(new Set(relatedPosts.map((post) => post.tags).flat()));
-  return { props: { relatedPosts, tags } };
+  return { props: { relatedPosts, tags, tag } };
 }
 
 export async function getStaticPaths() {
@@ -69,6 +68,9 @@ const Tag = ({ tag, relatedPosts }: Props) => {
                   <Item>
                     <Item.Title>{post.title}</Item.Title>
                     <Item.Subtitle>{post.description}</Item.Subtitle>
+                    <Item.Description>
+                      {format(new Date(post.date), 'MMM dd, yyyy')}
+                    </Item.Description>
                   </Item>
                 </Link>
               );

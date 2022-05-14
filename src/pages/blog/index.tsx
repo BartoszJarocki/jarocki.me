@@ -1,10 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
+import { format, compareDesc } from 'date-fns';
+import { NextSeo } from 'next-seo';
 
 import { Section } from '../../components/section';
 import { Container } from '../../components/container';
 import { Layout } from '../../components/layout';
-import { NextSeo } from 'next-seo';
 import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 import { Item } from '../../components/item';
 import { Navigation } from '../../components/navigation';
@@ -12,8 +13,6 @@ import { Badge } from '../../components/badge';
 
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
-
-import { compareDesc } from 'date-fns';
 
 export async function getStaticProps() {
   const posts = allBlogs.sort((a, b) => {
@@ -48,7 +47,7 @@ const Blog = ({ posts, tags }: Props) => {
         <Section>
           <Section.Title>Tags</Section.Title>
           <Section.Content>
-            <div className="flex font-mono flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1 font-mono">
               {tags.map((tag) => (
                 <Link href={`/tags/${tag}`} key={tag}>
                   <Badge className="cursor-pointer">#{tag}</Badge>
@@ -66,6 +65,9 @@ const Blog = ({ posts, tags }: Props) => {
                   <Item>
                     <Item.Title>{post.title}</Item.Title>
                     <Item.Subtitle>{post.description}</Item.Subtitle>
+                    <Item.Description>
+                      {format(new Date(post.date), 'MMM dd, yyyy')}
+                    </Item.Description>
                   </Item>
                 </Link>
               );

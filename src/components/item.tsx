@@ -8,8 +8,8 @@ const ItemRoot = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<
         className="group relative w-full cursor-pointer outline-none lg:flex"
         {...otherProps}
       >
-        <div className="absolute -inset-x-4 -inset-y-0.5 rounded bg-transparent transition-all duration-200 ease-in-out group-hover:bg-zinc-200 group-focus:outline group-focus:outline-2 group-focus:outline-current dark:group-hover:bg-zinc-700" />
-        <div className="z-10 my-4 flex flex-grow flex-col justify-between leading-normal">
+        <div className="absolute -inset-x-4 -inset-y-0.5 rounded transition-all duration-200 ease-in-out group-hover:bg-zinc-200 group-focus:outline group-focus:outline-2 group-focus:outline-current group-active:bg-zinc-200/50 dark:group-hover:bg-zinc-700 dark:group-active:bg-zinc-700/50" />
+        <div className="isolate my-4 flex flex-grow flex-col justify-between leading-normal">
           {children}
         </div>
       </button>
@@ -19,10 +19,6 @@ const ItemRoot = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<
 
 ItemRoot.displayName = 'ItemRoot';
 
-const Subtitle: React.FC = ({ children }) => {
-  return <div className="text-left text-base text-gray-700 dark:text-gray-300">{children}</div>;
-};
-
 const Title: React.FC = ({ children }) => {
   return (
     <h3 className="mb-1 flex flex-grow flex-col text-left text-lg font-semibold tracking-tight sm:flex-row">
@@ -31,4 +27,12 @@ const Title: React.FC = ({ children }) => {
   );
 };
 
-export const Item = Object.assign(ItemRoot, { Title, Subtitle });
+const Subtitle: React.FC = ({ children }) => {
+  return <div className="text-left text-base text-gray-700 dark:text-gray-300">{children}</div>;
+};
+
+const Description: React.FC = ({ children }) => {
+  return <div className="mt-1.5 text-left text-sm text-gray-500">{children}</div>;
+};
+
+export const Item = Object.assign(ItemRoot, { Title, Subtitle, Description });

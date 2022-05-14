@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
+import { format } from 'date-fns';
 
 import { Projects } from '../data/projects';
 import { Travel } from '../data/travel';
@@ -98,6 +99,9 @@ const Index = ({ latestPosts }: Props) => {
                   <Item>
                     <Item.Title>{post.title}</Item.Title>
                     <Item.Subtitle>{post.description}</Item.Subtitle>
+                    <Item.Description>
+                      {format(new Date(post.date), 'MMM dd, yyyy')}
+                    </Item.Description>
                   </Item>
                 </Link>
               );
@@ -111,7 +115,7 @@ const Index = ({ latestPosts }: Props) => {
             {Projects.map((project) => {
               return (
                 <ExternalLink
-                  className="block"
+                  className="block outline-none"
                   key={project.title}
                   href={project.link}
                   data-testid={project.title}
