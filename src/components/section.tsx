@@ -19,7 +19,7 @@ const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, childr
 };
 
 const Content: React.FC = ({ children }) => {
-  return <div className="mt-8 divide-y divide-zinc-200 dark:divide-zinc-700">{children}</div>;
+  return <div className="mt-4 divide-y divide-zinc-200 dark:divide-zinc-700">{children}</div>;
 };
 
 const SectionRoot: React.FC = ({ children }) => {
