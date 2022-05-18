@@ -1,10 +1,13 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FBartoszJarocki%2Fweb-jarocki-me)
+
 # Bartosz Jarocki - Personal site / Blog / Portfolio
+![screenshot](screenshots/screenshot.png)
 
 This is my personal website built using
 
 - [TypeScript](https://www.typescriptlang.org/)
 - [Next JS](https://nextjs.org/)
+- [Next Themes](https://github.com/pacocoursey/next-themes)
 - [Content Layer](https://www.contentlayer.dev/)
 - [Tailwind CSS](https://tailwindcss.com)
 - [NextSEO](https://github.com/garmeeh/next-seo)
