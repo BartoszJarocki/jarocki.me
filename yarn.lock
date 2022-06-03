@@ -3977,12 +3977,12 @@ rehype-autolink-headings@6.1.1:
     unified "^10.0.0"
     unist-util-visit "^4.0.0"
 
-rehype-code-titles@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/rehype-code-titles/-/rehype-code-titles-1.1.0.tgz#de9c01a0008d7b0fc26da87b88ff6648ad8f74a3"
-  integrity sha512-muit6KQWNafowXA0HTUeQtUT+UuP0ra34xty1tuF8WsdjcSm++HswgRAFGXH8CAGe8axuGUxg13+I4yFHFnmfQ==
+rehype-code-titles@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/rehype-code-titles/-/rehype-code-titles-1.0.3.tgz#63968dbc4407ea9e9689bd6e84e5c735ca535d6b"
+  integrity sha512-VBLHA1egC8smTGQ0X2oEPO6kuq+CKHkSBanjKHhW5AhOL9V7qsbiB4GSRGDUHI4gwCWSdM4A4R5aoRZ4UExw6A==
   dependencies:
-    unist-util-visit "~4.1.0"
+    unist-util-visit "^3.0.0"
 
 rehype-parse@^8.0.0, rehype-parse@^8.0.2:
   version "8.0.4"
@@ -4593,7 +4593,7 @@ unist-util-visit@^3.0.0:
     unist-util-is "^5.0.0"
     unist-util-visit-parents "^4.0.0"
 
-unist-util-visit@^4.0.0, unist-util-visit@~4.1.0:
+unist-util-visit@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/unist-util-visit/-/unist-util-visit-4.1.0.tgz#f41e407a9e94da31594e6b1c9811c51ab0b3d8f5"
   integrity sha512-n7lyhFKJfVZ9MnKtqbsqkQEk5P1KShj0+//V7mAcoI6bpbUjh3C/OG8HVD+pBihfh6Ovl01m8dkcv9HNqYajmQ==
