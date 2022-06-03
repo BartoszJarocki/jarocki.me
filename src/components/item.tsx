@@ -1,4 +1,5 @@
 import React from 'react';
+import { PropsWithChildren } from 'src/@types/react';
 
 const ItemRoot = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
   ({ children, ...otherProps }, ref: React.Ref<HTMLButtonElement>) => {
@@ -19,7 +20,7 @@ const ItemRoot = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<
 
 ItemRoot.displayName = 'ItemRoot';
 
-const Title: React.FC = ({ children }) => {
+const Title: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <h3 className="mb-1 flex flex-grow flex-col text-left text-lg font-semibold tracking-tight sm:flex-row">
       {children}
@@ -27,11 +28,11 @@ const Title: React.FC = ({ children }) => {
   );
 };
 
-const Subtitle: React.FC = ({ children }) => {
+const Subtitle: React.FC<PropsWithChildren> = ({ children }) => {
   return <div className="text-left text-base text-gray-700 dark:text-gray-300">{children}</div>;
 };
 
-const Description: React.FC = ({ children }) => {
+const Description: React.FC<PropsWithChildren> = ({ children }) => {
   return <div className="mt-1.5 text-left text-sm text-gray-500">{children}</div>;
 };
 

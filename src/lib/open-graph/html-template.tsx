@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-page-custom-font */
 /* eslint-disable @next/next/no-head-element */
 import * as ReactDOMServer from 'react-dom/server';
+import { PropsWithChildren } from 'src/@types/react';
 
 export const backgroundColor = `#1e2020`;
 export const color = `#fff`;
@@ -94,11 +95,11 @@ const styleReset = `
   }
 `;
 
-export const Html: React.FC<{ lang: string }> = ({ lang, children }) => {
+export const Html: React.FC<PropsWithChildren & { lang: string }> = ({ lang, children }) => {
   return <html lang={lang}>{children}</html>;
 };
 
-export const Head: React.FC = ({ children }) => {
+export const Head: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -119,7 +120,7 @@ export const Head: React.FC = ({ children }) => {
   );
 };
 
-export const Body: React.FC = ({ children, ...rest }) => {
+export const Body: React.FC<PropsWithChildren> = ({ children, ...rest }) => {
   return (
     <body
       style={{

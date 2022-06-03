@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
+import { PropsWithChildren } from 'src/@types/react';
 
 type Heading = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 interface TitleProps {
   as?: Heading;
   action?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, children }) => {
@@ -18,11 +20,11 @@ const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, childr
   );
 };
 
-const Content: React.FC = ({ children }) => {
+const Content: React.FC<PropsWithChildren> = ({ children }) => {
   return <div className="mt-4 divide-y divide-zinc-200 dark:divide-zinc-700">{children}</div>;
 };
 
-const SectionRoot: React.FC = ({ children }) => {
+const SectionRoot: React.FC<PropsWithChildren> = ({ children }) => {
   return <section>{children}</section>;
 };
 
