@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import fs from 'fs';
 
-import { getScreenshot } from '../../lib/open-graph/chrome-api';
-import { getHtml } from '../../lib/open-graph/html-template';
+import { renderScreenshot } from '../../lib/open-graph/chrome-api';
+import { renderHTML } from '../../lib/open-graph/html-template';
 
 const cacheMaxAge = 60 * 60 * 24 * 365; // a year
 
@@ -13,11 +14,16 @@ const DefaultImageSize = {
   width: 1200,
 };
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+const generateImage = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const title = req.query.title as string;
-    const html = getHtml(title);
-    const file = await getScreenshot({
+    const html = renderHTML({
+      title,
+      width: DefaultImageSize.width,
+      height: DefaultImageSize.height,
+    });
+
+    const file = await renderScreenshot({
       html,
       width: DefaultImageSize.width,
       height: DefaultImageSize.height,
@@ -27,7 +33,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.setHeader('Content-Type', `image/png`);
     res.setHeader(
       'Cache-Control',
-      `public, immutable, no-transform, s-maxage=${cacheMaxAge}, max-age=${cacheMaxAge}`,
+      `public, immutable, no-transform, s-maxage=${cacheMaxAge}, max-age=${cacheMaxAge}, stale-while-revalidate`,
     );
     res.end(file);
   } catch (e) {
@@ -38,3 +44,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.end('<h1>Error, image can not be generated!</h1>');
   }
 };
+
+export default generateImage;
