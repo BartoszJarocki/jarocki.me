@@ -47,20 +47,11 @@ const styleReset = `
       text-decoration: none ;
   }
 
-  body {
-      width: 100%;
-      height: 100%;
-  }
-
   /**
    * Collapse table borders to avoid space between cells.
    */
   table {
       border-collapse: collapse ;
-  }
-
-  a {
-      color: #5634d1;
   }
 
   img {
@@ -96,7 +87,11 @@ const styleReset = `
 `;
 
 export const Html: React.FC<PropsWithChildren & { lang: string }> = ({ lang, children }) => {
-  return <html lang={lang}>{children}</html>;
+  return (
+    <html lang={lang} style={{ height: '100%', width: '100%' }}>
+      {children}
+    </html>
+  );
 };
 
 export const Head: React.FC<PropsWithChildren> = ({ children }) => {
@@ -130,8 +125,8 @@ export const Body: React.FC<PropsWithChildren> = ({ children, ...rest }) => {
         margin: 0,
         fontSize,
         fontFamily: `'Inter', sans-serif`,
-        width: '100vw',
-        height: '100vh',
+        width: '100%',
+        height: '100%',
       }}
       {...rest}
     >

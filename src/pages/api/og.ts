@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
 
 import { renderScreenshot as renderImage } from '../../lib/open-graph/chrome-api';
 import { renderHTML } from '../../lib/open-graph/html-template';
