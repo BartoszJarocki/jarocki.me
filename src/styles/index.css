@@ -9,10 +9,6 @@ body,
   height: 100%;
 }
 
-body {
-  @apply text-gray-800 antialiased dark:bg-gray-900 dark:text-gray-200;
-}
-
 :root {
   --inlineCode-bg: rgba(255, 229, 100, 0.2);
   --inlineCode-text: #1a1a1a;
