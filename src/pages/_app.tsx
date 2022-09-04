@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }: AppProps) {
   useAnalytics();
 
   return (
-    <ThemeProvider attribute="class">
+    <ThemeProvider attribute="class" disableTransitionOnChange>
       <DefaultSeo {...OpenGraph} />
       <Component {...pageProps} />
     </ThemeProvider>
