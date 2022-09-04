@@ -1,8 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { useTheme } from 'next-themes';
-import { ArrowSmLeftIcon, HomeIcon, MoonIcon, SunIcon, UserIcon } from '@heroicons/react/outline';
+import { ArrowSmLeftIcon, HomeIcon, UserIcon } from '@heroicons/react/outline';
 import { Button } from './button';
 import { ThemeSwitcher } from './theme-switcher';
 
