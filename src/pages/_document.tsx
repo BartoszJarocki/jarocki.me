@@ -4,9 +4,7 @@ export default class MyDocument extends Document {
   render() {
     return (
       <Html lang="en">
-        <Head>
-          <script src="https://substackapi.com/widget.js" async></script>
-        </Head>
+        <Head />
         <body>
           <Main />
           <NextScript />
