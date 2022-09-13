@@ -9,7 +9,7 @@ import { OpenGraph } from '../data/social-media';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider attribute="class" disableTransitionOnChange>
+    <ThemeProvider attribute="class">
       <DefaultSeo {...OpenGraph} />
       <Component {...pageProps} />
     </ThemeProvider>
