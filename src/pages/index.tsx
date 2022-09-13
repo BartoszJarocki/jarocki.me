@@ -108,7 +108,6 @@ const Index = ({ latestPosts }: Props) => {
             })}
           </Section.Content>
         </Section>
-        <Substack embedUrl="https://jarocki.substack.com/embed" />
         <Section>
           <Section.Title as="h2">Projects</Section.Title>
           <Section.Content>
