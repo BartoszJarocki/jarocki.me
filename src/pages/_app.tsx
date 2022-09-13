@@ -5,12 +5,9 @@ import { ThemeProvider } from 'next-themes';
 
 import '../styles/index.css';
 
-import { useAnalytics } from '../hooks/use-analytics';
 import { OpenGraph } from '../data/social-media';
 
 export default function App({ Component, pageProps }: AppProps) {
-  useAnalytics();
-
   return (
     <ThemeProvider attribute="class" disableTransitionOnChange>
       <DefaultSeo {...OpenGraph} />

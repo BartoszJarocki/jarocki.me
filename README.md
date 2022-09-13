@@ -1,6 +1,7 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FBartoszJarocki%2Fweb-jarocki-me)
 
 # Bartosz Jarocki - Personal site / Blog / Portfolio
+
 ![screenshot](screenshots/screenshot.png)
 
 This is my personal website built using
@@ -11,7 +12,6 @@ This is my personal website built using
 - [Content Layer](https://www.contentlayer.dev/)
 - [Tailwind CSS](https://tailwindcss.com)
 - [NextSEO](https://github.com/garmeeh/next-seo)
-- [Fathom Analytics](https://usefathom.com/ref/Z9A64P)
 - [Puppeteer](https://github.com/puppeteer/puppeteer)
 
 ## Running locally
@@ -19,12 +19,7 @@ This is my personal website built using
 Add an .env file with the following values
 
 ```env
-#
 NEXT_PUBLIC_SITE_URL='your-website.com'
-
-# Fathom analytics
-NEXT_PUBLIC_ANALYTICS_ID=''
-NEXT_PUBLIC_ANALYTICS_DOMAINS=''
 ```
 
 Clone the repository, run the application
