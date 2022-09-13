@@ -21,7 +21,6 @@ import Avatar from '../../public/assets/blog/authors/bartosz.jpeg';
 import { ArrowSmRightIcon, ExternalLinkIcon } from '@heroicons/react/outline';
 import { PageTitle } from '../components/page-title';
 import { Button } from '../components/button';
-import { Substack } from '../components/substack';
 
 import { compareDesc } from 'date-fns';
 import { allBlogs } from 'contentlayer/generated';
