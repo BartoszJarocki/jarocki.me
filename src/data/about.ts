@@ -12,7 +12,7 @@ export const AboutMeSiteTitle = 'Bartosz Jarocki - About me';
 export const AboutMeSiteDescription = 'Who am I? What am I doing? Everything, and more, is here.';
 export const AboutMeSiteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/about`;
 export const AboutMeContent = `
-  Hey! I'm Bartosz Jarocki and I live in Wrocław, Poland. I grew up in a small town Góra. 
+  I live in Wrocław, Poland. I grew up in a small town Góra. 
   I graduated with a bachelor's degree in Control systems engineering and Robotics at the Wrocław University of Technology. 
   I like bikes, books, plants, programming, and traveling the world with my wonderful wife Kasia. 
   Also, I’m fascinated by the cosmos and I find great pleasure in watching stars.
@@ -81,8 +81,16 @@ export const VideosWorthWatching = [
 
 export const Podcasts = [
   {
+    name: 'Lex Fridman Podcast',
+    link: 'https://www.youtube.com/@lexfridman',
+  },
+  {
+    name: 'Huberman Lab',
+    link: 'https://www.youtube.com/@hubermanlab',
+  },
+  {
     name: 'Joe Rogan',
-    link: 'https://www.youtube.com/channel/UCzQUP1qoWDoEbmsQxvdjxgQ',
+    link: 'https://www.youtube.com/@joerogan',
   },
   {
     name: 'The Tim Ferriss Show',
@@ -91,21 +99,6 @@ export const Podcasts = [
   {
     name: 'Build your SaaS',
     link: 'https://saas.transistor.fm/',
-  },
-];
-
-export const RecommendedPodcastEpisodes = [
-  {
-    name: 'Joe Rogan Experience #1309 - Naval Ravikant',
-    link: 'https://www.youtube.com/watch?v=3qHkcs3kG44',
-  },
-  {
-    name: 'The Tim Ferriss Show - Naval Ravikant',
-    link: 'https://www.youtube.com/watch?v=-7J-Gwc9pVg&t',
-  },
-  {
-    name: 'Joe Rogan Experience #1169 - Elon Musk',
-    link: 'https://www.youtube.com/watch?v=ycPr5-27vSI/',
   },
 ];
 

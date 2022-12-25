@@ -1,16 +1,26 @@
-import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import clsx from 'clsx';
+import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
+import React from 'react';
 
-type Props = {
-  name: string;
-  picture: string;
-};
-
-export const Avatar: React.FC<Props> = ({ name, picture }) => {
+export function Avatar({
+  large = false,
+  className,
+  ...props
+}: React.PropsWithChildren<{ large?: boolean } & React.HTMLAttributes<HTMLAnchorElement>>) {
   return (
-    <div className="flex items-center">
-      <Image src={picture} width="20" height="20" className="rounded-full" alt={name} />
-      <div className="ml-2 text-sm">{name}</div>
-    </div>
+    <Link href="/" aria-label="Home" className={clsx(className, 'pointer-events-auto')} {...props}>
+      <Image
+        src={AvatarImage}
+        alt=""
+        sizes={large ? '4rem' : '2.25rem'}
+        className={clsx(
+          'rounded-full bg-zinc-100 object-cover dark:bg-zinc-800',
+          large ? 'h-16 w-16' : 'h-9 w-9',
+        )}
+        priority
+      />
+    </Link>
   );
-};
+}

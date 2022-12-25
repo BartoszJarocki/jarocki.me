@@ -1,32 +1,56 @@
-export const Projects = [
+import ParabolLogo from '../images/logos/parabol.svg';
+import MonitoLogo from '../images/logos/monito.svg';
+import BarepapersLogo from '../images/logos/barepapers.svg';
+import YearProgressLogo from '../images/logos/yearprogress.svg';
+
+export const MyProjects = [
   {
     title: 'Parabol',
     techStack: ['TypeScript', 'React', 'Node.js'],
     description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
-    link: 'https://github.com/ParabolInc/parabol',
+    logo: ParabolLogo,
+    link: {
+      label: 'github.com',
+      href: 'https://github.com/ParabolInc/parabol',
+    },
   },
   {
     title: 'Monito',
     techStack: ['Chrome Extension', 'Next.js', '▲Vercel'],
-    description: 'Easily generate bug reports.',
-    link: 'https://getmonito.com?ref=jarocki.me',
+    description: 'Browser extension that records everything happening in a web application.',
+    logo: MonitoLogo,
+    link: {
+      label: 'monito.dev',
+      href: 'https://monito.dev',
+    },
   },
   {
     title: 'Barepapers',
     techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
-    description: 'Minimalist wallpapers generator.',
-    link: 'https://barepapers.com?ref=jarocki.me',
+    description: 'Generates beautiful wallpapers using random shapes and gradients.',
+    logo: BarepapersLogo,
+    link: {
+      label: 'barepapers.com',
+      href: 'https://barepapers.com',
+    },
   },
   {
     title: 'Year progress',
     techStack: ['Next.js', '▲Vercel'],
-    description: 'Year progress with new years countdown.',
-    link: 'https://getyearprogress.com?ref=jarocki.me',
+    description: 'Tracks current year progress and displas a countdown.',
+    logo: YearProgressLogo,
+    link: {
+      label: 'getyearprogress.com',
+      href: 'https://getyearprogress.com',
+    },
   },
   {
     title: 'Jarocki.me',
     techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
-    description: 'This blog, open sourced.',
-    link: 'https://github.com/BartoszJarocki/web-jarocki-me',
+    description: 'My personal website you are currently on, built with Next.js.',
+    link: {
+      label: 'github.com',
+      href: 'https://github.com/BartoszJarocki/web-jarocki-me',
+    },
   },
 ];

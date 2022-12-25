@@ -7,10 +7,10 @@ type Props = {
 
 export const Quote: React.FC<Props> = ({ quote, author, ...otherProps }) => {
   return (
-    <blockquote className="bg-gray-100 dark:bg-gray-800 p-6 rounded-md">
+    <blockquote className="rounded-md bg-zinc-100 p-6 dark:bg-zinc-800">
       <div className="relative text-lg font-medium md:flex-grow">
         <svg
-          className="absolute top-0 left-0 transform -translate-x-9 -translate-y-9 h-8 w-8 text-gray-300"
+          className="absolute top-0 left-0 h-8 w-8 -translate-x-9 -translate-y-9 transform text-zinc-300"
           fill="currentColor"
           viewBox="0 0 32 32"
           aria-hidden="true"
@@ -21,7 +21,7 @@ export const Quote: React.FC<Props> = ({ quote, author, ...otherProps }) => {
       </div>
 
       <footer className="mt-1">
-        <p className="text-base font-semibold text-gray-500">{author}</p>
+        <p className="text-base font-semibold text-zinc-500">{author}</p>
       </footer>
     </blockquote>
   );

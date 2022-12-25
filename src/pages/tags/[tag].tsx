@@ -1,17 +1,13 @@
 import React from 'react';
-import { format, compareDesc } from 'date-fns';
+import { compareDesc } from 'date-fns';
 import { NextSeo } from 'next-seo';
-import Link from 'next/link';
 
-import { Layout } from '../../components/layout';
 import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
-import { Navigation } from '../../components/navigation';
-import { Container } from '../../components/container';
-import { Section } from '../../components/section';
-import { Item } from '../../components/item';
 
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
+import { PageLayout } from '../../components/SimpleLayout';
+import { BlogPostPreview } from '../../components/BlogPostPreview';
 
 export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
   const relatedPosts = allBlogs
@@ -44,7 +40,7 @@ interface Props {
 
 const Tag = ({ tag, relatedPosts }: Props) => {
   return (
-    <Layout>
+    <>
       <NextSeo
         title={BlogSiteTitle}
         description={BlogSiteDescription}
@@ -57,28 +53,16 @@ const Tag = ({ tag, relatedPosts }: Props) => {
           site_name: BlogSiteTitle,
         }}
       />
-      <Navigation />
-      <Container>
-        <Section>
-          <Section.Title>#{tag}</Section.Title>
-          <Section.Content>
-            {relatedPosts.map((post) => {
-              return (
-                <Link key={post.title} href={`/blog/${post.slug}`}>
-                  <Item>
-                    <Item.Title>{post.title}</Item.Title>
-                    <Item.Subtitle>{post.description}</Item.Subtitle>
-                    <Item.Description>
-                      {format(new Date(post.date), 'MMM dd, yyyy')}
-                    </Item.Description>
-                  </Item>
-                </Link>
-              );
-            })}
-          </Section.Content>
-        </Section>
-      </Container>
-    </Layout>
+      <PageLayout title="Tags" intro={`All the articles from #${tag}`}>
+        <div className="mt-24 md:border-l md:border-zinc-100 md:pl-6 md:dark:border-zinc-700/40">
+          <div className="flex max-w-3xl flex-col space-y-16">
+            {relatedPosts.map((blogPost) => (
+              <BlogPostPreview key={blogPost.slug} blogPost={blogPost} />
+            ))}
+          </div>
+        </div>
+      </PageLayout>
+    </>
   );
 };
 

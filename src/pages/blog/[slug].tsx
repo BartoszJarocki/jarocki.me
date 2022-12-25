@@ -1,18 +1,14 @@
 import React from 'react';
 import { useMDXComponent } from 'next-contentlayer/hooks';
+import { BlogPostLayout } from '../../components/BlogPostLayout';
 
-import { Layout } from '../../components/layout';
-import { Container } from '../../components/container';
-import { PostHeader } from '../../components/post-header';
-import { PostBody } from '../../components/post-body';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import { BlogSiteUrl } from '../../data/about';
-import { ExternalLink } from '../../components/external-link';
 import { OpenGraph } from '../../data/social-media';
-import { Navigation } from '../../components/navigation';
-import { TwitterIcon } from '../../components/icons';
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
+import { TwitterIcon } from '../../components/Icons/TwitterIcon';
+import { Prose } from '../../components/Prose';
 
 export async function getStaticPaths() {
   return {
@@ -29,13 +25,15 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 
 const Post = ({
   post: { title, description, body, slug, author, date, readingTime, tags },
+  previousPathname,
 }: {
   post: Blog;
+  previousPathname?: string;
 }) => {
   const Component = useMDXComponent(body.code);
 
   return (
-    <Layout>
+    <>
       <NextSeo
         title={title}
         description={description}
@@ -58,31 +56,23 @@ const Post = ({
         publisherLogo={author.picture!}
         description={description}
       />
-      <Navigation />
-      <PostHeader
-        title={title}
-        date={date}
-        author={author}
-        readingTime={readingTime.text}
-        tags={tags}
-      />
-      <Container>
+      <BlogPostLayout meta={{ title, description, date }} previousPathname={previousPathname}>
         <div className="mb-32">
-          <PostBody>
+          <Prose>
             <Component />
-          </PostBody>
-          <ExternalLink
-            className="group block text-xl md:text-3xl font-semibold text-center"
+          </Prose>
+          <a
+            className="group block text-center text-xl font-semibold md:text-3xl"
             href={`https://twitter.com/intent/tweet?text=${title} by ${OpenGraph.twitter.handle}, ${BlogSiteUrl}/${slug}`}
           >
-            <h4 className="flex flex-col place-items-center m-5 sm:m-20 group-hover:text-blue-400 cursor-pointer duration-200 ease-in-out">
-              <TwitterIcon className="h-10 w-10 m-6 transition-transform transform group-hover:-rotate-12" />
+            <h4 className="m-5 flex cursor-pointer flex-col place-items-center duration-200 ease-in-out group-hover:text-blue-400 sm:m-20">
+              <TwitterIcon className="m-6 h-10 w-10 transform transition-transform group-hover:-rotate-12" />
               Click here to share this article with your friends on Twitter if you liked it.
             </h4>
-          </ExternalLink>
+          </a>
         </div>
-      </Container>
-    </Layout>
+      </BlogPostLayout>
+    </>
   );
 };
 
