@@ -1,11 +1,12 @@
 import React from 'react';
+
 import { Container } from './Container';
 
-export function PageLayout({
+export const PageLayout = ({
   title,
   intro,
   children,
-}: React.PropsWithChildren<{ title: string; intro: string }>) {
+}: React.PropsWithChildren<{ title: string; intro: string }>) => {
   return (
     <Container className="mt-16 sm:mt-32">
       <header className="max-w-2xl">
@@ -17,4 +18,4 @@ export function PageLayout({
       <div className="mt-16 sm:mt-20">{children}</div>
     </Container>
   );
-}
+};

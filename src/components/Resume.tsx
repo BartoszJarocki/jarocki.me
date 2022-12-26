@@ -1,44 +1,9 @@
 import Image from 'next/image';
-import { Button } from './Button';
-import logoParabol from '../images/logos/parabol.svg';
-import logoJojoMobile from '../images/logos/jojomobile.png';
-import logoClevertech from '../images/logos/clevertech.png';
-import logoNsn from '../images/logos/nsn.svg';
+
+import { Work } from '../data/about';
 import { BriefcaseIcon } from './Icons/BriefcaseIcon';
-import { ArrowDownIcon } from './Icons/ArrowDownIcon';
 
-export function Resume() {
-  let resume = [
-    {
-      company: 'Parabol',
-      title: 'Full Stack Developer',
-      logo: logoParabol,
-      start: '2021',
-      end: 'Present',
-    } as const,
-    {
-      company: 'Clevertech',
-      title: 'Lead Android Developer → Full Stack Developer',
-      logo: logoClevertech,
-      start: '2015',
-      end: '2021',
-    },
-    {
-      company: 'Jojo Mobile',
-      title: 'Android Developer → Lead Android Developer',
-      logo: logoJojoMobile,
-      start: '2012',
-      end: '2015',
-    },
-    {
-      company: 'Nokia Siemens Networks',
-      title: 'C/C++ Developer',
-      logo: logoNsn,
-      start: '2010',
-      end: '2012',
-    },
-  ];
-
+export const Resume = () => {
   return (
     <div className="ml-auto max-w-[420px] rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40">
       <h2 className="flex text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -46,7 +11,7 @@ export function Resume() {
         <span className="ml-3">Work</span>
       </h2>
       <ol className="mt-6 space-y-4">
-        {resume.map((role, roleIndex) => (
+        {Work.map((role, roleIndex) => (
           <li key={roleIndex} className="flex gap-4">
             <div className="relative mt-1 flex h-10 w-10 flex-none items-center justify-center rounded-full shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:border dark:border-zinc-700/50 dark:bg-zinc-800 dark:ring-0">
               <Image
@@ -75,10 +40,6 @@ export function Resume() {
           </li>
         ))}
       </ol>
-      <Button href="#" variant="secondary" className="group mt-6 w-full">
-        Download CV
-        <ArrowDownIcon className="h-4 w-4 stroke-zinc-400 transition group-active:stroke-zinc-600 dark:group-hover:stroke-zinc-50 dark:group-active:stroke-zinc-50" />
-      </Button>
     </div>
   );
-}
+};

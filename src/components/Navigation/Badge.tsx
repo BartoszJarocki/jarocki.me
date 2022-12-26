@@ -1,5 +1,5 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
 import { PropsWithChildren } from 'src/@types/react';
 
 type Props = {
@@ -7,7 +7,7 @@ type Props = {
   onClick?: () => void;
 } & PropsWithChildren;
 
-export const Badge: React.FC<Props> = ({ className, children, onClick, ...otherProps }) => {
+export const Badge = ({ className, children, onClick, ...otherProps }: Props) => {
   return (
     <span
       className={classNames(

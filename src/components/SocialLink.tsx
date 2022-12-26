@@ -9,7 +9,7 @@ export interface Props {
   children?: React.ReactNode;
 }
 
-export function SocialLink({ className, href, children, icon: Icon }: Props) {
+export const SocialLink = ({ className, href, children, icon: Icon }: Props) => {
   return (
     <li className={clsx(className, 'flex')}>
       <Link
@@ -21,4 +21,4 @@ export function SocialLink({ className, href, children, icon: Icon }: Props) {
       </Link>
     </li>
   );
-}
+};

@@ -1,3 +1,8 @@
+import logoClevertech from '../images/logos/clevertech.png';
+import logoJojoMobile from '../images/logos/jojomobile.png';
+import logoNsn from '../images/logos/nsn.svg';
+import logoParabol from '../images/logos/parabol.svg';
+
 export const SiteTitle = 'Bartosz Jarocki - Personal website';
 export const SiteDescription =
   'My personal piece of internet. I write about software development and other things that interests me.';
@@ -17,6 +22,37 @@ export const AboutMeContent = `
   I like bikes, books, plants, programming, and traveling the world with my wonderful wife Kasia. 
   Also, I’m fascinated by the cosmos and I find great pleasure in watching stars.
 `;
+
+export const Work = [
+  {
+    company: 'Parabol',
+    title: 'Full Stack Developer',
+    logo: logoParabol,
+    start: '2021',
+    end: 'Present',
+  } as const,
+  {
+    company: 'Clevertech',
+    title: 'Lead Android Developer → Full Stack Developer',
+    logo: logoClevertech,
+    start: '2015',
+    end: '2021',
+  },
+  {
+    company: 'Jojo Mobile',
+    title: 'Android Developer → Lead Android Developer',
+    logo: logoJojoMobile,
+    start: '2012',
+    end: '2015',
+  },
+  {
+    company: 'Nokia Siemens Networks',
+    title: 'C/C++ Developer',
+    logo: logoNsn,
+    start: '2010',
+    end: '2012',
+  },
+];
 
 export const CompaniesLinks = [
   {

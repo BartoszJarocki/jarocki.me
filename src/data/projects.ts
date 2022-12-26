@@ -1,6 +1,6 @@
-import ParabolLogo from '../images/logos/parabol.svg';
-import MonitoLogo from '../images/logos/monito.svg';
 import BarepapersLogo from '../images/logos/barepapers.svg';
+import MonitoLogo from '../images/logos/monito.svg';
+import ParabolLogo from '../images/logos/parabol.svg';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
 
 export const MyProjects = [

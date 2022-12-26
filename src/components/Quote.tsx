@@ -5,7 +5,7 @@ type Props = {
   author: string;
 };
 
-export const Quote: React.FC<Props> = ({ quote, author, ...otherProps }) => {
+export const Quote = ({ quote, author }: Props) => {
   return (
     <blockquote className="rounded-md bg-zinc-100 p-6 dark:bg-zinc-800">
       <div className="relative text-lg font-medium md:flex-grow">

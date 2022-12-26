@@ -1,22 +1,30 @@
-import Image, { StaticImageData } from 'next/image';
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
-import { travelImages } from '../images/travel';
+import Image, { StaticImageData } from 'next/image';
 import { useState } from 'react';
+
+import { travelImages } from '../images/travel';
 
 const possibleRotations = [1.3, -1.3, 1.3, -1.3, 1.3, -1.3];
 
-function Photo({ img, title, alt }: { img: StaticImageData; title: string; alt: string }) {
-  const [randomRotation] = useState(
-    () => possibleRotations[Math.floor(Math.random() * possibleRotations.length)],
-  );
+const Photo = ({
+  img,
+  title,
+  alt,
+  idx,
+}: {
+  img: StaticImageData;
+  title: string;
+  alt: string;
+  idx: number;
+}) => {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
     <motion.div
       key={img.src}
-      initial={{ scale: 1, rotate: randomRotation }}
-      whileHover={{ scale: 1.1, rotate: 0 }}
+      initial={{ scale: 1, rotate: possibleRotations[idx % possibleRotations.length] }}
+      whileHover={{ scale: 1.1, rotate: 0, transition: { duration: 0.2 } }}
       onHoverStart={() => setIsVisible(true)}
       onHoverEnd={() => setIsVisible(false)}
       className={clsx(
@@ -31,33 +39,34 @@ function Photo({ img, title, alt }: { img: StaticImageData; title: string; alt: 
       />
       <AnimatePresence>
         {isVisible && (
-          <motion.h3
+          <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 1, transition: { duration: 0.2 } }}
             exit={{ opacity: 0 }}
-            className="absolute left-0 bottom-0 w-full bg-gradient-to-t from-black/80 via-black/50 px-3 py-2 font-mono text-xs font-bold"
+            className="absolute inset-0 w-full bg-gradient-to-t from-black/75 via-black/0 flex items-end"
           >
-            {title}
-          </motion.h3>
+            <h3 className="px-3 py-2 font-mono text-xs font-bold">{title}</h3>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
   );
-}
+};
 
-export function Photos() {
+export const Photos = () => {
   return (
     <div className="mt-16 sm:mt-20">
       <div className="hide-scrollbar -my-4 flex gap-5 overflow-y-auto py-4 px-8 sm:gap-8">
-        {travelImages.map((travelImage) => (
+        {travelImages.map((travelImage, index) => (
           <Photo
             key={travelImage.img.src}
             img={travelImage.img}
             title={travelImage.title}
             alt={travelImage.alt}
+            idx={index}
           />
         ))}
       </div>
     </div>
   );
-}
+};

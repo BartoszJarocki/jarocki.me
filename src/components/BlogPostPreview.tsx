@@ -1,9 +1,15 @@
-import { Card } from './Card';
-import { Blog } from '../../.contentlayer/generated';
-import { formatDate } from '../lib/date';
 import clsx from 'clsx';
 
-export function BlogPostPreview({ blogPost, dense }: { blogPost: Blog; dense?: boolean }) {
+import { Blog } from '../../.contentlayer/generated';
+import { formatDate } from '../lib/date';
+import { Card } from './Card';
+
+interface Props {
+  blogPost: Blog;
+  dense?: boolean;
+}
+
+export const BlogPostPreview = ({ blogPost, dense }: Props) => {
   return (
     <article className="md:grid md:grid-cols-4 md:items-baseline">
       <Card className="md:col-span-3">
@@ -26,4 +32,4 @@ export function BlogPostPreview({ blogPost, dense }: { blogPost: Blog; dense?: b
       )}
     </article>
   );
-}
+};

@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
 
-export function AvatarContainer({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export const AvatarContainer = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
       className={clsx(
@@ -11,4 +11,4 @@ export function AvatarContainer({ className, ...props }: React.HTMLAttributes<HT
       {...props}
     />
   );
-}
+};

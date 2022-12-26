@@ -1,14 +1,14 @@
-import React from 'react';
-import { useMDXComponent } from 'next-contentlayer/hooks';
-import { BlogPostLayout } from '../../components/BlogPostLayout';
-
-import { ArticleJsonLd, NextSeo } from 'next-seo';
-import { BlogSiteUrl } from '../../data/about';
-import { OpenGraph } from '../../data/social-media';
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
+import { useMDXComponent } from 'next-contentlayer/hooks';
+import { ArticleJsonLd, NextSeo } from 'next-seo';
+import React from 'react';
+
+import { BlogPostLayout } from '../../components/BlogPostLayout';
 import { TwitterIcon } from '../../components/Icons/TwitterIcon';
 import { Prose } from '../../components/Prose';
+import { BlogSiteUrl } from '../../data/about';
+import { OpenGraph } from '../../data/social-media';
 
 export async function getStaticPaths() {
   return {
@@ -58,14 +58,12 @@ const Post = ({
       />
       <BlogPostLayout meta={{ title, description, date }} previousPathname={previousPathname}>
         <div className="mb-32">
-          <Prose>
-            <Component />
-          </Prose>
+          <Component />
           <a
-            className="group block text-center text-xl font-semibold md:text-3xl"
+            className="group block text-center text-xl font-semibold md:text-3xl no-underline"
             href={`https://twitter.com/intent/tweet?text=${title} by ${OpenGraph.twitter.handle}, ${BlogSiteUrl}/${slug}`}
           >
-            <h4 className="m-5 flex cursor-pointer flex-col place-items-center duration-200 ease-in-out group-hover:text-blue-400 sm:m-20">
+            <h4 className="m-5 flex cursor-pointer flex-col place-items-center duration-200 ease-in-out group-hover:text-blue-400 group-hover:fill-blue-400 fill-white sm:m-20">
               <TwitterIcon className="m-6 h-10 w-10 transform transition-transform group-hover:-rotate-12" />
               Click here to share this article with your friends on Twitter if you liked it.
             </h4>

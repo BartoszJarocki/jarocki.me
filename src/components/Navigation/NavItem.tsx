@@ -1,9 +1,9 @@
+import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import clsx from 'clsx';
 import React from 'react';
 
-export function NavItem({ href, children }: React.PropsWithChildren<{ href: string }>) {
+export const NavItem = ({ href, children }: React.PropsWithChildren<{ href: string }>) => {
   let isActive = useRouter().pathname === href;
 
   return (
@@ -22,4 +22,4 @@ export function NavItem({ href, children }: React.PropsWithChildren<{ href: stri
       </Link>
     </li>
   );
-}
+};

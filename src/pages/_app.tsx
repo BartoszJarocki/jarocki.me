@@ -1,14 +1,12 @@
-import React, { useEffect, useRef } from 'react';
-import { AppProps } from 'next/app';
 import { Analytics } from '@vercel/analytics/react';
+import 'focus-visible';
 import { ThemeProvider } from 'next-themes';
-
-import '../styles/index.css';
+import { AppProps } from 'next/app';
+import React, { useEffect, useRef } from 'react';
 
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
-
-import 'focus-visible';
+import '../styles/index.css';
 
 function usePrevious(value: string) {
   let ref = useRef<string>();

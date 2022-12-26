@@ -1,7 +1,7 @@
 import { Button } from './Button';
 import { MailIcon } from './Icons/MailIcon';
 
-export function Newsletter() {
+export const Newsletter = () => {
   return (
     <form
       action="/thank-you"
@@ -28,4 +28,4 @@ export function Newsletter() {
       </div>
     </form>
   );
-}
+};

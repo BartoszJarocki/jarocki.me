@@ -3,7 +3,7 @@ import React from 'react';
 import { Container } from './Container';
 import { NavLink } from './Navigation/NavLink';
 
-export function Footer() {
+export const Footer = () => {
   return (
     <footer className="mt-32">
       <Container.Outer>
@@ -25,4 +25,4 @@ export function Footer() {
       </Container.Outer>
     </footer>
   );
-}
+};

@@ -1,13 +1,12 @@
-import React from 'react';
-import { compareDesc } from 'date-fns';
-import { NextSeo } from 'next-seo';
-
-import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
-
 import { allBlogs } from 'contentlayer/generated';
 import type { Blog } from 'contentlayer/generated';
-import { PageLayout } from '../../components/SimpleLayout';
+import { compareDesc } from 'date-fns';
+import { NextSeo } from 'next-seo';
+import React from 'react';
+
 import { BlogPostPreview } from '../../components/BlogPostPreview';
+import { PageLayout } from '../../components/SimpleLayout';
+import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 
 export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
   const relatedPosts = allBlogs

@@ -1,9 +1,10 @@
 import { useTheme } from 'next-themes';
 import React, { useEffect, useState } from 'react';
-import { SunIcon } from './Icons/SunIcon';
-import { MoonIcon } from './Icons/MoonIcon';
 
-export function ThemeToggle() {
+import { MoonIcon } from './Icons/MoonIcon';
+import { SunIcon } from './Icons/SunIcon';
+
+export const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -21,4 +22,4 @@ export function ThemeToggle() {
       <MoonIcon className="hidden h-6 w-6 fill-zinc-700 stroke-zinc-500 transition dark:block [@media(prefers-color-scheme:dark)]:group-hover:stroke-zinc-400 [@media_not_(prefers-color-scheme:dark)]:fill-teal-400/10 [@media_not_(prefers-color-scheme:dark)]:stroke-primary" />
     </button>
   );
-}
+};

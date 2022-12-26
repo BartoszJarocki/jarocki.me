@@ -1,20 +1,20 @@
+import { compareDesc } from 'date-fns';
 import { GetStaticProps } from 'next';
+import { NextSeo } from 'next-seo';
 
+import { Blog, allBlogs } from '../../.contentlayer/generated';
+import { BlogPostPreview } from '../components/BlogPostPreview';
 import { Container } from '../components/Container';
+import { ExternalLink } from '../components/ExternalLink';
 import { GitHubIcon } from '../components/Icons/GitHubIcon';
 import { InstagramIcon } from '../components/Icons/InstagramIcon';
 import { TwitterIcon } from '../components/Icons/TwitterIcon';
-
-import { compareDesc } from 'date-fns';
-import { allBlogs, Blog } from '../../.contentlayer/generated';
+import { Newsletter } from '../components/Newsletter';
 import { PageTitle } from '../components/PageTitle';
-import { NextSeo } from 'next-seo';
-import { SiteTitle, SiteDescription } from '../data/about';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';
-import { Newsletter } from '../components/Newsletter';
 import { SocialLink } from '../components/SocialLink';
-import { BlogPostPreview } from '../components/BlogPostPreview';
+import { SiteDescription, SiteTitle } from '../data/about';
 
 type Props = {
   latestPosts: Blog[];
@@ -41,7 +41,7 @@ export default function Home({ latestPosts }: Props) {
           <p className="mt-6 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">
             I&apos;m a passionate software engineer with an eye for details based in Wrocław,
             Poland. If out want to reach out,{' '}
-            <a href="mailto:bartosz.jarocki@hey.com">write me an email.</a>
+            <ExternalLink href="mailto:bartosz.jarocki@hey.com">write me an email.</ExternalLink>
           </p>
           <div className="mt-6 flex gap-6">
             <SocialLink

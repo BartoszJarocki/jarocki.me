@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 import { PropsWithChildren } from 'src/@types/react';
 
@@ -6,15 +7,10 @@ type Props = {
   href: string;
 } & PropsWithChildren;
 
-export const ExternalLink: React.FC<Props> = ({
-  className = 'underline',
-  href,
-  children,
-  ...otherProps
-}) => {
+export const ExternalLink = ({ className = 'underline', href, children, ...otherProps }: Props) => {
   return (
     <a
-      className={className ?? undefined}
+      className={clsx(className)}
       target="_blank"
       rel="noopener noreferrer"
       href={href}

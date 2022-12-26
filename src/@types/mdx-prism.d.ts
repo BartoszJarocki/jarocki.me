@@ -1,1 +1,1 @@
-declare module 'mdx-prism'
+declare module 'mdx-prism';

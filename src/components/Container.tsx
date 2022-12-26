@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
 import clsx from 'clsx';
+import { forwardRef } from 'react';
 
 const OuterContainer = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   function OuterContainer({ className, children, ...props }, ref) {

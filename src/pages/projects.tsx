@@ -1,9 +1,10 @@
-import Image from 'next/image';
-import { PageLayout } from '../components/SimpleLayout';
-import { Card } from '../components/Card';
 import { NextSeo } from 'next-seo';
-import { MyProjects } from '../data/projects';
+import Image from 'next/image';
+
+import { Card } from '../components/Card';
 import { LinkIcon } from '../components/Icons/LinkIcon';
+import { PageLayout } from '../components/SimpleLayout';
+import { MyProjects } from '../data/projects';
 
 export default function Projects() {
   return (

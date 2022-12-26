@@ -1,20 +1,20 @@
 import { useRouter } from 'next/router';
-import { Container } from './Container';
-
 import React, { useEffect, useRef } from 'react';
+
+import { Avatar } from './Avatar';
+import { AvatarContainer } from './AvatarContainer';
+import { Container } from './Container';
 import { DesktopNavigation } from './Navigation/DesktopNavigation';
 import { MobileNavigation } from './Navigation/MobileNavigation';
 import { ThemeToggle } from './ThemeToggle';
-import { Avatar } from './Avatar';
-import { AvatarContainer } from './AvatarContainer';
 
-function clamp(number: number, a: number, b: number) {
+const clamp = (number: number, a: number, b: number) => {
   let min = Math.min(a, b);
   let max = Math.max(a, b);
   return Math.min(Math.max(number, min), max);
-}
+};
 
-export function Header() {
+export const Header = () => {
   let isHomePage = useRouter().pathname === '/';
 
   let headerRef = useRef<HTMLDivElement | null>(null);
@@ -186,4 +186,4 @@ export function Header() {
       {isHomePage && <div style={{ height: 'var(--content-offset)' }} />}
     </>
   );
-}
+};

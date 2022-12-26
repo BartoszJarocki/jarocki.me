@@ -1,10 +1,11 @@
 import { Popover, Transition } from '@headlessui/react';
 import React, { Fragment } from 'react';
-import { MobileNavItem } from './MobileNavItem';
-import { CloseIcon } from '../Icons/CloseIcon';
-import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 
-export function MobileNavigation(props: React.HTMLAttributes<HTMLDivElement>) {
+import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
+import { CloseIcon } from '../Icons/CloseIcon';
+import { MobileNavItem } from './MobileNavItem';
+
+export const MobileNavigation = (props: React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <Popover {...props}>
       <Popover.Button className="group flex items-center rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10 dark:hover:ring-white/20">
@@ -56,4 +57,4 @@ export function MobileNavigation(props: React.HTMLAttributes<HTMLDivElement>) {
       </Transition.Root>
     </Popover>
   );
-}
+};

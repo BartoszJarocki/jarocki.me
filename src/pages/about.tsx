@@ -1,5 +1,18 @@
+import { MailIcon } from '@heroicons/react/outline';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
+
+import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
+import { Container } from '../components/Container';
+import { ExternalLink } from '../components/ExternalLink';
+import { GitHubIcon } from '../components/Icons/GitHubIcon';
+import { InstagramIcon } from '../components/Icons/InstagramIcon';
+import { TwitterIcon } from '../components/Icons/TwitterIcon';
+import { PageTitle } from '../components/PageTitle';
+import { Quote } from '../components/Quote';
+import { Section } from '../components/Section';
+import { SocialLink } from '../components/SocialLink';
 import {
   AboutMeContent,
   AboutMeSiteDescription,
@@ -11,18 +24,6 @@ import {
   Quotes,
   VideosWorthWatching,
 } from '../data/about';
-import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
-import { Container } from '../components/Container';
-import React, { useEffect, useState } from 'react';
-import { PageTitle } from '../components/PageTitle';
-import { Section } from '../components/Section';
-import { Quote } from '../components/Quote';
-import { MailIcon } from '@heroicons/react/outline';
-import { GitHubIcon } from '../components/Icons/GitHubIcon';
-import { InstagramIcon } from '../components/Icons/InstagramIcon';
-import { SocialLink } from '../components/SocialLink';
-import { ExternalLink } from '../components/ExternalLink';
-import { TwitterIcon } from '../components/Icons/TwitterIcon';
 
 const AboutMe = () => {
   const [randomQuote, setRandomQuote] = useState<{ author: string; content: string }>();
@@ -71,8 +72,9 @@ const AboutMe = () => {
                 developing great user experiences using React.
                 <br />
                 <br />I created multiple Android applications from scratch for companies around the
-                world like <a href={'https://www.visionmedia.com/'}>VisionMedia</a>,{' '}
-                <a href={'https://www.dkms.org/en'}>DKMS</a>,{' '}
+                world like{' '}
+                <ExternalLink href={'https://www.visionmedia.com/'}>VisionMedia</ExternalLink>,{' '}
+                <ExternalLink href={'https://www.dkms.org/en'}>DKMS</ExternalLink>,{' '}
                 <ExternalLink href={'https://www.aaa.com/'}>AAA</ExternalLink>,{' '}
                 <ExternalLink href={'https://polskapress.pl/pl'}>PolskaPress</ExternalLink> or{' '}
                 <ExternalLink href={'https://www.canaldigital.no/'}>Canal Digital</ExternalLink>. I

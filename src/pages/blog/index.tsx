@@ -1,15 +1,14 @@
-import React from 'react';
-import Link from 'next/link';
-import { NextSeo } from 'next-seo';
-
-import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
-import { Badge } from '../../components/Navigation/Badge';
-
 import { allBlogs } from 'contentlayer/generated';
-import type { Blog } from 'contentlayer/generated';
-import { PageLayout } from '../../components/SimpleLayout';
+import type { Blog as BlogType } from 'contentlayer/generated';
 import { compareDesc } from 'date-fns';
+import { NextSeo } from 'next-seo';
+import Link from 'next/link';
+import React from 'react';
+
 import { BlogPostPreview } from '../../components/BlogPostPreview';
+import { Badge } from '../../components/Navigation/Badge';
+import { PageLayout } from '../../components/SimpleLayout';
+import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 
 export async function getStaticProps() {
   const posts = allBlogs.sort((a, b) => {
@@ -20,7 +19,7 @@ export async function getStaticProps() {
 }
 
 interface Props {
-  posts: Blog[];
+  posts: BlogType[];
   tags: Array<string>;
 }
 

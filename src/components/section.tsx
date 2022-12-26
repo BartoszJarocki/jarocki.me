@@ -9,7 +9,7 @@ interface TitleProps {
   children?: ReactNode;
 }
 
-const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, children }) => {
+const Title = ({ as: TitleComponent = 'h1', action, children }: TitleProps) => {
   return (
     <header className="mt-16 flex flex-row items-center justify-between">
       <TitleComponent className="text-xl font-bold leading-none tracking-tight">
@@ -20,11 +20,11 @@ const Title: React.FC<TitleProps> = ({ as: TitleComponent = 'h1', action, childr
   );
 };
 
-const Content: React.FC<PropsWithChildren> = ({ children }) => {
-  return <div className="mt-4 divide-y divide-zinc-200 dark:divide-zinc-700">{children}</div>;
+const Content = ({ children }: PropsWithChildren) => {
+  return <div className="mt-4 text-zinc-600 dark:text-zinc-400">{children}</div>;
 };
 
-const SectionRoot: React.FC<PropsWithChildren> = ({ children }) => {
+const SectionRoot = ({ children }: PropsWithChildren) => {
   return <section>{children}</section>;
 };
 
