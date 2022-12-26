@@ -1,5 +1,6 @@
 import BarepapersLogo from '../images/logos/barepapers.svg';
 import logoClevertech from '../images/logos/clevertech.png';
+import JarockiMeLogo from '../images/logos/jarocki.svg';
 import logoJojoMobile from '../images/logos/jojomobile.png';
 import MonitoLogo from '../images/logos/monito.svg';
 import logoNsn from '../images/logos/nsn.svg';
@@ -52,6 +53,7 @@ export const MyProjects = [
     title: 'Jarocki.me',
     techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
     description: 'My personal website you are currently on, built with Next.js.',
+    logo: JarockiMeLogo,
     link: {
       label: 'github.com',
       href: 'https://github.com/BartoszJarocki/web-jarocki-me',
