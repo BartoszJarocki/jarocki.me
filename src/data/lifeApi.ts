@@ -1,6 +1,5 @@
 import { GitHubIcon } from '../components/Icons/GitHubIcon';
 import { InstagramIcon } from '../components/Icons/InstagramIcon';
-import { StackOverflowIcon } from '../components/Icons/StackOverflowIcon';
 import { TwitterIcon } from '../components/Icons/TwitterIcon';
 import BarepapersLogo from '../images/logos/barepapers.svg';
 import logoClevertech from '../images/logos/clevertech.png';
