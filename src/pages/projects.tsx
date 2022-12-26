@@ -6,16 +6,18 @@ import { LinkIcon } from '../components/Icons/LinkIcon';
 import { PageLayout } from '../components/SimpleLayout';
 import { MyProjects } from '../data/projects';
 
+const seoTitle = 'Projects | Bartosz Jarocki';
+const seoDescription = "Projects I've work on, worked on and will work on";
+
 export default function Projects() {
   return (
     <>
       <NextSeo
-        title="Bartosz Jarocki | Projects"
-        description="I’ve worked on tons of little projects over the years but these are the ones that I’m most proud of. Many of them are open-source, so if you see something that piques your interest, check out the code and contribute if you have ideas for how it can be improved."
-        canonical={process.env.NEXT_PUBLIC_SITE_URL}
+        title={seoTitle}
+        description={seoDescription}
+        canonical={`${process.env.NEXT_PUBLIC_SITE_URL}/projects`}
         openGraph={{
-          url: process.env.NEXT_PUBLIC_SITE_URL,
-          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${`Projects`}}` }],
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${seoTitle}}` }],
         }}
       />
       <PageLayout

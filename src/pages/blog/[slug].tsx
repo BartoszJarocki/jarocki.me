@@ -6,9 +6,55 @@ import React from 'react';
 
 import { BlogPostLayout } from '../../components/BlogPostLayout';
 import { TwitterIcon } from '../../components/Icons/TwitterIcon';
-import { Prose } from '../../components/Prose';
-import { BlogSiteUrl } from '../../data/about';
-import { OpenGraph } from '../../data/social-media';
+
+const Post = ({
+  post: { title, description, body, slug, author, date, readingTime, tags },
+  previousPathname,
+}: {
+  post: Blog;
+  previousPathname?: string;
+}) => {
+  const Component = useMDXComponent(body.code);
+  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug}`;
+  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${title}`;
+
+  return (
+    <>
+      <NextSeo
+        title={title}
+        description={description}
+        canonical={url}
+        openGraph={{
+          images: [{ url: openGraphImageUrl }],
+        }}
+      />
+      <ArticleJsonLd
+        url={url}
+        images={[openGraphImageUrl]}
+        title={title}
+        datePublished={date}
+        authorName={author.name!}
+        publisherName={author.name!}
+        publisherLogo={author.picture!}
+        description={description}
+      />
+      <BlogPostLayout meta={{ title, description, date }} previousPathname={previousPathname}>
+        <div className="mb-32">
+          <Component />
+          <a
+            className="group block text-center text-xl font-semibold md:text-3xl no-underline"
+            href={url}
+          >
+            <h4 className="m-5 flex cursor-pointer flex-col place-items-center duration-200 ease-in-out group-hover:text-blue-400 group-hover:fill-blue-400 fill-white sm:m-20">
+              <TwitterIcon className="m-6 h-10 w-10 transform transition-transform group-hover:-rotate-12" />
+              Click here to share this article with your friends on Twitter if you liked it.
+            </h4>
+          </a>
+        </div>
+      </BlogPostLayout>
+    </>
+  );
+};
 
 export async function getStaticPaths() {
   return {
@@ -22,56 +68,5 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 
   return { props: { post } };
 }
-
-const Post = ({
-  post: { title, description, body, slug, author, date, readingTime, tags },
-  previousPathname,
-}: {
-  post: Blog;
-  previousPathname?: string;
-}) => {
-  const Component = useMDXComponent(body.code);
-
-  return (
-    <>
-      <NextSeo
-        title={title}
-        description={description}
-        canonical={`${BlogSiteUrl}/${slug}`}
-        openGraph={{
-          url: `${BlogSiteUrl}/${slug}`,
-          title,
-          description,
-          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${title}` }],
-          site_name: title,
-        }}
-      />
-      <ArticleJsonLd
-        url={`${BlogSiteUrl}/${slug}`}
-        title={title}
-        images={[`${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${title}`]}
-        datePublished={date}
-        authorName={author.name!}
-        publisherName={author.name!}
-        publisherLogo={author.picture!}
-        description={description}
-      />
-      <BlogPostLayout meta={{ title, description, date }} previousPathname={previousPathname}>
-        <div className="mb-32">
-          <Component />
-          <a
-            className="group block text-center text-xl font-semibold md:text-3xl no-underline"
-            href={`https://twitter.com/intent/tweet?text=${title} by ${OpenGraph.twitter.handle}, ${BlogSiteUrl}/${slug}`}
-          >
-            <h4 className="m-5 flex cursor-pointer flex-col place-items-center duration-200 ease-in-out group-hover:text-blue-400 group-hover:fill-blue-400 fill-white sm:m-20">
-              <TwitterIcon className="m-6 h-10 w-10 transform transition-transform group-hover:-rotate-12" />
-              Click here to share this article with your friends on Twitter if you liked it.
-            </h4>
-          </a>
-        </div>
-      </BlogPostLayout>
-    </>
-  );
-};
 
 export default Post;

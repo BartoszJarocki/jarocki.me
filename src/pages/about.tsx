@@ -14,9 +14,6 @@ import { Quote } from '../components/Quote';
 import { Section } from '../components/Section';
 import { SocialLink } from '../components/SocialLink';
 import {
-  AboutMeContent,
-  AboutMeSiteDescription,
-  AboutMeSiteTitle,
   Blogs,
   Books,
   PeopleWorthFollowingOnTwitter,
@@ -24,6 +21,9 @@ import {
   Quotes,
   VideosWorthWatching,
 } from '../data/about';
+
+const seoTitle = `About | Bartosz Jarocki`;
+const seoDescription = `A few words about me.`;
 
 const AboutMe = () => {
   const [randomQuote, setRandomQuote] = useState<{ author: string; content: string }>();
@@ -35,15 +35,11 @@ const AboutMe = () => {
   return (
     <>
       <NextSeo
-        title={AboutMeSiteTitle}
-        description={AboutMeSiteDescription}
-        canonical={process.env.NEXT_PUBLIC_SITE_URL}
+        title={seoTitle}
+        description={seoDescription}
+        canonical={`${process.env.NEXT_PUBLIC_SITE_URL}/about`}
         openGraph={{
-          url: process.env.NEXT_PUBLIC_SITE_URL,
-          title: AboutMeSiteTitle,
-          description: AboutMeSiteDescription,
-          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${AboutMeSiteTitle}` }],
-          site_name: AboutMeSiteTitle,
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <Container className="mt-16 sm:mt-32">
@@ -61,7 +57,11 @@ const AboutMe = () => {
           <div className="lg:order-first lg:row-span-2">
             <PageTitle>Hi, I&apos;m Bartosz Jarocki.</PageTitle>
             <div className="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400">
-              {AboutMeContent}
+              I live in Wrocław, Poland. I grew up in a small town Góra. I graduated with a
+              bachelor&apos;s degree in Control systems engineering and Robotics at the Wrocław
+              University of Technology. I like bikes, books, plants, programming, and traveling the
+              world with my wonderful wife Kasia. Also, I&apos;m fascinated by the cosmos and I find
+              great pleasure in watching stars.
             </div>
 
             <Section>

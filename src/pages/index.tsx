@@ -14,7 +14,10 @@ import { PageTitle } from '../components/PageTitle';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';
 import { SocialLink } from '../components/SocialLink';
-import { SiteDescription, SiteTitle } from '../data/about';
+
+const seoTitle = 'Bartosz Jarocki';
+const seoDescription =
+  'A passionate software engineer with an eye for details based in Wrocław, Poland.';
 
 type Props = {
   latestPosts: Blog[];
@@ -24,15 +27,11 @@ export default function Home({ latestPosts }: Props) {
   return (
     <>
       <NextSeo
-        title={SiteTitle}
-        description={SiteDescription}
+        title={seoTitle}
+        description={seoDescription}
         canonical={process.env.NEXT_PUBLIC_SITE_URL}
         openGraph={{
-          url: process.env.NEXT_PUBLIC_SITE_URL,
-          title: SiteTitle,
-          description: SiteDescription,
-          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${SiteTitle}` }],
-          site_name: SiteTitle,
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <Container className="mt-9">

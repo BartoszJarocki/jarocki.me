@@ -8,15 +8,10 @@ import React from 'react';
 import { BlogPostPreview } from '../../components/BlogPostPreview';
 import { Badge } from '../../components/Navigation/Badge';
 import { PageLayout } from '../../components/SimpleLayout';
-import { BlogSiteDescription, BlogSiteTitle, BlogSiteUrl } from '../../data/about';
 
-export async function getStaticProps() {
-  const posts = allBlogs.sort((a, b) => {
-    return compareDesc(new Date(a.date), new Date(b.date));
-  });
-  const tags = Array.from(new Set(posts.map((post) => post.tags).flat()));
-  return { props: { posts, tags } };
-}
+const seoTitle = 'Blog | Bartosz Jarocki';
+const seoDescription =
+  'All of my long-form thoughts on programming, building products, leadership, and more, collected in chronological order.';
 
 interface Props {
   posts: BlogType[];
@@ -27,15 +22,11 @@ const Blog = ({ posts, tags }: Props) => {
   return (
     <>
       <NextSeo
-        title={BlogSiteTitle}
-        description={BlogSiteDescription}
-        canonical={BlogSiteUrl}
+        title={seoTitle}
+        description={seoDescription}
+        canonical={`${process.env.NEXT_PUBLIC_SITE_URL}/blog`}
         openGraph={{
-          url: BlogSiteUrl,
-          title: BlogSiteTitle,
-          description: BlogSiteDescription,
-          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${BlogSiteTitle}` }],
-          site_name: BlogSiteTitle,
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <PageLayout
@@ -62,5 +53,13 @@ const Blog = ({ posts, tags }: Props) => {
     </>
   );
 };
+
+export async function getStaticProps() {
+  const posts = allBlogs.sort((a, b) => {
+    return compareDesc(new Date(a.date), new Date(b.date));
+  });
+  const tags = Array.from(new Set(posts.map((post) => post.tags).flat()));
+  return { props: { posts, tags } };
+}
 
 export default Blog;

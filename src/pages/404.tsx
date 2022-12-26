@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { PageTitle } from '../components/PageTitle';
 
-export default function Example() {
+export default function NotFound() {
   return (
     <>
       <div className="flex min-h-full flex-col pt-16 pb-12">
@@ -12,7 +12,7 @@ export default function Example() {
               <p className="text-base font-semibold text-primary">404</p>
               <PageTitle>Page not found.</PageTitle>
               <p className="mt-2 text-base text-gray-500">
-                Sorry, we couldn’t find the page you’re looking for.
+                Sorry, we couldn&apos;t find the page you&apos;re looking for.
               </p>
               <div className="mt-6">
                 <Link href="/" className="text-base font-medium hover:text-primary">

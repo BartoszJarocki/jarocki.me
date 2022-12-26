@@ -1,3 +1,4 @@
+import { NextSeo } from 'next-seo';
 import Head from 'next/head';
 import { useId } from 'react';
 
@@ -51,50 +52,56 @@ function Tool({
   );
 }
 
+const seoTitle = 'Uses | Bartosz Jarocki';
+const seoDescription = 'Software I use, gadgets I love, and other things I recommend.';
+
 export default function Uses() {
   return (
     <>
-      <Head>
-        <title>Uses - Spencer Sharp</title>
-        <meta
-          name="description"
-          content="Software I use, gadgets I love, and other things I recommend."
-        />
-      </Head>
+      <NextSeo
+        title={seoTitle}
+        description={seoDescription}
+        canonical={`${process.env.NEXT_PUBLIC_SITE_URL}/uses`}
+        openGraph={{
+          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${seoTitle}}` }],
+        }}
+      />
       <PageLayout
         title="Software I use, gadgets I love, and other things I recommend."
-        intro="I get asked a lot about the things I use to build software, stay productive, or buy to fool myself into thinking I’m being productive when I’m really just procrastinating. Here’s a big list of all of my favorite stuff."
+        intro="I get asked a lot about the things I use to build software, stay productive, or buy to fool myself into thinking I'm being productive when I'm really just procrastinating. Here's a big list of all of my favorite stuff."
       >
         <div className="space-y-20">
           <ToolsSection title="Workstation">
             <Tool title="14” MacBook Pro, M1 Max, 32GB RAM (2021)">
               I was using an Intel-based 16” MacBook Pro prior to this and the difference is night
-              and day. I’ve never heard the fans turn on a single time, even under the heavy loads.
-              And the battery life is great.
+              and day. I&apos;ve never heard the fans turn on a single time, even under the heavy
+              loads. And the battery life is great.
             </Tool>
             <Tool title="Apple Studio Display (Standard Glass)">Pricey but worth it</Tool>
-            <Tool title="Logitech MX Keys Mini">One of the best keyboards I’ve ever used.</Tool>
+            <Tool title="Logitech MX Keys Mini">
+              One of the best keyboards I&apos;ve ever used.
+            </Tool>
             <Tool title="Logitech MX Master 3">
-              I’ve been using the MX Master series for years and it’s still the best mouse I’ve ever
-              used.
+              I&apos;ve been using the MX Master series for years and it&apos;s still the best mouse
+              I&apos;ve ever used.
             </Tool>
             <Tool title="Apple Magic Trackpad">
               Something about all the gestures makes me feel like a wizard with special powers. I
               really like feeling like a wizard with special powers.
             </Tool>
             <Tool title="Herman Miller Aeron Chair">
-              If I’m going to slouch in the worst ergonomic position imaginable all day, I might as
-              well do it in an expensive chair.
+              If I&apos;m going to slouch in the worst ergonomic position imaginable all day, I
+              might as well do it in an expensive chair.
             </Tool>
           </ToolsSection>
           <ToolsSection title="Development tools">
             <Tool title="VS Code">
-              I don’t care if it’s missing all of the fancy IDE features everyone else relies on,
-              Sublime Text is still the best text editor ever made.
+              I don&apos;t care if it&apos;s missing all of the fancy IDE features everyone else
+              relies on, Sublime Text is still the best text editor ever made.
             </Tool>
             <Tool title="iTerm2">
-              I’m honestly not even sure what features I get with this that aren’t just part of the
-              macOS Terminal but it’s what I use.
+              I&apos;m honestly not even sure what features I get with this that aren&apos;t just
+              part of the macOS Terminal but it&apos;s what I use.
             </Tool>
             <Tool title="TablePlus">
               Great software for working with databases. Has saved me from building about a thousand
@@ -103,20 +110,20 @@ export default function Uses() {
           </ToolsSection>
           <ToolsSection title="Design">
             <Tool title="Figma">
-              We started using Figma as just a design tool but now it’s become our virtual
+              We started using Figma as just a design tool but now it&apos;s become our virtual
               whiteboard for the entire company. Never would have expected the collaboration
               features to be the real hook.
             </Tool>
           </ToolsSection>
           <ToolsSection title="Productivity">
             <Tool title="Reycast">
-              It’s not the newest kid on the block but it’s still the fastest. The Sublime Text of
-              the application launcher world.
+              It&apos;s not the newest kid on the block but it&apos;s still the fastest. The Sublime
+              Text of the application launcher world.
             </Tool>
             <Tool title="Obsidian / Apple Notes">
               Using a daily notes system instead of trying to keep things organized by topics has
-              been super powerful for me. And with Reflect, it’s still easy for me to keep all of
-              that stuff discoverable by topic even though all of my writing happens in the daily
+              been super powerful for me. And with Reflect, it&apos;s still easy for me to keep all
+              of that stuff discoverable by topic even though all of my writing happens in the daily
               note.
             </Tool>
             <Tool title="Cron">

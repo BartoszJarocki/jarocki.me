@@ -3,25 +3,12 @@ import logoJojoMobile from '../images/logos/jojomobile.png';
 import logoNsn from '../images/logos/nsn.svg';
 import logoParabol from '../images/logos/parabol.svg';
 
-export const SiteTitle = 'Bartosz Jarocki - Personal website';
+export const SiteTitle = 'Bartosz Jarocki';
 export const SiteDescription =
-  'My personal piece of internet. I write about software development and other things that interests me.';
+  'A passionate software engineer with an eye for details based in Wrocław,Poland.';
 export const SiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-export const BlogSiteTitle = 'Bartosz Jarocki - Blog';
-export const BlogSiteDescription =
-  'My personal blog. Javascript, Typescript, React and other things.';
-export const BlogSiteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog`;
 
-export const AboutMeSiteTitle = 'Bartosz Jarocki - About me';
-export const AboutMeSiteDescription = 'Who am I? What am I doing? Everything, and more, is here.';
-export const AboutMeSiteUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/about`;
-export const AboutMeContent = `
-  I live in Wrocław, Poland. I grew up in a small town Góra. 
-  I graduated with a bachelor's degree in Control systems engineering and Robotics at the Wrocław University of Technology. 
-  I like bikes, books, plants, programming, and traveling the world with my wonderful wife Kasia. 
-  Also, I’m fascinated by the cosmos and I find great pleasure in watching stars.
-`;
 
 export const Work = [
   {
