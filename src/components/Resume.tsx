@@ -1,6 +1,6 @@
 import Image from 'next/image';
 
-import { Work } from '../data/about';
+import { Work } from '../data/lifeApi';
 import { BriefcaseIcon } from './Icons/BriefcaseIcon';
 
 export const Resume = () => {

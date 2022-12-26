@@ -1,14 +1,71 @@
+import BarepapersLogo from '../images/logos/barepapers.svg';
 import logoClevertech from '../images/logos/clevertech.png';
 import logoJojoMobile from '../images/logos/jojomobile.png';
+import MonitoLogo from '../images/logos/monito.svg';
 import logoNsn from '../images/logos/nsn.svg';
 import logoParabol from '../images/logos/parabol.svg';
+import ParabolLogo from '../images/logos/parabol.svg';
+import YearProgressLogo from '../images/logos/yearprogress.svg';
 
-export const SiteTitle = 'Bartosz Jarocki';
-export const SiteDescription =
-  'A passionate software engineer with an eye for details based in Wrocław,Poland.';
-export const SiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+export const MyProjects = [
+  {
+    title: 'Parabol',
+    techStack: ['TypeScript', 'React', 'Node.js'],
+    description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
+    logo: ParabolLogo,
+    link: {
+      label: 'github.com',
+      href: 'https://github.com/ParabolInc/parabol',
+    },
+  },
+  {
+    title: 'Monito',
+    techStack: ['Chrome Extension', 'Next.js', '▲Vercel'],
+    description: 'Browser extension that records everything happening in a web application.',
+    logo: MonitoLogo,
+    link: {
+      label: 'monito.dev',
+      href: 'https://monito.dev',
+    },
+  },
+  {
+    title: 'Barepapers',
+    techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
+    description: 'Generates beautiful wallpapers using random shapes and gradients.',
+    logo: BarepapersLogo,
+    link: {
+      label: 'barepapers.com',
+      href: 'https://barepapers.com',
+    },
+  },
+  {
+    title: 'Year progress',
+    techStack: ['Next.js', '▲Vercel'],
+    description: 'Tracks current year progress and displas a countdown.',
+    logo: YearProgressLogo,
+    link: {
+      label: 'getyearprogress.com',
+      href: 'https://getyearprogress.com',
+    },
+  },
+  {
+    title: 'Jarocki.me',
+    techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
+    description: 'My personal website you are currently on, built with Next.js.',
+    link: {
+      label: 'github.com',
+      href: 'https://github.com/BartoszJarocki/web-jarocki-me',
+    },
+  },
+];
 
-
+export const SocialMedia = {
+  Twitter: 'https://twitter.com/BartoszJarocki',
+  Instagram: 'https://www.instagram.com/bartosz.jarocki/',
+  Github: 'https://github.com/BartoszJarocki',
+  StackOverflow: 'https://stackoverflow.com/story/bartoszjarocki',
+  AngelCo: 'https://angel.co/p/jarocki-bartek-gmail-com',
+};
 
 export const Work = [
   {

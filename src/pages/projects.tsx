@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Card } from '../components/Card';
 import { LinkIcon } from '../components/Icons/LinkIcon';
 import { PageLayout } from '../components/SimpleLayout';
-import { MyProjects } from '../data/projects';
+import { MyProjects } from '../data/lifeApi';
 
 const seoTitle = 'Projects | Bartosz Jarocki';
 const seoDescription = "Projects I've work on, worked on and will work on";
@@ -21,8 +21,8 @@ export default function Projects() {
         }}
       />
       <PageLayout
-        title="Things I’ve made trying to put my dent in the universe."
-        intro="I’ve worked on tons of little projects over the years but these are the ones that I’m most proud of. Many of them are open-source, so if you see something that piques your interest, check out the code and contribute if you have ideas for how it can be improved."
+        title="Things I've made trying to put my dent in the universe."
+        intro="I've worked on tons of little projects over the years but these are the ones that I'm most proud of."
       >
         <ul
           role="list"

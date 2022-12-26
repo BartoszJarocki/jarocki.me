@@ -20,7 +20,7 @@ import {
   Podcasts,
   Quotes,
   VideosWorthWatching,
-} from '../data/about';
+} from '../data/lifeApi';
 
 const seoTitle = `About | Bartosz Jarocki`;
 const seoDescription = `A few words about me.`;

@@ -1,5 +1,4 @@
 import { NextSeo } from 'next-seo';
-import Head from 'next/head';
 import { useId } from 'react';
 
 import { Card } from '../components/Card';
@@ -68,36 +67,42 @@ export default function Uses() {
       />
       <PageLayout
         title="Software I use, gadgets I love, and other things I recommend."
-        intro="I get asked a lot about the things I use to build software, stay productive, or buy to fool myself into thinking I'm being productive when I'm really just procrastinating. Here's a big list of all of my favorite stuff."
+        intro="Here's a big list of all of my favorite stuff."
       >
         <div className="space-y-20">
           <ToolsSection title="Workstation">
             <Tool title="14” MacBook Pro, M1 Max, 32GB RAM (2021)">
-              I was using an Intel-based 16” MacBook Pro prior to this and the difference is night
-              and day. I&apos;ve never heard the fans turn on a single time, even under the heavy
-              loads. And the battery life is great.
+              This laptop is a top-of-the-line machine that can handle virtually any task you throw
+              at it, making it a worthwhile investment for anyone looking for a reliable and
+              powerful laptop that can be used for years.
             </Tool>
-            <Tool title="Apple Studio Display (Standard Glass)">Pricey but worth it</Tool>
+            <Tool title="Apple Studio Display 5K (Standard Glass)">
+              5K resolution helps to reduce strain on the eyes and makes it more comfortable to work
+              for long periods of time. Not to mention that it looks great.
+            </Tool>
             <Tool title="Logitech MX Keys Mini">
-              One of the best keyboards I&apos;ve ever used.
+              Backlit keys, compact design, good battery life and a great typing experience. Matches
+              the space gray color of the laptop almost perfectly.
             </Tool>
             <Tool title="Logitech MX Master 3">
-              I&apos;ve been using the MX Master series for years and it&apos;s still the best mouse
-              I&apos;ve ever used.
+              Let&apos;s be honest, it just looks great with MX Keys Mini keyboard.
             </Tool>
             <Tool title="Apple Magic Trackpad">
-              Something about all the gestures makes me feel like a wizard with special powers. I
-              really like feeling like a wizard with special powers.
+              Gestures, taps and swipes are something I miss when I work with my laptop closed.
             </Tool>
-            <Tool title="Herman Miller Aeron Chair">
+            <Tool title="Apple Magic Mouse">
+              Because it looks great and it allows me to post pictures with how badly the charging
+              port is designed.
+            </Tool>
+            <Tool title="Autonomous ErgoChair Pro">
               If I&apos;m going to slouch in the worst ergonomic position imaginable all day, I
               might as well do it in an expensive chair.
             </Tool>
           </ToolsSection>
           <ToolsSection title="Development tools">
             <Tool title="VS Code">
-              I don&apos;t care if it&apos;s missing all of the fancy IDE features everyone else
-              relies on, Sublime Text is still the best text editor ever made.
+              I still miss WebStorm but at least VS Code does not consume 1000% CPU when I open it.
+              And to be fair, it&apos;s a great editor.
             </Tool>
             <Tool title="iTerm2">
               I&apos;m honestly not even sure what features I get with this that aren&apos;t just
@@ -110,26 +115,19 @@ export default function Uses() {
           </ToolsSection>
           <ToolsSection title="Design">
             <Tool title="Figma">
-              We started using Figma as just a design tool but now it&apos;s become our virtual
-              whiteboard for the entire company. Never would have expected the collaboration
-              features to be the real hook.
+              I&apos;m not a designer but it allows me to quickly mock up interfaces and play with
+              my ideas. One day I&apos;ll learn how to use it properly.
             </Tool>
           </ToolsSection>
           <ToolsSection title="Productivity">
             <Tool title="Reycast">
-              It&apos;s not the newest kid on the block but it&apos;s still the fastest. The Sublime
-              Text of the application launcher world.
+              Window manager, calculator, extensions, and more. I can&apos;t live without it.
             </Tool>
             <Tool title="Obsidian / Apple Notes">
-              Using a daily notes system instead of trying to keep things organized by topics has
-              been super powerful for me. And with Reflect, it&apos;s still easy for me to keep all
-              of that stuff discoverable by topic even though all of my writing happens in the daily
-              note.
+              I slowly migrate from Apple Notes to Obsidian. I do like the fact Obsidan notes are
+              just files on my disk.
             </Tool>
-            <Tool title="Cron">
-              Great tool for scheduling meetings while protecting my calendar and making sure I
-              still have lots of time for deep work during the week.
-            </Tool>
+            <Tool title="Cron">It&apos;s just the best calendar app.</Tool>
           </ToolsSection>
         </div>
       </PageLayout>
