@@ -1,3 +1,7 @@
+import { GitHubIcon } from '../components/Icons/GitHubIcon';
+import { InstagramIcon } from '../components/Icons/InstagramIcon';
+import { StackOverflowIcon } from '../components/Icons/StackOverflowIcon';
+import { TwitterIcon } from '../components/Icons/TwitterIcon';
 import BarepapersLogo from '../images/logos/barepapers.svg';
 import logoClevertech from '../images/logos/clevertech.png';
 import JarockiMeLogo from '../images/logos/jarocki.svg';
@@ -61,13 +65,11 @@ export const MyProjects = [
   },
 ];
 
-export const SocialMedia = {
-  Twitter: 'https://twitter.com/BartoszJarocki',
-  Instagram: 'https://www.instagram.com/bartosz.jarocki/',
-  Github: 'https://github.com/BartoszJarocki',
-  StackOverflow: 'https://stackoverflow.com/story/bartoszjarocki',
-  AngelCo: 'https://angel.co/p/jarocki-bartek-gmail-com',
-};
+export const SocialMedia = [
+  { name: 'Twitter', link: 'https://twitter.com/BartoszJarocki', icon: TwitterIcon },
+  { name: 'Instagram', link: 'https://www.instagram.com/bartosz.jarocki/', icon: InstagramIcon },
+  { name: 'Github', link: 'https://github.com/BartoszJarocki', icon: GitHubIcon },
+];
 
 export const Work = [
   {

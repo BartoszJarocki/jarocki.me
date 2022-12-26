@@ -25,7 +25,7 @@ import {
 const seoTitle = `About | Bartosz Jarocki`;
 const seoDescription = `A few words about me.`;
 
-const AboutMe = () => {
+export default function AboutMe() {
   const [randomQuote, setRandomQuote] = useState<{ author: string; content: string }>();
 
   useEffect(() => {
@@ -201,6 +201,4 @@ const AboutMe = () => {
       </Container>
     </>
   );
-};
-
-export default AboutMe;
+}

@@ -18,7 +18,7 @@ interface Props {
   tags: Array<string>;
 }
 
-const Blog = ({ posts, tags }: Props) => {
+export default function Blog({ posts, tags }: Props) {
   return (
     <>
       <NextSeo
@@ -52,7 +52,7 @@ const Blog = ({ posts, tags }: Props) => {
       </PageLayout>
     </>
   );
-};
+}
 
 export async function getStaticProps() {
   const posts = allBlogs.sort((a, b) => {
@@ -61,5 +61,3 @@ export async function getStaticProps() {
   const tags = Array.from(new Set(posts.map((post) => post.tags).flat()));
   return { props: { posts, tags } };
 }
-
-export default Blog;

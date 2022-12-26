@@ -14,6 +14,7 @@ import { PageTitle } from '../components/PageTitle';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';
 import { SocialLink } from '../components/SocialLink';
+import { SocialMedia } from '../data/lifeApi';
 
 const seoTitle = 'Bartosz Jarocki';
 const seoDescription =
@@ -43,17 +44,14 @@ export default function Home({ latestPosts }: Props) {
             <ExternalLink href="mailto:bartosz.jarocki@hey.com">write me an email.</ExternalLink>
           </p>
           <div className="mt-6 flex gap-6">
-            <SocialLink
-              href="https://twitter.com"
-              aria-label="Follow on Twitter"
-              icon={TwitterIcon}
-            />
-            <SocialLink
-              href="https://instagram.com"
-              aria-label="Follow on Instagram"
-              icon={InstagramIcon}
-            />
-            <SocialLink href="https://github.com" aria-label="Follow on GitHub" icon={GitHubIcon} />
+            {SocialMedia.map((socialProfile) => (
+              <SocialLink
+                key={socialProfile.name}
+                href={socialProfile.link}
+                aria-label={`Follow on ${socialProfile.name}`}
+                icon={socialProfile.icon}
+              />
+            ))}
           </div>
         </div>
       </Container>

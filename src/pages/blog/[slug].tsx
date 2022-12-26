@@ -7,13 +7,13 @@ import React from 'react';
 import { BlogPostLayout } from '../../components/BlogPostLayout';
 import { TwitterIcon } from '../../components/Icons/TwitterIcon';
 
-const Post = ({
+export default function Post({
   post: { title, description, body, slug, author, date, readingTime, tags },
   previousPathname,
 }: {
   post: Blog;
   previousPathname?: string;
-}) => {
+}) {
   const Component = useMDXComponent(body.code);
   const url = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${slug}`;
   const openGraphImageUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${title}`;
@@ -54,7 +54,7 @@ const Post = ({
       </BlogPostLayout>
     </>
   );
-};
+}
 
 export async function getStaticPaths() {
   return {
@@ -68,5 +68,3 @@ export async function getStaticProps({ params }: { params: { slug: string } }) {
 
   return { props: { post } };
 }
-
-export default Post;

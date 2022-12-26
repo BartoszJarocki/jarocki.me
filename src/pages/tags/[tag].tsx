@@ -15,7 +15,7 @@ interface Props {
   relatedPosts: Blog[];
 }
 
-const Tag = ({ tag, relatedPosts }: Props) => {
+export default function Tag({ tag, relatedPosts }: Props) {
   return (
     <>
       <NextSeo
@@ -37,7 +37,7 @@ const Tag = ({ tag, relatedPosts }: Props) => {
       </PageLayout>
     </>
   );
-};
+}
 
 export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
   const relatedPosts = allBlogs
@@ -62,5 +62,3 @@ export async function getStaticPaths() {
     fallback: false,
   };
 }
-
-export default Tag;
