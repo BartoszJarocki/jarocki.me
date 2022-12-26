@@ -79,16 +79,8 @@ export const CompaniesLinks = [
 
 export const Books = [
   {
-    name: 'Daily stoic by Ryan Holiday',
-    link: 'https://amzn.to/3n8ATuC',
-  },
-  {
-    name: 'A Guide to the Good Life: The Ancient Art of Stoic Joy by William B. Irvine',
-    link: 'https://amzn.to/3iuL1ud',
-  },
-  {
-    name: 'Atomic Habits by James Clear',
-    link: 'https://amzn.to/3iqimpZ',
+    name: 'Shoe Dog: A Memoir by the Creator of Nike by Phil Knight',
+    link: 'https://www.amazon.com/Shoe-Dog-Memoir-Creator-Nike-ebook/dp/B0176M1A44',
   },
   {
     name: 'The Black Swan: The Impact of the Highly Improbable by Nassim Nicholas Taleb',
@@ -101,6 +93,18 @@ export const Books = [
   {
     name: 'Fooled by Randomness: The Hidden Role of Chance in Life and in the Markets by Nassim Nicholas Taleb',
     link: 'https://amzn.to/3kbvaD9',
+  },
+  {
+    name: 'Daily stoic by Ryan Holiday',
+    link: 'https://amzn.to/3n8ATuC',
+  },
+  {
+    name: 'A Guide to the Good Life: The Ancient Art of Stoic Joy by William B. Irvine',
+    link: 'https://amzn.to/3iuL1ud',
+  },
+  {
+    name: 'Atomic Habits by James Clear',
+    link: 'https://amzn.to/3iqimpZ',
   },
 ];
 
