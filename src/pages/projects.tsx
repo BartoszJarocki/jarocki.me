@@ -15,9 +15,9 @@ export default function Projects() {
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        canonical={`${process.env.NEXT_PUBLIC_SITE_URL}/projects`}
+        canonical={`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/projects`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${seoTitle}}` }],
+          images: [{ url: `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/og?title=${seoTitle}}` }],
         }}
       />
       <PageLayout

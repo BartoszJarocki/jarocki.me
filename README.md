@@ -12,15 +12,9 @@ This is my personal website built using
 - [Content Layer](https://www.contentlayer.dev/)
 - [Tailwind CSS](https://tailwindcss.com)
 - [NextSEO](https://github.com/garmeeh/next-seo)
-- [Puppeteer](https://github.com/puppeteer/puppeteer)
+- [Vercel OG](https://vercel.com/docs/concepts/functions/edge-functions/og-image-generation)
 
 ## Running locally
-
-Add an .env file with the following values
-
-```env
-NEXT_PUBLIC_SITE_URL='your-website.com'
-```
 
 Clone the repository, run the application
 

@@ -26,7 +26,7 @@ const generateImage = async (req: NextRequest) => {
           justifyContent: 'center',
           alignItems: 'center',
           padding: 32,
-          backgroundColor: '#000',
+          backgroundColor: '#18181b',
           color: '#fff',
         }}
       >
