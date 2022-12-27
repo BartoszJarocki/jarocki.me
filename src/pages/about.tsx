@@ -19,6 +19,7 @@ import {
   PeopleWorthFollowingOnTwitter,
   Podcasts,
   Quotes,
+  SocialMedia,
   VideosWorthWatching,
 } from '../data/lifeApi';
 
@@ -110,7 +111,7 @@ export default function AboutMe() {
             <Section>
               <Section.Title as="h2">Books worth re-reading</Section.Title>
               <Section.Content>
-                <ul className="mt-1 list-disc">
+                <ul className="mt-1 list-disc list-inside">
                   {Books.map((book) => (
                     <li key={book.name}>
                       <ExternalLink href={book.link}>{book.name}</ExternalLink>
@@ -122,7 +123,7 @@ export default function AboutMe() {
             <Section>
               <Section.Title as="h2">Podcasts I listen to</Section.Title>
               <Section.Content>
-                <ul className="mt-1 list-disc">
+                <ul className="mt-1 list-disc list-inside">
                   {Podcasts.map((podcast) => (
                     <li key={podcast.name}>
                       <ExternalLink href={podcast.link}>{podcast.name}</ExternalLink>
@@ -134,7 +135,7 @@ export default function AboutMe() {
             <Section>
               <Section.Title as="h2">Blogs I read</Section.Title>
               <Section.Content>
-                <ul className="mt-1 list-disc">
+                <ul className="mt-1 list-disc list-inside">
                   {Blogs.map((blog) => (
                     <li key={blog.name}>
                       <ExternalLink href={blog.link}>{blog.name}</ExternalLink>
@@ -146,7 +147,7 @@ export default function AboutMe() {
             <Section>
               <Section.Title as="h2">Videos worth watching</Section.Title>
               <Section.Content>
-                <ul className="mt-1 list-disc">
+                <ul className="mt-1 list-disc list-inside">
                   {VideosWorthWatching.map((video) => (
                     <li key={video.name}>
                       <ExternalLink href={video.link}>{video.name}</ExternalLink>
@@ -179,15 +180,11 @@ export default function AboutMe() {
           </div>
           <div className="lg:pl-20">
             <ul role="list">
-              <SocialLink href="#" icon={TwitterIcon}>
-                Follow on Twitter
-              </SocialLink>
-              <SocialLink href="#" icon={InstagramIcon} className="mt-4">
-                Follow on Instagram
-              </SocialLink>
-              <SocialLink href="#" icon={GitHubIcon} className="mt-4">
-                Follow on GitHub
-              </SocialLink>
+              {SocialMedia.map((socialProfile) => (
+                <SocialLink key={socialProfile.link} href={socialProfile.link} icon={TwitterIcon}>
+                  Follow on {socialProfile.name}
+                </SocialLink>
+              ))}
               <SocialLink
                 href="mailto:bartosz@jarocki.me"
                 icon={MailIcon}

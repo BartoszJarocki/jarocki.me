@@ -10,7 +10,7 @@ export default class MyDocument extends Document {
           <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
           <link rel="manifest" href="/favicon/site.webmanifest" />
           <link rel="shortcut icon" href="/favicon/favicon.ico" />
-          <meta name="theme-color" content="#ffffff" />
+          <meta name="theme-color" content="#18181b" />
         </Head>
         <body className="flex h-full flex-col bg-zinc-50 dark:bg-black">
           <Main />
