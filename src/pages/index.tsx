@@ -30,9 +30,9 @@ export default function Home({ latestPosts }: Props) {
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        canonical={`https://${process.env.NEXT_PUBLIC_VERCEL_URL}`}
+        canonical={`${process.env.NEXT_PUBLIC_URL}`}
         openGraph={{
-          images: [{ url: `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/og?title=${seoTitle}` }],
+          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <Container className="mt-9">

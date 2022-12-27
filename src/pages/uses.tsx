@@ -60,9 +60,9 @@ export default function Uses() {
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        canonical={`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/uses`}
+        canonical={`${process.env.NEXT_PUBLIC_URL}/uses`}
         openGraph={{
-          images: [{ url: `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/og?title=${seoTitle}}` }],
+          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}}` }],
         }}
       />
       <PageLayout

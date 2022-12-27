@@ -38,9 +38,9 @@ export default function AboutMe() {
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        canonical={`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/about`}
+        canonical={`${process.env.NEXT_PUBLIC_URL}/about`}
         openGraph={{
-          images: [{ url: `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/og?title=${seoTitle}` }],
+          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <Container className="mt-16 sm:mt-32">

@@ -15,8 +15,8 @@ export default function Post({
   previousPathname?: string;
 }) {
   const Component = useMDXComponent(body.code);
-  const url = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/blog/${slug}`;
-  const openGraphImageUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/og?title=${title}`;
+  const url = `${process.env.NEXT_PUBLIC_URL}/blog/${slug}`;
+  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}`;
 
   return (
     <>

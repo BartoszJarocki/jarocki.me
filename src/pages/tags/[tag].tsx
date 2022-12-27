@@ -21,11 +21,9 @@ export default function Tag({ tag, relatedPosts }: Props) {
       <NextSeo
         title={seoTitle}
         description={`${seoDescription}#${tag}}`}
-        canonical={`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/tags/${tag}`}
+        canonical={`${process.env.NEXT_PUBLIC_URL}/tags/${tag}`}
         openGraph={{
-          images: [
-            { url: `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/og?title=${seoTitle}` },
-          ],
+          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <PageLayout title="Tags" intro={`All the articles from #${tag}`}>

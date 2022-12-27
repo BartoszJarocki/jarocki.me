@@ -1,5 +1,3 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FBartoszJarocki%2Fweb-jarocki-me)
-
 # Bartosz Jarocki - Personal site / Blog / Portfolio
 
 ![screenshot](screenshots/screenshot.png)
@@ -37,7 +35,11 @@ Blog post example
 
 ## Credits
 
-Design inspired by [https://leerob.io/](https://leerob.io/)
+Design heavily inspired by [Tailwind UI Spotlight template](https://tailwindui.com/templates/spotlight)
+
+## Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FBartoszJarocki%2Fweb-jarocki-me)
 
 ## License
 
