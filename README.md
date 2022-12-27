@@ -1,6 +1,6 @@
-# Bartosz Jarocki - Personal site / Blog / Portfolio
-
 ![screenshot](screenshots/screenshot.png)
+
+# Bartosz Jarocki - Personal site / Blog / Portfolio
 
 This is my personal website built using
 
