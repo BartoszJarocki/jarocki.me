@@ -6,12 +6,12 @@ import React, { useEffect, useState } from 'react';
 import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
 import { Container } from '../components/Container';
 import { ExternalLink } from '../components/ExternalLink';
-import { TwitterIcon } from '../components/Icons/TwitterIcon';
 import { PageTitle } from '../components/PageTitle';
 import { Quote } from '../components/Quote';
 import { Section } from '../components/Section';
 import { SocialLink } from '../components/SocialLink';
 import {
+  AboutExtended,
   Blogs,
   Books,
   PeopleWorthFollowingOnTwitter,
@@ -56,11 +56,7 @@ export default function AboutMe() {
           <div className="lg:order-first lg:row-span-2">
             <PageTitle>Hi, I&apos;m Bartosz Jarocki.</PageTitle>
             <div className="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400">
-              I live in Wrocław, Poland. I grew up in a small town Góra. I graduated with a
-              bachelor&apos;s degree in Control systems engineering and Robotics at the Wrocław
-              University of Technology. I like bikes, books, plants, programming, and traveling the
-              world with my wonderful wife Kasia. Also, I&apos;m fascinated by the cosmos and I find
-              great pleasure in watching stars.
+              {AboutExtended}
             </div>
 
             <Section>
@@ -179,8 +175,12 @@ export default function AboutMe() {
           <div className="lg:pl-20">
             <ul role="list">
               {SocialMedia.map((socialProfile) => (
-                <SocialLink key={socialProfile.link} href={socialProfile.link} icon={TwitterIcon}>
-                  Follow on {socialProfile.name}
+                <SocialLink
+                  key={socialProfile.link}
+                  href={socialProfile.link}
+                  icon={socialProfile.icon}
+                >
+                  Follow me on {socialProfile.name}
                 </SocialLink>
               ))}
               <SocialLink
