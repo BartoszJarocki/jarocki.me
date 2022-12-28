@@ -4,8 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { Avatar } from './Avatar';
 import { AvatarContainer } from './AvatarContainer';
 import { Container } from './Container';
-import { DesktopNavigation } from './Navigation/DesktopNavigation';
-import { MobileNavigation } from './Navigation/MobileNavigation';
+import { MobileNavigation, DesktopNavigation } from './Navigation';
 import { ThemeToggle } from './ThemeToggle';
 
 const clamp = (number: number, a: number, b: number) => {

@@ -1,3 +1,4 @@
+import { ExternalLink } from '../components/ExternalLink';
 import { GitHubIcon } from '../components/Icons/GitHubIcon';
 import { InstagramIcon } from '../components/Icons/InstagramIcon';
 import { TwitterIcon } from '../components/Icons/TwitterIcon';
@@ -10,6 +11,14 @@ import logoNsn from '../images/logos/nsn.svg';
 import logoParabol from '../images/logos/parabol.svg';
 import ParabolLogo from '../images/logos/parabol.svg';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
+
+export const Name = 'Bartosz Jarocki';
+export const About = (
+  <>
+    {`I used to label myself as a software engineer, but the truth is I just like to create things. If out want to reach out, you can`}{' '}
+    <ExternalLink href="mailto:bartosz@jarocki.me">write me an email.</ExternalLink>
+  </>
+);
 
 export const MyProjects = [
   {

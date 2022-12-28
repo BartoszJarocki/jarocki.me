@@ -6,7 +6,7 @@ import Link from 'next/link';
 import React from 'react';
 
 import { BlogPostPreview } from '../../components/BlogPostPreview';
-import { Badge } from '../../components/Navigation/Badge';
+import { Badge } from '../../components/Badge';
 import { PageLayout } from '../../components/SimpleLayout';
 
 const seoTitle = 'Blog | Bartosz Jarocki';

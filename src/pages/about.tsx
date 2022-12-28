@@ -6,8 +6,6 @@ import React, { useEffect, useState } from 'react';
 import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
 import { Container } from '../components/Container';
 import { ExternalLink } from '../components/ExternalLink';
-import { GitHubIcon } from '../components/Icons/GitHubIcon';
-import { InstagramIcon } from '../components/Icons/InstagramIcon';
 import { TwitterIcon } from '../components/Icons/TwitterIcon';
 import { PageTitle } from '../components/PageTitle';
 import { Quote } from '../components/Quote';

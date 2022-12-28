@@ -4,7 +4,7 @@ import { useId } from 'react';
 import { Card } from '../components/Card';
 import { PageLayout } from '../components/SimpleLayout';
 
-export function Section({ title, children }: { title: string; children: React.ReactNode }) {
+const ToolsSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   let id = useId();
 
   return (
@@ -16,23 +16,17 @@ export function Section({ title, children }: { title: string; children: React.Re
         <h2 id={id} className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
           {title}
         </h2>
-        <div className="md:col-span-3">{children}</div>
+        <div className="md:col-span-3">
+          <ul role="list" className="space-y-16">
+            {children}
+          </ul>
+        </div>
       </div>
     </section>
   );
-}
+};
 
-function ToolsSection({ children, title }: { children: React.ReactNode; title: string }) {
-  return (
-    <Section title={title}>
-      <ul role="list" className="space-y-16">
-        {children}
-      </ul>
-    </Section>
-  );
-}
-
-function Tool({
+const Tool = ({
   title,
   href,
   children,
@@ -40,7 +34,7 @@ function Tool({
   title: string;
   href?: string;
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <Card as="li">
       <Card.Title as="h3" href={href}>
@@ -49,7 +43,7 @@ function Tool({
       <Card.Description>{children}</Card.Description>
     </Card>
   );
-}
+};
 
 const seoTitle = 'Uses | Bartosz Jarocki';
 const seoDescription = 'Software I use, gadgets I love, and other things I recommend.';

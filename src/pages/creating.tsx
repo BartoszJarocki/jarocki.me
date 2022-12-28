@@ -6,10 +6,10 @@ import { LinkIcon } from '../components/Icons/LinkIcon';
 import { PageLayout } from '../components/SimpleLayout';
 import { MyProjects } from '../data/lifeApi';
 
-const seoTitle = 'Projects | Bartosz Jarocki';
+const seoTitle = 'Creating | Bartosz Jarocki';
 const seoDescription = "Projects I've work on, worked on and will work on";
 
-export default function Projects() {
+export default function Creating() {
   return (
     <>
       <NextSeo

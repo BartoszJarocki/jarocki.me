@@ -1,9 +1,86 @@
 import { Popover, Transition } from '@headlessui/react';
-import React, { Fragment } from 'react';
+import clsx from 'clsx';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { Fragment } from 'react';
 
-import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
-import { CloseIcon } from '../Icons/CloseIcon';
-import { MobileNavItem } from './MobileNavItem';
+import { ChevronDownIcon } from './Icons/ChevronDownIcon';
+import { CloseIcon } from './Icons/CloseIcon';
+
+export const NavigationItems = [
+  {
+    name: 'Home',
+    href: '/',
+  },
+  {
+    name: 'Blog',
+    href: '/blog',
+  },
+  {
+    name: 'Creating',
+    href: '/creating',
+  },
+  {
+    name: 'Uses',
+    href: '/uses',
+  },
+  {
+    name: 'About',
+    href: '/about',
+  },
+];
+
+export const NavLink = ({ href, children }: React.PropsWithChildren<{ href: string }>) => {
+  return (
+    <Link href={href} className="transition hover:text-primary">
+      {children}
+    </Link>
+  );
+};
+
+const NavItem = ({ href, children }: React.PropsWithChildren<{ href: string }>) => {
+  const isActive = useRouter().pathname === href;
+
+  return (
+    <li>
+      <Link
+        href={href}
+        className={clsx(
+          'relative block px-3 py-2 transition',
+          isActive ? 'text-primary' : 'hover:text-primary',
+        )}
+      >
+        {children}
+      </Link>
+    </li>
+  );
+};
+
+export const MobileNavItem = ({ href, children }: React.PropsWithChildren<{ href: string }>) => {
+  return (
+    <li>
+      <Popover.Button as={Link} href={href} className="block py-2">
+        {children}
+      </Popover.Button>
+    </li>
+  );
+};
+
+export const DesktopNavigation = (
+  props: React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>>,
+) => {
+  return (
+    <nav {...props}>
+      <ul className="flex rounded-full bg-white/90 px-3 text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
+        {NavigationItems.map((item) => (
+          <NavItem key={item.href} href={item.href}>
+            {item.name}
+          </NavItem>
+        ))}
+      </ul>
+    </nav>
+  );
+};
 
 export const MobileNavigation = (props: React.HTMLAttributes<HTMLDivElement>) => {
   return (
@@ -45,11 +122,11 @@ export const MobileNavigation = (props: React.HTMLAttributes<HTMLDivElement>) =>
             </div>
             <nav className="mt-6">
               <ul className="-my-2 divide-y divide-zinc-100 text-base text-zinc-800 dark:divide-zinc-100/5 dark:text-zinc-300">
-                <MobileNavItem href="/">Home</MobileNavItem>
-                <MobileNavItem href="/blog">Blog</MobileNavItem>
-                <MobileNavItem href="/projects">Projects</MobileNavItem>
-                <MobileNavItem href="/uses">Uses</MobileNavItem>
-                <MobileNavItem href="/about">About</MobileNavItem>
+                {NavigationItems.map((item) => (
+                  <MobileNavItem key={item.href} href={item.href}>
+                    {item.name}
+                  </MobileNavItem>
+                ))}
               </ul>
             </nav>
           </Popover.Panel>
