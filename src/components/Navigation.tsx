@@ -13,8 +13,8 @@ export const NavigationItems = [
     href: '/',
   },
   {
-    name: 'Blog',
-    href: '/blog',
+    name: 'Notes',
+    href: '/notes',
   },
   {
     name: 'Creating',

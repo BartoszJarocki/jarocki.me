@@ -3,9 +3,9 @@ import { GetStaticProps } from 'next';
 import { NextSeo } from 'next-seo';
 
 import { Blog, allBlogs } from '../../.contentlayer/generated';
-import { BlogPostPreview } from '../components/BlogPostPreview';
 import { Container } from '../components/Container';
 import { Newsletter } from '../components/Newsletter';
+import { NotePreview } from '../components/NotePreview';
 import { PageTitle } from '../components/PageTitle';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';
@@ -52,7 +52,7 @@ export default function Home({ latestPosts }: Props) {
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
             {latestPosts.map((blogPost) => (
-              <BlogPostPreview key={blogPost.slug} blogPost={blogPost} dense />
+              <NotePreview key={blogPost.slug} blogPost={blogPost} dense />
             ))}
           </div>
           <div className="space-y-10 lg:pl-16 xl:pl-24">

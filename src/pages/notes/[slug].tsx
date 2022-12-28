@@ -4,8 +4,8 @@ import { useMDXComponent } from 'next-contentlayer/hooks';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import React from 'react';
 
-import { BlogPostLayout } from '../../components/BlogPostLayout';
 import { TwitterIcon } from '../../components/Icons/TwitterIcon';
+import { NoteLayout } from '../../components/NoteLayout';
 
 export default function Post({
   post: { title, description, body, slug, author, date, readingTime, tags },
@@ -15,7 +15,7 @@ export default function Post({
   previousPathname?: string;
 }) {
   const Component = useMDXComponent(body.code);
-  const url = `${process.env.NEXT_PUBLIC_URL}/blog/${slug}`;
+  const url = `${process.env.NEXT_PUBLIC_URL}/notes/${slug}`;
   const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}`;
 
   return (
@@ -38,7 +38,7 @@ export default function Post({
         publisherLogo={author.picture!}
         description={description}
       />
-      <BlogPostLayout meta={{ title, description, date }} previousPathname={previousPathname}>
+      <NoteLayout meta={{ title, description, date }} previousPathname={previousPathname}>
         <div className="mb-32">
           <Component />
           <a
@@ -51,7 +51,7 @@ export default function Post({
             </h4>
           </a>
         </div>
-      </BlogPostLayout>
+      </NoteLayout>
     </>
   );
 }

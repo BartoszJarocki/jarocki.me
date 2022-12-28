@@ -9,11 +9,11 @@ interface Props {
   dense?: boolean;
 }
 
-export const BlogPostPreview = ({ blogPost, dense }: Props) => {
+export const NotePreview = ({ blogPost, dense }: Props) => {
   return (
     <article className="md:grid md:grid-cols-4 md:items-baseline">
       <Card className="md:col-span-3">
-        <Card.Title href={`/blog/${blogPost.slug}`}>{blogPost.title}</Card.Title>
+        <Card.Title href={`/notes/${blogPost.slug}`}>{blogPost.title}</Card.Title>
         <Card.Eyebrow
           as="time"
           dateTime={blogPost.date}

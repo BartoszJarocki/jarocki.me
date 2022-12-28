@@ -4,7 +4,7 @@ import { compareDesc } from 'date-fns';
 import { NextSeo } from 'next-seo';
 import React from 'react';
 
-import { BlogPostPreview } from '../../components/BlogPostPreview';
+import { NotePreview } from '../../components/NotePreview';
 import { PageLayout } from '../../components/SimpleLayout';
 
 const seoTitle = 'Tags | Bartosz Jarocki';
@@ -30,7 +30,7 @@ export default function Tag({ tag, relatedPosts }: Props) {
         <div className="mt-24 md:border-l md:border-zinc-100 md:pl-6 md:dark:border-zinc-700/40">
           <div className="flex max-w-3xl flex-col space-y-16">
             {relatedPosts.map((blogPost) => (
-              <BlogPostPreview key={blogPost.slug} blogPost={blogPost} />
+              <NotePreview key={blogPost.slug} blogPost={blogPost} />
             ))}
           </div>
         </div>

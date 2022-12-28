@@ -17,7 +17,7 @@ interface Props {
   previousPathname?: string;
 }
 
-export const BlogPostLayout = ({ children, meta, previousPathname }: Props) => {
+export const NoteLayout = ({ children, meta, previousPathname }: Props) => {
   let router = useRouter();
 
   return (
