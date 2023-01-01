@@ -63,9 +63,7 @@ export default function Creating() {
         intro="A list of projects I've worked on, working on and will work on."
       >
         <h2 className="text-3xl font-extrabold">Now</h2>
-        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-400">
-          Projects I currently work on.
-        </p>
+        <p className="mt-2 text-base">Projects I currently work on.</p>
         <ul
           role="list"
           className="mt-12 grid grid-cols-1 gap-x-12 gap-y-16 sm:grid-cols-2 lg:grid-cols-3"
@@ -83,7 +81,7 @@ export default function Creating() {
         </ul>
 
         <h2 className="mt-24 text-3xl font-extrabold">Past</h2>
-        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-400">
+        <p className="mt-2 text-base">
           Projects I worked on. Due to nature of internet businesses not all of them are still
           online.
         </p>

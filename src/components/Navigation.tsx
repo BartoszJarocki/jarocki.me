@@ -118,7 +118,7 @@ export const MobileNavigation = (props: React.HTMLAttributes<HTMLDivElement>) =>
               <Popover.Button aria-label="Close menu" className="-m-1 p-1">
                 <CloseIcon className="h-6 w-6 text-zinc-500 dark:text-zinc-400" />
               </Popover.Button>
-              <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Navigation</h2>
+              <h2 className="text-sm font-medium">Navigation</h2>
             </div>
             <nav className="mt-6">
               <ul className="-my-2 divide-y divide-zinc-100 text-base text-zinc-800 dark:divide-zinc-100/5 dark:text-zinc-300">

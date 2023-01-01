@@ -21,7 +21,7 @@ const Title = ({ as: TitleComponent = 'h1', action, children }: TitleProps) => {
 };
 
 const Content = ({ children }: PropsWithChildren) => {
-  return <div className="mt-4 text-zinc-600 dark:text-zinc-400">{children}</div>;
+  return <div className="mt-4">{children}</div>;
 };
 
 const SectionRoot = ({ children }: PropsWithChildren) => {

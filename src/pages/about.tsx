@@ -55,7 +55,7 @@ export default function AboutMe() {
           </div>
           <div className="lg:order-first lg:row-span-2">
             <PageTitle>Hi, I&apos;m Bartosz Jarocki.</PageTitle>
-            <div className="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400">
+            <div className="mt-6 space-y-7 text-base">
               {AboutExtended}
             </div>
 

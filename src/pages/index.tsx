@@ -34,7 +34,7 @@ export default function Home({ latestPosts }: Props) {
       <Container className="mt-9">
         <div className="max-w-2xl">
           <PageTitle>{Name}</PageTitle>
-          <p className="mt-6 max-w-2xl text-base text-zinc-600 dark:text-zinc-400">{About}</p>
+          <p className="mt-6 max-w-2xl text-base">{About}</p>
           <div className="mt-6 flex gap-6">
             {SocialMedia.map((socialProfile) => (
               <SocialLink
