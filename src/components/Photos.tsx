@@ -23,8 +23,10 @@ const Photo = ({
   return (
     <motion.div
       key={img.src}
-      initial={{ scale: 1, rotate: possibleRotations[idx % possibleRotations.length] }}
+      initial={{ scale: 1, rotate: possibleRotations[idx % possibleRotations.length], opacity: 0 }}
       whileHover={{ scale: 1.1, rotate: 0, transition: { duration: 0.2 } }}
+      whileInView={{ opacity: 1, transition: { delay: idx / 100 } }}
+      viewport={{ once: true }}
       onHoverStart={() => setIsVisible(true)}
       onHoverEnd={() => setIsVisible(false)}
       className={clsx(

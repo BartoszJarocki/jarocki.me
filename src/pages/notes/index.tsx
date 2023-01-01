@@ -36,9 +36,9 @@ export default function Notes({ posts, tags }: Props) {
         <h3 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100">Tags</h3>
         <div className="mt-4 flex max-w-xl flex-wrap gap-1 font-mono">
           {tags.map((tag) => (
-            <Link href={`/tags/${tag}`} key={tag}>
-              <Badge className="cursor-pointer">#{tag}</Badge>
-            </Link>
+            <Badge key={tag} href={`/tags/${tag}`}>
+              #{tag}
+            </Badge>
           ))}
         </div>
 
