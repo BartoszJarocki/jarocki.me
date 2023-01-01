@@ -7,7 +7,7 @@ import React from 'react';
 
 import { Badge } from '../../components/Badge';
 import { NotePreview } from '../../components/NotePreview';
-import { PageLayout } from '../../components/SimpleLayout';
+import { PageLayout } from '../../components/PageLayout';
 
 const seoTitle = 'Notes | Bartosz Jarocki';
 const seoDescription =

@@ -2,14 +2,20 @@ import { ExternalLink } from '../components/ExternalLink';
 import { GitHubIcon } from '../components/Icons/GitHubIcon';
 import { InstagramIcon } from '../components/Icons/InstagramIcon';
 import { TwitterIcon } from '../components/Icons/TwitterIcon';
+import AmbitLogo from '../images/logos/ambit.png';
 import BarepapersLogo from '../images/logos/barepapers.svg';
-import logoClevertech from '../images/logos/clevertech.png';
+import BimLogo from '../images/logos/bim.png';
+import CDGOLogo from '../images/logos/cdgo.png';
+import ClevertechLogo from '../images/logos/clevertech.png';
+import EvercastLogo from '../images/logos/evercast.svg';
+import Howdy from '../images/logos/howdy.png';
 import JarockiMeLogo from '../images/logos/jarocki.svg';
-import logoJojoMobile from '../images/logos/jojomobile.png';
+import JojoMobileLogo from '../images/logos/jojomobile.png';
 import MonitoLogo from '../images/logos/monito.svg';
-import logoNsn from '../images/logos/nsn.svg';
-import logoParabol from '../images/logos/parabol.svg';
+import MobileVikingsLogo from '../images/logos/mv.png';
+import NSNLogo from '../images/logos/nsn.svg';
 import ParabolLogo from '../images/logos/parabol.svg';
+import TastyCloudLogo from '../images/logos/tastycloud.png';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
 
 export const Name = 'Bartosz Jarocki';
@@ -21,11 +27,24 @@ export const About = (
 );
 export const AboutExtended = `I live in Wrocław, Poland, having grown up in the small town of Góra in the western part of the country. I have a bachelor's degree in Control Systems Engineering and Robotics from the Wrocław University of Technology. I like programming, books, plants, mountain biking, whisky, and traveling the world with my wife, Kasia. The cosmos fascinates me, and I take great delight in gazing at the stars.`;
 
-export const MyProjects = [
+export type Project = {
+  title: string;
+  techStack: string[];
+  description: string;
+  isActive: boolean;
+  logo: any;
+  link: {
+    label: string;
+    href: string;
+  };
+};
+
+export const MyCurrentProjects: Project[] = [
   {
     title: 'Parabol',
-    techStack: ['TypeScript', 'React', 'Node.js'],
+    techStack: ['Full Stack Developer', 'TypeScript', 'React', 'Node.js', 'GraphQL'],
     description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
+    isActive: true,
     logo: ParabolLogo,
     link: {
       label: 'github.com',
@@ -34,19 +53,32 @@ export const MyProjects = [
   },
   {
     title: 'Monito',
-    techStack: ['Chrome Extension', 'Next.js', '▲Vercel'],
+    techStack: ['Side Project', 'TypeScript', 'Next.js', 'Browser Extension'],
     description: 'Browser extension that records everything happening in a web application.',
     logo: MonitoLogo,
+    isActive: true,
     link: {
       label: 'monito.dev',
       href: 'https://monito.dev',
     },
   },
   {
+    title: 'Jarocki.me',
+    techStack: ['Side Project', 'Next.js', 'MDX'],
+    description: 'My personal website you are currently on, built with Next.js.',
+    logo: JarockiMeLogo,
+    isActive: true,
+    link: {
+      label: 'github.com',
+      href: 'https://github.com/BartoszJarocki/web-jarocki-me',
+    },
+  },
+  {
     title: 'Barepapers',
-    techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
+    techStack: ['Side Project', 'Next.js', 'Puppeteer'],
     description: 'Generates beautiful wallpapers using random shapes and gradients.',
     logo: BarepapersLogo,
+    isActive: true,
     link: {
       label: 'barepapers.com',
       href: 'https://barepapers.com',
@@ -54,22 +86,101 @@ export const MyProjects = [
   },
   {
     title: 'Year progress',
-    techStack: ['Next.js', '▲Vercel'],
-    description: 'Tracks current year progress and displas a countdown.',
+    techStack: ['Side Project', 'TypeScript', 'Next.js'],
+    description: 'Tracks current year progress and displays a countdown.',
     logo: YearProgressLogo,
+    isActive: true,
     link: {
       label: 'getyearprogress.com',
       href: 'https://getyearprogress.com',
     },
   },
+];
+
+export const MyPastProjects: Project[] = [
   {
-    title: 'Jarocki.me',
-    techStack: ['Next.js', 'Puppeteer', '▲Vercel'],
-    description: 'My personal website you are currently on, built with Next.js.',
-    logo: JarockiMeLogo,
+    title: 'Evercast',
+    techStack: [
+      'Lead Frontend Developer',
+      'From scratch',
+      'TypeScript',
+      'React',
+      'Node.js',
+      'GraphQL',
+    ],
+    description:
+      'Creative collaboration platform that combines video conferencing and HD media streaming.',
+    isActive: true,
+    logo: EvercastLogo,
     link: {
-      label: 'github.com',
-      href: 'https://github.com/BartoszJarocki/web-jarocki-me',
+      label: 'evercast.us',
+      href: 'https://www.evercast.us/',
+    },
+  },
+  {
+    title: 'Mobile Vikings',
+    techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
+    description: 'Android application for leading virtual mobile operator in Poland.',
+    logo: MobileVikingsLogo,
+    isActive: true,
+    link: {
+      label: 'mobilevikings.pl',
+      href: 'https://mobilevikings.p',
+    },
+  },
+  {
+    title: 'Howdy',
+    techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
+    description: 'Howdy is a place for you to join communities you care about.',
+    logo: Howdy,
+    isActive: true,
+    link: {
+      label: 'play.google.com',
+      href: 'https://play.google.com/store/apps/details?id=com.howdyhub.howdy&hl=en&gl=US',
+    },
+  },
+  {
+    title: 'Tastycloud',
+    techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
+    description: 'Android application for managing and displaying restaurant menus in kiosk mode.',
+    logo: TastyCloudLogo,
+    isActive: true,
+    link: {
+      label: 'tastycloud.fr',
+      href: 'https://www.tastycloud.fr/',
+    },
+  },
+  {
+    title: 'Ambit',
+    techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
+    description: 'Android application that helps with sharing your contact details.',
+    logo: AmbitLogo,
+    isActive: false,
+    link: {
+      label: 'monito.dev',
+      href: 'https://monito.dev',
+    },
+  },
+  {
+    title: 'Bim',
+    techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
+    description: 'Android application that helps with booking a table in a restaurants.',
+    logo: BimLogo,
+    isActive: false,
+    link: {
+      label: 'bimapp.io',
+      href: 'https://www.crunchbase.com/organization/bim-app',
+    },
+  },
+  {
+    title: 'Canal Digital GO',
+    techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
+    description: 'Video streaming mobile application for Canal Digital subscribers.',
+    logo: CDGOLogo,
+    isActive: false,
+    link: {
+      label: 'go.canaldigital.no',
+      href: 'https://go.canaldigital.no/home',
     },
   },
 ];
@@ -84,28 +195,28 @@ export const Work = [
   {
     company: 'Parabol',
     title: 'Full Stack Developer',
-    logo: logoParabol,
+    logo: ParabolLogo,
     start: '2021',
     end: 'Present',
   } as const,
   {
     company: 'Clevertech',
     title: 'Lead Android Developer → Full Stack Developer',
-    logo: logoClevertech,
+    logo: ClevertechLogo,
     start: '2015',
     end: '2021',
   },
   {
     company: 'Jojo Mobile',
     title: 'Android Developer → Lead Android Developer',
-    logo: logoJojoMobile,
+    logo: JojoMobileLogo,
     start: '2012',
     end: '2015',
   },
   {
     company: 'Nokia Siemens Networks',
     title: 'C/C++ Developer',
-    logo: logoNsn,
+    logo: NSNLogo,
     start: '2010',
     end: '2012',
   },

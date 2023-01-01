@@ -2,7 +2,7 @@ import { NextSeo } from 'next-seo';
 import { useId } from 'react';
 
 import { Card } from '../components/Card';
-import { PageLayout } from '../components/SimpleLayout';
+import { PageLayout } from '../components/PageLayout';
 
 const ToolsSection = ({ title, children }: { title: string; children: React.ReactNode }) => {
   let id = useId();

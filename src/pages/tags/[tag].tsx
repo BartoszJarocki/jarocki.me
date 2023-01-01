@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo';
 import React from 'react';
 
 import { NotePreview } from '../../components/NotePreview';
-import { PageLayout } from '../../components/SimpleLayout';
+import { PageLayout } from '../../components/PageLayout';
 
 const seoTitle = 'Tags | Bartosz Jarocki';
 const seoDescription = 'All of my blog posts tagged with ';
