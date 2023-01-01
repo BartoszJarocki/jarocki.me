@@ -18,7 +18,11 @@ const ProjectCard = (project: Project) => {
         <Image src={project.logo} alt="" className="h-10 w-10 object-cover" unoptimized />
       </div>
       <h2 className="mt-6 text-base font-semibold text-zinc-800 dark:text-zinc-100">
-        <Card.Link href={project.link.href!}>{project.title}</Card.Link>
+        {project.link ? (
+          <Card.Link href={project.link.href}>{project.title}</Card.Link>
+        ) : (
+          <Card.Title>{project.title}</Card.Title>
+        )}
       </h2>
       <Card.Description>{project.description}</Card.Description>
       <p className="mt-6 font-mono flex flex-wrap gap-1 z-10 mb-6">
@@ -27,7 +31,7 @@ const ProjectCard = (project: Project) => {
         ))}
       </p>
       <div className="relative z-10 mt-auto flex text-sm font-medium text-zinc-400 transition group-hover:text-primary dark:text-zinc-200">
-        {project.isActive ? (
+        {project.link ? (
           <p className="flex items-center">
             <LinkIcon className="h-6 w-6 flex-none" />
             <span className="ml-2">{project.link.label}</span>

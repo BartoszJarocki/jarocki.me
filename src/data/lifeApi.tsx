@@ -31,9 +31,8 @@ export type Project = {
   title: string;
   techStack: string[];
   description: string;
-  isActive: boolean;
   logo: any;
-  link: {
+  link?: {
     label: string;
     href: string;
   };
@@ -44,7 +43,6 @@ export const MyCurrentProjects: Project[] = [
     title: 'Parabol',
     techStack: ['Full Stack Developer', 'TypeScript', 'React', 'Node.js', 'GraphQL'],
     description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
-    isActive: true,
     logo: ParabolLogo,
     link: {
       label: 'github.com',
@@ -56,7 +54,6 @@ export const MyCurrentProjects: Project[] = [
     techStack: ['Side Project', 'TypeScript', 'Next.js', 'Browser Extension'],
     description: 'Browser extension that records everything happening in a web application.',
     logo: MonitoLogo,
-    isActive: true,
     link: {
       label: 'monito.dev',
       href: 'https://monito.dev',
@@ -67,7 +64,6 @@ export const MyCurrentProjects: Project[] = [
     techStack: ['Side Project', 'Next.js', 'MDX'],
     description: 'My personal website you are currently on, built with Next.js.',
     logo: JarockiMeLogo,
-    isActive: true,
     link: {
       label: 'github.com',
       href: 'https://github.com/BartoszJarocki/web-jarocki-me',
@@ -78,7 +74,6 @@ export const MyCurrentProjects: Project[] = [
     techStack: ['Side Project', 'Next.js', 'Puppeteer'],
     description: 'Generates beautiful wallpapers using random shapes and gradients.',
     logo: BarepapersLogo,
-    isActive: true,
     link: {
       label: 'barepapers.com',
       href: 'https://barepapers.com',
@@ -89,7 +84,6 @@ export const MyCurrentProjects: Project[] = [
     techStack: ['Side Project', 'TypeScript', 'Next.js'],
     description: 'Tracks current year progress and displays a countdown.',
     logo: YearProgressLogo,
-    isActive: true,
     link: {
       label: 'getyearprogress.com',
       href: 'https://getyearprogress.com',
@@ -110,7 +104,6 @@ export const MyPastProjects: Project[] = [
     ],
     description:
       'Creative collaboration platform that combines video conferencing and HD media streaming.',
-    isActive: true,
     logo: EvercastLogo,
     link: {
       label: 'evercast.us',
@@ -122,7 +115,6 @@ export const MyPastProjects: Project[] = [
     techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
     description: 'Android application for leading virtual mobile operator in Poland.',
     logo: MobileVikingsLogo,
-    isActive: true,
     link: {
       label: 'mobilevikings.pl',
       href: 'https://mobilevikings.p',
@@ -133,7 +125,6 @@ export const MyPastProjects: Project[] = [
     techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
     description: 'Howdy is a place for you to join communities you care about.',
     logo: Howdy,
-    isActive: true,
     link: {
       label: 'play.google.com',
       href: 'https://play.google.com/store/apps/details?id=com.howdyhub.howdy&hl=en&gl=US',
@@ -144,7 +135,6 @@ export const MyPastProjects: Project[] = [
     techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
     description: 'Android application for managing and displaying restaurant menus in kiosk mode.',
     logo: TastyCloudLogo,
-    isActive: true,
     link: {
       label: 'tastycloud.fr',
       href: 'https://www.tastycloud.fr/',
@@ -155,33 +145,18 @@ export const MyPastProjects: Project[] = [
     techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
     description: 'Android application that helps with sharing your contact details.',
     logo: AmbitLogo,
-    isActive: false,
-    link: {
-      label: 'monito.dev',
-      href: 'https://monito.dev',
-    },
   },
   {
     title: 'Bim',
     techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
     description: 'Android application that helps with booking a table in a restaurants.',
     logo: BimLogo,
-    isActive: false,
-    link: {
-      label: 'bimapp.io',
-      href: 'https://www.crunchbase.com/organization/bim-app',
-    },
   },
   {
     title: 'Canal Digital GO',
     techStack: ['Lead Android Developer', 'Android', 'Kotlin'],
     description: 'Video streaming mobile application for Canal Digital subscribers.',
     logo: CDGOLogo,
-    isActive: false,
-    link: {
-      label: 'go.canaldigital.no',
-      href: 'https://go.canaldigital.no/home',
-    },
   },
 ];
 
