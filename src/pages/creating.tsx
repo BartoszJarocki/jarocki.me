@@ -15,7 +15,12 @@ const ProjectCard = (project: Project) => {
   return (
     <Card key={project.title}>
       <div className="relative z-10 flex h-16 w-16 p-2 items-center justify-center rounded-full bg-white shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:border dark:border-zinc-700/50 dark:bg-zinc-800 dark:ring-0">
-        <Image src={project.logo} alt="" className="h-10 w-10 object-cover" unoptimized />
+        <Image
+          src={project.logo}
+          alt={`Logo of ${project.title}`}
+          className="h-10 w-10 object-cover"
+          unoptimized
+        />
       </div>
       <div className="mt-6">
         {project.link ? (
