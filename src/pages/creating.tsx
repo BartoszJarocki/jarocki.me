@@ -17,13 +17,13 @@ const ProjectCard = (project: Project) => {
       <div className="relative z-10 flex h-16 w-16 p-2 items-center justify-center rounded-full bg-white shadow-md shadow-zinc-800/5 ring-1 ring-zinc-900/5 dark:border dark:border-zinc-700/50 dark:bg-zinc-800 dark:ring-0">
         <Image src={project.logo} alt="" className="h-10 w-10 object-cover" unoptimized />
       </div>
-      <h2 className="mt-6 text-base font-semibold text-zinc-800 dark:text-zinc-100">
+      <div className="mt-6">
         {project.link ? (
-          <Card.Link href={project.link.href}>{project.title}</Card.Link>
+          <Card.Title href={project.link.href}>{project.title}</Card.Title>
         ) : (
           <Card.Title>{project.title}</Card.Title>
         )}
-      </h2>
+      </div>
       <Card.Description>{project.description}</Card.Description>
       <p className="mt-6 font-mono flex flex-wrap gap-1 z-10 mb-6">
         {project.techStack.map((techStackItem) => (
@@ -62,7 +62,7 @@ export default function Creating() {
         title="Things I've made trying to put my dent in the universe."
         intro="A list of projects I've worked on, working on and will work on."
       >
-        <h2 className="text-3xl font-extrabold">Now</h2>
+        <h2 className="text-2xl font-bold tracking-tight">Now</h2>
         <p className="mt-2 text-base">Projects I currently work on.</p>
         <ul
           role="list"
@@ -80,7 +80,7 @@ export default function Creating() {
           ))}
         </ul>
 
-        <h2 className="mt-24 text-3xl font-extrabold">Past</h2>
+        <h2 className="mt-24 text-2xl font-bold tracking-tight">Past</h2>
         <p className="mt-2 text-base">
           Projects I worked on. Due to nature of internet businesses not all of them are still
           online.
