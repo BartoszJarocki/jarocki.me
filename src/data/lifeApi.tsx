@@ -117,7 +117,7 @@ export const MyPastProjects: Project[] = [
     logo: MobileVikingsLogo,
     link: {
       label: 'mobilevikings.pl',
-      href: 'https://mobilevikings.p',
+      href: 'https://mobilevikings.pl/',
     },
   },
   {
@@ -127,7 +127,7 @@ export const MyPastProjects: Project[] = [
     logo: Howdy,
     link: {
       label: 'play.google.com',
-      href: 'https://play.google.com/store/apps/details?id=com.howdyhub.howdy&hl=en&gl=US',
+      href: 'https://play.google.com/store/apps/details?id=com.howdyhub.howdy',
     },
   },
   {

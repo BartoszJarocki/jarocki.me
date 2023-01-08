@@ -24,7 +24,7 @@
     "date-fns": "2.28.0",
     "focus-visible": "^5.2.0",
     "framer-motion": "^8.0.2",
-    "next": "^13.0.2",
+    "next": "^13.1.1",
     "next-contentlayer": "^0.2.5",
     "next-themes": "^0.2.0",
     "postcss-focus-visible": "^6.0.4",

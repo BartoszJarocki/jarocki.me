@@ -55,7 +55,7 @@ export default function Home({ latestPosts }: Props) {
               <NotePreview key={blogPost.slug} blogPost={blogPost} dense />
             ))}
           </div>
-          <div className="space-y-10 lg:pl-16 xl:pl-24">
+          <div className="lg:ml-auto space-y-10 lg:pl-16 xl:pl-24">
             {false && <Newsletter />}
             <Resume />
           </div>

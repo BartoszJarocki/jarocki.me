@@ -5,7 +5,7 @@ import { BriefcaseIcon } from './Icons/BriefcaseIcon';
 
 export const Resume = () => {
   return (
-    <div className="ml-auto max-w-[420px] rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40">
+    <div className="max-w-[420px] rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40">
       <h2 className="flex text-sm font-semibold text-zinc-900 dark:text-zinc-100">
         <BriefcaseIcon className="h-6 w-6 flex-none" />
         <span className="ml-3">Work</span>
