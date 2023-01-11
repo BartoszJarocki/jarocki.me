@@ -5,11 +5,11 @@ import { NextSeo } from 'next-seo';
 import { Blog, allBlogs } from '../../.contentlayer/generated';
 import { Container } from '../components/Container';
 import { Newsletter } from '../components/Newsletter';
-import { NotePreview } from '../components/notes/NotePreview';
 import { PageTitle } from '../components/PageTitle';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';
 import { SocialLink } from '../components/SocialLink';
+import { NotePreview } from '../components/notes/NotePreview';
 import { About, Name, SocialMedia } from '../data/lifeApi';
 
 const seoTitle = 'Bartosz Jarocki';
@@ -28,7 +28,11 @@ export default function Home({ latestPosts }: Props) {
         description={seoDescription}
         canonical={`${process.env.NEXT_PUBLIC_URL}`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
+            },
+          ],
         }}
       />
       <Container className="mt-9">

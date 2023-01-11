@@ -16,7 +16,7 @@ export default function Post({
 }) {
   const Component = useMDXComponent(body.code);
   const url = `${process.env.NEXT_PUBLIC_URL}/notes/${slug}`;
-  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}`;
+  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}&description=${description}`;
 
   return (
     <>

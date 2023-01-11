@@ -5,7 +5,7 @@ import { Tool } from '../components/tools/Tool';
 import { ToolsSection } from '../components/tools/ToolsSection';
 import { Tools } from '../data/lifeApi';
 
-const seoTitle = 'Uses | Bartosz Jarocki';
+const seoTitle = 'Uses';
 const seoDescription = 'Software I use, gadgets I love, and other things I recommend.';
 
 export default function Uses() {
@@ -16,7 +16,11 @@ export default function Uses() {
         description={seoDescription}
         canonical={`${process.env.NEXT_PUBLIC_URL}/uses`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}}` }],
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
+            },
+          ],
         }}
       />
       <PageLayout

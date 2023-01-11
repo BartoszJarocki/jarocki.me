@@ -8,8 +8,8 @@ import { PageLayout } from '../components/PageLayout';
 import { LinkIcon } from '../components/icons/LinkIcon';
 import { MyCurrentProjects, MyPastProjects, Project } from '../data/lifeApi';
 
-const seoTitle = 'Creating | Bartosz Jarocki';
-const seoDescription = "Projects I've work on, worked on and will work on";
+const seoTitle = 'Creating';
+const seoDescription = "Things I've made trying to put my dent in the universe.";
 
 const ProjectCard = (project: Project) => {
   return (
@@ -60,7 +60,11 @@ export default function Creating() {
         description={seoDescription}
         canonical={`${process.env.NEXT_PUBLIC_URL}/projects`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}}` }],
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
+            },
+          ],
         }}
       />
       <PageLayout

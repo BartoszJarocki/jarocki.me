@@ -8,9 +8,8 @@ import { Badge } from '../../components/Badge';
 import { PageLayout } from '../../components/PageLayout';
 import { NotePreview } from '../../components/notes/NotePreview';
 
-const seoTitle = 'Notes | Bartosz Jarocki';
-const seoDescription =
-  'All of my thoughts on programming, building products, leadership, and more. Not structured.';
+const seoTitle = 'Notes';
+const seoDescription = 'Notes on software, building products, and other stuff.';
 
 interface Props {
   posts: BlogType[];
@@ -25,7 +24,11 @@ export default function Notes({ posts, tags }: Props) {
         description={seoDescription}
         canonical={`${process.env.NEXT_PUBLIC_URL}/notes`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
+            },
+          ],
         }}
       />
       <PageLayout

@@ -23,7 +23,11 @@ export default function Tag({ tag, relatedPosts }: Props) {
         description={`${seoDescription}#${tag}}`}
         canonical={`${process.env.NEXT_PUBLIC_URL}/tags/${tag}`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
+            },
+          ],
         }}
       />
       <PageLayout title="Tags" intro={`All the articles from #${tag}`}>

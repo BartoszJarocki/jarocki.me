@@ -21,7 +21,7 @@ import {
   VideosWorthWatching,
 } from '../data/lifeApi';
 
-const seoTitle = `About | Bartosz Jarocki`;
+const seoTitle = `About`;
 const seoDescription = `A few words about me.`;
 
 export default function AboutMe() {
@@ -38,7 +38,11 @@ export default function AboutMe() {
         description={seoDescription}
         canonical={`${process.env.NEXT_PUBLIC_URL}/about`}
         openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
+          images: [
+            {
+              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
+            },
+          ],
         }}
       />
       <Container className="mt-16 sm:mt-32">
@@ -55,9 +59,7 @@ export default function AboutMe() {
           </div>
           <div className="lg:order-first lg:row-span-2">
             <PageTitle>Hi, I&apos;m Bartosz Jarocki.</PageTitle>
-            <div className="mt-6 space-y-7 text-base">
-              {AboutExtended}
-            </div>
+            <div className="mt-6 space-y-7 text-base">{AboutExtended}</div>
 
             <Section>
               <Section.Title as="h2">Work</Section.Title>

@@ -14,28 +14,25 @@ const generateImage = async (req: NextRequest) => {
   const fontData = await font;
   const { searchParams } = req.nextUrl;
   const title = searchParams.get('title');
+  const description = searchParams.get('description');
 
   return new ImageResponse(
     (
-      <main
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: 32,
-          backgroundColor: '#18181b',
-          color: '#fff',
-        }}
-      >
-        <img
-          style={{ height: 84, width: 84, objectFit: 'cover', borderRadius: '100%' }}
-          src="https://jarocki.me/assets/blog/authors/bartosz.jpeg"
-          alt="Avatar"
-        />
-        <h1 style={{ fontSize: 32, wordWrap: 'break-word', marginTop: 32 }}>{title}</h1>
+      <main tw="h-full w-full bg-[#FB2576] pb-1 flex flex-col">
+        <div tw="w-full h-full flex flex-col items-start justify-start bg-zinc-900 text-zinc-100 p-8">
+          <div tw="self-end text-2xl text-zinc-500">jarocki.me</div>
+          <div tw="w-full mt-auto flex items-start justify-start">
+            <div tw="flex flex-col mt-auto max-w-2xl">
+              <h1 tw="text-5xl mt-auto">{title}</h1>
+              {description && <h2 tw="text-2xl text-zinc-200">{description}</h2>}
+            </div>
+            <img
+              tw="rounded-lg w-32 h-32 self-end ml-auto"
+              src="https://jarocki.me/assets/blog/authors/bartosz.jpeg"
+              alt="Avatar"
+            />
+          </div>
+        </div>
       </main>
     ),
     {
