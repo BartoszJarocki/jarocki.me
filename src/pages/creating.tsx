@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 import { Badge } from '../components/Badge';
 import { Card } from '../components/Card';
-import { LinkIcon } from '../components/Icons/LinkIcon';
 import { PageLayout } from '../components/PageLayout';
+import { LinkIcon } from '../components/icons/LinkIcon';
 import { MyCurrentProjects, MyPastProjects, Project } from '../data/lifeApi';
 
 const seoTitle = 'Creating | Bartosz Jarocki';

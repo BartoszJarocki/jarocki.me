@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment } from 'react';
 
-import { ChevronDownIcon } from './Icons/ChevronDownIcon';
-import { CloseIcon } from './Icons/CloseIcon';
+import { ChevronDownIcon } from './icons/ChevronDownIcon';
+import { CloseIcon } from './icons/CloseIcon';
 
 export const NavigationItems = [
   {

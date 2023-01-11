@@ -2,8 +2,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import React, { useEffect, useState } from 'react';
 
-import { MoonIcon } from './Icons/MoonIcon';
-import { SunIcon } from './Icons/SunIcon';
+import { MoonIcon } from './icons/MoonIcon';
+import { SunIcon } from './icons/SunIcon';
 
 export const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();

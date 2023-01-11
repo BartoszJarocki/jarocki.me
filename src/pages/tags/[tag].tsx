@@ -4,8 +4,8 @@ import { compareDesc } from 'date-fns';
 import { NextSeo } from 'next-seo';
 import React from 'react';
 
-import { NotePreview } from '../../components/NotePreview';
 import { PageLayout } from '../../components/PageLayout';
+import { NotePreview } from '../../components/notes/NotePreview';
 
 const seoTitle = 'Tags | Bartosz Jarocki';
 const seoDescription = 'All of my blog posts tagged with ';

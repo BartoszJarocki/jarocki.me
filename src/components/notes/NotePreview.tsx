@@ -1,9 +1,9 @@
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 
-import { Blog } from '../../.contentlayer/generated';
-import { formatDate } from '../lib/date';
-import { Card } from './Card';
+import { Blog } from '../../../.contentlayer/generated';
+import { formatDate } from '../../lib/date';
+import { Card } from '../Card';
 
 interface Props {
   blogPost: Blog;

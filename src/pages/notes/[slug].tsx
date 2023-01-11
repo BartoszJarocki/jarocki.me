@@ -4,8 +4,8 @@ import { useMDXComponent } from 'next-contentlayer/hooks';
 import { ArticleJsonLd, NextSeo } from 'next-seo';
 import React from 'react';
 
-import { TwitterIcon } from '../../components/Icons/TwitterIcon';
-import { NoteLayout } from '../../components/NoteLayout';
+import { TwitterIcon } from '../../components/icons/TwitterIcon';
+import { NoteLayout } from '../../components/notes/NoteLayout';
 
 export default function Post({
   post: { title, description, body, slug, author, date, readingTime, tags },

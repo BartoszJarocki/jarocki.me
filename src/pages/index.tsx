@@ -5,7 +5,7 @@ import { NextSeo } from 'next-seo';
 import { Blog, allBlogs } from '../../.contentlayer/generated';
 import { Container } from '../components/Container';
 import { Newsletter } from '../components/Newsletter';
-import { NotePreview } from '../components/NotePreview';
+import { NotePreview } from '../components/notes/NotePreview';
 import { PageTitle } from '../components/PageTitle';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';

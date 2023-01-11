@@ -1,7 +1,7 @@
 import { ExternalLink } from '../components/ExternalLink';
-import { GitHubIcon } from '../components/Icons/GitHubIcon';
-import { InstagramIcon } from '../components/Icons/InstagramIcon';
-import { TwitterIcon } from '../components/Icons/TwitterIcon';
+import { GitHubIcon } from '../components/icons/GitHubIcon';
+import { InstagramIcon } from '../components/icons/InstagramIcon';
+import { TwitterIcon } from '../components/icons/TwitterIcon';
 import AmbitLogo from '../images/logos/ambit.png';
 import BarepapersLogo from '../images/logos/barepapers.svg';
 import BimLogo from '../images/logos/bim.png';
@@ -19,6 +19,7 @@ import TastyCloudLogo from '../images/logos/tastycloud.png';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
 
 export const Name = 'Bartosz Jarocki';
+
 export const About = (
   <>
     {`I used to consider myself a software engineer, but the reality is that I simply enjoy creating things. If you'd like to get in touch,`}{' '}
@@ -436,3 +437,75 @@ export const Quotes = [
     author: '― Seneca',
   },
 ];
+
+export const Tools = {
+  Workstation: [
+    {
+      title: '14” MacBook Pro, M1 Max, 32GB RAM (2021)',
+      description:
+        'This laptop is a top-of-the-line machine that can handle virtually any task you throw at it, making it a worthwhile investment for anyone looking for a reliable and powerful laptop that can be used for years.',
+    },
+    {
+      title: 'Apple Studio Display 5K (Standard Glass)',
+      description:
+        '5K resolution helps to reduce strain on the eyes and makes it more comfortable to work for long periods of time. Not to mention that it looks great.',
+    },
+    {
+      title: 'Logitech MX Keys Mini',
+      description:
+        'Backlit keys, compact design, good battery life and a great typing experience. Matches the space gray color of the laptop almost perfectly.',
+    },
+    {
+      title: 'Logitech MX Master 3',
+      description: "Let's be honest, it just looks great with MX Keys Mini keyboard.",
+    },
+    {
+      title: 'Apple Magic Trackpad',
+      description:
+        'Gestures, taps and swipes are something I miss when I work with my laptop closed.',
+    },
+    {
+      title: 'Apple Magic Mouse',
+      description:
+        'Because it looks great and it allows me to post pictures with how badly the charging port is designed.',
+    },
+    {
+      title: 'Autonomous ErgoChair Pro',
+      description: `If I'm going to slouch in the worst ergonomic position imaginable all day, I might as well do it in an expensive chair.`,
+    },
+  ],
+  Software: [
+    {
+      title: 'Visual Studio Code',
+      description: `I still miss WebStorm but at least VS Code does not consume 1000% CPU when I open it. And to be fair, it's a great editor.`,
+    },
+    {
+      title: 'iTerm2',
+      description: `I'm honestly not even sure what features I get with this that aren't just part of the macOS Terminal but it's what I use.`,
+    },
+    {
+      title: 'TablePlus',
+      description: `Great software for working with databases. Has saved me from building about a thousand admin interfaces for my various projects over the years.`,
+    },
+    {
+      title: 'Figma',
+      description: `I'm not a designer but it allows me to quickly mock up interfaces and play with my ideas. One day I'll learn how to use it properly.`,
+    },
+    {
+      title: 'Notion',
+      description: `I use it for everything. I have a separate workspace for each of my projects and I use it to keep track of my tasks, notes, and ideas.`,
+    },
+    {
+      title: 'Raycast',
+      description: `Window management, quick access to my most used apps, and a bunch of other useful features. I use it every day.`,
+    },
+    {
+      title: '1Password',
+      description: `Not much to say here. It's a great password manager.`,
+    },
+    {
+      title: 'Cron',
+      description: `Calendar application done right`,
+    },
+  ],
+};
