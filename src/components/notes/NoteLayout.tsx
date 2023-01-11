@@ -5,7 +5,7 @@ import React from 'react';
 import { formatDate } from '../../lib/date';
 import { Container } from '../Container';
 import { Prose } from '../Prose';
-import { ArrowLeftIcon } from '../icons/ArrowLeftIcon';
+import { ArrowLeftIcon } from '../art/ArrowLeftIcon';
 
 interface Props {
   children: React.ReactNode;

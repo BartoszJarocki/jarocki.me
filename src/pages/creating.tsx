@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Badge } from '../components/Badge';
 import { Card } from '../components/Card';
 import { PageLayout } from '../components/PageLayout';
-import { LinkIcon } from '../components/icons/LinkIcon';
+import { LinkIcon } from '../components/art/LinkIcon';
 import { MyCurrentProjects, MyPastProjects, Project } from '../data/lifeApi';
 
 const seoTitle = 'Creating';
