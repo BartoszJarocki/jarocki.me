@@ -28,10 +28,10 @@ yarn dev
 Application generates Open Graph images automatically using lambda functions and Puppetter
 
 Main page example
-![main page OG image](https://jarocki.me/api/og?title=Bartosz%20Jarocki%20-%20Personal%20website)
+![main page OG image](https://jarocki.me/api/og?title=Bartosz%20Jarocki&description=A%20passionate%20software%20engineer%20with%20an%20eye%20for%20details%20based%20in%20Wroc%C5%82aw,%20Poland.)
 
 Blog post example
-![blog post OG image](https://jarocki.me/api/og?title=React%20Hooks%20-%20a%20few%20rules,%20common%20problems%20and%20how%20to%20solve%20them)
+![blog post OG image](https://jarocki.me/api/og?title=Monito,%20two%20weeks%20after%20launch&description=No%20audience,%20just%20Product%20Hunt%20and%20Hacker%20News%20launch.%20How%20did%20it%20go?)
 
 ## Credits
 
