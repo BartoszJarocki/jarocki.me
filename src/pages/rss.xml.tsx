@@ -11,7 +11,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const feed = new RSS({
     title: 'Bartosz Jarocki',
     site_url: 'https://jarocki.me',
-    feed_url: 'https://jarocki.me/feed.xml',
+    feed_url: 'https://jarocki.me/rss.xml',
   });
 
   const allPosts = await notesApi.getNotes();
