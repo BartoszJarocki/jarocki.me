@@ -28,6 +28,10 @@ export const NavigationItems = [
     name: 'About',
     href: '/about',
   },
+  {
+    name: 'RSS',
+    href: '/rss.xml',
+  },
 ];
 
 export const NavLink = ({ href, children }: React.PropsWithChildren<{ href: string }>) => {
