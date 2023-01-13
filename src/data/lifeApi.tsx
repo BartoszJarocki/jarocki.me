@@ -1,7 +1,7 @@
 import { ExternalLink } from '../components/ExternalLink';
-import { GitHubIcon } from '../components/art/GitHubIcon';
-import { InstagramIcon } from '../components/art/InstagramIcon';
-import { TwitterIcon } from '../components/art/TwitterIcon';
+import { GitHubIcon } from '../components/icons/GitHubIcon';
+import { InstagramIcon } from '../components/icons/InstagramIcon';
+import { TwitterIcon } from '../components/icons/TwitterIcon';
 import AmbitLogo from '../images/logos/ambit.png';
 import BarepapersLogo from '../images/logos/barepapers.svg';
 import BimLogo from '../images/logos/bim.png';

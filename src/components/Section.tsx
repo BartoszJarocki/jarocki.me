@@ -1,5 +1,4 @@
-import React, { ReactNode } from 'react';
-import { PropsWithChildren } from 'src/@types/react';
+import React, { PropsWithChildren, ReactNode } from 'react';
 
 type Heading = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
@@ -21,7 +20,7 @@ const Title = ({ as: TitleComponent = 'h1', action, children }: TitleProps) => {
 };
 
 const Content = ({ children }: PropsWithChildren) => {
-  return <div className="mt-4">{children}</div>;
+  return <div className="mt-4 text-base">{children}</div>;
 };
 
 const SectionRoot = ({ children }: PropsWithChildren) => {

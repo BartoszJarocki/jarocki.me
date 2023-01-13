@@ -2,7 +2,6 @@ import { compareDesc } from 'date-fns';
 import { GetStaticProps } from 'next';
 import { NextSeo } from 'next-seo';
 
-import { Blog, allBlogs } from '../../.contentlayer/generated';
 import { Container } from '../components/Container';
 import { Newsletter } from '../components/Newsletter';
 import { PageTitle } from '../components/PageTitle';
@@ -11,16 +10,17 @@ import { Resume } from '../components/Resume';
 import { SocialLink } from '../components/SocialLink';
 import { NotePreview } from '../components/notes/NotePreview';
 import { About, Name, SocialMedia } from '../data/lifeApi';
+import { Note, notesApi } from '../lib/notesApi';
 
 const seoTitle = 'Bartosz Jarocki';
 const seoDescription =
   'A passionate software engineer with an eye for details based in Wrocław, Poland.';
 
 type Props = {
-  latestPosts: Blog[];
+  latestNotes: Note[];
 };
 
-export default function Home({ latestPosts }: Props) {
+export default function Home({ latestNotes }: Props) {
   return (
     <>
       <NextSeo
@@ -55,8 +55,8 @@ export default function Home({ latestPosts }: Props) {
       <Container className="mt-24 md:mt-28">
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
-            {latestPosts.map((blogPost) => (
-              <NotePreview key={blogPost.slug} blogPost={blogPost} dense />
+            {latestNotes.map((blogPost) => (
+              <NotePreview key={blogPost.slug} note={blogPost} dense />
             ))}
           </div>
           <div className="lg:ml-auto space-y-10 lg:pl-16 xl:pl-24">
@@ -72,13 +72,10 @@ export default function Home({ latestPosts }: Props) {
 const NEWEST_POSTS_TO_DISPLAY = 5;
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const latestPosts = allBlogs
-    .sort((a, b) => {
-      return compareDesc(new Date(a.date), new Date(b.date));
-    })
-    .slice(0, NEWEST_POSTS_TO_DISPLAY);
+  const latestNotes = await notesApi.getNotes('desc', NEWEST_POSTS_TO_DISPLAY);
 
   return {
-    props: { latestPosts },
+    props: { latestNotes },
+    revalidate: 10,
   };
 };

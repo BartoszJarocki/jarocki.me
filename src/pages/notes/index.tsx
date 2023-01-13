@@ -1,22 +1,22 @@
-import { allBlogs } from 'contentlayer/generated';
-import type { Blog as BlogType } from 'contentlayer/generated';
 import { compareDesc } from 'date-fns';
+import { GetStaticProps } from 'next';
 import { NextSeo } from 'next-seo';
-import React from 'react';
 
 import { Badge } from '../../components/Badge';
 import { PageLayout } from '../../components/PageLayout';
 import { NotePreview } from '../../components/notes/NotePreview';
+import { Note, notesApi } from '../../lib/notesApi';
 
 const seoTitle = 'Notes';
-const seoDescription = 'Notes on software, building products, and other stuff.';
+const seoDescription =
+  'All of my thoughts on programming, building products, leadership, and more. Not structured.';
 
 interface Props {
-  posts: BlogType[];
+  notes: Note[];
   tags: Array<string>;
 }
 
-export default function Notes({ posts, tags }: Props) {
+export default function Notes({ notes, tags }: Props) {
   return (
     <>
       <NextSeo
@@ -24,11 +24,7 @@ export default function Notes({ posts, tags }: Props) {
         description={seoDescription}
         canonical={`${process.env.NEXT_PUBLIC_URL}/notes`}
         openGraph={{
-          images: [
-            {
-              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
-            },
-          ],
+          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
         }}
       />
       <PageLayout
@@ -46,8 +42,8 @@ export default function Notes({ posts, tags }: Props) {
 
         <div className="mt-24 md:border-l md:border-zinc-100 md:pl-6 md:dark:border-zinc-700/40">
           <div className="flex max-w-3xl flex-col space-y-16">
-            {posts.map((blogPost) => (
-              <NotePreview key={blogPost.slug} blogPost={blogPost} />
+            {notes.map((note) => (
+              <NotePreview key={note.slug} note={note} />
             ))}
           </div>
         </div>
@@ -56,10 +52,14 @@ export default function Notes({ posts, tags }: Props) {
   );
 }
 
-export async function getStaticProps() {
-  const posts = allBlogs.sort((a, b) => {
-    return compareDesc(new Date(a.date), new Date(b.date));
-  });
-  const tags = Array.from(new Set(posts.map((post) => post.tags).flat()));
-  return { props: { posts, tags } };
-}
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const notes = await notesApi.getNotes('desc');
+
+  return {
+    props: {
+      notes,
+      tags: Array.from(new Set(notes.map((post) => post.tags).flat())),
+    },
+    revalidate: 10,
+  };
+};

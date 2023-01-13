@@ -8,6 +8,7 @@ import React, { useEffect, useRef } from 'react';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import '../styles/index.css';
+import '../styles/prism.css';
 
 const inter = Inter({
   subsets: ['latin'],

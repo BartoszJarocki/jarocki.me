@@ -5,7 +5,7 @@ import React from 'react';
 import { formatDate } from '../../lib/date';
 import { Container } from '../Container';
 import { Prose } from '../Prose';
-import { ArrowLeftIcon } from '../art/ArrowLeftIcon';
+import { ArrowLeftIcon } from '../icons/ArrowLeftIcon';
 
 interface Props {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ export const NoteLayout = ({ children, meta, previousPathname }: Props) => {
   return (
     <Container className="mt-16 lg:mt-32">
       <div className="xl:relative">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-3xl">
           {previousPathname && (
             <button
               type="button"

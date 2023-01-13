@@ -1,5 +1,5 @@
 import { Button } from './Button';
-import { MailIcon } from './art/MailIcon';
+import { MailIcon } from './icons/MailIcon';
 
 export const Newsletter = () => {
   return (

@@ -59,7 +59,7 @@ export default function AboutMe() {
           </div>
           <div className="lg:order-first lg:row-span-2">
             <PageTitle>Hi, I&apos;m Bartosz Jarocki.</PageTitle>
-            <div className="mt-6 space-y-7 text-base">{AboutExtended}</div>
+            <div className="mt-6 text-base">{AboutExtended}</div>
 
             <Section>
               <Section.Title as="h2">Work</Section.Title>
@@ -167,7 +167,7 @@ export default function AboutMe() {
               <Section>
                 <Section.Title as="h2">Quote worth thinking about</Section.Title>
                 <Section.Content>
-                  <div className="mt-8 space-y-8 px-4">
+                  <div className="mt-8">
                     <Quote quote={randomQuote.content} author={randomQuote.author} />
                   </div>
                 </Section.Content>

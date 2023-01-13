@@ -1,13 +1,17 @@
 import clsx from 'clsx';
-import React from 'react';
-import { PropsWithChildren } from 'src/@types/react';
+import React, { PropsWithChildren } from 'react';
 
 type Props = {
   className?: string | null;
   href: string;
-} & PropsWithChildren;
+};
 
-export const ExternalLink = ({ className = 'underline', href, children, ...otherProps }: Props) => {
+export const ExternalLink = ({
+  className = 'underline',
+  href,
+  children,
+  ...otherProps
+}: PropsWithChildren<Props>) => {
   return (
     <a
       className={clsx(className)}

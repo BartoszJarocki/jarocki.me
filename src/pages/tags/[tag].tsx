@@ -1,21 +1,20 @@
-import { allBlogs } from 'contentlayer/generated';
-import type { Blog } from 'contentlayer/generated';
-import { compareDesc } from 'date-fns';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import { NextSeo } from 'next-seo';
 import React from 'react';
 
 import { PageLayout } from '../../components/PageLayout';
 import { NotePreview } from '../../components/notes/NotePreview';
+import { Note, notesApi } from '../../lib/notesApi';
 
-const seoTitle = 'Tags | Bartosz Jarocki';
+const seoTitle = 'Tags';
 const seoDescription = 'All of my blog posts tagged with ';
 
 interface Props {
   tag: string;
-  relatedPosts: Blog[];
+  relatedNotes: Note[];
 }
 
-export default function Tag({ tag, relatedPosts }: Props) {
+export default function Tag({ tag, relatedNotes }: Props) {
   return (
     <>
       <NextSeo
@@ -33,8 +32,8 @@ export default function Tag({ tag, relatedPosts }: Props) {
       <PageLayout title="Tags" intro={`All the articles from #${tag}`}>
         <div className="mt-24 md:border-l md:border-zinc-100 md:pl-6 md:dark:border-zinc-700/40">
           <div className="flex max-w-3xl flex-col space-y-16">
-            {relatedPosts.map((blogPost) => (
-              <NotePreview key={blogPost.slug} blogPost={blogPost} />
+            {relatedNotes.map((note) => (
+              <NotePreview key={note.slug} note={note} />
             ))}
           </div>
         </div>
@@ -43,26 +42,32 @@ export default function Tag({ tag, relatedPosts }: Props) {
   );
 }
 
-export async function getStaticProps({ params: { tag } }: { params: { tag: string } }) {
-  const relatedPosts = allBlogs
-    .sort((a, b) => {
-      return compareDesc(new Date(a.date), new Date(b.date));
-    })
-    .filter((post) => post.tags.includes(tag));
-  const tags = Array.from(new Set(relatedPosts.map((post) => post.tags).flat()));
-  return { props: { relatedPosts, tags, tag } };
-}
+export const getStaticProps: GetStaticProps<Props, { tag: string }> = async (context) => {
+  const tag = context.params?.tag;
+  if (!tag) {
+    return {
+      notFound: true,
+    };
+  }
 
-export async function getStaticPaths() {
-  const tags = Array.from(new Set(allBlogs.map((post) => post.tags).flat()));
+  const relatedNotes = await notesApi.getNotesByTag(tag);
+
   return {
-    paths: tags.map((tag) => {
-      return {
-        params: {
-          tag,
-        },
-      };
-    }),
-    fallback: false,
+    props: {
+      relatedNotes,
+      tag,
+    },
+    revalidate: 10,
   };
-}
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const tags = await notesApi.getAllTags();
+
+  return {
+    paths: tags.map((tag) => ({
+      params: { tag },
+    })),
+    fallback: 'blocking',
+  };
+};

@@ -1,6 +1,4 @@
-import { withContentlayer } from 'next-contentlayer';
-
-export default withContentlayer({
+const config = {
   swcMinify: true,
   reactStrictMode: true,
   experimental: {
@@ -15,4 +13,6 @@ export default withContentlayer({
       },
     ];
   },
-});
+};
+
+export default config;
