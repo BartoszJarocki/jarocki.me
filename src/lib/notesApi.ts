@@ -1,7 +1,6 @@
 import { Client, isFullPage } from '@notionhq/client';
 import {
   BlockObjectResponse,
-  ImageBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import { compareAsc, compareDesc } from 'date-fns';
 import { getPlaiceholder } from 'plaiceholder';
