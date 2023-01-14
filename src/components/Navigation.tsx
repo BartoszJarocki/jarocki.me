@@ -30,7 +30,7 @@ export const NavigationItems = [
   },
   {
     name: 'RSS',
-    href: '/rss.xml',
+    href: '/api/rss.xml',
   },
 ];
 
