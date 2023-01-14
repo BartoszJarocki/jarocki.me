@@ -1,5 +1,6 @@
 import { TextRichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 import clsx from 'clsx';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { Quote } from '../Quote';
@@ -92,7 +93,15 @@ export const NotionBlockRenderer = ({ block }: Props) => {
       const caption = value.caption ? value.caption[0]?.plain_text : '';
       return (
         <figure>
-          <img className="object-cover" placeholder={value.placeholder} src={src} alt={caption} />
+          <Image
+            className="object-cover"
+            placeholder="blur"
+            src={src}
+            alt={caption}
+            blurDataURL={value.placeholder}
+            width={value.size.width}
+            height={value.size.height}
+          />
           {caption && <figcaption>{caption}</figcaption>}
         </figure>
       );

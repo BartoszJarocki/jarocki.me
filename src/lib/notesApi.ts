@@ -1,6 +1,10 @@
 import { Client, isFullPage } from '@notionhq/client';
-import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  BlockObjectResponse,
+  ImageBlockObjectResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 import { compareAsc, compareDesc } from 'date-fns';
+import { getPlaiceholder } from 'plaiceholder';
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
@@ -63,7 +67,17 @@ const BlockTypeTransformLookup: Record<
   table_row: noop,
   embed: noop,
   bookmark: noop,
-  image: noop,
+  image: async (block: any) => {
+    const contents = block[block.type];
+    const {
+      base64,
+      img: { height, width },
+    } = await getPlaiceholder(contents[contents.type].url, { size: 64 });
+    block.image['size'] = { height, width };
+    block.image['placeholder'] = base64;
+
+    return block;
+  },
   video: noop,
   pdf: noop,
   audio: noop,
@@ -93,7 +107,7 @@ class NotesApi {
     const notes = await notesApi.getNotes(sortOrder, limit);
     const relatedNotes = notes.filter((post) => post.tags.includes(tag));
 
-    return relatedNotes
+    return relatedNotes;
   }
 
   async getNote(id: string) {
