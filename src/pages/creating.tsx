@@ -14,7 +14,7 @@ export default function Creating() {
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        canonical={`${process.env.NEXT_PUBLIC_URL}/projects`}
+        canonical={`${process.env.NEXT_PUBLIC_URL}/creating`}
         openGraph={{
           images: [
             {
