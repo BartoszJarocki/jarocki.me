@@ -31,7 +31,7 @@ export default function Uses() {
           {Object.entries(Tools).map(([title, tools]) => (
             <ToolsSection key={title} title={title}>
               {tools.map((tool) => (
-                <Tool key={tool.title} title={tool.title}>
+                <Tool key={tool.title} title={tool.title} href={tool.href}>
                   {tool.description}
                 </Tool>
               ))}
