@@ -1,4 +1,3 @@
-import { compareDesc } from 'date-fns';
 import { GetStaticProps } from 'next';
 import { NextSeo } from 'next-seo';
 

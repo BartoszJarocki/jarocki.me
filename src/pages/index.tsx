@@ -3,7 +3,6 @@ import { GetStaticProps } from 'next';
 import { NextSeo } from 'next-seo';
 
 import { Container } from '../components/Container';
-import { Newsletter } from '../components/Newsletter';
 import { PageTitle } from '../components/PageTitle';
 import { Photos } from '../components/Photos';
 import { Resume } from '../components/Resume';
@@ -60,7 +59,6 @@ export default function Home({ latestNotes }: Props) {
             ))}
           </div>
           <div className="lg:ml-auto space-y-10 lg:pl-16 xl:pl-24">
-            {false && <Newsletter />}
             <Resume />
           </div>
         </div>
