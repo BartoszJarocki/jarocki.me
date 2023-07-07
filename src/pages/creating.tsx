@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
+import { motion, useMotionValue } from 'framer-motion';
 import { NextSeo } from 'next-seo';
+import { MouseEvent } from 'react';
 
 import { PageLayout } from '../components/PageLayout';
 import { ProjectCard } from '../components/ProjectCard';
@@ -40,7 +41,7 @@ export default function Creating() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <ProjectCard {...project} />
+              <ProjectCard project={project} />
             </motion.li>
           ))}
         </ul>
@@ -61,7 +62,7 @@ export default function Creating() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <ProjectCard key={project.title} {...project} />
+              <ProjectCard key={project.title} project={project} />
             </motion.li>
           ))}
         </ul>

@@ -1,8 +1,8 @@
-import { Inter } from '@next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import 'focus-visible';
 import { ThemeProvider } from 'next-themes';
 import { AppProps } from 'next/app';
+import { Inter } from 'next/font/google';
 import React, { useEffect, useRef } from 'react';
 
 import { Footer } from '../components/Footer';
