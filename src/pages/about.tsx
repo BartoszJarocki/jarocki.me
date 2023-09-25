@@ -1,4 +1,4 @@
-import { MailIcon } from '@heroicons/react/outline';
+import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
@@ -187,7 +187,7 @@ export default function AboutMe() {
               ))}
               <SocialLink
                 href="mailto:bartosz@jarocki.me"
-                icon={MailIcon}
+                icon={EnvelopeIcon}
                 className="mt-8 border-t border-zinc-100 pt-8 dark:border-zinc-700/40"
               >
                 bartosz@jarocki.me
