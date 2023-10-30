@@ -1,7 +1,5 @@
 import { Client, isFullPage } from '@notionhq/client';
-import {
-  BlockObjectResponse,
-} from '@notionhq/client/build/src/api-endpoints';
+import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { compareAsc, compareDesc } from 'date-fns';
 import { getPlaiceholder } from 'plaiceholder';
 
@@ -70,7 +68,7 @@ const BlockTypeTransformLookup: Record<
     const contents = block[block.type];
     const {
       base64,
-      img: { height, width },
+      metadata: { height, width },
     } = await getPlaiceholder(contents[contents.type].url, { size: 64 });
     block.image['size'] = { height, width };
     block.image['placeholder'] = base64;
@@ -90,7 +88,10 @@ const CompareFunctionLookup = {
 };
 
 class NotesApi {
-  constructor(private readonly notion: Client, private readonly databaseId: string) {}
+  constructor(
+    private readonly notion: Client,
+    private readonly databaseId: string,
+  ) {}
 
   async getNotes(sortOrder: 'asc' | 'desc' = 'desc', limit?: number) {
     const notes = await this.getDatabaseContent(this.databaseId);

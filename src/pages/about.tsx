@@ -20,6 +20,7 @@ import {
   SocialMedia,
   VideosWorthWatching,
 } from '../data/lifeApi';
+import { testUtil } from '../lib/testUtil';
 
 const seoTitle = `About`;
 const seoDescription = `A few words about me.`;
