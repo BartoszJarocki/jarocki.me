@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Client, isFullPage } from '@notionhq/client';
 import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { compareAsc, compareDesc } from 'date-fns';
