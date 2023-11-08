@@ -30,7 +30,7 @@ const Photo = ({
       onHoverStart={() => setIsVisible(true)}
       onHoverEnd={() => setIsVisible(false)}
       className={clsx(
-        'relative aspect-[9/10] w-44 flex-none overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:w-72 sm:rounded-2xl',
+        'relative aspect-[9/10] w-44 flex-none overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800',
       )}
     >
       <Image
@@ -58,8 +58,8 @@ const Photo = ({
 
 export const Photos = () => {
   return (
-    <div className="mt-16 sm:mt-20">
-      <div className="hide-scrollbar -my-4 flex gap-5 overflow-y-auto py-4 px-8 sm:gap-8">
+    <div className="my-8">
+      <div className="hide-scrollbar -my-4 flex gap-8 overflow-y-auto py-4 px-8">
         {travelImages.map((travelImage, index) => (
           <Photo
             key={travelImage.img.src}

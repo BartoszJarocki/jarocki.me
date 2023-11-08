@@ -186,13 +186,6 @@ export default function AboutMe() {
                   Follow me on {socialProfile.name}
                 </SocialLink>
               ))}
-              <SocialLink
-                href="mailto:bartosz@jarocki.me"
-                icon={EnvelopeIcon}
-                className="mt-8 border-t border-zinc-100 pt-8 dark:border-zinc-700/40"
-              >
-                bartosz@jarocki.me
-              </SocialLink>
             </ul>
           </div>
         </div>

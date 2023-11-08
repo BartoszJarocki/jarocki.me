@@ -37,7 +37,7 @@ export default function Home({ latestNotes }: Props) {
       <Container className="mt-9">
         <div className="max-w-2xl">
           <PageTitle>{Name}</PageTitle>
-          <p className="mt-6 max-w-2xl text-base">{About}</p>
+          <p className="mt-6 max-w-2xl text-base text-balance">{About}</p>
           <div className="mt-6 flex gap-6">
             {SocialMedia.map((socialProfile) => (
               <SocialLink
@@ -51,7 +51,7 @@ export default function Home({ latestNotes }: Props) {
         </div>
       </Container>
       <Photos />
-      <Container className="mt-24 md:mt-28">
+      <Container className="mt-12">
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
             {latestNotes.map((blogPost) => (

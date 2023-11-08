@@ -26,9 +26,9 @@ export const NotePreview = ({ note, dense }: Props) => {
   return (
     <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
       <article className="md:grid md:grid-cols-4 md:items-baseline">
-        <Card className="md:col-span-3">
+        <Card className="md:col-span-4">
           <Card.Title href={`/notes/${note.slug}`}>
-            {note.title}
+            {note.title}{' '}
             {note.inProgress && <StaticBadge className="ml-2">Work in progress</StaticBadge>}
           </Card.Title>
           <Card.Eyebrow
