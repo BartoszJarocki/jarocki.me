@@ -67,10 +67,13 @@ const BlockTypeTransformLookup: Record<
   bookmark: noop,
   image: async (block: any) => {
     const contents = block[block.type];
+    const buffer = await fetch(contents[contents.type].url).then(async (res) =>
+      Buffer.from(await res.arrayBuffer()),
+    );
     const {
       base64,
       metadata: { height, width },
-    } = await getPlaiceholder(contents[contents.type].url, { size: 64 });
+    } = await getPlaiceholder(buffer, { size: 64 });
     block.image['size'] = { height, width };
     block.image['placeholder'] = base64;
 
