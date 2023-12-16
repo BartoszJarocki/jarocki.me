@@ -43,6 +43,7 @@ export const NotePreview = ({ note, dense }: Props) => {
         {!dense && (
           <Card.Eyebrow as="time" dateTime={note.publishedAt} className="mt-1 hidden md:block">
             {formatDate(note.publishedAt)}
+            {note.inProgress && <StaticBadge className="mt-2">Work in progress</StaticBadge>}
           </Card.Eyebrow>
         )}
       </article>
