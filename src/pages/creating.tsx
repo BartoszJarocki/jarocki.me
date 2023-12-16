@@ -55,7 +55,7 @@ export default function Creating() {
           role="list"
           className="mt-12 grid grid-cols-1 gap-x-12 gap-y-16 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {MyPastProjects.map((project, idx) => (
+          {MyPastProjects.map((project) => (
             <motion.li
               key={project.title}
               initial={{ opacity: 0 }}
