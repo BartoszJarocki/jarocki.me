@@ -12,11 +12,13 @@ import Howdy from '../images/logos/howdy.png';
 import JarockiMeLogo from '../images/logos/jarocki.svg';
 import JojoMobileLogo from '../images/logos/jojomobile.png';
 import MonitoLogo from '../images/logos/monito.svg';
+import Consultly from '../images/logos/consultly.svg';
 import MobileVikingsLogo from '../images/logos/mv.png';
 import NSNLogo from '../images/logos/nsn.svg';
 import ParabolLogo from '../images/logos/parabol.svg';
 import TastyCloudLogo from '../images/logos/tastycloud.png';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
+import Minimal from '../images/logos/minimal.svg';
 
 export const Name = 'Bartosz Jarocki';
 
@@ -41,13 +43,13 @@ export type Project = {
 
 export const MyCurrentProjects: Project[] = [
   {
-    title: 'Parabol',
-    techStack: ['Full Stack Developer', 'TypeScript', 'React', 'Node.js', 'GraphQL'],
-    description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
-    logo: ParabolLogo,
+    title: 'Consultly',
+    techStack: ['Side Project', 'TypeScript', 'Next.js', 'WebRTC'],
+    description: 'A platform to build and grow your online business.',
+    logo: Consultly,
     link: {
-      label: 'github.com',
-      href: 'https://github.com/ParabolInc/parabol',
+      label: 'consultly.com',
+      href: 'https://consultly.com',
     },
   },
   {
@@ -68,6 +70,16 @@ export const MyCurrentProjects: Project[] = [
     link: {
       label: 'github.com',
       href: 'https://github.com/BartoszJarocki/web-jarocki-me',
+    },
+  },
+  {
+    title: 'Minimal',
+    techStack: ['Side Project', 'Next.js', 'Puppeteer'],
+    description: 'Minimalist calendars, habit trackers and planners generator.',
+    logo: Minimal,
+    link: {
+      label: 'useminimal.com',
+      href: 'https://useminimal.com',
     },
   },
   {
@@ -93,6 +105,16 @@ export const MyCurrentProjects: Project[] = [
 ];
 
 export const MyPastProjects: Project[] = [
+  {
+    title: 'Parabol',
+    techStack: ['Full Stack Developer', 'TypeScript', 'React', 'Node.js', 'GraphQL'],
+    description: 'The Agile meeting co-pilot that delivers better meetings with less effort.',
+    logo: ParabolLogo,
+    link: {
+      label: 'github.com',
+      href: 'https://github.com/ParabolInc/parabol',
+    },
+  },
   {
     title: 'Evercast',
     techStack: [

@@ -16,7 +16,7 @@ export const ProjectCard = ({ project }: Props) => {
         <Image
           src={project.logo}
           alt={`Logo of ${project.title}`}
-          className="h-10 w-10 object-cover"
+          className="h-10 w-10 object-contain p-1"
           unoptimized
         />
       </div>
