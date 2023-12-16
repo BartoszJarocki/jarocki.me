@@ -5,6 +5,7 @@ import React from 'react';
 import { formatDate } from '../../lib/date';
 import { Note } from '../../lib/notesApi';
 import { Card } from '../Card';
+import { ANIMATION_FROM_PROPS, ANIMATION_TO_PROPS } from '../../lib/animation';
 
 const StaticBadge = ({ className, children }: React.PropsWithChildren<{ className?: string }>) => (
   <span
@@ -24,7 +25,11 @@ interface Props {
 
 export const NotePreview = ({ note, dense }: Props) => {
   return (
-    <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+    <motion.div
+      initial={ANIMATION_FROM_PROPS}
+      whileInView={ANIMATION_TO_PROPS}
+      viewport={{ once: true }}
+    >
       <article className="md:grid md:grid-cols-4 md:items-baseline">
         <Card className="md:col-span-3">
           <Card.Title href={`/notes/${note.slug}`}>{note.title}</Card.Title>
