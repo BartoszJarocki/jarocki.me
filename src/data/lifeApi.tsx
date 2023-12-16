@@ -1,7 +1,7 @@
 import { ExternalLink } from '../components/ExternalLink';
 import { GitHubIcon } from '../components/icons/GitHubIcon';
 import { InstagramIcon } from '../components/icons/InstagramIcon';
-import { TwitterIcon } from '../components/icons/TwitterIcon';
+import { XIcon } from '../components/icons/XIcon';
 import AmbitLogo from '../images/logos/ambit.png';
 import BarepapersLogo from '../images/logos/barepapers.svg';
 import BimLogo from '../images/logos/bim.png';
@@ -184,7 +184,7 @@ export const MyPastProjects: Project[] = [
 ];
 
 export const SocialMedia = [
-  { name: 'Twitter', link: 'https://twitter.com/BartoszJarocki', icon: TwitterIcon },
+  { name: 'Twitter', link: 'https://twitter.com/BartoszJarocki', icon: XIcon },
   { name: 'Instagram', link: 'https://www.instagram.com/bartosz.jarocki/', icon: InstagramIcon },
   { name: 'Github', link: 'https://github.com/BartoszJarocki', icon: GitHubIcon },
 ];

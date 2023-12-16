@@ -10,7 +10,7 @@ const StaticBadge = ({ className, children }: React.PropsWithChildren<{ classNam
   <span
     className={clsx(
       className,
-      'inline-flex items-center rounded-md bg-primary px-1 py-0 text-xs font-medium text-white',
+      'inline-flex items-center rounded-md bg-primary px-2 py-0 text-xs font-medium text-white',
     )}
   >
     {children}

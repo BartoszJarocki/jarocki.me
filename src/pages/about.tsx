@@ -61,6 +61,16 @@ export default function AboutMe() {
           <div className="lg:order-first lg:row-span-2">
             <PageTitle>Hi, I&apos;m Bartosz Jarocki.</PageTitle>
             <div className="mt-6 text-base">{AboutExtended}</div>
+            <div className="mt-6 flex gap-6">
+              {SocialMedia.map((socialProfile) => (
+                <SocialLink
+                  key={socialProfile.name}
+                  aria-label={`Follow on ${socialProfile.name}`}
+                  href={socialProfile.link}
+                  icon={socialProfile.icon}
+                />
+              ))}
+            </div>
 
             <Section>
               <Section.Title as="h2">Work</Section.Title>
@@ -174,19 +184,6 @@ export default function AboutMe() {
                 </Section.Content>
               </Section>
             )}
-          </div>
-          <div className="lg:pl-20">
-            <ul role="list">
-              {SocialMedia.map((socialProfile) => (
-                <SocialLink
-                  key={socialProfile.link}
-                  href={socialProfile.link}
-                  icon={socialProfile.icon}
-                >
-                  Follow me on {socialProfile.name}
-                </SocialLink>
-              ))}
-            </ul>
           </div>
         </div>
       </Container>

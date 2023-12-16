@@ -3,7 +3,7 @@ import { ArticleJsonLd, NextSeo } from 'next-seo';
 import Prism from 'prismjs';
 import { useEffect } from 'react';
 
-import { TwitterIcon } from '../../components/icons/TwitterIcon';
+import { XIcon } from '../../components/icons/XIcon';
 import { NoteLayout } from '../../components/notes/NoteLayout';
 import { NotionBlockRenderer } from '../../components/notion/NotionBlockRenderer';
 import { Note as NoteType, notesApi } from '../../lib/notesApi';
@@ -51,13 +51,16 @@ export default function Note({
           {noteContent.map((block) => (
             <NotionBlockRenderer key={block.id} block={block} />
           ))}
+
+          <hr />
+
           <a
-            className="group block text-center text-xl font-semibold md:text-3xl no-underline mt-32"
-            href={url}
+            className="group block text-xl font-semibold md:text-3xl no-underline"
+            href={`http://x.com/share?text=${title}&url=${url}`}
           >
-            <h4 className="m-5 flex cursor-pointer flex-col place-items-center duration-200 ease-in-out group-hover:text-blue-400 group-hover:fill-blue-400 fill-white sm:m-20">
-              <TwitterIcon className="m-6 h-10 w-10 transform transition-transform group-hover:-rotate-12" />
-              Click here to share this article with your friends on Twitter if you liked it.
+            <h4 className="max-w-lg flex cursor-pointer flex-col duration-200 ease-in-out group-hover:text-primary group-hover:fill-primary fill-white text-wrap">
+              <XIcon className="my-6 h-10 w-10 transform transition-transform group-hover:-rotate-12 text-black dark:text-white group-hover:text-primary" />
+              Click here to share this article with your friends on X if you liked it.
             </h4>
           </a>
         </div>

@@ -24,7 +24,7 @@ const Content = ({ children }: PropsWithChildren) => {
 };
 
 const SectionRoot = ({ children }: PropsWithChildren) => {
-  return <section>{children}</section>;
+  return <section className="text-wrap">{children}</section>;
 };
 
 export const Section = Object.assign(SectionRoot, { Title, Content });
