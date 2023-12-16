@@ -26,11 +26,8 @@ export const NotePreview = ({ note, dense }: Props) => {
   return (
     <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
       <article className="md:grid md:grid-cols-4 md:items-baseline">
-        <Card className="md:col-span-4">
-          <Card.Title href={`/notes/${note.slug}`}>
-            {note.title}{' '}
-            {note.inProgress && <StaticBadge className="ml-2">Work in progress</StaticBadge>}
-          </Card.Title>
+        <Card className="md:col-span-3">
+          <Card.Title href={`/notes/${note.slug}`}>{note.title}</Card.Title>
           <Card.Eyebrow
             as="time"
             dateTime={note.publishedAt}
@@ -38,6 +35,7 @@ export const NotePreview = ({ note, dense }: Props) => {
             decorate
           >
             {formatDate(note.publishedAt)}
+            {note.inProgress && <StaticBadge className="ml-4">Work in progress</StaticBadge>}
           </Card.Eyebrow>
           <Card.Description>{note.description}</Card.Description>
           <Card.Cta>Read note</Card.Cta>

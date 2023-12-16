@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
 import { Avatar } from './Avatar';
 import { AvatarContainer } from './AvatarContainer';
@@ -20,7 +20,7 @@ export const Header = () => {
   let avatarRef = useRef<HTMLDivElement | null>(null);
   let isInitial = useRef(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let downDelay = avatarRef.current?.offsetTop ?? 0;
     let upDelay = 64;
 
