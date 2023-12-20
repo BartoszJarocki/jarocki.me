@@ -19,6 +19,7 @@ import ParabolLogo from '../images/logos/parabol.svg';
 import TastyCloudLogo from '../images/logos/tastycloud.png';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
 import Minimal from '../images/logos/minimal.svg';
+import { LinkedInIcon } from '../components/icons/LinkedInIcon';
 
 export const Name = 'Bartosz Jarocki';
 
@@ -187,6 +188,7 @@ export const SocialMedia = [
   { name: 'Twitter', link: 'https://twitter.com/BartoszJarocki', icon: XIcon },
   { name: 'Instagram', link: 'https://www.instagram.com/bartosz.jarocki/', icon: InstagramIcon },
   { name: 'Github', link: 'https://github.com/BartoszJarocki', icon: GitHubIcon },
+  { name: 'LinkedIn', link: 'https://www.linkedin.com/in/bjarocki', icon: LinkedInIcon },
 ];
 
 export const Work = [
