@@ -11,28 +11,34 @@ export const NavigationItems = [
   {
     name: 'Home',
     href: '/',
+    type: 'internal',
   },
   {
     name: 'Notes',
     href: '/notes',
+    type: 'internal',
   },
   {
     name: 'Creating',
     href: '/creating',
+    type: 'internal',
   },
   {
     name: 'Uses',
     href: '/uses',
+    type: 'internal',
+  },
+  {
+    name: 'Resume',
+    href: 'https://cv.jarocki.me',
+    type: 'external',
   },
   {
     name: 'About',
     href: '/about',
+    type: 'internal',
   },
-  {
-    name: 'RSS',
-    href: '/rss.xml',
-  },
-];
+] as const;
 
 export const NavLink = ({ href, children }: React.PropsWithChildren<{ href: string }>) => {
   return (
@@ -76,11 +82,26 @@ export const DesktopNavigation = (
   return (
     <nav {...props}>
       <ul className="flex rounded-full bg-white/90 px-3 text-sm font-medium text-zinc-800 shadow-lg shadow-zinc-800/5 ring-1 ring-zinc-900/5 backdrop-blur dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
-        {NavigationItems.map((item) => (
-          <NavItem key={item.href} href={item.href}>
-            {item.name}
-          </NavItem>
-        ))}
+        {NavigationItems.map((item) => {
+          if (item.type === 'internal') {
+            return (
+              <NavItem key={item.href} href={item.href}>
+                {item.name}
+              </NavItem>
+            );
+          }
+
+          return (
+            <a
+              key={item.href}
+              className="transition hover:text-primary px-3 py-2"
+              href={item.href}
+              target="_blank"
+            >
+              {item.name}
+            </a>
+          );
+        })}
       </ul>
     </nav>
   );

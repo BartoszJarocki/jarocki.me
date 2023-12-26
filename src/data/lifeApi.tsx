@@ -189,7 +189,7 @@ export const SocialMedia = [
   { name: 'Instagram', link: 'https://www.instagram.com/bartosz.jarocki/', icon: InstagramIcon },
   { name: 'Github', link: 'https://github.com/BartoszJarocki', icon: GitHubIcon },
   { name: 'LinkedIn', link: 'https://www.linkedin.com/in/bjarocki', icon: LinkedInIcon },
-];
+] as const;
 
 export const Work = [
   {
@@ -198,7 +198,7 @@ export const Work = [
     logo: ParabolLogo,
     start: '2021',
     end: 'Present',
-  } as const,
+  },
   {
     company: 'Clevertech',
     title: 'Lead Android Developer → Full Stack Developer',
@@ -220,7 +220,7 @@ export const Work = [
     start: '2010',
     end: '2012',
   },
-];
+] as const;
 
 export const CompaniesLinks = [
   {
@@ -243,7 +243,7 @@ export const CompaniesLinks = [
     name: 'Canal Digital',
     link: 'https://www.canaldigital.no/',
   },
-];
+] as const;
 
 export const Books = [
   {
@@ -274,7 +274,7 @@ export const Books = [
     name: 'Atomic Habits by James Clear',
     link: 'https://amzn.to/3iqimpZ',
   },
-];
+] as const;
 
 export const VideosWorthWatching = [
   {
@@ -285,7 +285,7 @@ export const VideosWorthWatching = [
     name: 'Falcon Heavy & Starman',
     link: 'https://www.youtube.com/watch?v=A0FZIwabctw',
   },
-];
+] as const;
 
 export const Podcasts = [
   {
@@ -308,7 +308,7 @@ export const Podcasts = [
     name: 'Build your SaaS',
     link: 'https://saas.transistor.fm/',
   },
-];
+] as const;
 
 export const PeopleWorthFollowingOnTwitter = [
   {
@@ -355,7 +355,7 @@ export const PeopleWorthFollowingOnTwitter = [
     name: 'Pieter Levels',
     link: 'https://twitter.com/levelsio',
   },
-];
+] as const;
 
 export const Blogs = [
   {
@@ -386,7 +386,7 @@ export const Blogs = [
     name: 'Naval Ravikant',
     link: 'https://nav.al/',
   },
-];
+] as const;
 
 export const Quotes = [
   {
@@ -460,7 +460,7 @@ export const Quotes = [
     content: 'We suffer more often in imagination than in reality',
     author: '― Seneca',
   },
-];
+] as const;
 
 export const Tools = {
   Workstation: [
@@ -547,4 +547,4 @@ export const Tools = {
       href: 'https://cron.com/',
     },
   ],
-};
+} as const;
