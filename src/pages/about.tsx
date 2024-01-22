@@ -75,7 +75,7 @@ export default function AboutMe() {
             <Section>
               <Section.Title as="h2">Work</Section.Title>
               <Section.Content>
-                I&apos;m a software developer with over 10 years of experience. I started as a C/C++
+                I&apos;m a software developer with over 13 years of experience. I started as a C/C++
                 developer, then transitioned to Android world and now I&apos;m mostly focused on
                 developing great user experiences using React.
                 <br />

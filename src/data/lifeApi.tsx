@@ -197,7 +197,7 @@ export const Work = [
     title: 'Full Stack Developer',
     logo: ParabolLogo,
     start: '2021',
-    end: 'Present',
+    end: '2024',
   },
   {
     company: 'Clevertech',
