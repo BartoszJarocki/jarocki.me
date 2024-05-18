@@ -1,6 +1,5 @@
-import { motion, useMotionValue } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { NextSeo } from 'next-seo';
-import { MouseEvent } from 'react';
 
 import { PageLayout } from '../components/PageLayout';
 import { ProjectCard } from '../components/ProjectCard';

@@ -1,7 +1,7 @@
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
 import { Container } from '../components/Container';
@@ -20,17 +20,12 @@ import {
   SocialMedia,
   VideosWorthWatching,
 } from '../data/lifeApi';
-import { testUtil } from '../lib/testUtil';
 
 const seoTitle = `About`;
 const seoDescription = `A few words about me.`;
 
 export default function AboutMe() {
-  const [randomQuote, setRandomQuote] = useState<{ author: string; content: string }>();
-
-  useEffect(() => {
-    setRandomQuote(Quotes[Math.floor(Math.random() * Quotes.length)]);
-  }, []);
+  const randomQuote = useMemo(() => Quotes[Math.floor(Math.random() * Quotes.length)], []);
 
   return (
     <>
@@ -174,16 +169,14 @@ export default function AboutMe() {
                 .
               </Section.Content>
             </Section>
-            {randomQuote && (
-              <Section>
-                <Section.Title as="h2">Quote worth thinking about</Section.Title>
-                <Section.Content>
-                  <div className="mt-8">
-                    <Quote quote={randomQuote.content} author={randomQuote.author} />
-                  </div>
-                </Section.Content>
-              </Section>
-            )}
+            <Section>
+              <Section.Title as="h2">Quote worth thinking about</Section.Title>
+              <Section.Content>
+                <div className="mt-8">
+                  <Quote quote={randomQuote.content} author={randomQuote.author} />
+                </div>
+              </Section.Content>
+            </Section>
           </div>
         </div>
       </Container>
