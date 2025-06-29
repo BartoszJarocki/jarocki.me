@@ -19,6 +19,8 @@ import ParabolLogo from '../images/logos/parabol.svg';
 import TastyCloudLogo from '../images/logos/tastycloud.png';
 import YearProgressLogo from '../images/logos/yearprogress.svg';
 import Minimal from '../images/logos/minimal.svg';
+import FilmIoLogo from '../images/logos/filmio.jpg';
+import MotionLogo from '../images/logos/motion.svg';
 import { LinkedInIcon } from '../components/icons/LinkedInIcon';
 
 export const Name = 'Bartosz Jarocki';
@@ -192,6 +194,20 @@ export const SocialMedia = [
 ] as const;
 
 export const Work = [
+  {
+    company: 'Motion',
+    title: 'Senior Software Engineer',
+    logo: MotionLogo,
+    start: '2025',
+    end: 'Present',
+  },
+  {
+    company: 'Film.io',
+    title: 'Software Architect',
+    logo: FilmIoLogo,
+    start: '2024',
+    end: '2025',
+  },
   {
     company: 'Parabol',
     title: 'Full Stack Developer',
