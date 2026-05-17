@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-17T00:00:00Z",
+  "title": "Design System: jarocki.me",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Signal Magenta",
+        "canonical": "oklch(63.5% 0.247 0.6)",
+        "tonalRamp": [
+          "oklch(18% 0.06 0.6)",
+          "oklch(28% 0.10 0.6)",
+          "oklch(38% 0.15 0.6)",
+          "oklch(48% 0.20 0.6)",
+          "oklch(58% 0.24 0.6)",
+          "oklch(68% 0.22 0.6)",
+          "oklch(80% 0.16 0.6)",
+          "oklch(92% 0.06 0.6)"
+        ]
+      },
+      "primary-light": {
+        "role": "primary",
+        "displayName": "Magenta Light",
+        "canonical": "oklch(78.5% 0.142 0.6)"
+      },
+      "primary-dark": {
+        "role": "primary",
+        "displayName": "Magenta Deep",
+        "canonical": "oklch(36% 0.165 0.6)"
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "oklch(18% 0.005 285)",
+          "oklch(28% 0.005 285)",
+          "oklch(40% 0.005 285)",
+          "oklch(55% 0.005 285)",
+          "oklch(70% 0.005 285)",
+          "oklch(85% 0.005 285)",
+          "oklch(95% 0.003 285)",
+          "oklch(100% 0 0)"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Slate Night",
+        "canonical": "oklch(18.5% 0.006 285)"
+      },
+      "surface-halo-light": {
+        "role": "neutral",
+        "displayName": "Halo Cream",
+        "canonical": "oklch(98% 0.003 285)"
+      },
+      "surface-halo-dark": {
+        "role": "neutral",
+        "displayName": "Halo Slate",
+        "canonical": "oklch(27% 0.006 285)"
+      },
+      "text-strong-light": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(28% 0.006 285)"
+      },
+      "text-strong-dark": {
+        "role": "neutral",
+        "displayName": "Bone",
+        "canonical": "oklch(96% 0.003 285)"
+      },
+      "text-quiet-light": {
+        "role": "neutral",
+        "displayName": "Quiet Zinc",
+        "canonical": "oklch(46% 0.006 285)"
+      },
+      "text-quiet-dark": {
+        "role": "neutral",
+        "displayName": "Quiet Mist",
+        "canonical": "oklch(72% 0.006 285)"
+      },
+      "text-faint": {
+        "role": "neutral",
+        "displayName": "Faint Pencil",
+        "canonical": "oklch(56% 0.006 285)"
+      },
+      "ring-light": {
+        "role": "neutral",
+        "displayName": "Hairline Light",
+        "canonical": "oklch(90% 0.004 285)"
+      },
+      "ring-dark": {
+        "role": "neutral",
+        "displayName": "Hairline Dark",
+        "canonical": "oklch(38% 0.006 285)"
+      },
+      "link": {
+        "role": "secondary",
+        "displayName": "Prose Link Blue",
+        "canonical": "oklch(60% 0.20 252)"
+      },
+      "prose-code": {
+        "role": "secondary",
+        "displayName": "Code Pink",
+        "canonical": "oklch(65% 0.22 0)"
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles only. One per page." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles inside long-form pages (About, Uses)." },
+      "title": { "displayName": "Title", "purpose": "Card titles, note titles, resume company names." },
+      "body": { "displayName": "Body", "purpose": "Default reading copy." },
+      "eyebrow": { "displayName": "Eyebrow", "purpose": "Metadata leading a card: dates, roles, status labels." },
+      "label": { "displayName": "Label", "purpose": "Badge text and small status flags." },
+      "mono": { "displayName": "Mono", "purpose": "Photo overlay captions; code blocks via prose plugin." }
+    },
+    "shadows": [
+      {
+        "name": "nav-lift",
+        "value": "0 10px 15px -3px rgba(39, 39, 42, 0.05), 0 4px 6px -4px rgba(39, 39, 42, 0.05)",
+        "purpose": "Desktop nav pill and mobile nav button. Supports the backdrop-blur, not an announcement of elevation."
+      },
+      {
+        "name": "avatar-emboss",
+        "value": "0 4px 6px -1px rgba(39, 39, 42, 0.05)",
+        "purpose": "Small circular avatars in the resume timeline. A whisper of depth for round-on-rectangle."
+      }
+    ],
+    "motion": [
+      {
+        "name": "default-transition",
+        "value": "all 150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Tailwind default transition; hover color shifts on links and badges."
+      },
+      {
+        "name": "card-halo-reveal",
+        "value": "opacity 200ms ease-out, transform 200ms ease-out",
+        "purpose": "The hover halo behind cards: scale 0.95 to 1, opacity 0 to 1."
+      },
+      {
+        "name": "photo-straighten",
+        "value": "transform 200ms ease-out",
+        "purpose": "Photos strip on hover: rotate to 0, scale to 1.1."
+      },
+      {
+        "name": "nav-panel-enter",
+        "value": "opacity 150ms ease-out, transform 150ms ease-out",
+        "purpose": "Mobile nav panel: fade and scale from 0.95."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Explicit action button. Zinc-on-zinc, no shadow, softly rounded.",
+      "html": "<button class=\"ds-btn-primary\">Subscribe</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #27272a; color: #f4f4f5; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; outline-offset: 2px; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-primary:hover { background: #3f3f46; } .ds-btn-primary:active { background: #27272a; color: rgba(244, 244, 245, 0.7); transition: none; } .ds-btn-primary:focus-visible { outline: 2px solid #FB2576; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Subordinate action. Light zinc tile, dark text.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #fafafa; color: #18181b; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; outline-offset: 2px; transition: background 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-secondary:hover { background: #f4f4f5; } .ds-btn-secondary:focus-visible { outline: 2px solid #FB2576; outline-offset: 2px; }"
+    },
+    {
+      "name": "Tag Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Pill-shaped clickable tag. Hover shifts text to Signal Magenta; background stays zinc.",
+      "html": "<a href=\"#\" class=\"ds-badge\">design</a>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; background: #f4f4f5; color: #52525b; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; line-height: 1rem; padding: 2px 10px; border-radius: 9999px; text-decoration: none; transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-badge:hover { color: #FB2576; } .ds-badge:focus-visible { outline: 2px solid #FB2576; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-active",
+      "description": "Non-interactive state flag (used for \"Work in progress\" on draft notes). Magenta fill, rectangular not pill so it reads as a state, not a tag.",
+      "html": "<span class=\"ds-badge-status\">Work in progress</span>",
+      "css": ".ds-badge-status { display: inline-flex; align-items: center; background: #FB2576; color: #ffffff; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; padding: 0 8px; border-radius: 6px; }"
+    },
+    {
+      "name": "Nav Pill",
+      "kind": "nav",
+      "refersTo": "nav-pill",
+      "description": "Desktop navigation. Rounded-full, semi-opaque white with backdrop-blur, supported by a faint nav-lift shadow. Active link colors Signal Magenta; no underline, no background change.",
+      "html": "<nav class=\"ds-nav\"><ul><li><a href=\"#\">Home</a></li><li><a href=\"#\" class=\"is-active\">Notes</a></li><li><a href=\"#\">Creating</a></li><li><a href=\"#\">Uses</a></li><li><a href=\"#\">About</a></li></ul></nav>",
+      "css": ".ds-nav ul { display: flex; list-style: none; margin: 0; padding: 0 12px; background: rgba(255, 255, 255, 0.9); border-radius: 9999px; box-shadow: 0 10px 15px -3px rgba(39, 39, 42, 0.05), 0 4px 6px -4px rgba(39, 39, 42, 0.05); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: inset 0 0 0 1px rgba(24, 24, 27, 0.05), 0 10px 15px -3px rgba(39, 39, 42, 0.05); } .ds-nav a { display: block; padding: 8px 12px; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; color: #27272a; text-decoration: none; transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-nav a:hover, .ds-nav a.is-active { color: #FB2576; } .ds-nav a:focus-visible { outline: 2px solid #FB2576; outline-offset: 2px; border-radius: 9999px; }"
+    },
+    {
+      "name": "Note Card",
+      "kind": "card",
+      "refersTo": "card-halo",
+      "description": "The signature card pattern. No visible chrome at rest; a tonal halo appears on hover, behind the content, with a small scale-up. Whole card is clickable via an absolute link overlay. Eyebrow uses the 2px pip metadata leader.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-halo\" aria-hidden=\"true\"></div><div class=\"ds-card-inner\"><p class=\"ds-card-eyebrow\"><span class=\"ds-card-pip\" aria-hidden=\"true\"></span>April 12, 2024</p><h2 class=\"ds-card-title\"><a href=\"#\">Notes on shipping faster than you think</a></h2><p class=\"ds-card-desc\">A short collection of things I keep relearning about scope, momentum, and the gap between draft and done.</p><p class=\"ds-card-cta\">Read note <span aria-hidden=\"true\">→</span></p></div></article>",
+      "css": ".ds-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding: 24px 0; cursor: pointer; } .ds-card-halo { position: absolute; inset: 0 -24px; background: #fafafa; border-radius: 16px; opacity: 0; transform: scale(0.95); transition: opacity 200ms ease-out, transform 200ms ease-out; z-index: 0; } .ds-card:hover .ds-card-halo { opacity: 1; transform: scale(1); } .ds-card-inner { position: relative; z-index: 1; } .ds-card-eyebrow { display: flex; align-items: center; margin: 0 0 12px; padding-left: 14px; position: relative; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; color: #71717a; } .ds-card-pip { position: absolute; left: 0; top: 50%; transform: translateY(-50%); display: block; width: 2px; height: 16px; background: #e4e4e7; border-radius: 9999px; } .ds-card-title { margin: 0 0 8px; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; color: #27272a; text-wrap: balance; } .ds-card-title a { color: inherit; text-decoration: none; } .ds-card-title a::after { content: ''; position: absolute; inset: 0 -24px; border-radius: 16px; z-index: 2; } .ds-card-desc { margin: 0 0 16px; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; line-height: 1.5rem; color: #52525b; } .ds-card-cta { display: flex; align-items: center; gap: 4px; margin: 0; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; color: #FB2576; }"
+    },
+    {
+      "name": "Page Title",
+      "kind": "custom",
+      "refersTo": "display",
+      "description": "The single Display heading allowed per page. Bold, tight tracking, text-balanced.",
+      "html": "<h1 class=\"ds-page-title\">Hi, I'm Bartosz Jarocki.</h1>",
+      "css": ".ds-page-title { font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 2.5rem; line-height: 1; font-weight: 700; letter-spacing: -0.02em; color: #27272a; text-wrap: balance; margin: 0; }"
+    },
+    {
+      "name": "Resume Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The only visibly-bordered container in the system. A 16px-radius zinc-100 border holds a 4-6 row list of recent work. Each row: 40px ring-bordered logo, company name, right-aligned date range, role on its own line.",
+      "html": "<div class=\"ds-resume\"><h2 class=\"ds-resume-heading\"><svg class=\"ds-resume-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.16 2.16 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0\"/></svg><span>Work</span></h2><ol class=\"ds-resume-list\"><li><div class=\"ds-resume-logo\" aria-hidden=\"true\">M</div><div class=\"ds-resume-row\"><span class=\"ds-resume-company\">Motion</span><span class=\"ds-resume-dates\">2025 <span aria-hidden=\"true\">—</span> Present</span><span class=\"ds-resume-role\">Senior Software Engineer</span></div></li><li><div class=\"ds-resume-logo\" aria-hidden=\"true\">F</div><div class=\"ds-resume-row\"><span class=\"ds-resume-company\">Film.io</span><span class=\"ds-resume-dates\">2024 <span aria-hidden=\"true\">—</span> 2025</span><span class=\"ds-resume-role\">Software Architect</span></div></li></ol></div>",
+      "css": ".ds-resume { max-width: 420px; border: 1px solid #f4f4f5; border-radius: 16px; padding: 24px; } .ds-resume-heading { display: flex; align-items: center; gap: 12px; margin: 0 0 24px; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; color: #27272a; } .ds-resume-icon { width: 24px; height: 24px; flex: none; } .ds-resume-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; } .ds-resume-list li { display: flex; gap: 16px; align-items: flex-start; } .ds-resume-logo { width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; background: #fafafa; border-radius: 9999px; box-shadow: inset 0 0 0 1px rgba(24, 24, 27, 0.05), 0 4px 6px -1px rgba(39, 39, 42, 0.05); font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; color: #27272a; margin-top: 4px; } .ds-resume-row { display: flex; flex-wrap: wrap; gap: 4px 8px; flex: 1; } .ds-resume-company { font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; color: #27272a; flex: none; } .ds-resume-dates { margin-left: auto; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; color: #a1a1aa; flex: none; } .ds-resume-role { width: 100%; font-family: 'Geist Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; color: #71717a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engineer's Notebook",
+    "overview": "A lined notebook on a working engineer's desk. Most of the page is paper: zinc-toned, lightly contrasted, given over to text. One pen is permitted, a sharp magenta, used only to mark what matters. The chrome is restrained to the point of near-invisibility (a ring of one pixel, a tonal halo on hover); the typography carries the weight of the room. Personal but not precious, considered but never showy. The system sits in opposition to three things: the generic Next.js-plus-Tailwind dev portfolio (hero, three cards, CTA), the corporate SaaS landing page (gradient hero, feature grid, logo wall), and the Dribbble showpiece (motion-for-motion's-sake, form over substance). It is also explicitly not magazine-grade essayist territory; the voice is an engineer's notebook, not a literary one. Density is moderate. Spacing breathes on larger viewports; type does the structural work that borders and fills do in louder systems. Motion exists only as a response to reading: a hover that reveals a halo behind a card, a scroll that scales an avatar, a photo that straightens when you point at it. Nothing performs.",
+    "keyCharacteristics": [
+      "Zinc-and-magenta, dual-theme, parallel rules across light and dark",
+      "Geist Sans plus Geist Mono; a single family pair carries the entire site",
+      "Flat by default; depth from ring-1 tonal contrast, not shadow",
+      "The accent is a signal, not a wash; under 10% of any view",
+      "Interaction reveals; the resting state is quiet"
+    ],
+    "rules": [
+      { "name": "The Signal Rule", "body": "Signal Magenta appears on at most 10% of any rendered view, and only where it announces state or action: an active link, a CTA arrow, a status flag. It is never used decoratively (no gradient washes, no accent rules, no tinted backgrounds, no 'magenta because it looks nice'). The color's rarity is the point.", "section": "colors" },
+      { "name": "The Tonal Border Rule", "body": "Borders are ring-1 at low opacity (ring-zinc-900/5 or ring-white/10), never a full-saturation stroke. If a border reads as a line, it is too loud. If you cannot see it, it is correct.", "section": "colors" },
+      { "name": "The Two-Themes-One-Voice Rule", "body": "Light and dark are not variants of each other; they are parallel realizations of one system. Every named color has both forms. A component that ships only one theme is incomplete.", "section": "colors" },
+      { "name": "The Tracking-Tight Rule", "body": "Headings (Display, Headline, Title) carry tracking-tight. Body text is normal tracking. The contrast between tight headings and loose body is part of the rhythm; flat tracking across both reads as uncommitted.", "section": "typography" },
+      { "name": "The Text-Balance Rule", "body": "Page titles and card titles use text-wrap: balance (the local .text-balance utility). Headings that wrap to two lines should never strand a single short word on the second line.", "section": "typography" },
+      { "name": "The One-Family Rule", "body": "Geist Sans is the only display+body family. Reaching for a second sans, a serif, or a script breaks the workshop register. Mono is permitted but scoped to code and photo captions.", "section": "typography" },
+      { "name": "The Tonal-Before-Shadow Rule", "body": "When reaching for depth, reach for ring-1 with a low-opacity zinc before reaching for box-shadow. The system already commits to flatness; shadow is the second answer, not the first.", "section": "elevation" },
+      { "name": "The Backdrop-Blur-Earns-Its-Lift Rule", "body": "The nav pill is the only element permitted to float. Other floating UI (modals, popovers) inherits the same backdrop-blur language so the lift mechanic is one idea applied twice, not two competing ideas.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Signal Magenta (#FB2576) under 10% of any rendered view. The Signal Rule is non-negotiable; the magenta only marks state or action.",
+      "Do reach for ring-1 with low-opacity zinc before reaching for box-shadow. Tonal contrast first, shadow second. Flat is the default.",
+      "Do ship both light and dark forms for every component. A one-theme component is incomplete.",
+      "Do use tracking-tight on headings (Display, Headline, Title) and normal tracking on body. The contrast is part of the rhythm.",
+      "Do use text-wrap: balance on page titles and card titles; do not strand a single word on the second line.",
+      "Do reveal interaction state through tonal halos and motion, not through additional chrome (no extra borders, no fills, no shadows).",
+      "Do use Geist Sans for everything; reserve Geist Mono for code and the photo-strip captions."
+    ],
+    "donts": [
+      "Don't add a second display family or a serif. The One-Family Rule holds.",
+      "Don't use Signal Magenta as a background fill, a gradient wash, or a decorative accent. It is a pen, not a paint.",
+      "Don't ship a gradient hero, a feature-card grid, a logo wall, a 'Trusted by' row, or a testimonial slider. These read as corporate SaaS landing; the site is explicitly not that.",
+      "Don't ship the generic Next.js + Tailwind dev-portfolio silhouette (centered hero with avatar, three identical project cards, a single CTA). The whole point is to stop reading as that.",
+      "Don't ship motion that performs without serving the reader. The Photos hover, the card halo, and the scroll-driven avatar earn their motion by making content easier to engage with. New motion needs the same justification or it slides into Dribbble-showpiece territory.",
+      "Don't apply border-left or border-right greater than 1px as a colored accent on cards, list items, callouts, or alerts. The 2px Eyebrow pip is the single exception and it is a metadata leader, not a card stripe.",
+      "Don't apply background-clip: text with a gradient. Headings are solid color, emphasis through weight and size.",
+      "Don't use glassmorphism decoratively. The nav pill's backdrop-blur exists because the pill floats over content; other surfaces do not get to imitate it.",
+      "Don't introduce a feature-card grid of identical icon+heading+text tiles. The site never repeats a card pattern.",
+      "Don't reach for a modal as the first answer. Inline disclosure and route-level pages are the defaults.",
+      "Don't use em dashes in copy. Use commas, colons, semicolons, periods, or parentheses."
+    ]
+  }
+}

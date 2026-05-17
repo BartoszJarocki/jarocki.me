@@ -3,11 +3,9 @@ import 'focus-visible';
 import { ThemeProvider } from 'next-themes';
 import { AppProps } from 'next/app';
 import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
 import React, { useEffect, useRef } from 'react';
 
-import { Footer } from '../components/Footer';
-import { Header } from '../components/Header';
+import { SiteNav } from '../components/SiteNav';
 import '../styles/index.css';
 import '../styles/prism.css';
 
@@ -23,26 +21,30 @@ function usePrevious(value: string) {
 
 export default function App({ Component, pageProps, router }: AppProps) {
   let previousPathname = usePrevious(router.pathname);
+  const isHome = router.pathname === '/';
 
   return (
-    <>
-      <ThemeProvider attribute="class">
-        <div className={`${GeistSans.className}`}>
-          <div className="fixed inset-0 flex justify-center sm:px-8">
-            <div className="flex w-full max-w-7xl lg:px-8">
-              <div className="w-full bg-white ring-1 ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-300/20" />
-            </div>
-          </div>
-          <div className="relative">
-            <Header />
-            <main>
-              <Component previousPathname={previousPathname} {...pageProps} />
-            </main>
-            <Footer />
-          </div>
-          <Analytics />
+    <ThemeProvider attribute="class" forcedTheme="dark">
+      <style jsx global>{`
+        html,
+        body {
+          background-color: oklch(8% 0.005 60);
+          color: oklch(92% 0.004 60);
+        }
+        ::selection {
+          background: oklch(92% 0.004 60);
+          color: oklch(8% 0.005 60);
+        }
+      `}</style>
+      <div className={`${GeistSans.className} flex min-h-screen flex-col`}>
+        <div className="flex-1">
+          <Component previousPathname={previousPathname} {...pageProps} />
         </div>
-      </ThemeProvider>
-    </>
+        {!isHome && (
+          <SiteNav className="mx-auto w-full max-w-[40rem] px-6 pb-16 pt-24 sm:px-12" />
+        )}
+      </div>
+      <Analytics />
+    </ThemeProvider>
   );
 }

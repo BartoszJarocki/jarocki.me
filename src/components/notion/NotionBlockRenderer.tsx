@@ -3,8 +3,6 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Quote } from '../Quote';
-
 //TODO: improve types here, cleanup the code
 type Props = {
   block: any;
@@ -108,7 +106,11 @@ export const NotionBlockRenderer = ({ block }: Props) => {
     case 'divider':
       return <hr key={id} />;
     case 'quote':
-      return <Quote key={id} quote={value.rich_text[0].plain_text} />;
+      return (
+        <blockquote key={id}>
+          <NotionText textItems={value.rich_text} />
+        </blockquote>
+      );
     case 'code':
       return (
         <pre className={`language-${value.language}`}>

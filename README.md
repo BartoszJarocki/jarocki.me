@@ -101,7 +101,7 @@ This project leverages modern web technologies for optimal performance and devel
 
 ### Prerequisites
 
-- Node.js 18+ and yarn
+- Node.js 18+ and pnpm
 - A Notion account and workspace
 - Git
 
@@ -117,7 +117,7 @@ This project leverages modern web technologies for optimal performance and devel
 2. **Install dependencies**
 
    ```bash
-   yarn install
+   pnpm install
    ```
 
 3. **Set up environment variables**
@@ -132,7 +132,7 @@ This project leverages modern web technologies for optimal performance and devel
 5. **Start development server**
 
    ```bash
-   yarn dev
+   pnpm dev
    ```
 
 6. **Open [http://localhost:3000](http://localhost:3000)** in your browser
@@ -200,17 +200,17 @@ Here's how your Notion database should look:
 
 ```bash
 # Development
-yarn dev          # Start development server
-yarn build        # Build for production
-yarn start        # Start production server
+pnpm dev          # Start development server
+pnpm build        # Build for production
+pnpm start        # Start production server
 
 # Code Quality
-yarn lint         # Run ESLint
-yarn typecheck    # Run TypeScript checks
-yarn format       # Format code with Prettier
+pnpm lint         # Run ESLint
+pnpm typecheck    # Run TypeScript checks
+pnpm format       # Format code with Prettier
 
 # Utilities
-yarn postbuild    # Generate sitemap (runs after build)
+pnpm postbuild    # Generate sitemap (runs after build)
 ```
 
 ### Project Structure
@@ -247,7 +247,7 @@ src/
 
 This is a standard Next.js application and can be deployed to:
 
-- **Netlify** - Add build command: `yarn build && yarn export`
+- **Netlify** - Add build command: `pnpm build && pnpm export`
 - **Railway** - Auto-deploys from Git with zero config
 - **DigitalOcean App Platform** - Full-stack hosting
 - **AWS Amplify** - Serverless hosting with CI/CD
@@ -302,9 +302,9 @@ We welcome contributions! Here's how you can help:
 
    ```bash
    # Make sure tests pass and code is formatted
-   yarn lint
-   yarn typecheck
-   yarn format
+   pnpm lint
+   pnpm typecheck
+   pnpm format
    ```
 
 4. **Commit your changes**
@@ -339,11 +339,11 @@ We welcome contributions! Here's how you can help:
 ```bash
 # Clear Next.js cache
 rm -rf .next
-yarn build
+pnpm build
 
 # Clear all caches
-rm -rf .next node_modules yarn.lock
-yarn install
+rm -rf .next node_modules pnpm-lock.yaml
+pnpm install
 ```
 
 **Notion API Issues**
@@ -362,18 +362,18 @@ yarn install
 
 ```bash
 # Check for type errors
-yarn typecheck
+pnpm typecheck
 
 # Regenerate TypeScript cache
 rm -rf .next/types
-yarn dev
+pnpm dev
 ```
 
 ### Performance Issues
 
 - **Slow builds?** Check if you have too many images in `/public`
 - **Slow loading?** Verify your Notion database isn't too large
-- **Memory issues?** Increase Node.js memory: `NODE_OPTIONS="--max-old-space-size=4096" yarn build`
+- **Memory issues?** Increase Node.js memory: `NODE_OPTIONS="--max-old-space-size=4096" pnpm build`
 
 ### Need More Help?
 

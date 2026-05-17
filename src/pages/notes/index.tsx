@@ -1,9 +1,9 @@
+import { format } from 'date-fns';
 import { GetStaticProps } from 'next';
-import { NextSeo } from 'next-seo';
+import Link from 'next/link';
 
-import { Badge } from '../../components/Badge';
-import { PageLayout } from '../../components/PageLayout';
-import { NotePreview } from '../../components/notes/NotePreview';
+import { DatedRowList } from '../../components/DatedRowList';
+import { PageShell } from '../../components/PageShell';
 import { Note, notesApi } from '../../lib/notesApi';
 
 const seoTitle = 'Notes';
@@ -12,42 +12,28 @@ const seoDescription =
 
 interface Props {
   notes: Note[];
-  tags: Array<string>;
 }
 
-export default function Notes({ notes, tags }: Props) {
-  return (
-    <>
-      <NextSeo
-        title={seoTitle}
-        description={seoDescription}
-        canonical={`${process.env.NEXT_PUBLIC_URL}/notes`}
-        openGraph={{
-          images: [{ url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}` }],
-        }}
-      />
-      <PageLayout
-        title="Notes on software, building products, and other stuff."
-        intro="All of my thoughts on programming, building products, leadership, travelling, whisky, and other random stuff. Not structured."
-      >
-        <h3 className="text-2xl font-bold tracking-tight text-zinc-800 dark:text-zinc-100">Tags</h3>
-        <div className="mt-4 flex max-w-xl flex-wrap gap-1 font-mono">
-          {tags.map((tag) => (
-            <Badge key={tag} href={`/tags/${tag}`}>
-              #{tag}
-            </Badge>
-          ))}
-        </div>
+export default function Notes({ notes }: Props) {
+  const items = notes.map((note) => ({
+    key: note.slug,
+    date: format(new Date(note.publishedAt), 'yyyy.MM.dd'),
+    content: (
+      <Link href={`/notes/${note.slug}`} className="ds-link-row">
+        {note.title}
+        {note.inProgress && (
+          <span className="ml-2 font-mono text-xs text-muted">(wip)</span>
+        )}
+      </Link>
+    ),
+  }));
 
-        <div className="mt-24 md:border-l md:border-zinc-100 md:pl-6 md:dark:border-zinc-700/40">
-          <div className="flex max-w-3xl flex-col space-y-16">
-            {notes.map((note) => (
-              <NotePreview key={note.slug} note={note} />
-            ))}
-          </div>
-        </div>
-      </PageLayout>
-    </>
+  return (
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+      <h1 className="text-base font-medium text-ink">Notes</h1>
+      <p className="mt-3 text-base text-body">Things I&apos;ve written. Mostly to myself.</p>
+      <DatedRowList className="mt-16" items={items} />
+    </PageShell>
   );
 }
 
@@ -55,10 +41,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
   const notes = await notesApi.getNotes('desc');
 
   return {
-    props: {
-      notes,
-      tags: Array.from(new Set(notes.map((post) => post.tags).flat())),
-    },
+    props: { notes },
     revalidate: 10,
   };
 };

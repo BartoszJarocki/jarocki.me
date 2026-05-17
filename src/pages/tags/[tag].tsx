@@ -1,13 +1,10 @@
+import { format } from 'date-fns';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { NextSeo } from 'next-seo';
-import React from 'react';
+import Link from 'next/link';
 
-import { PageLayout } from '../../components/PageLayout';
-import { NotePreview } from '../../components/notes/NotePreview';
+import { DatedRowList } from '../../components/DatedRowList';
+import { PageShell } from '../../components/PageShell';
 import { Note, notesApi } from '../../lib/notesApi';
-
-const seoTitle = 'Tags';
-const seoDescription = 'All of my blog posts tagged with ';
 
 interface Props {
   tag: string;
@@ -15,48 +12,42 @@ interface Props {
 }
 
 export default function Tag({ tag, relatedNotes }: Props) {
+  const seoTitle = `#${tag}`;
+  const seoDescription = `Notes tagged ${tag}.`;
+
+  const items = relatedNotes.map((note) => ({
+    key: note.slug,
+    date: format(new Date(note.publishedAt), 'yyyy.MM.dd'),
+    content: (
+      <Link href={`/notes/${note.slug}`} className="ds-link-row">
+        {note.title}
+      </Link>
+    ),
+  }));
+
   return (
-    <>
-      <NextSeo
-        title={seoTitle}
-        description={`${seoDescription}#${tag}}`}
-        canonical={`${process.env.NEXT_PUBLIC_URL}/tags/${tag}`}
-        openGraph={{
-          images: [
-            {
-              url: `${process.env.NEXT_PUBLIC_URL}/api/og?title=${seoTitle}&description=${seoDescription}`,
-            },
-          ],
-        }}
-      />
-      <PageLayout title="Tags" intro={`All the articles from #${tag}`}>
-        <div className="mt-24 md:border-l md:border-zinc-100 md:pl-6 md:dark:border-zinc-700/40">
-          <div className="flex max-w-3xl flex-col space-y-16">
-            {relatedNotes.map((note) => (
-              <NotePreview key={note.slug} note={note} />
-            ))}
-          </div>
-        </div>
-      </PageLayout>
-    </>
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+      <Link href="/notes" className="ds-nav-link text-xs">
+        ← notes
+      </Link>
+      <h1 className="mt-12 text-base font-medium text-ink">
+        Tagged <span className="font-mono text-body">#{tag}</span>
+      </h1>
+      <DatedRowList className="mt-16" items={items} />
+    </PageShell>
   );
 }
 
 export const getStaticProps: GetStaticProps<Props, { tag: string }> = async (context) => {
   const tag = context.params?.tag;
   if (!tag) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   const relatedNotes = await notesApi.getNotesByTag(tag);
 
   return {
-    props: {
-      relatedNotes,
-      tag,
-    },
+    props: { relatedNotes, tag },
     revalidate: 10,
   };
 };
@@ -65,9 +56,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const tags = await notesApi.getAllTags();
 
   return {
-    paths: tags.map((tag) => ({
-      params: { tag },
-    })),
+    paths: tags.map((tag) => ({ params: { tag } })),
     fallback: 'blocking',
   };
 };

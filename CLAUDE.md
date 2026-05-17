@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `yarn dev` - Start Next.js development server
-- `yarn build` - Build the application for production 
-- `yarn start` - Start production server
-- `yarn lint` - Run ESLint
-- `yarn format` - Format code with Prettier
-- `yarn typecheck` - Run TypeScript type checking
-- `yarn postbuild` - Generate sitemap (runs automatically after build)
+- `pnpm dev` - Start Next.js development server
+- `pnpm build` - Build the application for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
+- `pnpm format` - Format code with Prettier
+- `pnpm typecheck` - Run TypeScript type checking
+- `pnpm postbuild` - Generate sitemap (runs automatically after build)
 
 ## Architecture Overview
 

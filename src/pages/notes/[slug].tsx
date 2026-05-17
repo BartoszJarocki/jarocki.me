@@ -1,11 +1,11 @@
+import { format } from 'date-fns';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { ArticleJsonLd, NextSeo } from 'next-seo';
-import Prism from 'prismjs';
-import { useEffect } from 'react';
+import { ArticleJsonLd } from 'next-seo';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
-import { XIcon } from '../../components/icons/XIcon';
-import { NoteLayout } from '../../components/notes/NoteLayout';
-import { NotionBlockRenderer } from '../../components/notion/NotionBlockRenderer';
+import { NoteContent } from '../../components/NoteContent';
+import { PageShell } from '../../components/PageShell';
 import { Note as NoteType, notesApi } from '../../lib/notesApi';
 
 type Props = {
@@ -14,27 +14,15 @@ type Props = {
 };
 
 export default function Note({
-  note: { title, description, createdAt, slug },
+  note: { title, description, createdAt, publishedAt, inProgress },
   noteContent,
-  previousPathname,
-}: Props & { previousPathname: string }) {
-  const url = `${process.env.NEXT_PUBLIC_URL}/notes/${slug}`;
-  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${title}&description=${description}`;
-
-  useEffect(() => {
-    Prism.highlightAll();
-  }, []);
+}: Props) {
+  const router = useRouter();
+  const url = `${process.env.NEXT_PUBLIC_URL}${router.asPath}`;
+  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}`;
 
   return (
     <>
-      <NextSeo
-        title={title}
-        description={description}
-        canonical={url}
-        openGraph={{
-          images: [{ url: openGraphImageUrl }],
-        }}
-      />
       <ArticleJsonLd
         url={url}
         images={[openGraphImageUrl]}
@@ -43,28 +31,25 @@ export default function Note({
         authorName="Bartosz Jarocki"
         description={description}
       />
-      <NoteLayout
-        meta={{ title, description, date: createdAt }}
-        previousPathname={previousPathname}
-      >
-        <div className="pb-32">
-          {noteContent.map((block) => (
-            <NotionBlockRenderer key={block.id} block={block} />
-          ))}
+      <PageShell seoTitle={title} seoDescription={description}>
+        <Link href="/notes" className="ds-nav-link text-xs">
+          ← notes
+        </Link>
 
-          <hr />
+        <article className="mt-12">
+          <header>
+            <time dateTime={publishedAt} className="ds-mono-date">
+              {format(new Date(publishedAt), 'yyyy.MM.dd')}
+              {inProgress && <span className="ml-3 text-muted">(wip)</span>}
+            </time>
+            <h1 className="mt-3 text-balance text-2xl font-medium tracking-tight text-ink sm:text-3xl">
+              {title}
+            </h1>
+          </header>
 
-          <a
-            className="group block text-xl font-semibold md:text-3xl no-underline"
-            href={`http://x.com/share?text=${title}&url=${url}`}
-          >
-            <h4 className="max-w-lg flex cursor-pointer flex-col duration-200 ease-in-out group-hover:text-primary group-hover:fill-primary fill-white text-wrap">
-              <XIcon className="my-6 h-10 w-10 transform transition-transform group-hover:-rotate-12 text-black dark:text-white group-hover:text-primary" />
-              Click here to share this article with your friends on X if you liked it.
-            </h4>
-          </a>
-        </div>
-      </NoteLayout>
+          <NoteContent blocks={noteContent} className="mt-12" />
+        </article>
+      </PageShell>
     </>
   );
 }
@@ -72,21 +57,16 @@ export default function Note({
 export const getStaticProps: GetStaticProps<Props, { slug: string }> = async (context) => {
   const slug = context.params?.slug;
   const allNotes = await notesApi.getNotes();
-  const note = allNotes.find((note) => note.slug === slug);
+  const note = allNotes.find((n) => n.slug === slug);
 
   if (!note) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   const noteContent = await notesApi.getNote(note.id);
 
   return {
-    props: {
-      note,
-      noteContent,
-    },
+    props: { note, noteContent },
     revalidate: 10,
   };
 };
