@@ -67,8 +67,8 @@ export default function WorkPage() {
         >
           Motion
         </a>
-        . Care about the gap between &ldquo;it works&rdquo; and &ldquo;it feels right&rdquo; —
-        usually that&rsquo;s where the real work is.
+        . Care about the gap between &ldquo;it works&rdquo; and &ldquo;it feels right&rdquo;.
+        Usually that&rsquo;s where the real work is.
       </p>
 
       <section className="mt-16">
