@@ -6,3 +6,8 @@ export function formatDate(dateString: string) {
     timeZone: 'UTC',
   });
 }
+
+// Formats the date string itself, so server and browser time zones can't disagree on the day.
+export function dotDate(isoDate: string) {
+  return isoDate.slice(0, 10).replaceAll('-', '.');
+}

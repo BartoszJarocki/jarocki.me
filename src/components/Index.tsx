@@ -2,6 +2,11 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import React, { CSSProperties, ComponentPropsWithoutRef, ReactNode } from 'react';
 
+import type { Project } from '../data/projects';
+import type { WorkEntry } from '../data/work';
+import { dotDate } from '../lib/date';
+import type { Note } from '../lib/notesApi';
+
 type Tone = 'ink' | 'body' | 'faint';
 
 const toneClass: Record<Tone, string> = {
@@ -94,5 +99,49 @@ export function IndexRow({
         <div className="index-row">{cells}</div>
       )}
     </li>
+  );
+}
+
+export function NoteRow({ note, withTags = false }: { note: Note; withTags?: boolean }) {
+  return (
+    <IndexRow
+      href={`/notes/${note.slug}`}
+      lead={dotDate(note.publishedAt)}
+      main={
+        <>
+          {note.title}
+          {note.inProgress && <span className="text-faint"> (wip)</span>}
+        </>
+      }
+      trail={withTags ? note.tags.join(', ') : undefined}
+      clip
+    />
+  );
+}
+
+export function WorkRow({ entry }: { entry: WorkEntry }) {
+  const end = entry.end === 'Present' ? 'now' : entry.end;
+  return (
+    <IndexRow
+      href={entry.link}
+      external
+      lead={`${entry.start}–${end}`}
+      main={entry.company}
+      trail={entry.title}
+    />
+  );
+}
+
+export function ProjectRow({ project }: { project: Project }) {
+  return (
+    <IndexRow
+      href={project.href}
+      external
+      lead={project.title}
+      leadTone="ink"
+      main={project.description}
+      mainTone="body"
+      trail={project.href && new URL(project.href).hostname.replace(/^www\./, '')}
+    />
   );
 }
