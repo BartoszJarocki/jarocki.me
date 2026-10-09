@@ -25,7 +25,7 @@ export function Lede({ children }: { children: ReactNode }) {
 
 type SectionProps = {
   label: string;
-  more?: { href: string; label: string };
+  more?: { href: string; label: ReactNode; external?: boolean };
   children: ReactNode;
 };
 
@@ -34,11 +34,16 @@ export function IndexSection({ label, more, children }: SectionProps) {
     <section className="mt-14">
       <div className="mb-2 flex justify-between gap-[3ch] text-faint">
         <h2>{label}</h2>
-        {more && (
-          <Link href={more.href} className="faint-link">
-            {more.label}
-          </Link>
-        )}
+        {more &&
+          (more.external ? (
+            <ExternalLink href={more.href} className="faint-link">
+              {more.label}
+            </ExternalLink>
+          ) : (
+            <Link href={more.href} className="faint-link">
+              {more.label}
+            </Link>
+          ))}
       </div>
       {children}
     </section>

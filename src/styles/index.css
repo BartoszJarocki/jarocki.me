@@ -98,6 +98,39 @@
     }
   }
 
+  .contributions {
+    --gap: 2px;
+    --cell: min(10px, (100cqw - (var(--weeks) - 1) * var(--gap)) / var(--weeks));
+    container-type: inline-size;
+  }
+  .contribution-bars,
+  .contribution-caption {
+    width: calc(var(--weeks) * (var(--cell) + var(--gap)) - var(--gap));
+  }
+  .contribution-bars {
+    display: flex;
+    gap: var(--gap);
+  }
+  .contribution-bars > span {
+    --fill: var(--ink);
+    width: var(--cell);
+    height: calc(var(--rows) * (var(--cell) + var(--gap)) - var(--gap));
+    background: repeating-linear-gradient(
+        to top,
+        var(--fill) 0 var(--cell),
+        transparent 0 calc(var(--cell) + var(--gap))
+      )
+      bottom / 100% calc(var(--h) * (var(--cell) + var(--gap))) no-repeat;
+  }
+  .contribution-bars > .empty {
+    --fill: var(--rule);
+  }
+  @media (max-width: 640px) {
+    .contributions {
+      --gap: 1px;
+    }
+  }
+
   .prose {
     max-width: 37rem;
     overflow-wrap: break-word;

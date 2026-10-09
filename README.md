@@ -39,9 +39,9 @@ Notes database properties:
 
 ```
 src/pages/         Routes (Pages Router)
-src/components/    PageShell, Index (rows), Clock, NoteContent
+src/components/    PageShell, Index (rows), Clock, ContributionBars, NoteContent
 src/data/          bio, work, projects, books, links
-src/lib/notesApi   Notion client
+src/lib/           notesApi (Notion client), githubActivity (GitHub contributions)
 src/images/travel  Photos for /about
 src/styles/        Color tokens, row and prose styles, monochrome Prism theme
 ```
