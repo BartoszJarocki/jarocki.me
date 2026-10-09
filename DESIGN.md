@@ -1,305 +1,202 @@
 ---
 name: jarocki.me
-description: Personal site and notebook for Bartosz Jarocki. Engineer's-notebook aesthetic, single-signal accent.
+description: Personal site and notebook for Bartosz Jarocki. No accent color, Geist Mono chrome, Geist Sans prose, a Geist Pixel name, and every page built from index rows.
 colors:
-  primary: "#FB2576"
-  primary-light: "#FD92BA"
-  primary-dark: "#8D0237"
-  surface-light: "#FFFFFF"
-  surface-dark: "#18181B"
-  surface-halo-light: "#FAFAFA"
-  surface-halo-dark: "#27272A"
-  text-strong-light: "#27272A"
-  text-strong-dark: "#F4F4F5"
-  text-quiet-light: "#52525B"
-  text-quiet-dark: "#A1A1AA"
-  text-faint: "#71717A"
-  ring-light: "#E4E4E7"
-  ring-dark: "#3F3F46"
-  link: "#3B82F6"
-  prose-code: "#EC4899"
+  bg-light: "oklch(98.4% 0.0025 95)"
+  bg-dark: "oklch(15.5% 0.004 70)"
+  ink-light: "oklch(21% 0.006 70)"
+  ink-dark: "oklch(94% 0.004 80)"
+  body-light: "oklch(40% 0.006 70)"
+  body-dark: "oklch(76% 0.004 80)"
+  faint-light: "oklch(54% 0.005 70)"
+  faint-dark: "oklch(60% 0.004 80)"
+  rule-light: "oklch(91% 0.004 80)"
+  rule-dark: "oklch(27% 0.004 70)"
+  wash-light: "oklch(95.6% 0.004 85)"
+  wash-dark: "oklch(20% 0.004 70)"
 typography:
-  display:
-    fontFamily: "Geist Sans, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "2.5rem"
-    fontWeight: 700
-    lineHeight: 1
-    letterSpacing: "-0.02em"
-  headline:
-    fontFamily: "Geist Sans, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1.5rem"
-    fontWeight: 600
-    lineHeight: "2rem"
-    letterSpacing: "-0.01em"
-  title:
-    fontFamily: "Geist Sans, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 600
-    lineHeight: "1.75rem"
-    letterSpacing: "-0.01em"
-  body:
-    fontFamily: "Geist Sans, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "1rem"
-    fontWeight: 400
-    lineHeight: "1.75rem"
-    letterSpacing: "normal"
-  eyebrow:
-    fontFamily: "Geist Sans, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: "1.5rem"
-    letterSpacing: "normal"
-  label:
-    fontFamily: "Geist Sans, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.8125rem"
+  name:
+    fontFamily: "Geist Pixel Square, Geist Mono, ui-monospace, monospace"
+    fontSize: "28px"
     fontWeight: 500
-    lineHeight: "1.5rem"
-    letterSpacing: "normal"
-  mono:
-    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, monospace"
-    fontSize: "0.75rem"
-    fontWeight: 700
     lineHeight: 1
-    letterSpacing: "normal"
-rounded:
-  sm: "4px"
-  md: "6px"
-  lg: "16px"
-  xl: "24px"
-  pill: "9999px"
+  clock:
+    fontFamily: "Geist Pixel Square, Geist Mono, ui-monospace, monospace"
+    fontSize: "24px"
+    fontWeight: 500
+    lineHeight: 1
+  chrome:
+    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: "14px"
+    fontWeight: 400
+    lineHeight: 1.72
+  note-title:
+    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "30px"
+    fontWeight: 600
+    lineHeight: 1.18
+    letterSpacing: "-0.028em"
+  prose:
+    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.75
+  prose-heading:
+    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: "14px"
+    fontWeight: 500
+    lineHeight: 1.72
+  code:
+    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.7
 spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
-  xl: "48px"
-  gutter: "32px"
+  page-top: "clamp(48px, 11vh, 112px)"
+  page-side: "clamp(20px, 9vw, 160px)"
+  page-bottom: "160px"
+  column: "80ch"
+  lede: "40px"
+  clock: "28px"
+  section: "56px"
+  section-label: "8px"
+  article: "72px"
+  row-gap: "3ch"
+  row-gap-mobile: "2ch"
 components:
-  button-primary:
-    backgroundColor: "{colors.text-strong-light}"
-    textColor: "{colors.text-strong-dark}"
-    rounded: "{rounded.md}"
-    padding: "8px 12px"
-  button-primary-hover:
-    backgroundColor: "#3F3F46"
-    textColor: "{colors.text-strong-dark}"
-    rounded: "{rounded.md}"
-    padding: "8px 12px"
-  button-secondary:
-    backgroundColor: "{colors.surface-halo-light}"
-    textColor: "{colors.text-strong-light}"
-    rounded: "{rounded.md}"
-    padding: "8px 12px"
-  badge:
-    backgroundColor: "#F4F4F5"
-    textColor: "{colors.text-quiet-light}"
-    rounded: "{rounded.pill}"
-    padding: "2px 10px"
-  badge-active:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.surface-light}"
-    rounded: "{rounded.md}"
-    padding: "0 8px"
-  nav-pill:
-    backgroundColor: "{colors.surface-light}"
-    textColor: "{colors.text-strong-light}"
-    rounded: "{rounded.pill}"
-    padding: "8px 12px"
-  nav-link-active:
-    backgroundColor: "transparent"
-    textColor: "{colors.primary}"
-    rounded: "{rounded.pill}"
-    padding: "8px 12px"
-  card:
-    backgroundColor: "transparent"
-    textColor: "{colors.text-strong-light}"
-    rounded: "{rounded.lg}"
-    padding: "0"
-  card-halo:
-    backgroundColor: "{colors.surface-halo-light}"
-    textColor: "{colors.text-strong-light}"
-    rounded: "{rounded.lg}"
-    padding: "0"
+  index-row:
+    textColor: "{colors.ink-light}"
+    hoverBackgroundColor: "{colors.ink-light}"
+    hoverTextColor: "{colors.bg-light}"
+    padding: "0 1ch"
+  code-block:
+    backgroundColor: "{colors.wash-light}"
+    textColor: "{colors.ink-light}"
+    padding: "16px 20px"
 ---
 
-# Design System: jarocki.me
+# Design system: jarocki.me
 
-## 1. Overview
+## Overview
 
-**Creative North Star: "The Engineer's Notebook"**
+The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-A lined notebook on a working engineer's desk. Most of the page is paper: zinc-toned, lightly contrasted, given over to text. One pen is permitted, a sharp magenta, used only to mark what matters. The chrome is restrained to the point of near-invisibility (a ring of one pixel, a tonal halo on hover); the typography carries the weight of the room. Personal but not precious, considered but never showy.
+There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks and the hover state of a row.
 
-The system sits in opposition to three things: the generic Next.js-plus-Tailwind dev portfolio (hero, three cards, CTA), the corporate SaaS landing page (gradient hero, feature grid, logo wall), and the Dribbble showpiece (motion-for-motion's-sake, form over substance). It is also explicitly not magazine-grade essayist territory; the voice is an engineer's notebook, not a literary one.
+The theme follows the reader's system setting. There is no toggle.
 
-Density is moderate. Spacing breathes on larger viewports; type does the structural work that borders and fills do in louder systems. Motion exists only as a response to reading: a hover that reveals a halo behind a card, a scroll that scales an avatar, a photo that straightens when you point at it. Nothing performs.
+## Colors
 
-**Key Characteristics:**
-- Zinc-and-magenta, dual-theme, parallel rules across light and dark
-- Geist Sans plus Geist Mono; a single family pair carries the entire site
-- Flat by default; depth from `ring-1` tonal contrast, not shadow
-- The accent is a signal, not a wash; under 10% of any view
-- Interaction reveals; the resting state is quiet
+All colors are CSS custom properties on `:root` in `src/styles/index.css`, redefined under `@media (prefers-color-scheme: dark)`. Tailwind maps `bg`, `ink`, `body`, `faint`, `rule`, and `wash` to them, so `text-faint` and `bg-wash` follow the theme without a `dark:` variant.
 
-## 2. Colors
+| Token | Light | Dark | Role |
+| --- | --- | --- | --- |
+| `bg` | `oklch(98.4% .0025 95)` | `oklch(15.5% .004 70)` | The page. |
+| `ink` | `oklch(21% .006 70)` | `oklch(94% .004 80)` | Names, titles, ledes, links, and the hover fill of a row. |
+| `body` | `oklch(40% .006 70)` | `oklch(76% .004 80)` | Prose and descriptions. |
+| `faint` | `oklch(54% .005 70)` | `oklch(60% .004 80)` | Dates, section labels, nav, trails, and code comments. |
+| `rule` | `oklch(91% .004 80)` | `oklch(27% .004 70)` | Blockquote borders and `hr`. |
+| `wash` | `oklch(95.6% .004 85)` | `oklch(20% .004 70)` | The code block background. |
 
-A near-monochrome zinc palette in two parallel themes, with one saturated signal color used sparingly.
+Every text tone passes WCAG AA against `bg` in both schemes. The ratios below were measured from computed styles in Chromium:
 
-### Primary
+| Pair | Light | Dark |
+| --- | --- | --- |
+| `ink` on `bg` | 16.95:1 | 16.40:1 |
+| `body` on `bg` | 8.83:1 | 9.12:1 |
+| `faint` on `bg` | 4.84:1 | 4.96:1 |
 
-- **Signal Magenta** (`#FB2576`, `oklch(63.5% 0.247 0.6)`): the one saturated color in the system. Used only where attention is earned: the active nav link, the "Read note" CTA arrow on cards, the "Work in progress" badge on draft notes, the hover-color for badges and prose links. Never as a background fill on a hero or section. Never as a gradient.
-- **Magenta Light** (`#FD92BA`): reserved for muted echoes (focus rings, future hover-tint surfaces). Currently undertilized; documented for ramp completeness.
-- **Magenta Deep** (`#8D0237`): pressed/active states only.
+`faint` is the tone closest to the limit. Do not lighten it in light mode or darken it in dark mode. The prototype values, `oklch(60% .005 70)` and `oklch(56% .004 80)`, measured 3.77:1 and 4.20:1 and failed AA.
 
-### Neutral
+`_document.tsx` sets two `theme-color` metas, `#fafaf8` for light and `#0d0c0a` for dark. `::selection` inverts to `ink` on `bg`.
 
-The zinc family does almost all of the work. Each role has a light-theme and dark-theme value; treat them as a single semantic with two physical forms.
+## Typography
 
-- **Surface** (`#FFFFFF` light / `#18181B` dark): the page. Wrapped in a fixed centered max-w-7xl ring-bordered canvas, giving the whole site a paper-on-desk read.
-- **Surface Halo** (`#FAFAFA` light / `#27272A` dark): the hover wash behind cards. Only appears on interaction.
-- **Text Strong** (`#27272A` light / `#F4F4F5` dark): headings and primary copy.
-- **Text Quiet** (`#52525B` light / `#A1A1AA` dark): body copy when subordinated, secondary text in resume entries.
-- **Text Faint** (`#71717A`): metadata and eyebrows in both themes (a single value that reads as faint against either ground).
-- **Ring** (`#E4E4E7` light / `#3F3F46` dark): the tonal border that replaces shadow. Always rendered at low opacity (`ring-zinc-900/5` light, `ring-white/10` dark), never as a saturated stroke.
+`_app.tsx` loads three faces through `next/font` and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base.
 
-### Prose Accents
+| Tailwind family | Face | CSS variable |
+| --- | --- | --- |
+| `font-sans` | Geist | `--font-geist-sans` |
+| `font-mono` | Geist Mono | `--font-geist-mono` |
+| `font-pixel` | Geist Pixel Square, falling back to Geist Mono | `--font-geist-pixel-square` |
 
-- **Link Blue** (`#3B82F6` light / `#60A5FA` dark): inline links inside long-form prose. Scoped to `.prose`; the rest of the site uses Signal Magenta for navigational color.
-- **Code Pink** (`#EC4899`): inline `code` in prose.
+Each Tailwind family ends in a system fallback stack. Pixel Square is declared with `localFont` in `_app.tsx` instead of being imported from `geist/font/pixel`, because that module declares all five pixel variants and importing it preloads every one of them.
 
-### Named Rules
+Type roles:
 
-**The Signal Rule.** Signal Magenta appears on at most 10% of any rendered view, and only where it announces state or action: an active link, a CTA arrow, a status flag. It is never used decoratively (no gradient washes, no accent rules, no tinted backgrounds, no "magenta because it looks nice"). The color's rarity is the point.
+- **Name.** Pixel Square 28px, line-height 1, `ink`. It appears once per page, in the header, and links home.
+- **Clock.** Pixel Square 24px, `ink`. It appears only on the home page.
+- **Chrome.** Geist Mono 14px/1.72. Nav, ledes, section labels, rows, meta lines, and footers.
+- **Note title.** Geist Sans 600, 30px/1.18, tracking `-0.028em`, `ink`, `max-width: 24ch`, `text-wrap: balance`.
+- **Prose.** Geist Sans 16px/1.75 in `body`.
+- **Prose headings.** Geist Mono 500 at 14px in `ink`, prefixed with a faint `#`, `##`, or `###` for `h1`, `h2`, and `h3`.
+- **Code.** Geist Mono, 13px in blocks and 13.5px inline.
 
-**The Tonal Border Rule.** Borders are `ring-1` at low opacity (`ring-zinc-900/5` or `ring-white/10`), never a full-saturation stroke. If a border reads as a line, it is too loud. If you cannot see it, it is correct.
+## Page layout
 
-**The Two-Themes-One-Voice Rule.** Light and dark are not variants of each other; they are parallel realizations of one system. Every named color has both forms. A component that ships only one theme is incomplete.
+`PageShell` renders every page. It owns SEO tags, the page padding, the 80ch column, and the header.
 
-## 3. Typography
+- The page padding is `clamp(48px, 11vh, 112px)` at the top, `clamp(20px, 9vw, 160px)` at the sides, and 160px at the bottom.
+- The column is `max-width: 80ch` and left-aligned.
+- The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. Note and tag pages pass `notes`.
+- A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy and capitalization.
+- Each section starts 56px below the previous block.
 
-**Display Font:** Geist Sans (Vercel) with `ui-sans-serif, system-ui, sans-serif` fallback.
-**Body Font:** Geist Sans (same family).
-**Mono Font:** Geist Mono with `ui-monospace, SFMono-Regular, Menlo, monospace` fallback.
+## The index row
 
-**Character:** Geist is a contemporary humanist sans designed for technical interfaces, paired with a precise mono cut from the same drawing principles. The pair reads as engineering rather than editorial: clean apertures, even rhythm, no display affectation. One family across all surfaces is the deliberate move; hierarchy comes from scale and weight, not from font-switching.
+The whole design is one shape: a labeled section of rows with three columns, `lead`, `main`, and `trail`. `src/components/Index.tsx` exports it.
 
-### Hierarchy
+- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 15 →` or `more →`.
+- `IndexList({ lead?, leadMobile?, children })` renders the `ul` and sets the lead column width through `--c1` and `--c1m`. The default is `10ch`. The reading list on /about uses `27ch`, and `minmax(0,1.3fr)` at mobile width.
+- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip? })` renders one row. With `href` it is a Next `Link`. With `external` it opens in a new tab with `rel="noopener noreferrer"`. Without `href` it is a plain `div`.
 
-- **Display** (`700`, `2.5rem` / 40px, line-height `1`, `tracking-tight`): page titles only. One per page.
-- **Headline** (`600`, `1.5rem` / 24px, line-height `2rem`): section titles inside the About page and similar long-form layouts.
-- **Title** (`600`, `1rem` / 16px, line-height `1.75rem`, `tracking-tight`): card titles. Note titles. Resume entry company names. The same size as body, distinguished by weight and tighter tracking.
-- **Body** (`400`, `1rem` / 16px, line-height `1.75rem`): default reading copy. Long-form notes use the Tailwind Typography plugin defaults under `.prose`.
-- **Eyebrow** (`400`, `0.875rem` / 14px, color `text-faint`): metadata that leads a card. Date stamps, role labels. Often paired with a 2px vertical pip (see Components / Eyebrow).
-- **Label** (`500`, `0.8125rem` / 13px): badge text, small status flags.
-- **Mono** (`700`, `0.75rem` / 12px): photo overlay captions only; otherwise mono is reserved for code blocks via the prose plugin.
+By default `lead` is `faint`, `main` is `ink`, and `trail` is `faint`. A row whose lead is a name instead of a key, such as a project or a book, passes `leadTone="ink"` and a `mainTone` of `body` or `faint`.
 
-### Named Rules
+`NoteRow`, `WorkRow`, and `ProjectRow` map the notes, `src/data/work.ts`, and `src/data/projects.ts` onto rows, so pages never write row markup for those.
 
-**The Tracking-Tight Rule.** Headings (Display, Headline, Title) carry `tracking-tight`. Body text is normal tracking. The contrast between tight headings and loose body is part of the rhythm; flat tracking across both reads as uncommitted.
+Row rules:
 
-**The Text-Balance Rule.** Page titles and card titles use `text-wrap: balance` (the local `.text-balance` utility). Headings that wrap to two lines should never strand a single short word on the second line.
+- The grid is `var(--c1) auto minmax(0, 1fr)` with a 3ch column gap. `main` is sized before `trail`, so a long trail, such as a note's tags, clips with an ellipsis before the title does.
+- `clip` keeps `main` on one line with an ellipsis on desktop and lets it wrap on mobile.
+- The row bleeds 1ch past the column on each side, so the hover fill has padding without moving the text.
+- Link rows invert on hover and on `:focus-visible`: the background becomes `ink` and every cell becomes `bg`. Rows have no transition.
+- At 640px and below, the grid drops to two columns with a 2ch gap and the trail is hidden.
 
-**The One-Family Rule.** Geist Sans is the only display+body family. Reaching for a second sans, a serif, or a script breaks the workshop register. Mono is permitted but scoped to code and photo captions.
+## Note pages
 
-## 4. Elevation
+- The article starts 72px below the header with a faint meta line: the date as `yyyy.MM.dd`, `(wip)` for notes in progress, and the tags, each linking to `/tags/{tag}`.
+- The title follows 14px below. The prose starts 44px below the title and is at most 37rem wide.
+- Paragraphs have a 1.15em bottom margin. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
+- Code blocks use `wash`, 16px by 20px padding, and a -20px horizontal margin so the code text lines up with the prose. They scroll horizontally instead of wrapping.
+- `prism.css` is monochrome. Comments are `faint`, strings are `body`, and every other token is `ink`. No hue appears anywhere on the site.
+- Links in prose are `ink` with a 1px `faint` underline offset by 0.28em. The underline turns `ink` on hover. Ledes use the same style through `.text-link`.
+- Blockquotes have a 1px `rule` left border, `body` text, and no italics.
+- The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right.
 
-The system is flat by default. Surfaces sit on the page; depth is communicated by tonal contrast (a faint zinc halo or a low-opacity ring) rather than cast shadow. The single permitted lift is the navigation pill: a `backdrop-blur` rounded-full element that floats over scrolled content, with a low-opacity shadow to make the blur read.
+Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string itself. The server and the browser can't disagree on the day, so dates never cause a hydration mismatch.
 
-### Shadow Vocabulary
+## Motion
 
-- **Nav Lift** (`box-shadow: 0 10px 15px -3px rgba(39, 39, 42, 0.05), 0 4px 6px -4px rgba(39, 39, 42, 0.05)`): the desktop nav pill, the mobile nav button. The shadow is barely there; its job is to support the backdrop-blur, not to announce elevation.
-- **Avatar Emboss** (`box-shadow: 0 4px 6px -1px rgba(39, 39, 42, 0.05)`): the small circular avatars in the resume timeline. A whisper of depth for the round-on-rectangle composition.
+The site has one animation. On the home page the colon in the clock blinks with a 2s `steps(1)` animation that drops it to 0.15 opacity halfway through. It runs only under `motion-safe`, so readers who prefer reduced motion see a steady colon.
 
-That is the full shadow vocabulary. Cards, buttons, badges, inputs, and modals all sit flat.
+Hover changes are color only: nav and footer links fade from `faint` to `ink` over 150ms, link underlines fade from `faint` to `ink`, and travel photos on /about go from grayscale to color over 200ms.
 
-### Named Rules
+The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time after hydration. It schedules each update for the next minute boundary instead of running a fixed interval.
 
-**The Tonal-Before-Shadow Rule.** When reaching for depth, reach for `ring-1` with a low-opacity zinc before reaching for `box-shadow`. The system already commits to flatness; shadow is the second answer, not the first.
+## Accessibility
 
-**The Backdrop-Blur-Earns-Its-Lift Rule.** The nav pill is the only element permitted to float. Other floating UI (modals, popovers) inherits the same backdrop-blur language so the lift mechanic is one idea applied twice, not two competing ideas.
+- Every text tone is at least 4.5:1 against `bg` in both schemes. See the contrast table under Colors.
+- Every interactive element shows `:focus-visible`. The global style is a 1px `ink` outline offset by 3px. Link rows invert instead.
+- Section labels are `h2` elements, so screen reader users can move between sections.
+- The `↗` in the elsewhere rows is `aria-hidden`.
+- The only animation respects `prefers-reduced-motion`.
 
-## 5. Components
+## Do and don't
 
-The component philosophy is **restrained and revealing**: surfaces are visually quiet at rest, and state (hover, focus, scroll) is what makes them legible as interactive.
-
-### Buttons
-
-- **Shape:** softly rounded (6px, `rounded-md`); never pill, never sharp.
-- **Primary:** zinc-800 background, zinc-100 text, padding `8px 12px`. Hover lightens to zinc-700; active darkens back and dims the text to 70% opacity. Used for explicit actions outside of links.
-- **Secondary:** zinc-50 background, zinc-900 text, same shape and padding. For subordinate actions.
-- **Focus:** outline-offset 2 (browser default `:focus-visible` ring), not a glow.
-
-### Badges
-
-- **Style:** rounded-full pill, zinc-100 background (zinc-800 dark), text-faint, `text-xs font-medium`.
-- **Hover:** text shifts to Signal Magenta. Background stays zinc.
-- **Static Status Variant:** a non-interactive form (`rounded-md`, Signal Magenta background, white text) used for the "Work in progress" flag inside note eyebrows. The shape change (`md` vs `pill`) signals that this is a state, not a tag to click.
-
-### Cards
-
-The card is not a visible card. It is a wash that appears on hover.
-
-- **Resting state:** no border, no background, no shadow. The content composes itself flatly inside a flex column.
-- **Hover state:** a `bg-zinc-50` (zinc-800/50 dark) halo appears behind the card with `scale-95 → scale-100` and `opacity-0 → opacity-100`, rounded to 16px. The halo's bounding box extends 16px outside the content (`-inset-y-6 -inset-x-4` becoming `-inset-x-6` at `sm:`), so the card "grows into" its background.
-- **Anatomy:** Card.Title (16px semibold, tracking-tight), Card.Eyebrow (14px text-faint, optionally with the decorate pip), Card.Description (14px), Card.Cta (14px medium, Signal Magenta, with a `→` glyph).
-- **Click target:** an absolutely positioned `<Link>` covers the halo's full bounding box; the whole card is clickable, no link-on-link nesting.
-
-### Navigation
-
-- **Desktop:** a single `rounded-full` pill (`bg-white/90` / `bg-zinc-800/90`) with `backdrop-blur`, `ring-1 ring-zinc-900/5`, and Nav Lift shadow. Sits centered above the page. Items are `px-3 py-2 text-sm font-medium`.
-- **Active link:** text color shifts to Signal Magenta. No underline. No background change. The color shift is the entire affordance.
-- **Hover:** text transitions to Signal Magenta with the default Tailwind `transition`.
-- **Mobile:** a "Menu" pill with the same chrome opens a `rounded-3xl` panel with a `bg-zinc-800/40 backdrop-blur-sm` overlay. Items inside the panel are divider-separated rows, not pills.
-
-### Eyebrow
-
-The eyebrow is metadata that leads a card or section: a date, a role label, a status note.
-
-- **Plain:** `text-sm text-faint`, no chrome.
-- **Decorated:** a 2px-wide vertical pip (`h-4 w-0.5 rounded-full bg-zinc-200` / `bg-zinc-500` dark) sits 14px to the left of the eyebrow text, vertically centered. This is the system's only structural use of a thin vertical mark, and it leads metadata only. It is not a card border, not a callout stripe, not a section accent. (See the Don'ts: side-stripe borders >1px as decorative card accents are banned; the pip is a 2px metadata leader, not a stripe.)
-
-### Photos Strip (Signature)
-
-A horizontal scroller of travel photos, each randomly rotated by ±1.3°, in zinc-100 backed `rounded-xl` aspect-9/10 containers.
-
-- **Rest:** photo is rotated, scaled 1.
-- **Hover:** scale to 1.1 with rotation to 0° (`duration 0.2s`); a black-gradient overlay fades in from the bottom and reveals a `font-mono text-xs font-bold` caption. The photo "straightens to be inspected."
-- **Scroll-in:** opacity fades in with a staggered delay (`idx / 100s`).
-- Scrollbars hidden via `.hide-scrollbar` utility.
-
-### Avatar
-
-A circular `Image` in a `ring-1 ring-zinc-900/5` shadow-md container.
-
-- **Home page:** scroll-driven. On scroll the avatar scales from 64px to 36px and translates 2/16rem to the right; a separate "border" element scales inversely so the ring stays one pixel wide regardless of avatar size. Implemented with CSS custom properties (`--avatar-image-transform`, `--avatar-border-transform`) updated in a scroll listener, not animated via JS-driven layout properties.
-- **Other pages:** static, small, top-left.
-
-### Resume Card
-
-A `max-w-[420px]` `rounded-2xl ring-1` (`border` actually, but visually one pixel) box listing recent work. Each row: a 40×40 ring-bordered circular logo, the company name (`text-sm font-medium text-strong`), a right-aligned date range (`text-xs text-quiet`), the role (`text-xs text-quiet`). This is the only place in the system where a visible bordered container is used; it earns the border by being a callout block inside a flow of bare content.
-
-## 6. Do's and Don'ts
-
-### Do:
-
-- **Do** keep Signal Magenta (`#FB2576`) under 10% of any rendered view. The Signal Rule is non-negotiable; the magenta only marks state or action.
-- **Do** reach for `ring-1` with low-opacity zinc before reaching for `box-shadow`. Tonal contrast first, shadow second. Flat is the default.
-- **Do** ship both light and dark forms for every component. A one-theme component is incomplete.
-- **Do** use `tracking-tight` on headings (Display, Headline, Title) and normal tracking on body. The contrast is part of the rhythm.
-- **Do** use `text-wrap: balance` on page titles and card titles; do not strand a single word on the second line.
-- **Do** reveal interaction state through tonal halos and motion, not through additional chrome (no extra borders, no fills, no shadows).
-- **Do** use Geist Sans for everything; reserve Geist Mono for code and the photo-strip captions.
-
-### Don't:
-
-- **Don't** add a second display family or a serif. The One-Family Rule holds.
-- **Don't** use Signal Magenta as a background fill, a gradient wash, or a decorative accent. It is a pen, not a paint.
-- **Don't** ship a gradient hero, a feature-card grid, a logo wall, a "Trusted by" row, or a testimonial slider. These read as corporate SaaS landing; the site is explicitly not that.
-- **Don't** ship the generic Next.js + Tailwind dev-portfolio silhouette (centered hero with avatar, three identical project cards, a single CTA). The whole point is to stop reading as that.
-- **Don't** ship motion that performs without serving the reader. The Photos hover, the card halo, and the scroll-driven avatar earn their motion by making content easier to engage with. New motion needs the same justification or it slides into Dribbble-showpiece territory.
-- **Don't** apply `border-left` or `border-right` greater than 1px as a colored accent on cards, list items, callouts, or alerts. The 2px Eyebrow pip is the single exception and it is a metadata leader, not a card stripe.
-- **Don't** apply `background-clip: text` with a gradient. Headings are solid color, emphasis through weight and size.
-- **Don't** use glassmorphism decoratively. The nav pill's `backdrop-blur` exists because the pill floats over content; other surfaces do not get to imitate it.
-- **Don't** introduce a feature-card grid of identical icon+heading+text tiles. The site never repeats a card pattern.
-- **Don't** reach for a modal as the first answer. Inline disclosure and route-level pages are the defaults.
-- **Don't** use em dashes in copy. Use commas, colons, semicolons, periods, or parentheses.
+- Do build new lists from `IndexSection`, `IndexList`, and `IndexRow`. Add a mapper next to `NoteRow` when a data module appears on more than one page.
+- Do pick colors from the six tokens. If a new element needs a color the tokens don't have, the element is probably too loud.
+- Do keep Geist Mono for chrome and Geist Sans for long prose.
+- Don't add an accent color, a gradient, a shadow, or rounded corners.
+- Don't add a theme toggle. The site follows the system setting.
+- Don't use Geist Pixel Square for anything but the name and the clock.
+- Don't lower the contrast of `faint`.
