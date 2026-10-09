@@ -1,5 +1,6 @@
 import { GetStaticProps } from 'next';
 
+import { Clock } from '../components/Clock';
 import {
   ExternalLink,
   IndexList,
@@ -45,6 +46,7 @@ export default function Home({ latestNotes, noteCount }: Props) {
           </span>
         </p>
       </Lede>
+      <Clock />
 
       <IndexSection label="notes" more={{ href: '/notes', label: `all ${noteCount} →` }}>
         <IndexList>
