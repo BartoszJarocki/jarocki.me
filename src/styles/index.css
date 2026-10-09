@@ -100,7 +100,7 @@
 
   .contributions {
     --gap: 2px;
-    --cell: min(10px, (100cqw - (var(--weeks) - 1) * var(--gap)) / var(--weeks));
+    --cell: round(down, min(10px, (100cqw - (var(--weeks) - 1) * var(--gap)) / var(--weeks)), 1px);
     container-type: inline-size;
   }
   .contribution-bars,
