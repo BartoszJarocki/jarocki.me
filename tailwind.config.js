@@ -1,7 +1,6 @@
 module.exports = {
   content: ['./src/**/*.{tsx,jsx,ts,js}'],
   plugins: [require('@tailwindcss/typography')],
-  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -18,11 +17,14 @@ module.exports = {
         '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
       },
       colors: {
+        bg: 'var(--bg)',
+        ink: 'var(--ink)',
+        body: 'var(--body)',
+        faint: 'var(--faint)',
+        rule: 'var(--rule)',
+        wash: 'var(--wash)',
         surface: 'oklch(8% 0.005 60)',
-        ink: 'oklch(92% 0.004 60)',
-        body: 'oklch(78% 0.004 60)',
         muted: 'oklch(50% 0.004 60)',
-        faint: 'oklch(38% 0.004 60)',
         pip: 'oklch(30% 0.004 60)',
         code: 'oklch(85% 0.004 60)',
         'code-bg': 'oklch(15% 0.005 60)',

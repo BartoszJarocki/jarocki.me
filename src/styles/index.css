@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light dark;
+  --bg: oklch(98.4% 0.0025 95);
+  --ink: oklch(21% 0.006 70);
+  --body: oklch(40% 0.006 70);
+  --faint: oklch(54% 0.005 70);
+  --rule: oklch(91% 0.004 80);
+  --wash: oklch(95.6% 0.004 85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(15.5% 0.004 70);
+    --ink: oklch(94% 0.004 80);
+    --body: oklch(76% 0.004 80);
+    --faint: oklch(60% 0.004 80);
+    --rule: oklch(27% 0.004 70);
+    --wash: oklch(20% 0.004 70);
+  }
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
 @layer components {
   .ds-link {
     @apply text-ink underline decoration-1 underline-offset-4 transition-[text-decoration-thickness] duration-150 hover:decoration-2;

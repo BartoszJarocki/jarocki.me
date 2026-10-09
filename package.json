@@ -26,7 +26,6 @@
     "framer-motion": "^10.16.4",
     "geist": "^1.0.1",
     "next": "^14.0.1",
-    "next-themes": "^0.2.0",
     "plaiceholder": "^3.0.0",
     "postcss-focus-visible": "^9.0.0",
     "postcss-preset-env": "^9.1.4",
