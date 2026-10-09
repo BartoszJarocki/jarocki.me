@@ -34,7 +34,8 @@
 }
 
 @layer components {
-  .text-link {
+  .text-link,
+  .prose a {
     color: var(--ink);
     text-decoration-line: underline;
     text-decoration-color: var(--faint);
@@ -42,7 +43,8 @@
     text-underline-offset: 0.28em;
     transition: text-decoration-color 150ms;
   }
-  .text-link:hover {
+  .text-link:hover,
+  .prose a:hover {
     text-decoration-color: var(--ink);
   }
 
@@ -94,5 +96,87 @@
     .index-clip {
       white-space: normal;
     }
+  }
+
+  .prose {
+    max-width: 37rem;
+    font-family: theme('fontFamily.sans');
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--body);
+  }
+  .prose p {
+    margin: 0 0 1.15em;
+  }
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    margin: 2.6em 0 0.7em;
+    font-family: theme('fontFamily.mono');
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.72;
+    color: var(--ink);
+  }
+  .prose h1::before,
+  .prose h2::before,
+  .prose h3::before {
+    color: var(--faint);
+  }
+  .prose h1::before {
+    content: '# ';
+  }
+  .prose h2::before {
+    content: '## ';
+  }
+  .prose h3::before {
+    content: '### ';
+  }
+  .prose ul,
+  .prose ol {
+    margin: 0 0 1.15em;
+    padding-left: 2.2ch;
+  }
+  .prose ul {
+    list-style: '-  ';
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li {
+    margin: 0.3em 0;
+    padding-left: 0.6ch;
+  }
+  .prose li::marker {
+    font-family: theme('fontFamily.mono');
+    font-size: 13px;
+    color: var(--faint);
+  }
+  .prose pre {
+    margin: 0 -20px 1.4em;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--wash);
+  }
+  .prose blockquote {
+    margin: 0 0 1.15em;
+    padding-left: 2ch;
+    border-left: 1px solid var(--rule);
+  }
+  .prose hr {
+    margin: 2.6em 0;
+    border-color: var(--rule);
+  }
+  .prose figure {
+    margin: 0 0 1.4em;
+  }
+  .prose figcaption {
+    margin-top: 8px;
+    font-family: theme('fontFamily.mono');
+    font-size: 13px;
+    color: var(--faint);
   }
 }

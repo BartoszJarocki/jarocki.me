@@ -1,6 +1,5 @@
 module.exports = {
   content: ['./src/**/*.{tsx,jsx,ts,js}'],
-  plugins: [require('@tailwindcss/typography')],
   theme: {
     extend: {
       fontFamily: {
@@ -33,15 +32,6 @@ module.exports = {
       animation: {
         blink: 'blink 2s steps(1) infinite',
       },
-      fontSize: {
-        xs: ['0.8125rem', { lineHeight: '1.5rem' }],
-        sm: ['0.875rem', { lineHeight: '1.5rem' }],
-        base: ['1rem', { lineHeight: '1.75rem' }],
-        lg: ['1.125rem', { lineHeight: '1.75rem' }],
-        xl: ['1.25rem', { lineHeight: '2rem' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
-      },
       colors: {
         bg: 'var(--bg)',
         ink: 'var(--ink)',
@@ -49,74 +39,7 @@ module.exports = {
         faint: 'var(--faint)',
         rule: 'var(--rule)',
         wash: 'var(--wash)',
-        surface: 'oklch(8% 0.005 60)',
-        muted: 'oklch(50% 0.004 60)',
-        pip: 'oklch(30% 0.004 60)',
-        code: 'oklch(85% 0.004 60)',
-        'code-bg': 'oklch(15% 0.005 60)',
-        'code-border': 'oklch(20% 0.004 60)',
       },
-      typography: (theme) => ({
-        DEFAULT: {
-          css: {
-            maxWidth: 'none',
-            color: theme('colors.body'),
-            fontWeight: '400',
-            a: {
-              color: theme('colors.ink'),
-              fontWeight: '400',
-              textDecoration: 'underline',
-              textDecorationThickness: '1px',
-              textUnderlineOffset: '4px',
-              transition: 'text-decoration-thickness 150ms',
-              '&:hover': { textDecorationThickness: '2px' },
-            },
-            'h1, h2, h3, h4, h5, h6': {
-              color: theme('colors.ink'),
-              fontWeight: '500',
-              letterSpacing: '-0.01em',
-            },
-            h1: { fontSize: '1.5rem' },
-            h2: { fontSize: '1.25rem' },
-            h3: { fontSize: '1.125rem' },
-            strong: { color: theme('colors.ink'), fontWeight: '500' },
-            em: { color: theme('colors.ink') },
-            code: {
-              color: theme('colors.code'),
-              backgroundColor: theme('colors.code-bg'),
-              padding: '2px 6px',
-              borderRadius: '4px',
-              fontWeight: '400',
-              '&::before': { content: 'none' },
-              '&::after': { content: 'none' },
-            },
-            pre: {
-              backgroundColor: theme('colors.code-bg'),
-              border: `1px solid ${theme('colors.code-border')}`,
-              color: theme('colors.code'),
-            },
-            'ul > li::marker': { color: theme('colors.faint') },
-            'ol > li::marker': { color: theme('colors.faint') },
-            li: { color: theme('colors.body') },
-            blockquote: {
-              borderLeftWidth: '2px',
-              borderLeftColor: theme('colors.pip'),
-              color: theme('colors.body'),
-              fontWeight: '400',
-              fontStyle: 'normal',
-              'p:first-of-type::before': { content: 'none' },
-              'p:last-of-type::after': { content: 'none' },
-            },
-            hr: { borderColor: theme('colors.code-border') },
-            img: { borderRadius: '0.25rem' },
-            figcaption: {
-              color: theme('colors.muted'),
-              fontSize: '0.875rem',
-              textAlign: 'center',
-            },
-          },
-        },
-      }),
     },
   },
 };

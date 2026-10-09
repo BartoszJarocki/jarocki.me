@@ -15,7 +15,6 @@
     "@heroicons/react": "^2.0.18",
     "@mapbox/rehype-prism": "^0.8.0",
     "@notionhq/client": "^2.2.3",
-    "@tailwindcss/typography": "^0.5.7",
     "@types/prismjs": "^1.26.0",
     "@vercel/analytics": "^1.0.2",
     "@vercel/og": "^0.5.17",

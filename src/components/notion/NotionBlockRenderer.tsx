@@ -39,7 +39,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
       );
     case 'bulleted_list':
       return (
-        <ul className="list-outside list-disc">
+        <ul>
           {value.children.map((block: any) => (
             <NotionBlockRenderer key={block.id} block={block} />
           ))}
@@ -47,7 +47,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
       );
     case 'numbered_list':
       return (
-        <ol className="list-outside list-decimal">
+        <ol>
           {value.children.map((block: any) => (
             <NotionBlockRenderer key={block.id} block={block} />
           ))}
@@ -56,7 +56,7 @@ export const NotionBlockRenderer = ({ block }: Props) => {
     case 'bulleted_list_item':
     case 'numbered_list_item':
       return (
-        <li className="pl-0">
+        <li>
           <NotionText textItems={value.rich_text} />
           {!!value.children &&
             value.children.map((block: any) => (
@@ -154,17 +154,17 @@ const NotionText = ({ textItems }: { textItems: TextRichTextItemResponse[] }) =>
 
   return (
     <>
-      {textItems.map((textItem) => {
+      {textItems.map((textItem, i) => {
         const {
           annotations: { bold, code, color, italic, strikethrough, underline },
           text,
         } = textItem;
         return (
           <span
-            key={text.content}
+            key={i}
             className={clsx({
-              'font-bold': bold,
-              'font-mono font-semibold bg-zinc-600 text-zinc-200 px-1 py-0.5 m-1 rounded-md': code,
+              'font-medium text-ink': bold,
+              'font-mono text-[13.5px] text-ink': code,
               italic: italic,
               'line-through': strikethrough,
               underline: underline,
