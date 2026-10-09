@@ -54,9 +54,10 @@
     color: var(--ink);
   }
 
+  /* main is sized before trail, so a long trail (a note's tags) clips instead of the title */
   .index-row {
     display: grid;
-    grid-template-columns: var(--c1, 10ch) minmax(0, 1fr) auto;
+    grid-template-columns: var(--c1, 10ch) auto minmax(0, 1fr);
     column-gap: 3ch;
     margin: 0 -1ch;
     padding: 0 1ch;
@@ -64,10 +65,14 @@
   .index-row > * {
     min-width: 0;
   }
-  .index-clip {
+  .index-clip,
+  .index-trail {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .index-trail {
+    text-align: right;
   }
   a.index-row:hover,
   a.index-row:focus-visible {
