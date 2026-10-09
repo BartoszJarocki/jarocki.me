@@ -145,3 +145,7 @@ export function ProjectRow({ project }: { project: Project }) {
     />
   );
 }
+
+export function entriesLabel(count: number) {
+  return `${count} ${count === 1 ? 'entry' : 'entries'}`;
+}

@@ -1,21 +1,24 @@
-import { format } from 'date-fns';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { ArticleJsonLd } from 'next-seo';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import React from 'react';
 
 import { NoteContent } from '../../components/NoteContent';
 import { PageShell } from '../../components/PageShell';
+import { dotDate } from '../../lib/date';
 import { Note as NoteType, notesApi } from '../../lib/notesApi';
 
 type Props = {
   note: NoteType;
   noteContent: any[];
+  older: { slug: string; title: string } | null;
 };
 
 export default function Note({
-  note: { title, description, createdAt, publishedAt, inProgress },
+  note: { title, description, createdAt, publishedAt, inProgress, tags },
   noteContent,
+  older,
 }: Props) {
   const router = useRouter();
   const url = `${process.env.NEXT_PUBLIC_URL}${router.asPath}`;
@@ -32,22 +35,38 @@ export default function Note({
         description={description}
       />
       <PageShell seoTitle={title} seoDescription={description} current="notes">
-        <Link href="/notes" className="ds-nav-link text-xs">
-          ← notes
-        </Link>
-
-        <article className="mt-12">
+        <article className="mt-[72px]">
           <header>
-            <time dateTime={publishedAt} className="ds-mono-date">
-              {format(new Date(publishedAt), 'yyyy.MM.dd')}
-              {inProgress && <span className="ml-3 text-muted">(wip)</span>}
-            </time>
-            <h1 className="mt-3 text-balance text-2xl font-medium tracking-tight text-ink sm:text-3xl">
+            <p className="text-faint">
+              <time dateTime={publishedAt}>{dotDate(publishedAt)}</time>
+              {inProgress && ' (wip)'}
+              {tags.length > 0 && ' · '}
+              {tags.map((tag, i) => (
+                <React.Fragment key={tag}>
+                  {i > 0 && ', '}
+                  <Link href={`/tags/${encodeURIComponent(tag)}`} className="faint-link">
+                    {tag}
+                  </Link>
+                </React.Fragment>
+              ))}
+            </p>
+            <h1 className="mt-3.5 max-w-[24ch] text-balance font-sans text-[30px] font-semibold leading-[1.18] tracking-[-0.028em] text-ink">
               {title}
             </h1>
           </header>
 
-          <NoteContent blocks={noteContent} className="mt-12" />
+          <NoteContent blocks={noteContent} className="mt-11" />
+
+          <footer className="mt-[72px] flex max-w-[37rem] justify-between gap-[3ch]">
+            <Link href="/notes" className="faint-link shrink-0">
+              ← all notes
+            </Link>
+            {older && (
+              <Link href={`/notes/${older.slug}`} className="faint-link text-right">
+                next: {older.title} →
+              </Link>
+            )}
+          </footer>
         </article>
       </PageShell>
     </>
@@ -56,17 +75,20 @@ export default function Note({
 
 export const getStaticProps: GetStaticProps<Props, { slug: string }> = async (context) => {
   const slug = context.params?.slug;
-  const allNotes = await notesApi.getNotes();
-  const note = allNotes.find((n) => n.slug === slug);
+  const allNotes = await notesApi.getNotes('desc');
+  const index = allNotes.findIndex((n) => n.slug === slug);
+  const note = allNotes[index];
 
   if (!note) {
     return { notFound: true };
   }
 
   const noteContent = await notesApi.getNote(note.id);
+  const olderNote = allNotes[index + 1];
+  const older = olderNote ? { slug: olderNote.slug, title: olderNote.title } : null;
 
   return {
-    props: { note, noteContent },
+    props: { note, noteContent, older },
     revalidate: 10,
   };
 };
