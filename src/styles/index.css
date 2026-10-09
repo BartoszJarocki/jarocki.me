@@ -95,33 +95,4 @@
       white-space: normal;
     }
   }
-
-  .ds-link {
-    @apply text-ink underline decoration-1 underline-offset-4 transition-[text-decoration-thickness] duration-150 hover:decoration-2;
-  }
-  .ds-link-row {
-    @apply text-base text-ink decoration-1 underline-offset-[6px] transition-[text-decoration-color] duration-150 hover:underline;
-  }
-  .ds-nav-link {
-    @apply text-muted transition-colors duration-150 hover:text-ink;
-  }
-  .ds-section-label {
-    @apply text-xs uppercase tracking-[0.18em] text-muted;
-  }
-  .ds-mono-date {
-    @apply font-mono text-xs tabular-nums text-faint [font-variant-numeric:oldstyle-nums_tabular-nums];
-  }
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.text-balance {
-  text-wrap: balance;
 }
