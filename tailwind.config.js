@@ -4,8 +4,28 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-geist-sans)'],
-        mono: ['var(--font-geist-mono)'],
+        sans: [
+          'var(--font-geist-sans)',
+          'ui-sans-serif',
+          'system-ui',
+          'Helvetica',
+          'Arial',
+          'sans-serif',
+        ],
+        mono: [
+          'var(--font-geist-mono)',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'Consolas',
+          'monospace',
+        ],
+        pixel: [
+          'var(--font-geist-pixel-square)',
+          'var(--font-geist-mono)',
+          'ui-monospace',
+          'monospace',
+        ],
       },
       fontSize: {
         xs: ['0.8125rem', { lineHeight: '1.5rem' }],
