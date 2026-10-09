@@ -81,7 +81,7 @@ components:
 
 The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks and the hover state of a row.
+There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, and the squares of the GitHub activity bars.
 
 The theme follows the reader's system setting. There is no toggle.
 
@@ -161,6 +161,18 @@ Row rules:
 - The row bleeds 1ch past the column on each side, so the hover fill has padding without moving the text.
 - Link rows invert on hover and on `:focus-visible`: the background becomes `ink` and every cell becomes `bg`. Rows have no transition.
 - At 640px and below, the grid drops to two columns with a 2ch gap and the trail is hidden.
+
+## GitHub activity
+
+The home page shows a year of GitHub contributions as weekly bars. They sit in a `github` section between the clock and `notes`, and the section's `BartoszJarocki ↗` link opens the GitHub profile in a new tab.
+
+- `fetchActivity` in `src/lib/githubActivity.ts` reads `github.com/users/BartoszJarocki/contributions`, the public page behind the profile heatmap, without a token. `parseContributionDays` pairs each day's `td` with the `tool-tip` that holds its count, and `toActivity` sums the days into Sunday-start weeks.
+- The home page revalidates every hour, so GitHub gets at most one request an hour. If the request fails, takes longer than 5 seconds, or yields fewer than 300 days, `fetchActivity` returns `null` and the page leaves the section out.
+- `ContributionBars` renders one element per week and paints its squares with a repeating gradient, so no square is its own element. A week with contributions is a stack of `max(1, round(total / peak * 12))` squares, where `peak` is the busiest week's total, so that week is 12 squares tall. A week with no contributions shows one square, so the time axis has no holes.
+- Filled squares are `ink`. The square of an empty week is `rule`. The bars use no other color.
+- Squares are 10px with 2px gaps. When the column is narrower than that graph, container query units size the squares from the column width, rounded down to whole CSS pixels so every square covers the same whole number of device pixels at 1x, 2x and 3x. The graph can then end short of the column, by up to about 50px on a 320px phone, the same way the 634px desktop graph sits inside the 672px column. At 640px and below the gap is 1px.
+- A mono line under the graph shows the year's total in `ink` on the left and `past year` in `faint` on the right. While the pointer is over a week, the total changes to that week, as in `week of 4 oct · 465`.
+- The graph is one `role="img"` element whose `aria-label` states the total and the peak week. The weeks are `aria-hidden`.
 
 ## Note pages
 

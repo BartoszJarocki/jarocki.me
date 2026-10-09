@@ -1,6 +1,7 @@
 import { GetStaticProps } from 'next';
 
 import { Clock } from '../components/Clock';
+import { ContributionBars } from '../components/ContributionBars';
 import {
   ExternalLink,
   IndexList,
@@ -12,9 +13,10 @@ import {
   WorkRow,
 } from '../components/Index';
 import { PageShell } from '../components/PageShell';
-import { Elsewhere } from '../data/links';
+import { Elsewhere, GitHubUser } from '../data/links';
 import { SideProjects } from '../data/projects';
 import { Work } from '../data/work';
+import { Activity, fetchActivity } from '../lib/githubActivity';
 import { Note, notesApi } from '../lib/notesApi';
 
 const seoTitle = 'Bartosz Jarocki';
@@ -24,9 +26,10 @@ const seoDescription =
 type Props = {
   latestNotes: Note[];
   noteCount: number;
+  activity: Activity | null;
 };
 
-export default function Home({ latestNotes, noteCount }: Props) {
+export default function Home({ latestNotes, noteCount, activity }: Props) {
   return (
     <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
       <Lede>
@@ -47,6 +50,23 @@ export default function Home({ latestNotes, noteCount }: Props) {
         </p>
       </Lede>
       <Clock />
+
+      {activity && (
+        <IndexSection
+          label="github"
+          more={{
+            href: `https://github.com/${GitHubUser}`,
+            label: (
+              <>
+                {GitHubUser} <span aria-hidden="true">↗</span>
+              </>
+            ),
+            external: true,
+          }}
+        >
+          <ContributionBars activity={activity} />
+        </IndexSection>
+      )}
 
       <IndexSection label="notes" more={{ href: '/notes', label: `all ${noteCount} →` }}>
         <IndexList>
@@ -91,10 +111,13 @@ export default function Home({ latestNotes, noteCount }: Props) {
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const notes = await notesApi.getNotes('desc');
+  const [notes, activity] = await Promise.all([
+    notesApi.getNotes('desc'),
+    fetchActivity(GitHubUser),
+  ]);
 
   return {
-    props: { latestNotes: notes.slice(0, 5), noteCount: notes.length },
-    revalidate: 10,
+    props: { latestNotes: notes.slice(0, 5), noteCount: notes.length, activity },
+    revalidate: 3600,
   };
 };
