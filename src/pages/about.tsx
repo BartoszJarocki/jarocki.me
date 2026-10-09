@@ -57,6 +57,7 @@ export default function About() {
             />
           ))}
         </IndexList>
+        <p className="mt-5">And various crime stories.</p>
       </IndexSection>
 
       <IndexSection label="snapshots">
