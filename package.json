@@ -56,11 +56,5 @@
     "typescript": "^5.2.2"
   },
   "packageManager": "pnpm@11.0.8",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp",
-      "unrs-resolver"
-    ]
-  },
   "license": "MIT"
 }
