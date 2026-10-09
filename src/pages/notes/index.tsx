@@ -29,7 +29,7 @@ export default function Notes({ notes }: Props) {
   }));
 
   return (
-    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription} current="notes">
       <h1 className="text-base font-medium text-ink">Notes</h1>
       <p className="mt-3 text-base text-body">Things I&apos;ve written. Mostly to myself.</p>
       <DatedRowList className="mt-16" items={items} />

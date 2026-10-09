@@ -31,7 +31,7 @@ export default function Note({
         authorName="Bartosz Jarocki"
         description={description}
       />
-      <PageShell seoTitle={title} seoDescription={description}>
+      <PageShell seoTitle={title} seoDescription={description} current="notes">
         <Link href="/notes" className="ds-nav-link text-xs">
           ← notes
         </Link>

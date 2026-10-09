@@ -26,7 +26,7 @@ export default function Tag({ tag, relatedNotes }: Props) {
   }));
 
   return (
-    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription} current="notes">
       <Link href="/notes" className="ds-nav-link text-xs">
         ← notes
       </Link>

@@ -55,7 +55,7 @@ export default function WorkPage() {
   const mobile = PastProjects.slice(2);
 
   return (
-    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription} current="work">
       <h1 className="text-base font-medium text-ink">Work</h1>
       <p className="mt-3 text-base text-body">
         Building AI at{' '}

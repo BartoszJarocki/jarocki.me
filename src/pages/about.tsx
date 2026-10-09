@@ -11,7 +11,7 @@ const seoDescription = 'A few words about me.';
 
 export default function About() {
   return (
-    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription} current="about">
       <h1 className="text-base font-medium text-ink">About</h1>
       <p className="mt-3 text-base text-body">{AboutExtended}</p>
 

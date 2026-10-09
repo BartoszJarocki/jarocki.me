@@ -4,9 +4,7 @@ import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
-import React, { useEffect, useRef } from 'react';
 
-import { SiteNav } from '../components/SiteNav';
 import '../styles/index.css';
 import '../styles/prism.css';
 
@@ -18,31 +16,13 @@ const GeistPixelSquare = localFont({
   adjustFontFallback: false,
 });
 
-function usePrevious(value: string) {
-  let ref = useRef<string>();
-
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-
-  return ref.current;
-}
-
-export default function App({ Component, pageProps, router }: AppProps) {
-  let previousPathname = usePrevious(router.pathname);
-  const isHome = router.pathname === '/';
-
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <div
-        className={`${GeistSans.variable} ${GeistMono.variable} ${GeistPixelSquare.variable} flex min-h-screen flex-col font-mono text-[14px] leading-[1.72]`}
+        className={`${GeistSans.variable} ${GeistMono.variable} ${GeistPixelSquare.variable} font-mono text-[14px] leading-[1.72]`}
       >
-        <div className="flex-1">
-          <Component previousPathname={previousPathname} {...pageProps} />
-        </div>
-        {!isHome && (
-          <SiteNav className="mx-auto w-full max-w-[40rem] px-6 pb-16 pt-24 sm:px-12" />
-        )}
+        <Component {...pageProps} />
       </div>
       <Analytics />
     </>

@@ -28,7 +28,69 @@
   color: var(--bg);
 }
 
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
 @layer components {
+  .text-link {
+    color: var(--ink);
+    text-decoration-line: underline;
+    text-decoration-color: var(--faint);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    transition: text-decoration-color 150ms;
+  }
+  .text-link:hover {
+    text-decoration-color: var(--ink);
+  }
+
+  .faint-link {
+    color: var(--faint);
+    transition: color 150ms;
+  }
+  .faint-link:hover {
+    color: var(--ink);
+  }
+
+  .index-row {
+    display: grid;
+    grid-template-columns: var(--c1, 10ch) minmax(0, 1fr) auto;
+    column-gap: 3ch;
+    margin: 0 -1ch;
+    padding: 0 1ch;
+  }
+  .index-row > * {
+    min-width: 0;
+  }
+  .index-clip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  a.index-row:hover,
+  a.index-row:focus-visible {
+    background: var(--ink);
+    outline: none;
+  }
+  a.index-row:hover *,
+  a.index-row:focus-visible * {
+    color: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .index-row {
+      grid-template-columns: var(--c1m, var(--c1, 10ch)) minmax(0, 1fr);
+      column-gap: 2ch;
+    }
+    .index-trail {
+      display: none;
+    }
+    .index-clip {
+      white-space: normal;
+    }
+  }
+
   .ds-link {
     @apply text-ink underline decoration-1 underline-offset-4 transition-[text-decoration-thickness] duration-150 hover:decoration-2;
   }
