@@ -2,33 +2,182 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light dark;
+  --bg: oklch(98.4% 0.0025 95);
+  --ink: oklch(21% 0.006 70);
+  --body: oklch(40% 0.006 70);
+  --faint: oklch(54% 0.005 70);
+  --rule: oklch(91% 0.004 80);
+  --wash: oklch(95.6% 0.004 85);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(15.5% 0.004 70);
+    --ink: oklch(94% 0.004 80);
+    --body: oklch(76% 0.004 80);
+    --faint: oklch(60% 0.004 80);
+    --rule: oklch(27% 0.004 70);
+    --wash: oklch(20% 0.004 70);
+  }
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
 @layer components {
-  .ds-link {
-    @apply text-ink underline decoration-1 underline-offset-4 transition-[text-decoration-thickness] duration-150 hover:decoration-2;
+  .text-link,
+  .prose a {
+    color: var(--ink);
+    text-decoration-line: underline;
+    text-decoration-color: var(--faint);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+    transition: text-decoration-color 150ms;
   }
-  .ds-link-row {
-    @apply text-base text-ink decoration-1 underline-offset-[6px] transition-[text-decoration-color] duration-150 hover:underline;
+  .text-link:hover,
+  .prose a:hover {
+    text-decoration-color: var(--ink);
   }
-  .ds-nav-link {
-    @apply text-muted transition-colors duration-150 hover:text-ink;
-  }
-  .ds-section-label {
-    @apply text-xs uppercase tracking-[0.18em] text-muted;
-  }
-  .ds-mono-date {
-    @apply font-mono text-xs tabular-nums text-faint [font-variant-numeric:oldstyle-nums_tabular-nums];
-  }
-}
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+  .faint-link {
+    color: var(--faint);
+    transition: color 150ms;
+  }
+  .faint-link:hover {
+    color: var(--ink);
+  }
 
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  /* main is sized before trail, so a long trail (a note's tags) clips instead of the title */
+  .index-row {
+    display: grid;
+    grid-template-columns: var(--c1, 10ch) auto minmax(0, 1fr);
+    column-gap: 3ch;
+    margin: 0 -1ch;
+    padding: 0 1ch;
+  }
+  .index-row > * {
+    min-width: 0;
+  }
+  .index-clip,
+  .index-trail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .index-trail {
+    text-align: right;
+  }
+  a.index-row:hover,
+  a.index-row:focus-visible {
+    background: var(--ink);
+    outline: none;
+  }
+  a.index-row:hover *,
+  a.index-row:focus-visible * {
+    color: var(--bg);
+  }
+  @media (max-width: 640px) {
+    .index-row {
+      grid-template-columns: var(--c1m, var(--c1, 10ch)) minmax(0, 1fr);
+      column-gap: 2ch;
+    }
+    .index-trail {
+      display: none;
+    }
+    .index-clip {
+      white-space: normal;
+    }
+  }
 
-.text-balance {
-  text-wrap: balance;
+  .prose {
+    max-width: 37rem;
+    overflow-wrap: break-word;
+    font-family: theme('fontFamily.sans');
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--body);
+  }
+  .prose p {
+    margin: 0 0 1.15em;
+  }
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    margin: 2.6em 0 0.7em;
+    font-family: theme('fontFamily.mono');
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.72;
+    color: var(--ink);
+  }
+  .prose h1::before,
+  .prose h2::before,
+  .prose h3::before {
+    color: var(--faint);
+  }
+  .prose h1::before {
+    content: '# ';
+  }
+  .prose h2::before {
+    content: '## ';
+  }
+  .prose h3::before {
+    content: '### ';
+  }
+  .prose ul,
+  .prose ol {
+    margin: 0 0 1.15em;
+    padding-left: 2.2ch;
+  }
+  .prose ul {
+    list-style: '-  ';
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li {
+    margin: 0.3em 0;
+    padding-left: 0.6ch;
+  }
+  .prose li::marker {
+    font-family: theme('fontFamily.mono');
+    font-size: 13px;
+    color: var(--faint);
+  }
+  .prose pre {
+    margin: 0 -20px 1.4em;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--wash);
+  }
+  .prose blockquote {
+    margin: 0 0 1.15em;
+    padding-left: 2ch;
+    border-left: 1px solid var(--rule);
+  }
+  .prose hr {
+    margin: 2.6em 0;
+    border-color: var(--rule);
+  }
+  .prose figure {
+    margin: 0 0 1.4em;
+  }
+  .prose figcaption {
+    margin-top: 8px;
+    font-family: theme('fontFamily.mono');
+    font-size: 13px;
+    color: var(--faint);
+  }
 }

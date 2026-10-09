@@ -1,12 +1,12 @@
 # jarocki.me
 
-Personal site of Bartosz Jarocki. Notion-backed notes, dark monochrome aesthetic, type-driven.
+Personal site of Bartosz Jarocki. Notion-backed notes, monochrome, light and dark following the system, type-driven.
 
 [jarocki.me](https://jarocki.me)
 
 ## Stack
 
-Next.js (Pages Router) · Tailwind · Notion API · Geist Sans/Mono · Vercel.
+Next.js (Pages Router) · Tailwind · Notion API · Geist Sans/Mono/Pixel · Vercel.
 
 ## Develop
 
@@ -39,11 +39,11 @@ Notes database properties:
 
 ```
 src/pages/         Routes (Pages Router)
-src/components/    PageShell, SiteNav, DatedRowList, NoteContent
-src/data/          bio, work, projects, books
+src/components/    PageShell, Index (rows), Clock, NoteContent
+src/data/          bio, work, projects, books, links
 src/lib/notesApi   Notion client
 src/images/travel  Photos for /about
-src/styles/        Tailwind layer + ds-* component classes
+src/styles/        Color tokens, row and prose styles, monochrome Prism theme
 ```
 
 ## License

@@ -1,54 +1,100 @@
-import Image from 'next/image';
+import { GetStaticProps } from 'next';
 
-import AvatarImage from '../../public/assets/blog/authors/bartosz.jpeg';
+import { Clock } from '../components/Clock';
+import {
+  ExternalLink,
+  IndexList,
+  IndexRow,
+  IndexSection,
+  Lede,
+  NoteRow,
+  ProjectRow,
+  WorkRow,
+} from '../components/Index';
 import { PageShell } from '../components/PageShell';
-import { SiteNav } from '../components/SiteNav';
+import { Elsewhere } from '../data/links';
+import { SideProjects } from '../data/projects';
+import { Work } from '../data/work';
+import { Note, notesApi } from '../lib/notesApi';
 
 const seoTitle = 'Bartosz Jarocki';
 const seoDescription =
   'Building AI at Motion. Exploring what software engineering looks like when agents do most of the typing.';
 
-export default function Home() {
+type Props = {
+  latestNotes: Note[];
+  noteCount: number;
+};
+
+export default function Home({ latestNotes, noteCount }: Props) {
   return (
     <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
-      <h1 className="flex items-center gap-2.5 text-base font-medium text-ink">
-        <Image
-          src={AvatarImage}
-          alt=""
-          width={28}
-          height={28}
-          className="h-7 w-7 rounded-full object-cover"
-          priority
-        />
-        <span>Bartosz Jarocki</span>
-      </h1>
-
-      <div className="mt-4 space-y-3 text-base text-body">
+      <Lede>
         <p>
           building AI at{' '}
-          <a
-            href="https://motionapp.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ds-link"
-          >
+          <ExternalLink href="https://motionapp.com" className="text-link">
             motion
-          </a>{' '}
+          </ExternalLink>{' '}
           —{' '}
-          <a
-            href="https://motionapp.com/careers"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ds-link"
-          >
+          <ExternalLink href="https://motionapp.com/careers" className="text-link">
             we&apos;re hiring
-          </a>
+          </ExternalLink>
           !
+          <br />
+          <span className="text-body">
+            exploring what software engineering looks like when agents do most of the typing.
+          </span>
         </p>
-        <p>exploring what software engineering looks like when agents do most of the typing.</p>
-      </div>
+      </Lede>
+      <Clock />
 
-      <SiteNav omit={['home']} className="mt-8" />
+      <IndexSection label="notes" more={{ href: '/notes', label: `all ${noteCount} →` }}>
+        <IndexList>
+          {latestNotes.map((note) => (
+            <NoteRow key={note.slug} note={note} />
+          ))}
+        </IndexList>
+      </IndexSection>
+
+      <IndexSection label="projects">
+        <IndexList>
+          {SideProjects.map((project) => (
+            <ProjectRow key={project.title} project={project} />
+          ))}
+        </IndexList>
+      </IndexSection>
+
+      <IndexSection label="work" more={{ href: '/work', label: 'more →' }}>
+        <IndexList>
+          {Work.slice(0, 3).map((entry) => (
+            <WorkRow key={entry.company} entry={entry} />
+          ))}
+        </IndexList>
+      </IndexSection>
+
+      <IndexSection label="elsewhere">
+        <IndexList>
+          {Elsewhere.map((link) => (
+            <IndexRow
+              key={link.key}
+              href={link.href}
+              external={link.href.startsWith('http')}
+              lead={link.key}
+              main={link.value}
+              trail={<span aria-hidden="true">↗</span>}
+            />
+          ))}
+        </IndexList>
+      </IndexSection>
     </PageShell>
   );
 }
+
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  const notes = await notesApi.getNotes('desc');
+
+  return {
+    props: { latestNotes: notes.slice(0, 5), noteCount: notes.length },
+    revalidate: 10,
+  };
+};

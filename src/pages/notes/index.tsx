@@ -1,8 +1,6 @@
-import { format } from 'date-fns';
 import { GetStaticProps } from 'next';
-import Link from 'next/link';
 
-import { DatedRowList } from '../../components/DatedRowList';
+import { IndexList, IndexSection, Lede, NoteRow, entriesLabel } from '../../components/Index';
 import { PageShell } from '../../components/PageShell';
 import { Note, notesApi } from '../../lib/notesApi';
 
@@ -15,24 +13,18 @@ interface Props {
 }
 
 export default function Notes({ notes }: Props) {
-  const items = notes.map((note) => ({
-    key: note.slug,
-    date: format(new Date(note.publishedAt), 'yyyy.MM.dd'),
-    content: (
-      <Link href={`/notes/${note.slug}`} className="ds-link-row">
-        {note.title}
-        {note.inProgress && (
-          <span className="ml-2 font-mono text-xs text-muted">(wip)</span>
-        )}
-      </Link>
-    ),
-  }));
-
   return (
-    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
-      <h1 className="text-base font-medium text-ink">Notes</h1>
-      <p className="mt-3 text-base text-body">Things I&apos;ve written. Mostly to myself.</p>
-      <DatedRowList className="mt-16" items={items} />
+    <PageShell seoTitle={seoTitle} seoDescription={seoDescription} current="notes">
+      <Lede>
+        <p>Things I&apos;ve written. Mostly to myself.</p>
+      </Lede>
+      <IndexSection label={entriesLabel(notes.length)}>
+        <IndexList>
+          {notes.map((note) => (
+            <NoteRow key={note.slug} note={note} withTags />
+          ))}
+        </IndexList>
+      </IndexSection>
     </PageShell>
   );
 }
