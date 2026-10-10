@@ -137,7 +137,7 @@ Type roles:
 `PageShell` renders every page. It owns SEO tags, the page padding, the 80ch column, and the header.
 
 - The page padding is `clamp(48px, 11vh, 112px)` at the top, `clamp(20px, 9vw, 160px)` at the sides, and 160px at the bottom. The side padding is the minimum gutter.
-- The column is `max-width: 80ch` and centered in the viewport. Text inside it stays left-aligned.
+- The column is `max-width: 80ch` and centered in the viewport. Text inside it stays left-aligned. The root sets `scrollbar-gutter: stable`, so the column does not shift by half a scrollbar between pages that scroll and pages that do not.
 - The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. Note and tag pages pass `notes`.
 - A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy and capitalization.
 - Each section starts 56px below the previous block.
