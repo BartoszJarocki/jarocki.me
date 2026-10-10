@@ -4,6 +4,8 @@
 
 :root {
   color-scheme: light dark;
+  /* keeps the centered column still when moving between pages that scroll and pages that do not */
+  scrollbar-gutter: stable;
   --bg: oklch(98.4% 0.0025 95);
   --ink: oklch(21% 0.006 70);
   --body: oklch(40% 0.006 70);

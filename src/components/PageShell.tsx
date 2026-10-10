@@ -31,7 +31,7 @@ export function PageShell({ seoTitle, seoDescription, current, children }: Props
         openGraph={{ images: [{ url: ogImage }] }}
       />
       <div className="px-[clamp(20px,9vw,160px)] pb-40 pt-[clamp(48px,11vh,112px)]">
-        <div className="max-w-[80ch]">
+        <div className="mx-auto max-w-[80ch]">
           <header className="flex flex-wrap items-baseline justify-between gap-x-[3ch] gap-y-3">
             <Link href="/" className="font-pixel text-[28px] leading-none text-ink">
               {Name}
