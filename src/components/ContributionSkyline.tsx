@@ -28,7 +28,9 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
   const latestSelected = useRef(selected);
 
   useEffect(() => {
-    const element = stage.current!;
+    const element = stage.current;
+    // The fallback renders no stage and needs no scene.
+    if (!element) return;
     let unmounted = false;
     const observer = new IntersectionObserver(
       ([entry]) => {
