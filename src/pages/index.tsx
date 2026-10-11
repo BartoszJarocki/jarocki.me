@@ -12,7 +12,9 @@ import {
   ProjectRow,
   WorkRow,
 } from '../components/Index';
+import { JsonLd } from '../components/JsonLd';
 import { PageShell } from '../components/PageShell';
+import { Name, SiteUrl } from '../data/bio';
 import { Elsewhere, GitHubUser } from '../data/links';
 import { SideProjects } from '../data/projects';
 import { Work } from '../data/work';
@@ -21,6 +23,28 @@ import { Note, getNotes } from '../lib/notes';
 
 const seoDescription =
   'Building AI at Motion. Exploring what software engineering looks like when agents do most of the typing.';
+
+const currentJob = Work.find((entry) => entry.end === 'Present');
+
+const profilePage = {
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    name: Name,
+    url: SiteUrl,
+    image: `${SiteUrl}/assets/blog/authors/bartosz.jpeg`,
+    jobTitle: currentJob?.title,
+    worksFor: currentJob && {
+      '@type': 'Organization',
+      name: currentJob.company,
+      url: currentJob.link,
+    },
+    address: { '@type': 'PostalAddress', addressLocality: 'Wrocław', addressCountry: 'PL' },
+    sameAs: Elsewhere.map((link) => link.href).filter((href) => !href.startsWith('mailto:')),
+  },
+};
+
+const website = { '@type': 'WebSite', name: Name, url: SiteUrl };
 
 type Props = {
   latestNotes: Note[];
@@ -31,6 +55,8 @@ type Props = {
 export default function Home({ latestNotes, noteCount, activity }: Props) {
   return (
     <PageShell seoDescription={seoDescription}>
+      <JsonLd data={profilePage} />
+      <JsonLd data={website} />
       <Lede>
         <p>
           building AI at{' '}
