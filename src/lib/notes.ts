@@ -2,7 +2,6 @@ import fs from 'fs';
 import matter from 'gray-matter';
 import { imageSize } from 'image-size';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
-import { serialize } from 'next-mdx-remote/serialize';
 import path from 'path';
 
 export type Note = {
@@ -25,8 +24,10 @@ export function getNotes(): Note[] {
 
 export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeResult> {
   const file = `${slug}.mdx`;
+  // Imported here so the home page and the RSS route, which only list notes, never load the compiler.
+  const { serialize } = await import('next-mdx-remote/serialize');
   return serialize(readNote(file).content, {
-    mdxOptions: { rehypePlugins: [[rehypeImageSizes, file]] },
+    mdxOptions: { rehypePlugins: [[rehypeNoteImages, file]] },
   });
 }
 
@@ -66,24 +67,28 @@ type HastNode = {
   children?: HastNode[];
 };
 
-// next/image needs the intrinsic size to reserve the image's space. A note that opens with an
-// image paints it first, so the first image loads with priority instead of lazily.
-function rehypeImageSizes(noteFile: string) {
+// Markdown puts an image in a paragraph. A paragraph that holds only an image becomes a figure, so
+// it takes the .prose figure spacing. next/image needs the intrinsic size to reserve the image's
+// space. An image that opens the note is the largest paint, so only that one loads with priority.
+function rehypeNoteImages(noteFile: string) {
   return (tree: HastNode) => {
-    let first = true;
-    const walk = ({ tagName, properties, children }: HastNode) => {
+    const opener = tree.children?.find((node) => node.type === 'element');
+    const walk = (node: HastNode, inOpener: boolean) => {
+      const { properties, children } = node;
+      if (node.tagName === 'p' && children?.length === 1 && children[0].tagName === 'img') {
+        node.tagName = 'figure';
+      }
       const src = properties?.src;
-      if (tagName === 'img' && properties && typeof src === 'string' && src.startsWith('/')) {
+      if (node.tagName === 'img' && properties && typeof src === 'string' && src.startsWith('/')) {
         const file = path.join(process.cwd(), 'public', src);
         if (!fs.existsSync(file)) {
           throw new Error(`src/notes/${noteFile}: ${src} is not in public/`);
         }
         const { width, height } = imageSize(fs.readFileSync(file));
-        Object.assign(properties, { width, height, priority: first });
-        first = false;
+        Object.assign(properties, { width, height, priority: inOpener });
       }
-      children?.forEach(walk);
+      children?.forEach((child) => walk(child, inOpener || child === opener));
     };
-    walk(tree);
+    walk(tree, false);
   };
 }

@@ -17,7 +17,7 @@ import { Elsewhere, GitHubUser } from '../data/links';
 import { SideProjects } from '../data/projects';
 import { Work } from '../data/work';
 import { Activity, fetchActivity } from '../lib/githubActivity';
-import { Note, notesApi } from '../lib/notesApi';
+import { Note, getNotes } from '../lib/notes';
 
 const seoTitle = 'Bartosz Jarocki';
 const seoDescription =
@@ -111,10 +111,8 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const [notes, activity] = await Promise.all([
-    notesApi.getNotes('desc'),
-    fetchActivity(GitHubUser),
-  ]);
+  const notes = getNotes();
+  const activity = await fetchActivity(GitHubUser);
 
   return {
     props: { latestNotes: notes.slice(0, 5), noteCount: notes.length, activity },
