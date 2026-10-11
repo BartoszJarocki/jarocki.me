@@ -133,6 +133,77 @@
     }
   }
 
+  .skyline {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 672 / 300;
+    max-height: 300px;
+    min-height: 150px;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .skyline[data-phase='ready'] {
+    cursor: grab;
+  }
+  .skyline[data-dragging] {
+    cursor: grabbing;
+  }
+  .skyline > canvas,
+  .skyline-overlay,
+  .skyline-placeholder {
+    position: absolute;
+    inset: 0;
+  }
+  .skyline > canvas {
+    width: 100%;
+    height: 100%;
+  }
+  /* the scene adds its canvas before React marks the stage ready */
+  .skyline:not([data-phase='ready']) > canvas,
+  .skyline:not([data-phase='ready']) > .skyline-overlay,
+  .skyline[data-phase='ready'] > .skyline-placeholder {
+    opacity: 0;
+  }
+  .skyline-overlay {
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .skyline-month {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 11px;
+    line-height: 1;
+    color: var(--faint);
+    white-space: nowrap;
+    will-change: transform;
+  }
+  .skyline-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .skyline[data-phase='ready'] > canvas,
+    .skyline[data-phase='ready'] > .skyline-overlay {
+      animation: skyline-in 200ms;
+    }
+    .skyline-placeholder {
+      transition: opacity 200ms;
+    }
+  }
+  @keyframes skyline-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (max-width: 640px) {
+    .skyline-more {
+      display: none;
+    }
+  }
+
   .prose {
     max-width: 37rem;
     overflow-wrap: break-word;

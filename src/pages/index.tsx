@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next';
 
 import { Clock } from '../components/Clock';
-import { ContributionBars } from '../components/ContributionBars';
+import { ContributionSkyline } from '../components/ContributionSkyline';
 import {
   ExternalLink,
   IndexList,
@@ -64,7 +64,7 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
             external: true,
           }}
         >
-          <ContributionBars activity={activity} />
+          <ContributionSkyline activity={activity} />
         </IndexSection>
       )}
 
