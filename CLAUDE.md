@@ -34,7 +34,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 
 ### Notes:
 - Each note is one `.mdx` file in `src/notes/`. The file name is the slug
-- The frontmatter needs `title`, `description`, `publishedAt` as an unquoted `YYYY-MM-DD` date, and `tags` as a list of strings. A missing or empty field fails the build
+- The frontmatter needs `title`, `description`, `publishedAt` as a `YYYY-MM-DD` date, and `tags` as a list of strings. A missing or empty field fails the build
 - A note's images live in `public/images/notes/<slug>/`, and the note references them as `![alt](/images/notes/<slug>/1.jpg)`
 - The build reads each image's width and height from the file, so a missing image fails the build
 

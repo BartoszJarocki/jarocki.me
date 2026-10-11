@@ -1,6 +1,7 @@
 import fs from 'fs';
 import matter from 'gray-matter';
 import { imageSize } from 'image-size';
+import yaml from 'js-yaml';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import path from 'path';
 
@@ -18,7 +19,7 @@ export function getNotes(): Note[] {
   return fs
     .readdirSync(notesDir)
     .filter((file) => file.endsWith('.mdx'))
-    .map((file) => parseNote(file, readNote(file)))
+    .map((file) => parseNote(file, readNote(file).data))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
@@ -31,25 +32,23 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
   });
 }
 
+// The JSON schema keeps an unquoted 2024-02-16 as the text written instead of a Date, which YAML
+// would roll over from 2024-02-30 to March or shift to UTC from a timestamp with an offset.
+const frontmatterOptions = {
+  engines: { yaml: (source: string) => yaml.load(source, { schema: yaml.JSON_SCHEMA }) as object },
+};
+
 function readNote(file: string) {
-  return matter(fs.readFileSync(path.join(notesDir, file), 'utf8'));
+  return matter(fs.readFileSync(path.join(notesDir, file), 'utf8'), frontmatterOptions);
 }
 
-function parseNote(
-  file: string,
-  { data, matter: rawFrontmatter }: matter.GrayMatterFile<string>,
-): Note {
+function parseNote(file: string, data: Record<string, unknown>): Note {
   const { title, description, publishedAt, tags } = data;
   const invalid = (field: string) => new Error(`src/notes/${file}: frontmatter needs ${field}`);
 
   if (!isText(title)) throw invalid('a title');
   if (!isText(description)) throw invalid('a description');
-  // YAML turns an unquoted date into a Date, rolling 2024-02-30 over to March and shifting a
-  // timestamp with an offset to UTC. Comparing with the text as written rejects both.
-  const writtenDate = /^publishedAt:\s*(.*?)\s*$/m.exec(rawFrontmatter)?.[1];
-  if (!(publishedAt instanceof Date) || writtenDate !== publishedAt.toISOString().slice(0, 10)) {
-    throw invalid('publishedAt as an unquoted YYYY-MM-DD date');
-  }
+  if (!isCalendarDate(publishedAt)) throw invalid('publishedAt as a YYYY-MM-DD date');
   if (!Array.isArray(tags) || tags.length === 0 || !tags.every(isText)) {
     throw invalid('a non-empty list of tags');
   }
@@ -58,9 +57,15 @@ function parseNote(
     slug: file.replace(/\.mdx$/, ''),
     title,
     description,
-    publishedAt: publishedAt.toISOString().slice(0, 10),
+    publishedAt,
     tags,
   };
+}
+
+function isCalendarDate(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 }
 
 function isText(value: unknown): value is string {

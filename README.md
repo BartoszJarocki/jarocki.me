@@ -24,7 +24,7 @@ pnpm dev
 ## Write a note
 
 1. Add `src/notes/<slug>.mdx`. The file name becomes the URL, `/notes/<slug>`.
-2. Start the file with frontmatter. All four fields are required, and `publishedAt` stays unquoted.
+2. Start the file with frontmatter. All four fields are required, and `publishedAt` is a `YYYY-MM-DD` date.
 
    ```mdx
    ---
