@@ -94,7 +94,7 @@ All colors are CSS custom properties on `:root` in `src/styles/index.css`, redef
 | `bg` | `oklch(98.4% .0025 95)` | `oklch(15.5% .004 70)` | The page. |
 | `ink` | `oklch(21% .006 70)` | `oklch(94% .004 80)` | Names, titles, ledes, links, and the hover fill of a row. |
 | `body` | `oklch(40% .006 70)` | `oklch(76% .004 80)` | Prose and descriptions. |
-| `faint` | `oklch(54% .005 70)` | `oklch(60% .004 80)` | Dates, section labels, nav, trails, and code comments. |
+| `faint` | `oklch(54% .005 70)` | `oklch(60% .004 80)` | Dates, section labels, nav, and trails. |
 | `rule` | `oklch(91% .004 80)` | `oklch(27% .004 70)` | Blockquote borders and `hr`. |
 | `wash` | `oklch(95.6% .004 85)` | `oklch(20% .004 70)` | The code block background. |
 
@@ -138,7 +138,7 @@ Type roles:
 
 - The page padding is `clamp(48px, 11vh, 112px)` at the top, `clamp(20px, 9vw, 160px)` at the sides, and 160px at the bottom. The side padding is the minimum gutter.
 - The column is `max-width: 80ch` and centered in the viewport. Text inside it stays left-aligned. The root sets `scrollbar-gutter: stable`, so the column does not shift by half a scrollbar between pages that scroll and pages that do not.
-- The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. Note and tag pages pass `notes`.
+- The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. The notes list and note pages pass `notes`.
 - A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy and capitalization.
 - Each section starts 56px below the previous block.
 
@@ -146,7 +146,7 @@ Type roles:
 
 The whole design is one shape: a labeled section of rows with three columns, `lead`, `main`, and `trail`. `src/components/Index.tsx` exports it.
 
-- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 15 →` or `more →`.
+- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 4 →` or `more →`.
 - `IndexList({ lead?, leadMobile?, children })` renders the `ul` and sets the lead column width through `--c1` and `--c1m`. The default is `10ch`. The reading list on /about uses `27ch`, and `minmax(0,1.3fr)` at mobile width.
 - `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip? })` renders one row. With `href` it is a Next `Link`. With `external` it opens in a new tab with `rel="noopener noreferrer"`. Without `href` it is a plain `div`.
 
@@ -219,11 +219,11 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 
 ## Note pages
 
-- The article starts 72px below the header with a faint meta line: the date as `yyyy.MM.dd`, `(wip)` for notes in progress, and the tags, each linking to `/tags/{tag}`.
+- The article starts 72px below the header with a faint meta line: the date as `yyyy.MM.dd`, a `·`, and the tags as plain text separated by commas.
 - The title follows 14px below. The prose starts 44px below the title and is at most 37rem wide.
-- Paragraphs have a 1.15em bottom margin. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
-- Code blocks use `wash`, 16px by 20px padding, and a -20px horizontal margin so the code text lines up with the prose. They scroll horizontally instead of wrapping.
-- `prism.css` is monochrome. Comments are `faint`, strings are `body`, and every other token is `ink`. No hue appears anywhere on the site.
+- Paragraphs have a 1.15em bottom margin. Bold text is `ink` at weight 500. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
+- An image alone in a paragraph renders as a figure as wide as the prose, with a 1.4em bottom margin.
+- Code blocks are plain `ink` on `wash`, with no syntax highlighting. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. They scroll horizontally instead of wrapping.
 - Links in prose are `ink` with a 1px `faint` underline offset by 0.28em. The underline turns `ink` on hover. Ledes use the same style through `.text-link`.
 - Blockquotes have a 1px `rule` left border, `body` text, and no italics.
 - The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right.
