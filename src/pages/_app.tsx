@@ -1,5 +1,4 @@
 import { Analytics } from '@vercel/analytics/react';
-import 'focus-visible';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 import { AppProps } from 'next/app';
