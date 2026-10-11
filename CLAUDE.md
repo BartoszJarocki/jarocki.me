@@ -24,7 +24,8 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 
 ### Core Architecture:
 - `src/pages/_app.tsx` - App wrapper that loads the fonts, sets the base text style, and renders `DefaultSeo`, the one place for site-wide SEO defaults: the title template, Open Graph site name and locale, and the X card
-- `src/components/PageShell.tsx` - SEO tags, page layout, and the header nav on every page
+- `src/components/PageShell.tsx` - Per-page SEO tags, page layout, and the header nav on every page. It sets the canonical URL and Open Graph tags, `noindex` on error pages, and a `BlogPosting` JSON-LD when a note passes `article`
+- `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
 - `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote
 - `src/components/NoteContent.tsx` - Renders a compiled note, with `next/image` for images
