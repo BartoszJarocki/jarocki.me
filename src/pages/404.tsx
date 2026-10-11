@@ -5,7 +5,7 @@ import { PageShell } from '../components/PageShell';
 
 export default function NotFound() {
   return (
-    <PageShell seoTitle="Not found">
+    <PageShell seoTitle="Not found" noindex>
       <Lede>
         <p>404. That page isn&apos;t here.</p>
       </Lede>
