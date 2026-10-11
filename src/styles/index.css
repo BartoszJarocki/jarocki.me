@@ -160,8 +160,7 @@
   }
   /* the scene adds its canvas before React marks the stage ready */
   .skyline:not([data-phase='ready']) > canvas,
-  .skyline:not([data-phase='ready']) > .skyline-overlay,
-  .skyline[data-phase='ready'] > .skyline-placeholder {
+  .skyline:not([data-phase='ready']) > .skyline-overlay {
     opacity: 0;
   }
   .skyline-overlay {
@@ -178,19 +177,22 @@
     white-space: nowrap;
     will-change: transform;
   }
+  /* hidden by default, so a browser without the scripting media feature gets the empty stage too */
   .skyline-placeholder {
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
+  }
+  @media (scripting: none) {
+    .skyline-placeholder {
+      display: flex;
+    }
   }
   @media (prefers-reduced-motion: no-preference) {
     .skyline[data-phase='ready'] > canvas,
     .skyline[data-phase='ready'] > .skyline-overlay {
       animation: skyline-in 200ms;
-    }
-    .skyline-placeholder {
-      transition: opacity 200ms;
     }
   }
   @keyframes skyline-in {
