@@ -10,7 +10,7 @@ const sections = ['notes', 'work', 'about'] as const;
 type Section = (typeof sections)[number];
 
 type Props = {
-  seoTitle: string;
+  seoTitle?: string;
   seoDescription?: string;
   current?: Section;
   noindex?: boolean;
@@ -21,7 +21,8 @@ export function PageShell({ seoTitle, seoDescription, current, noindex, children
   const router = useRouter();
   const path = router.asPath.split(/[?#]/)[0];
   const canonical = `${process.env.NEXT_PUBLIC_URL}${path === '/' ? '' : path}`;
-  const ogImage = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${encodeURIComponent(seoTitle)}&description=${encodeURIComponent(seoDescription ?? '')}`;
+  const title = seoTitle ?? Name;
+  const ogImage = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent(seoDescription ?? '')}`;
 
   return (
     <>
@@ -30,7 +31,7 @@ export function PageShell({ seoTitle, seoDescription, current, noindex, children
         description={seoDescription}
         canonical={noindex ? undefined : canonical}
         noindex={noindex}
-        openGraph={{ images: [{ url: ogImage }] }}
+        openGraph={{ title, images: [{ url: ogImage, width: 1200, height: 630, alt: title }] }}
       />
       <div className="px-[clamp(20px,9vw,160px)] pb-40 pt-[clamp(48px,11vh,112px)]">
         <div className="mx-auto max-w-[80ch]">

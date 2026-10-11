@@ -19,7 +19,6 @@ import { Work } from '../data/work';
 import { Activity, fetchActivity } from '../lib/githubActivity';
 import { Note, getNotes } from '../lib/notes';
 
-const seoTitle = 'Bartosz Jarocki';
 const seoDescription =
   'Building AI at Motion. Exploring what software engineering looks like when agents do most of the typing.';
 
@@ -31,7 +30,7 @@ type Props = {
 
 export default function Home({ latestNotes, noteCount, activity }: Props) {
   return (
-    <PageShell seoTitle={seoTitle} seoDescription={seoDescription}>
+    <PageShell seoDescription={seoDescription}>
       <Lede>
         <p>
           building AI at{' '}

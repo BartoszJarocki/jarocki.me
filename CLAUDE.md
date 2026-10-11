@@ -23,7 +23,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - **Static Generation** - Pages are built once with SSG. Only the home page revalidates, hourly, for its GitHub activity
 
 ### Core Architecture:
-- `src/pages/_app.tsx` - App wrapper that loads the fonts and sets the base text style
+- `src/pages/_app.tsx` - App wrapper that loads the fonts, sets the base text style, and renders `DefaultSeo`, the one place for site-wide SEO defaults: the title template, Open Graph site name and locale, and the X card
 - `src/components/PageShell.tsx` - SEO tags, page layout, and the header nav on every page
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
 - `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote
