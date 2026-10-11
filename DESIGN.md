@@ -188,8 +188,9 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 
 ### The skyline
 
-- `ContributionSkyline` renders a stage with `aspect-ratio: 672 / 300`, at least 150px and at most 300px tall. The server renders the flat weekly bars inside it, bottom-aligned and `aria-hidden`, as the loading state.
-- When the stage comes within 200px of the viewport, the component imports `src/lib/skylineScene.ts`. three.js is therefore an async chunk and never part of the home page's first load. `mountSkyline` draws the first frame, the canvas fades in over 200ms, and the bars fade out. The stage keeps its height, so nothing below it moves.
+- `ContributionSkyline` renders a stage with `aspect-ratio: 672 / 300`, at least 150px and at most 300px tall. While the scene loads, the stage is empty, so the first thing a visitor sees in it is the city rising, not a jump from flat bars to the city.
+- The server also renders the flat weekly bars inside the stage, bottom-aligned and `aria-hidden`. They show only under `@media (scripting: none)`, so a visit without JavaScript still shows a graph. A browser that does not support the `scripting` media feature hides them and shows the empty stage.
+- The component starts to import `src/lib/skylineScene.ts` when it mounts. three.js is therefore an async chunk and never part of the home page's first load. The scene mounts only when the chunk has loaded and the stage is within 200px of the viewport, so a visitor who scrolls down sees the city rise instead of a finished city. `mountSkyline` draws the first frame, and the ground tiles and month labels fade in over 200ms. The empty stage keeps its height, so nothing below it moves.
 - Weeks run left to right and start on Sunday in UTC. Days run from Sunday at the back to Saturday at the front. A voxel is 10/12 of a column wide, so the gaps match the 10px squares and 2px gaps of the flat bars. A day without activity shows a thin tile in `rule`.
 - The voxel shader has no lights. Each face is a fixed mix of `bg` and `ink`: the front at 100%, the top at 66%, the sides at 44%, and the bottom at 30%. Color management is off, and the scene reads the tokens through a 1x1 canvas, so the front faces are exactly `ink`. The scene reads the tokens again when the system color scheme changes.
 - The camera is orthographic. The rest view has a yaw of -16° and a pitch of 34°. A drag of more than 4px turns the city, within a yaw of -60° to 60° and a pitch of 8° to 89°. The arrow keys turn the focused stage, and a double-click returns to the rest view. The stage has `touch-action: pan-y`, so a vertical swipe on a phone still scrolls the page.
@@ -208,7 +209,7 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 
 ### Flat bars
 
-`ContributionBars` draws the weekly bars for the loading state and for the fallback without WebGL. `weeklyTotals` sums the days into Sunday-start weeks.
+`ContributionBars` draws the weekly bars for visits without JavaScript and for the fallback without WebGL. `weeklyTotals` sums the days into Sunday-start weeks.
 
 - It renders one element per week and paints its squares with a repeating gradient, so no square is its own element. A week with contributions is a stack of `max(1, round(total / peak * 12))` squares, where `peak` is the busiest week's total, so that week is 12 squares tall. A week with no contributions shows one square, so the time axis has no holes.
 - Filled squares are `ink`. The square of an empty week is `rule`. The bars use no other color.
