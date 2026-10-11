@@ -18,7 +18,7 @@ export function getNotes(): Note[] {
   return fs
     .readdirSync(notesDir)
     .filter((file) => file.endsWith('.mdx'))
-    .map((file) => parseNote(file, readNote(file).data))
+    .map((file) => parseNote(file, readNote(file)))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
@@ -35,14 +35,21 @@ function readNote(file: string) {
   return matter(fs.readFileSync(path.join(notesDir, file), 'utf8'));
 }
 
-function parseNote(file: string, data: Record<string, unknown>): Note {
+function parseNote(
+  file: string,
+  { data, matter: rawFrontmatter }: matter.GrayMatterFile<string>,
+): Note {
   const { title, description, publishedAt, tags } = data;
   const invalid = (field: string) => new Error(`src/notes/${file}: frontmatter needs ${field}`);
 
   if (!isText(title)) throw invalid('a title');
   if (!isText(description)) throw invalid('a description');
-  // YAML parses an unquoted 2024-02-16 as a Date at UTC midnight.
-  if (!(publishedAt instanceof Date)) throw invalid('publishedAt as an unquoted YYYY-MM-DD date');
+  // YAML turns an unquoted date into a Date, rolling 2024-02-30 over to March and shifting a
+  // timestamp with an offset to UTC. Comparing with the text as written rejects both.
+  const writtenDate = /^publishedAt:\s*(.*?)\s*$/m.exec(rawFrontmatter)?.[1];
+  if (!(publishedAt instanceof Date) || writtenDate !== publishedAt.toISOString().slice(0, 10)) {
+    throw invalid('publishedAt as an unquoted YYYY-MM-DD date');
+  }
   if (!Array.isArray(tags) || tags.length === 0 || !tags.every(isText)) {
     throw invalid('a non-empty list of tags');
   }
@@ -79,7 +86,10 @@ function rehypeNoteImages(noteFile: string) {
         node.tagName = 'figure';
       }
       const src = properties?.src;
-      if (node.tagName === 'img' && properties && typeof src === 'string' && src.startsWith('/')) {
+      if (node.tagName === 'img' && properties && typeof src === 'string') {
+        if (!src.startsWith('/')) {
+          throw new Error(`src/notes/${noteFile}: ${src} must be a file in public/images/notes/`);
+        }
         const file = path.join(process.cwd(), 'public', src);
         if (!fs.existsSync(file)) {
           throw new Error(`src/notes/${noteFile}: ${src} is not in public/`);
