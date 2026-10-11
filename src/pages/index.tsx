@@ -16,7 +16,7 @@ import { PageShell } from '../components/PageShell';
 import { Elsewhere, GitHubUser } from '../data/links';
 import { SideProjects } from '../data/projects';
 import { Work } from '../data/work';
-import { Activity, fetchActivity } from '../lib/githubActivity';
+import { Activity, fetchActivity, weeklyTotals } from '../lib/githubActivity';
 import { Note, notesApi } from '../lib/notesApi';
 
 const seoTitle = 'Bartosz Jarocki';
@@ -64,7 +64,7 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
             external: true,
           }}
         >
-          <ContributionBars activity={activity} />
+          <ContributionBars weeks={weeklyTotals(activity.dates, activity.contributions)} />
         </IndexSection>
       )}
 

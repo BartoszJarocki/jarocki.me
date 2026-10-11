@@ -1,6 +1,6 @@
 import { CSSProperties, useState } from 'react';
 
-import type { Activity, ContributionWeek } from '../lib/githubActivity';
+import type { WeekTotal } from '../lib/githubActivity';
 
 const ROWS = 12;
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -11,15 +11,16 @@ function dayMonth(isoDate: string) {
   return `${Number(day)} ${months[Number(month) - 1]}`;
 }
 
-export function ContributionBars({ activity }: { activity: Activity }) {
-  const [hovered, setHovered] = useState<ContributionWeek | null>(null);
-  const peak = activity.weeks.reduce((a, b) => (b.total > a.total ? b : a));
-  const label = `GitHub contributions per week over the past year: ${count.format(activity.total)} total, peak ${count.format(peak.total)} in the week of ${dayMonth(peak.start)}`;
+export function ContributionBars({ weeks }: { weeks: WeekTotal[] }) {
+  const [hovered, setHovered] = useState<WeekTotal | null>(null);
+  const total = weeks.reduce((sum, week) => sum + week.total, 0);
+  const peak = weeks.reduce((a, b) => (b.total > a.total ? b : a));
+  const label = `GitHub contributions per week over the past year: ${count.format(total)} total, peak ${count.format(peak.total)} in the week of ${dayMonth(peak.start)}`;
 
   return (
     <div
       className="contributions"
-      style={{ '--weeks': activity.weeks.length, '--rows': ROWS } as CSSProperties}
+      style={{ '--weeks': weeks.length, '--rows': ROWS } as CSSProperties}
     >
       <div
         role="img"
@@ -27,7 +28,7 @@ export function ContributionBars({ activity }: { activity: Activity }) {
         className="contribution-bars"
         onMouseLeave={() => setHovered(null)}
       >
-        {activity.weeks.map((week) => (
+        {weeks.map((week) => (
           <span
             key={week.start}
             aria-hidden="true"
@@ -45,7 +46,7 @@ export function ContributionBars({ activity }: { activity: Activity }) {
         <span className="text-ink">
           {hovered
             ? `week of ${dayMonth(hovered.start).toLowerCase()} · ${count.format(hovered.total)}`
-            : `${count.format(activity.total)} contributions`}
+            : `${count.format(total)} contributions`}
         </span>
         <span className="text-faint">past year</span>
       </p>
