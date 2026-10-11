@@ -1,5 +1,4 @@
 const config = {
-  swcMinify: true,
   reactStrictMode: true,
   experimental: {
     scrollRestoration: true,
