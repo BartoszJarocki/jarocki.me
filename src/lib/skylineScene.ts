@@ -432,6 +432,8 @@ export function mountSkyline(
     },
     { signal },
   );
+  // three cancels webglcontextlost and rebuilds its state on restore, but only a draw repaints.
+  renderer.domElement.addEventListener('webglcontextrestored', draw, { signal });
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(stage);
 
