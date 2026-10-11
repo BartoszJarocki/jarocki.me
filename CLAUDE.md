@@ -48,6 +48,7 @@ The site expects a Notion database with specific properties:
 - `NEXT_PUBLIC_URL` - Base URL for canonical links and OG images
 - `NOTION_TOKEN` - Notion API token
 - `NOTION_DATABASE_ID` - ID of the Notion database containing blog posts
+- `GITHUB_TOKEN` - Optional. Classic personal access token with `repo` scope. Adds the merged PR and lines added stat buttons to the home page's GitHub skyline. Without it the skyline shows contributions only
 
 ## Key Features
 

@@ -81,7 +81,7 @@ components:
 
 The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, and the squares of the GitHub activity bars.
+There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, and the voxels and squares of the GitHub activity graph.
 
 The theme follows the reader's system setting. There is no toggle.
 
@@ -164,15 +164,57 @@ Row rules:
 
 ## GitHub activity
 
-The home page shows a year of GitHub contributions as weekly bars. They sit in a `github` section between the clock and `notes`, and the section's `BartoszJarocki ↗` link opens the GitHub profile in a new tab.
+The home page shows the past year of GitHub activity as a skyline, where every day is a stack of voxels on a three.js stage. It sits in a `github` section between the clock and `notes`, and the section's `BartoszJarocki ↗` link opens the GitHub profile in a new tab.
 
-- `fetchActivity` in `src/lib/githubActivity.ts` reads `github.com/users/BartoszJarocki/contributions`, the public page behind the profile heatmap, without a token. `parseContributionDays` pairs each day's `td` with the `tool-tip` that holds its count, and `toActivity` sums the days into Sunday-start weeks.
-- The home page revalidates every hour, so GitHub gets at most one request an hour. If the request fails, takes longer than 5 seconds, or yields fewer than 300 days, `fetchActivity` returns `null` and the page leaves the section out.
-- `ContributionBars` renders one element per week and paints its squares with a repeating gradient, so no square is its own element. A week with contributions is a stack of `max(1, round(total / peak * 12))` squares, where `peak` is the busiest week's total, so that week is 12 squares tall. A week with no contributions shows one square, so the time axis has no holes.
+### Data
+
+- `fetchActivity` in `src/lib/githubActivity.ts` reads `github.com/users/BartoszJarocki/contributions`, the public page behind the profile heatmap, without a token. `parseContributionDays` pairs each day's `td` with the `tool-tip` that holds its count.
+- With `GITHUB_TOKEN` set, it also searches GitHub GraphQL for the user's merged PRs in the same days, and counts merges and added lines by UTC merge day. The token is a classic personal access token with `repo` scope, because a fine-grained token reaches only one account or organization, and the PRs live in several. The page shows daily totals only, never a repository name.
+- The search runs as about 24 parallel queries, one per window of days that holds a 24th of the year's contributions. A page of 100 PRs with their additions can take GitHub over 5 seconds, and calendar-month windows took 4 to over 10 seconds. The balanced windows keep each query to about one page, and the whole search to about 3 seconds. A window over GitHub's limit of 1,000 results fails the search instead of showing partial numbers.
+- `Activity` holds one array of ISO dates and one array of numbers per stat, so the page props stay small.
+- The home page revalidates every hour. If the contributions request fails, takes longer than 5 seconds, or yields fewer than 300 days, `fetchActivity` returns `null` and the page leaves the section out. If the PR search fails or takes longer than 10 seconds, `pullRequests` is `null`, the server logs one line, and the skyline shows contributions only.
+
+### Stats
+
+`activityStats` in `src/lib/activityStats.ts` holds one table of stats. Each row sets a button label, the caption text, and how values become heights.
+
+| Button | Height scale | Shown when |
+| --- | --- | --- |
+| `contributions` | `v / peak` | Always |
+| `prs merged` | `v / peak` | `pullRequests` is not `null` |
+| `lines added` | `log1p(v) / log1p(peak)` | `pullRequests` is not `null` |
+
+A day with no activity has no voxels. Any other day is `max(1, round(scale * 12))` voxels tall, so each stat's busiest day is 12 voxels tall. Lines added uses a log scale because a few large PRs carry most of the added lines.
+
+### The skyline
+
+- `ContributionSkyline` renders a stage with `aspect-ratio: 672 / 300`, at least 150px and at most 300px tall. The server renders the flat weekly bars inside it, bottom-aligned and `aria-hidden`, as the loading state.
+- When the stage comes within 200px of the viewport, the component imports `src/lib/skylineScene.ts`. three.js is therefore an async chunk and never part of the home page's first load. `mountSkyline` draws the first frame, the canvas fades in over 200ms, and the bars fade out. The stage keeps its height, so nothing below it moves.
+- Weeks run left to right and start on Sunday in UTC. Days run from Sunday at the back to Saturday at the front. A voxel is 10/12 of a column wide, so the gaps match the 10px squares and 2px gaps of the flat bars. A day without activity shows a thin tile in `rule`.
+- The voxel shader has no lights. Each face is a fixed mix of `bg` and `ink`: the front at 100%, the top at 66%, the sides at 44%, and the bottom at 30%. Color management is off, and the scene reads the tokens through a 1x1 canvas, so the front faces are exactly `ink`. The scene reads the tokens again when the system color scheme changes.
+- The camera is orthographic. The rest view has a yaw of -16° and a pitch of 34°. A drag of more than 4px turns the city, within a yaw of -60° to 60° and a pitch of 8° to 89°. The arrow keys turn the focused stage, and a double-click returns to the rest view. The stage has `touch-action: pan-y`, so a vertical swipe on a phone still scrolls the page.
+- The city and its month labels sit at the bottom of the stage. The city is never drawn larger than in the rest view, so turning it can shrink it but never zooms in.
+- Month labels are 11px `faint` mono, under the front edge of the week that holds the 1st. When the stage is narrower than 520px, every other label is hidden.
+- On first view the city rises from the ground in a wave across the weeks. Switching stats moves each column one voxel every 28ms, with the same wave. The scene renders only while something moves.
+- With `prefers-reduced-motion: reduce`, the stage has no fade, no rise, no voxel steps, and no camera easing. Every change shows its end state at once.
+- If WebGL is unavailable or the scene chunk fails to load, the flat bars below render as they did before the skyline, with no stage and no stat buttons.
+
+### Caption and buttons
+
+- A mono line under the stage shows the selected stat's yearly total on the left, as in `3,058 contributions`, `596 prs merged`, or `1.39M lines added`, and `past year` in `faint` on the right.
+- Hovering a day, or tapping it on a touch screen, highlights the day's whole column and fades every other voxel toward `bg`. The caption then reads `tue 6 oct · 186 contributions · 39 merged · +20,167 lines`, with the selected stat first. Numbers are `ink`, and units and separators are `faint`. At 640px and below the caption shows only the date and the selected stat. It never wraps.
+- When PR stats exist, three buttons sit under the caption, 2.5ch apart: `contributions`, `prs merged`, and `lines added`. They are `faint` and turn `ink` on hover. The pressed one is `ink` with a 1px underline offset by 5px, like the current nav link. Without JavaScript the buttons are hidden.
+- The stage is one `role="img"` element whose `aria-label` states the year's total contributions and the busiest day. It takes focus for the arrow keys and shows the global focus outline. The buttons are `<button>` elements with `aria-pressed`, in a `role="group"`.
+
+### Flat bars
+
+`ContributionBars` draws the weekly bars for the loading state and for the fallback without WebGL. `weeklyTotals` sums the days into Sunday-start weeks.
+
+- It renders one element per week and paints its squares with a repeating gradient, so no square is its own element. A week with contributions is a stack of `max(1, round(total / peak * 12))` squares, where `peak` is the busiest week's total, so that week is 12 squares tall. A week with no contributions shows one square, so the time axis has no holes.
 - Filled squares are `ink`. The square of an empty week is `rule`. The bars use no other color.
 - Squares are 10px with 2px gaps. When the column is narrower than that graph, container query units size the squares from the column width, rounded down to whole CSS pixels so every square covers the same whole number of device pixels at 1x, 2x and 3x. The graph can then end short of the column, by up to about 50px on a 320px phone, the same way the 634px desktop graph sits inside the 672px column. At 640px and below the gap is 1px.
-- A mono line under the graph shows the year's total in `ink` on the left and `past year` in `faint` on the right. While the pointer is over a week, the total changes to that week, as in `week of 4 oct · 465`.
-- The graph is one `role="img"` element whose `aria-label` states the total and the peak week. The weeks are `aria-hidden`.
+- In the fallback, a mono line under the graph shows the year's total in `ink` on the left and `past year` in `faint` on the right. While the pointer is over a week, the total changes to that week, as in `week of 4 oct · 465`.
+- In the fallback, the graph is one `role="img"` element whose `aria-label` states the total and the peak week. The weeks are `aria-hidden`.
 
 ## Note pages
 
@@ -189,7 +231,9 @@ Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string its
 
 ## Motion
 
-The site has one animation. On the home page the colon in the clock blinks with a 2s `steps(1)` animation that drops it to 0.15 opacity halfway through. It runs only under `motion-safe`, so readers who prefer reduced motion see a steady colon.
+On the home page the colon in the clock blinks with a 2s `steps(1)` animation that drops it to 0.15 opacity halfway through. It runs only under `motion-safe`, so readers who prefer reduced motion see a steady colon.
+
+The GitHub skyline fades in over 200ms, rises in a wave, steps between stats one voxel every 28ms, and eases the camera after a drag or a key press. Under reduced motion it shows each end state at once.
 
 Hover changes are color only: nav and footer links fade from `faint` to `ink` over 150ms, link underlines fade from `faint` to `ink`, and travel photos on /about go from grayscale to color over 200ms.
 
@@ -201,7 +245,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Every interactive element shows `:focus-visible`. The global style is a 1px `ink` outline offset by 3px. Link rows invert instead.
 - Section labels are `h2` elements, so screen reader users can move between sections.
 - The `↗` in the elsewhere rows is `aria-hidden`.
-- The only animation respects `prefers-reduced-motion`.
+- Every animation respects `prefers-reduced-motion`.
 
 ## Do and don't
 
