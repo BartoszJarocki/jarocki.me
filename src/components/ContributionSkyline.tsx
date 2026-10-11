@@ -37,7 +37,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
         import('../lib/skylineScene')
           .then(({ mountSkyline }) => {
             if (unmounted) return;
-            const heights = stats[latestSelected.current].heights;
+            const heights = (stats[latestSelected.current] ?? stats[0]).heights;
             scene.current = mountSkyline(element, dates, heights, setDay);
             setPhase(scene.current ? 'ready' : 'fallback');
           })
@@ -64,7 +64,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
     scene.current?.setHeights(stats[i].heights);
   }
 
-  const stat = stats[selected];
+  const stat = stats[selected] ?? stats[0];
   const total = contributions.reduce((sum, n) => sum + n, 0);
   const busiest = contributions.indexOf(Math.max(...contributions));
   const label = `GitHub contributions per day over the past year: ${count.format(total)} total, busiest day ${dayMonth(dates[busiest])} with ${count.format(contributions[busiest])}`;
