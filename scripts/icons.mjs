@@ -7,7 +7,7 @@ const font = new hb.Font(
 );
 // Geist Pixel Square draws every glyph from squares 38 units wide.
 const unit = 38;
-const monogram = 'BJ';
+const monogram = 'JB';
 const gap = 2;
 // The light and dark ink and background tokens from src/styles/index.css in sRGB.
 const colors = { ink: '#1a1815', bg: '#fafaf8', darkInk: '#ecebe8' };

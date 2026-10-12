@@ -262,9 +262,9 @@ Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string its
 
 ## Icon
 
-`scripts/icons.mjs` draws the favicon and the home screen icon from the Geist Pixel Square glyphs, so the icon is the name's monogram, `BJ`. Run `pnpm icons` after changing it.
+`scripts/icons.mjs` draws the favicon and the home screen icon from the Geist Pixel Square glyphs, so the icon is the monogram `JB`, surname first. Run `pnpm icons` after changing it.
 
-- Pixel Square builds each letter from square cells, 19 cells from the baseline to the cap height. The script reads the cells from the font and puts B and J side by side with two empty columns between them, 27 by 19 cells.
+- Pixel Square builds each letter from square cells, 19 cells from the baseline to the cap height. The script reads the cells from the font and puts J and B side by side with two empty columns between them, 27 by 19 cells.
 - At 32px each cell is one pixel. That is what a 2x screen draws for a 16px tab icon, so the tab shows the font's own pixels without blur.
 - `public/icon.svg` is the 32px grid in `ink`, and in the dark `ink` under `prefers-color-scheme: dark`. Browsers that show SVG favicons use it.
 - `public/favicon.ico` holds the same 32px grid as a PNG, in `ink` on `bg`. The ICO can't follow the color scheme, so its light background keeps the letters readable on a dark tab bar.
