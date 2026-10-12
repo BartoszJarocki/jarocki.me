@@ -86,6 +86,7 @@ export function PageShell({
             </nav>
           </header>
           <main id="main" tabIndex={-1} className="focus:outline-none">
+            {!article && <h1 className="sr-only">{title}</h1>}
             {children}
           </main>
         </div>

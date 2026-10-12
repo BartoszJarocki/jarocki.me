@@ -246,6 +246,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Every text tone is at least 4.5:1 against `bg` in both schemes. See the contrast table under Colors.
 - Every page has one `main` landmark after the header, and a skip link to it.
 - Every interactive element shows `:focus-visible`. The global style is a 1px `ink` outline offset by 3px. Link rows invert instead.
+- Every page has one `h1`. A note page shows its title as a visible `h1` and passes `article` to `PageShell`. Every other page gets a visually hidden `h1` from `PageShell`, with the page title, or the name on the home page.
 - Section labels are `h2` elements, so screen reader users can move between sections.
 - The `↗` in the elsewhere rows is `aria-hidden`.
 - Every animation respects `prefers-reduced-motion`.
