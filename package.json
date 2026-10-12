@@ -6,7 +6,7 @@
     "build": "next build && node scripts/fonts.mjs check",
     "postbuild": "next-sitemap",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\" \"*.{js,mjs}\" \"scripts/*.mjs\"",
     "subset-fonts": "node scripts/fonts.mjs subset",
     "typecheck": "tsc"
