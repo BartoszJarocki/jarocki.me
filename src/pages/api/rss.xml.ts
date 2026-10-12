@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
 import RSS from 'rss';
 
-import { notesApi } from '../../lib/notesApi';
+import { getNotes } from '../../lib/notes';
 
 const rss: NextApiHandler = async (req, res) => {
   const feed = new RSS({
@@ -10,7 +10,7 @@ const rss: NextApiHandler = async (req, res) => {
     feed_url: 'https://jarocki.me/rss.xml',
   });
 
-  const allPosts = await notesApi.getNotes();
+  const allPosts = getNotes();
   allPosts.map((post) => {
     feed.item({
       title: post.title,

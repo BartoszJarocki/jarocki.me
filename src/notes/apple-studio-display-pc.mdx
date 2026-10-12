@@ -1,0 +1,16 @@
+---
+title: "How to connect Apple Studio Display to a PC?"
+description: "It’s tricky but doable"
+publishedAt: 2023-02-02
+tags: ["hardware", "pc"]
+---
+
+![The back of an Apple Studio Display on a wooden desk, its cable running through the stand to a closed laptop](/images/notes/apple-studio-display-pc/1.jpg)
+
+Connecting Apple Studio Display to PC using Display Port to USB-C (Thunderbolt) cable is tricky but doable. There are a few requirements that both the cable and PC have to satisfy.
+
+1. Your graphic card has to [support DSC](https://nvidia.custhelp.com/app/answers/detail/a_id/5338/~/using-high-resolution%2Frefresh-rate-displays-with-vesa-display-stream) and DisplayPort 1.4+ (as far as I know, all new RTX cards support it)
+1. The cable has to [support DSC](https://nvidia.custhelp.com/app/answers/detail/a_id/5338/~/using-high-resolution%2Frefresh-rate-displays-with-vesa-display-stream), DisplayPort 1.4+, and min 5K resolution (I haven’t found any cables that are precisely 5K, so it means the only option is to buy a cable that supports 8K)
+1. **Important:** The cable has to be bidirectional. Most of the cables are unidirectional, which means they’ll only work when using Display Port as input (in the monitor) and USB-C as an output. The cable has to work the other way around, ie. Display Port as output, USB-C as an input.
+
+I found [this cable](https://amzn.to/3PoJl9F) to be working perfectly. What’s worth mentioning is that your Apple Studio Display speakers and the camera **won’t** work using this solution. If that’s something you’re after, [this article](https://justin.searls.co/posts/connecting-a-gaming-pc-to-apple-studio-display/) may be helpful.

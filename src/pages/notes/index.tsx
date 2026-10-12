@@ -2,7 +2,7 @@ import { GetStaticProps } from 'next';
 
 import { IndexList, IndexSection, Lede, NoteRow, entriesLabel } from '../../components/Index';
 import { PageShell } from '../../components/PageShell';
-import { Note, notesApi } from '../../lib/notesApi';
+import { Note, getNotes } from '../../lib/notes';
 
 const seoTitle = 'Notes';
 const seoDescription =
@@ -30,10 +30,9 @@ export default function Notes({ notes }: Props) {
 }
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const notes = await notesApi.getNotes('desc');
+  const notes = getNotes();
 
   return {
     props: { notes },
-    revalidate: 10,
   };
 };

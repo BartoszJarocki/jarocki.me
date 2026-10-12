@@ -1,25 +1,38 @@
-import { useEffect } from 'react';
-
-import { NotionBlockRenderer } from './notion/NotionBlockRenderer';
+import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
+import Image from 'next/image';
+import { ComponentProps } from 'react';
 
 type Props = {
-  blocks: any[];
+  source: MDXRemoteSerializeResult;
   className?: string;
 };
 
-export function NoteContent({ blocks, className = '' }: Props) {
-  useEffect(() => {
-    // Prism highlights the whole document as soon as it loads. Loading it here, after hydration,
-    // keeps it from rewriting the server HTML before React hydrates.
-    import('prismjs').then(({ default: Prism }) => Prism.highlightAll());
-  }, [blocks]);
+// src/lib/notes.ts gives every local image its width and height, and an opening image priority.
+function NoteImage({
+  src = '',
+  alt = '',
+  width,
+  height,
+  priority,
+}: ComponentProps<'img'> & { priority?: boolean }) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={Number(width)}
+      height={Number(height)}
+      priority={priority}
+      sizes="(max-width: 640px) 100vw, 37rem"
+    />
+  );
+}
 
+const components = { img: NoteImage };
+
+export function NoteContent({ source, className = '' }: Props) {
   return (
     <div className={`prose ${className}`}>
-      {blocks.map((block, i) => (
-        // Grouped list blocks are built by notesApi and have no Notion id.
-        <NotionBlockRenderer key={block.id ?? i} block={block} />
-      ))}
+      <MDXRemote {...source} components={components} />
     </div>
   );
 }

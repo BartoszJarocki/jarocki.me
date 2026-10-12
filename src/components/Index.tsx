@@ -5,7 +5,7 @@ import React, { CSSProperties, ComponentPropsWithoutRef, ReactNode } from 'react
 import type { Project } from '../data/projects';
 import type { WorkEntry } from '../data/work';
 import { dotDate } from '../lib/date';
-import type { Note } from '../lib/notesApi';
+import type { Note } from '../lib/notes';
 
 type Tone = 'ink' | 'body' | 'faint';
 
@@ -112,12 +112,7 @@ export function NoteRow({ note, withTags = false }: { note: Note; withTags?: boo
     <IndexRow
       href={`/notes/${note.slug}`}
       lead={dotDate(note.publishedAt)}
-      main={
-        <>
-          {note.title}
-          {note.inProgress && <span className="text-faint"> (wip)</span>}
-        </>
-      }
+      main={note.title}
       trail={withTags ? note.tags.join(', ') : undefined}
       clip
     />

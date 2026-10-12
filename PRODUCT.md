@@ -14,7 +14,7 @@ Reader posture: exploring, not deciding. Someone who landed on a note about side
 
 Identity and craft showcase. The site itself is the artifact — proof of taste and engineering practice, not a marketing surface for them. Success is when a reader closes a tab and the impression that lingers is "this person makes things carefully," without that being said anywhere on the page.
 
-Functional core: a Notion-backed notes system, a current-and-past work record, a /uses page, a /creating list of side projects. None of those need to be loud; all of them need to be exact.
+Functional core: an MDX notes system, a current-and-past work record, a /uses page, a /creating list of side projects. None of those need to be loud; all of them need to be exact.
 
 ## Brand Personality
 

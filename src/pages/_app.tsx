@@ -6,7 +6,6 @@ import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
 
 import '../styles/index.css';
-import '../styles/prism.css';
 
 // geist/font/pixel declares all five pixel variants, and importing it preloads every one of them.
 const GeistPixelSquare = localFont({

@@ -261,6 +261,15 @@
     font-size: 13px;
     color: var(--faint);
   }
+  .prose strong {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .prose code {
+    font-family: theme('fontFamily.mono');
+    font-size: 13.5px;
+    color: var(--ink);
+  }
   .prose pre {
     margin: 0 -20px 1.4em;
     padding: 16px 20px;
@@ -269,6 +278,9 @@
     line-height: 1.7;
     color: var(--ink);
     background: var(--wash);
+  }
+  .prose pre code {
+    font-size: inherit;
   }
   .prose blockquote {
     margin: 0 0 1.15em;

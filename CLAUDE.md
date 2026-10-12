@@ -14,49 +14,48 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a personal website built with Next.js that uses Notion as a headless CMS for blog posts/notes.
+This is a personal website built with Next.js. Notes are MDX files in the repo.
 
 ### Key Components:
 - **Next.js Pages Router** - File-based routing in `src/pages/`
-- **Notion Integration** - Blog content fetched from Notion database via `src/lib/notesApi.ts`
+- **MDX Notes** - Notes are MDX files in `src/notes/`, read by `src/lib/notes.ts`
 - **Theme System** - Light and dark color tokens as CSS custom properties that follow `prefers-color-scheme`. There is no toggle
-- **Static Generation** - Uses SSG for performance with ISR for content updates
+- **Static Generation** - Pages are built once with SSG. Only the home page revalidates, hourly, for its GitHub activity
 
 ### Core Architecture:
 - `src/pages/_app.tsx` - App wrapper that loads the fonts and sets the base text style
 - `src/components/PageShell.tsx` - SEO tags, page layout, and the header nav on every page
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
-- `src/lib/notesApi.ts` - Notion API client handling blog post fetching and processing
+- `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote
+- `src/components/NoteContent.tsx` - Renders a compiled note, with `next/image` for images
 - `src/components/` - Reusable React components
 - `src/data/` - Static data and content
 - `src/images/` - Static images organized by category
 
-### Notion Integration:
-The site expects a Notion database with specific properties:
-- `id`, `created_time`, `last_edited_time`, `cover`
-- `hashtags` (multi-select), `title`, `description`, `slug`
-- `published` (checkbox), `publishedAt` (date), `inProgress` (checkbox)
+### Notes:
+- Each note is one `.mdx` file in `src/notes/`. The file name is the slug
+- The frontmatter needs `title`, `description`, `publishedAt` as a `YYYY-MM-DD` date, and `tags` as a list of strings. A missing or empty field fails the build
+- A note's images live in `public/images/notes/<slug>/`, and the note references them as `![alt](/images/notes/<slug>/1.jpg)`
+- The build reads each image's width and height from the file, so a missing image fails the build
 
 ### Styling:
 - `DESIGN.md` describes the design system: tokens, type roles, the index row, and contrast numbers
 - Six color tokens (`bg`, `ink`, `body`, `faint`, `rule`, `wash`) defined in `src/styles/index.css` and mapped to Tailwind colors. There is no accent color
 - Dark mode follows the system through `prefers-color-scheme`, so components use no `dark:` variants
-- Note prose is styled by the `.prose` rules in `src/styles/index.css`. `src/styles/prism.css` is a monochrome code theme
+- Note prose is styled by the `.prose` rules in `src/styles/index.css`. Code blocks have no syntax highlighting
 
 ## Environment Variables Required
 
 - `NEXT_PUBLIC_URL` - Base URL for canonical links and OG images
-- `NOTION_TOKEN` - Notion API token
-- `NOTION_DATABASE_ID` - ID of the Notion database containing blog posts
 - `GITHUB_TOKEN` - Optional. Classic personal access token with `repo` scope. Adds the merged PR and lines added stat buttons to the home page's GitHub skyline. Without it the skyline shows contributions only
 
 ## Key Features
 
-- **Blog/Notes System** - Content managed via Notion, supports tags and draft posts
+- **Notes** - MDX files in `src/notes/`, each with tags shown on the note and in the notes list
 - **OG Image Generation** - Dynamic Open Graph images using `@vercel/og`
 - **SEO Optimization** - NextSEO integration with sitemap generation
 - **Analytics** - Vercel Analytics integration
-- **Image Optimization** - Plaiceholder for image placeholders, Next.js Image component
+- **Image Optimization** - Next.js Image component. Note images get their size at build time
 
 ## Code Conventions
 
