@@ -5,12 +5,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 - `pnpm dev` - Start Next.js development server
-- `pnpm build` - Build the application for production
+- `pnpm build` - Build the application for production, then check that the font subsets hold every character the site uses
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
 - `pnpm format` - Format code and CSS with Prettier. Markdown and MDX stay as written
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm postbuild` - Generate sitemap (runs automatically after build)
+- `pnpm subset-fonts` - Write the Geist subsets in `src/fonts` from the `geist` package
 
 ## Architecture Overview
 
@@ -24,7 +25,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 
 ### Core Architecture:
 - `src/pages/_app.tsx` - App wrapper that loads Geist Mono and Geist Pixel Square, sets the base text style, and renders `DefaultSeo`, the one place for site-wide SEO defaults: the title template, Open Graph site name and locale, and the X card
-- `src/pages/_document.tsx` - The HTML shell. It also preloads the fonts a dynamic route imports, because Next misses them
+- `src/pages/_document.tsx` - The HTML shell. It also preloads the fonts a dynamic route declares, because Next misses them
 - `src/components/PageShell.tsx` - Per-page SEO tags, page layout, and the header nav on every page. It sets the canonical URL and Open Graph tags, `noindex` on error pages, and a `BlogPosting` JSON-LD when a note passes `article`
 - `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
@@ -65,5 +66,5 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - Component files use PascalCase (e.g., `Avatar.tsx`)
 - Utility functions in `src/lib/`
 - Tailwind classes for styling, no CSS modules
-- Geist fonts: `font-mono` (Geist Mono) for chrome, `font-sans` (Geist) for note prose and titles, `font-pixel` (Geist Pixel Square) for the name and clock. Geist loads only on note pages, from `src/pages/notes/[slug].tsx`. Elsewhere `font-sans` is the system sans font
+- Geist fonts: `font-mono` (Geist Mono) for chrome, `font-sans` (Geist) for note prose and titles, `font-pixel` (Geist Pixel Square) for the name and clock. Each face loads with `localFont` from a subset in `src/fonts`, never from `geist/font` (see `DESIGN.md`). Geist loads only on note pages, from `src/pages/notes/[slug].tsx`. Elsewhere `font-sans` is the system sans font
 - Pages use getStaticProps/getStaticPaths for SSG where applicable
