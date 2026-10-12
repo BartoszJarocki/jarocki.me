@@ -1,4 +1,6 @@
-import { copyFile, readFile, writeFile } from 'node:fs/promises';
+import fontverter from 'fontverter';
+import * as hb from 'harfbuzzjs';
+import { copyFile, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import subsetFont from 'subset-font';
 
@@ -8,6 +10,13 @@ const sources = [
   'dist/fonts/geist-mono/GeistMono-Variable.woff2',
   'dist/fonts/geist-pixel/GeistPixel-Square.woff2',
   'dist/fonts/geist-sans/Geist-Variable.woff2',
+];
+
+// The notes and data files come first, so a missing character points at the file to fix.
+const siteText = [
+  ['src/notes', '.mdx'],
+  ['src/data', '.ts'],
+  ['.next/server/pages', '.html'],
 ];
 
 const blocks = {
@@ -69,7 +78,54 @@ async function subset() {
   await copyFile(path.join(geist, 'LICENSE.txt'), path.join(outDir, 'LICENSE.txt'));
 }
 
-const commands = { subset };
+async function codepoints(file) {
+  const sfnt = await fontverter.convert(await readFile(file), 'truetype');
+  return new Set(new hb.Face(new hb.Blob(sfnt)).collectUnicodes());
+}
+
+async function check() {
+  const files = [];
+  for (const [dir, extension] of siteText) {
+    const names = await readdir(dir, { recursive: true });
+    files.push(
+      ...names.filter((name) => name.endsWith(extension)).map((name) => path.join(dir, name)),
+    );
+  }
+
+  const firstFile = new Map();
+  for (const file of files) {
+    for (const char of await readFile(file, 'utf8')) {
+      const codepoint = char.codePointAt(0);
+      if (!firstFile.has(codepoint)) firstFile.set(codepoint, file);
+    }
+  }
+
+  const missing = [];
+  for (const source of sources) {
+    const full = await codepoints(path.join(geist, source));
+    const subsetFile = path.join(outDir, path.basename(source));
+    const kept = await codepoints(subsetFile);
+    for (const [codepoint, file] of firstFile) {
+      const removedBySubset = full.has(codepoint) && !kept.has(codepoint);
+      if (removedBySubset) {
+        const hex = codepoint.toString(16).toUpperCase().padStart(4, '0');
+        const char = String.fromCodePoint(codepoint);
+        missing.push(`U+${hex} ${char} from ${file} is missing from ${subsetFile}`);
+      }
+    }
+  }
+
+  if (missing.length > 0) {
+    console.error(missing.join('\n'));
+    console.error(
+      'Add its Unicode block to blocks in scripts/fonts.mjs and run pnpm subset-fonts.',
+    );
+    process.exit(1);
+  }
+  console.log(`The font subsets hold every Geist character in ${files.length} files.`);
+}
+
+const commands = { subset, check };
 const command = commands[process.argv[2]];
 if (!command) throw new Error(`Usage: node scripts/fonts.mjs ${Object.keys(commands).join('|')}`);
 await command();

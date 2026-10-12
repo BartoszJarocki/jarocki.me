@@ -81,9 +81,15 @@ importers:
       eslint-config-next:
         specifier: ^14.2.35
         version: 14.2.35(eslint@8.57.1)(typescript@5.9.3)
+      fontverter:
+        specifier: 2.0.0
+        version: 2.0.0
       geist:
         specifier: 1.7.0
         version: 1.7.0(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      harfbuzzjs:
+        specifier: 1.6.3
+        version: 1.6.3
       next-sitemap:
         specifier: ^4.2.3
         version: 4.2.3(next@14.2.35(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
