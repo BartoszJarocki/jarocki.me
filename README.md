@@ -57,6 +57,7 @@ src/styles/         Color tokens, row and prose styles
 public/images/notes Photos for the notes, one folder per note
 scripts/fonts.mjs   Writes the font subsets, and checks after each build that they hold every
                     character the site uses
+scripts/icons.mjs   Draws the favicon and the home screen icon from the Geist Pixel Square glyphs
 ```
 
 ## License

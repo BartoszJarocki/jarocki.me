@@ -12,6 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm postbuild` - Generate sitemap (runs automatically after build)
 - `pnpm subset-fonts` - Write the Geist subsets in `src/fonts` from the `geist` package
+- `pnpm icons` - Write the favicon, the SVG icon, and the home screen icon in `public` from the Geist Pixel Square glyphs
 
 ## Architecture Overview
 
