@@ -1,5 +1,4 @@
 import fs from 'fs';
-import matter from 'gray-matter';
 import { imageSize } from 'image-size';
 import yaml from 'js-yaml';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
@@ -32,14 +31,16 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
   });
 }
 
-// The JSON schema keeps an unquoted 2024-02-16 as the text written instead of a Date, which YAML
-// would roll over from 2024-02-30 to March or shift to UTC from a timestamp with an offset.
-const frontmatterOptions = {
-  engines: { yaml: (source: string) => yaml.load(source, { schema: yaml.JSON_SCHEMA }) as object },
-};
+// An editor on Windows can save the file with a byte order mark and \r\n line endings.
+const frontmatter = /^\uFEFF?---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 
 function readNote(file: string) {
-  return matter(fs.readFileSync(path.join(notesDir, file), 'utf8'), frontmatterOptions);
+  const source = fs.readFileSync(path.join(notesDir, file), 'utf8');
+  const [block, yamlSource = ''] = frontmatter.exec(source) ?? [''];
+  // The JSON schema keeps an unquoted 2024-02-16 as the text written instead of a Date, which YAML
+  // would roll over from 2024-02-30 to March or shift to UTC from a timestamp with an offset.
+  const data = yaml.load(yamlSource, { schema: yaml.JSON_SCHEMA }) ?? {};
+  return { data: data as Record<string, unknown>, content: source.slice(block.length) };
 }
 
 function parseNote(file: string, data: Record<string, unknown>): Note {
