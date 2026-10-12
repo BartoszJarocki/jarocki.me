@@ -5,6 +5,6 @@ export function middleware(request: NextRequest) {
   return NextResponse.rewrite(new URL('/api/rss.xml', request.url));
 }
 
-// A next.config.mjs rewrite would work too, but it adds about 4 kB of client-side route matching
+// A next.config.mjs rewrite would work too, but it adds about 3 kB of client-side route matching
 // to every page.
 export const config = { matcher: '/rss.xml' };
