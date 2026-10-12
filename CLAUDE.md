@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm build` - Build the application for production
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
-- `pnpm format` - Format code with Prettier
+- `pnpm format` - Format code and CSS with Prettier. Markdown and MDX stay as written
 - `pnpm typecheck` - Run TypeScript type checking
 - `pnpm postbuild` - Generate sitemap (runs automatically after build)
 

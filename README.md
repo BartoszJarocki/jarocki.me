@@ -10,7 +10,7 @@ Next.js (Pages Router) · Tailwind · MDX · Geist Sans/Mono/Pixel · Vercel.
 
 ## Develop
 
-Requires Node 18+ and pnpm.
+Requires Node 22 and pnpm.
 
 ```bash
 # create .env.local with NEXT_PUBLIC_URL

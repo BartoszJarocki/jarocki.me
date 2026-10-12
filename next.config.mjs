@@ -1,10 +1,9 @@
 const config = {
-  swcMinify: true,
   reactStrictMode: true,
   experimental: {
     scrollRestoration: true,
   },
-  transpilePackages: ["geist"],
+  transpilePackages: ['geist'],
   async redirects() {
     return [
       {
