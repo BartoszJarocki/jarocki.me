@@ -32,7 +32,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
     const element = stage.current;
     // The fallback renders no stage and needs no scene.
     if (!element) return;
-    let unmounted = false;
+    const unmount = new AbortController();
     let observer: IntersectionObserver;
     const nearby = new Promise<void>((resolve) => {
       observer = new IntersectionObserver(
@@ -47,17 +47,17 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
     });
     // Download now but rise only near the viewport, so a visitor who scrolls down sees the city grow.
     Promise.all([import('../lib/skylineScene'), nearby])
-      .then(([{ mountSkyline }]) => {
-        if (unmounted) return;
-        const heights = (stats[latestSelected.current] ?? stats[0]).heights;
-        scene.current = mountSkyline(element, dates, heights, setDay);
+      .then(async ([{ mountSkyline }]) => {
+        if (unmount.signal.aborted) return;
+        const heights = () => (stats[latestSelected.current] ?? stats[0]).heights;
+        scene.current = await mountSkyline(element, dates, heights, setDay, unmount.signal);
         setPhase(scene.current ? 'ready' : 'fallback');
       })
       .catch(() => {
-        if (!unmounted) setPhase('fallback');
+        if (!unmount.signal.aborted) setPhase('fallback');
       });
     return () => {
-      unmounted = true;
+      unmount.abort();
       observer.disconnect();
       scene.current?.destroy();
       scene.current = null;
