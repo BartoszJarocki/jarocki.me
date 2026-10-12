@@ -87,7 +87,7 @@ The theme follows the reader's system setting. There is no toggle.
 
 ## Colors
 
-All colors are CSS custom properties on `:root` in `src/styles/index.css`, redefined under `@media (prefers-color-scheme: dark)`. Tailwind maps `bg`, `ink`, `body`, `faint`, `rule`, and `wash` to them, so `text-faint` and `bg-wash` follow the theme without a `dark:` variant.
+All colors are CSS custom properties on `:root` in `src/styles/index.css`, redefined under `@media (prefers-color-scheme: dark)`. Tailwind maps `bg`, `ink`, `body`, `faint`, `rule`, and `wash` to them, so `text-faint` and `bg-wash` follow the theme without a `dark:` variant. The share image copies the light values as hex. See Share image.
 
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
@@ -138,8 +138,9 @@ Type roles:
 
 The files in `src/fonts` are subsets of the faces in the `geist` package, at the version pinned in `package.json`. `pnpm subset-fonts` runs `scripts/fonts.mjs`, which writes them.
 
+- The pages load woff2 subsets of the variable Geist and Geist Mono and of Pixel Square. The share image loads ttf subsets of the static Geist SemiBold and Geist Mono Regular and of Pixel Square, because Satori reads no woff2 and handles variable fonts poorly.
 - Each subset keeps Basic Latin, Latin-1 Supplement, Latin Extended-A, General Punctuation, and Arrows. That covers Polish names, the curly quotes and dashes in the notes, and the arrows in the chrome.
-- Geist and Geist Mono keep their weight axis, from 100 to 900. Pixel Square keeps its hinting.
+- The woff2 Geist and Geist Mono keep their weight axis, from 100 to 900. Pixel Square keeps its hinting.
 - Each subset keeps only the OpenType features that a browser applies without CSS asking for them, plus `tnum` for `tabular-nums`. The stylistic sets are gone. To use another feature, such as `slashed-zero`, add its tag to `features` in `scripts/fonts.mjs` and run `pnpm subset-fonts`.
 - `pnpm build` ends with `node scripts/fonts.mjs check`. It fails when a note, a data file, or a built page uses a character that a full Geist face has and its subset lacks, and it names the character and the file. To fix it, add the character's Unicode block to `blocks` in `scripts/fonts.mjs` and run `pnpm subset-fonts`.
 - ESLint rejects imports from `geist`, because `geist/font` loads the full files.
@@ -245,6 +246,18 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 - The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right. A no-break space ties the `→` to the title's last word, so a long title never leaves the arrow alone on a line.
 
 Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string itself. The server and the browser can't disagree on the day, so dates never cause a hydration mismatch.
+
+## Share image
+
+`src/pages/api/og.tsx` draws the Open Graph image for every page. `PageShell` puts the page's SEO title and description in the image URL, as in `/api/og?title=Time&description=A+thing+about+time`.
+
+- The image is 1200 by 630 pixels on `bg`, with 80px of padding. A share card can't follow the viewer's color scheme, so it always uses the light tokens.
+- The top row repeats the page header. The name is Pixel Square at 44px in `ink` on the left, and `jarocki.me` is Geist Mono at 28px in `faint` on the right.
+- The title and the description sit at the bottom. The title is Geist 600 at 64px, line-height 1.1, tracking `-0.028em`, in `ink`. The description is Geist Mono at 28px, line-height 1.45, in `body`, 28px below the title. Each stops at three lines with an ellipsis, and a long word breaks instead of running off the card.
+- The home page has no title of its own, so its card shows the name once, in the header, and the description below it.
+- There is no avatar, no border, no rule, and nothing is rounded.
+- Satori can't parse `oklch`, so the route copies the light tokens as hex: `bg` `#fafaf8`, `ink` `#1a1815`, `body` `#4a4744`, and `faint` `#716e6c`. They match what Chromium paints for the tokens. When a light token changes, change it there too.
+- The route runs on Node through `next/og`. Anyone can call it with any text, so it cuts the title at 200 characters and the description at 300. Both caps hold more than three lines, so a cut text still ends in the ellipsis. For a character the subsets lack, such as `€`, `next/og` fetches a Noto face from Google Fonts during that request. The build check keeps such characters out of real titles and descriptions.
 
 ## Motion
 
