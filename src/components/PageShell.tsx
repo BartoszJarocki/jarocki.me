@@ -31,7 +31,10 @@ export function PageShell({
   const path = router.asPath.split(/[?#]/)[0];
   const canonical = `${process.env.NEXT_PUBLIC_URL}${path === '/' ? '' : path}`;
   const title = seoTitle ?? Name;
-  const ogImage = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent(seoDescription ?? '')}`;
+  const ogImage = `${process.env.NEXT_PUBLIC_URL}/api/og?${new URLSearchParams({
+    title: seoTitle ?? '',
+    description: seoDescription ?? '',
+  })}`;
 
   return (
     <>
