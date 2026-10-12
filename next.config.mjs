@@ -5,6 +5,7 @@ const config = {
   },
   async redirects() {
     return [
+      { source: '/index', destination: '/', permanent: true },
       {
         source: '/blog/:slug*',
         destination: '/notes/:slug*',
