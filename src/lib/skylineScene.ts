@@ -26,7 +26,11 @@ export type SkylineHandle = {
 };
 
 const UNIT = 10 / 12;
+const FRONT_Z = 3 + UNIT / 2;
 const LABEL_Z = 4.6;
+// Least px from the front edge to a month label's center. It stays under the 7.9px of the desktop
+// rest view, so only smaller stages move their labels.
+const LABEL_DROP = 7.5;
 const REST: View = { yaw: -16, pitch: 34 };
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const ARROWS: Record<string, View> = {
@@ -164,6 +168,7 @@ export function mountSkyline(
   const view = { ...REST };
   let target = { ...REST };
   let restScale = 0;
+  let labelLift = 0;
   let width = 0;
   let height = 0;
   let shown = dates.map(() => 0);
@@ -224,7 +229,8 @@ export function mountSkyline(
   }
 
   // Bottom-aligned with room for half a month label under the label row, and never zoomed in past
-  // the rest view's scale, so turning the city only shrinks it.
+  // the rest view's scale, so turning the city only shrinks it. A small stage draws the label row too
+  // close to the front edge, so the labels drop by labelLift and the room below grows to match.
   function fit() {
     let minX = Infinity;
     let maxX = -Infinity;
@@ -239,17 +245,22 @@ export function mountSkyline(
           minY = Math.min(minY, corner.y);
           maxY = Math.max(maxY, corner.y);
         }
+    const rowDrop =
+      corner.set(0, 0, FRONT_Z).applyMatrix4(camera.matrixWorldInverse).y -
+      corner.set(0, 0, LABEL_Z).applyMatrix4(camera.matrixWorldInverse).y;
     const pad = 4;
     const below = pad + 6;
     const need = Math.max(
       (maxX - minX) / (width - 2 * pad),
       (maxY - minY) / (height - pad - below),
+      (maxY - minY - rowDrop) / (height - pad - below - LABEL_DROP),
     );
     if (!restScale) restScale = need;
     const scale = Math.max(need, restScale);
+    labelLift = Math.max(0, LABEL_DROP - rowDrop / scale);
     camera.left = minX - (width * scale - (maxX - minX)) / 2;
     camera.right = camera.left + width * scale;
-    camera.bottom = minY - below * scale;
+    camera.bottom = minY - (below + labelLift) * scale;
     camera.top = camera.bottom + height * scale;
     camera.updateProjectionMatrix();
   }
@@ -259,7 +270,7 @@ export function mountSkyline(
       label.hidden = width < 520 && i % 2 === 1;
       projected.set(x, 0, LABEL_Z).project(camera);
       const left = (projected.x * 0.5 + 0.5) * width;
-      const top = (-projected.y * 0.5 + 0.5) * height;
+      const top = (-projected.y * 0.5 + 0.5) * height + labelLift;
       label.style.transform = `translate(${left}px, ${top}px) translate(-50%, -50%)`;
     });
   }

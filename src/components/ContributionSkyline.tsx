@@ -147,7 +147,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
         <div
           role="group"
           aria-label="Graph stat"
-          className="mt-[18px] flex flex-wrap gap-x-[2.5ch] gap-y-1 [@media(scripting:none)]:hidden"
+          className="mt-[18px] flex flex-wrap gap-x-[2.5ch] gap-y-1 max-[640px]:gap-x-[2ch] [@media(scripting:none)]:hidden"
         >
           {stats.map((option, i) => (
             <button
