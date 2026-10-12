@@ -134,11 +134,12 @@ Type roles:
 
 ## Page layout
 
-`PageShell` renders every page. It owns SEO tags, the page padding, the 80ch column, and the header.
+`PageShell` renders every page. It owns SEO tags, the page padding, the 80ch column, the header, and the `main` element that holds everything below the header.
 
 - The page padding is `clamp(48px, 11vh, 112px)` at the top, `clamp(20px, 9vw, 160px)` at the sides, and 160px at the bottom. The side padding is the minimum gutter.
 - The column is `max-width: 80ch` and centered in the viewport. Text inside it stays left-aligned. The root sets `scrollbar-gutter: stable`, so the column does not shift by half a scrollbar between pages that scroll and pages that do not.
 - The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. The notes list and note pages pass `notes`.
+- A `skip to content` link comes first in the tab order. It stays visually hidden until it has focus. Then it shows in Geist Mono 14px `ink`, 12px above the column's top-left corner, in the page's top padding, so it covers nothing. It moves focus to `main`, which has `tabindex="-1"` and no focus outline.
 - A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy and capitalization.
 - Each section starts 56px below the previous block.
 
@@ -243,6 +244,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 ## Accessibility
 
 - Every text tone is at least 4.5:1 against `bg` in both schemes. See the contrast table under Colors.
+- Every page has one `main` landmark after the header, and a skip link to it.
 - Every interactive element shows `:focus-visible`. The global style is a 1px `ink` outline offset by 3px. Link rows invert instead.
 - Section labels are `h2` elements, so screen reader users can move between sections.
 - The `↗` in the elsewhere rows is `aria-hidden`.
