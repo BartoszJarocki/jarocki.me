@@ -134,11 +134,12 @@ Type roles:
 
 ## Page layout
 
-`PageShell` renders every page. It owns SEO tags, the page padding, the 80ch column, and the header.
+`PageShell` renders every page. It owns SEO tags, the page padding, the 80ch column, the header, and the `main` element that holds everything below the header.
 
 - The page padding is `clamp(48px, 11vh, 112px)` at the top, `clamp(20px, 9vw, 160px)` at the sides, and 160px at the bottom. The side padding is the minimum gutter.
 - The column is `max-width: 80ch` and centered in the viewport. Text inside it stays left-aligned. The root sets `scrollbar-gutter: stable`, so the column does not shift by half a scrollbar between pages that scroll and pages that do not.
 - The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. The notes list and note pages pass `notes`.
+- A `skip to content` link comes first in the tab order. It stays visually hidden until it has focus. Then it shows in Geist Mono 14px `ink`, 12px above the column's top-left corner, in the page's top padding, so it covers nothing. It moves focus to `main`, which has `tabindex="-1"` and no focus outline.
 - A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy and capitalization.
 - Each section starts 56px below the previous block.
 
@@ -146,9 +147,9 @@ Type roles:
 
 The whole design is one shape: a labeled section of rows with three columns, `lead`, `main`, and `trail`. `src/components/Index.tsx` exports it.
 
-- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 4 →` or `more →`.
+- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 4 →` or `more →`. `more` takes the visible `label` and a `context` that only screen readers hear after it, so the link reads `all 4 notes` or `more work`. The arrow is `↗` for an `external` link and `→` otherwise, and screen readers skip it.
 - `IndexList({ lead?, leadMobile?, children })` renders the `ul` and sets the lead column width through `--c1` and `--c1m`. The default is `10ch`. The reading list on /about uses `27ch`, and `minmax(0,1.3fr)` at mobile width.
-- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip? })` renders one row. With `href` it is a Next `Link`. With `external` it opens in a new tab with `rel="noopener noreferrer"`. Without `href` it is a plain `div`.
+- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip?, stackTrail? })` renders one row. With `href` it is a Next `Link`. With `external` it is an `ExternalLink`, which opens in a new tab with `rel="noopener noreferrer"` and ends in a visually hidden ` (opens in new tab)`. Without `href` it is a plain `div`.
 
 By default `lead` is `faint`, `main` is `ink`, and `trail` is `faint`. A row whose lead is a name instead of a key, such as a project or a book, passes `leadTone="ink"` and a `mainTone` of `body` or `faint`.
 
@@ -161,6 +162,7 @@ Row rules:
 - The row bleeds 1ch past the column on each side, so the hover fill has padding without moving the text.
 - Link rows invert on hover and on `:focus-visible`: the background becomes `ink` and every cell becomes `bg`. Rows have no transition.
 - At 640px and below, the grid drops to two columns with a 2ch gap and the trail is hidden.
+- A row with `stackTrail` keeps its trail at 640px and below, as a second `faint` line under `main` that wraps when it is long. `WorkRow` passes it, so job titles stay on phones. Note tags and project domains stay hidden there.
 
 ## GitHub activity
 
@@ -176,7 +178,7 @@ The home page shows the past year of GitHub activity as a skyline, where every d
 
 ### Stats
 
-`activityStats` in `src/lib/activityStats.ts` holds one table of stats. Each row sets a button label, the caption text, and how values become heights.
+`activityStats` in `src/lib/activityStats.ts` holds one table of stats. Each row sets a button label, the caption text, the stage's accessible name, and how values become heights.
 
 | Button | Height scale | Shown when |
 | --- | --- | --- |
@@ -193,19 +195,21 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 - The component starts to import `src/lib/skylineScene.ts` when it mounts. three.js is therefore an async chunk and never part of the home page's first load. The scene mounts only when the chunk has loaded and the stage is within 200px of the viewport, so a visitor who scrolls down sees the city rise instead of a finished city. `mountSkyline` draws the first frame, and the ground tiles and month labels fade in over 200ms. The empty stage keeps its height, so nothing below it moves.
 - Weeks run left to right and start on Sunday in UTC. Days run from Sunday at the back to Saturday at the front. A voxel is 10/12 of a column wide, so the gaps match the 10px squares and 2px gaps of the flat bars. A day without activity shows a thin tile in `rule`.
 - The voxel shader has no lights. Each face is a fixed mix of `bg` and `ink`: the front at 100%, the top at 66%, the sides at 44%, and the bottom at 30%. Color management is off, and the scene reads the tokens through a 1x1 canvas, so the front faces are exactly `ink`. The scene reads the tokens again when the system color scheme changes.
-- The camera is orthographic. The rest view has a yaw of -16° and a pitch of 34°. A drag of more than 4px turns the city, within a yaw of -60° to 60° and a pitch of 8° to 89°. The arrow keys turn the focused stage, and a double-click returns to the rest view. The stage has `touch-action: pan-y`, so a vertical swipe on a phone still scrolls the page.
+- The camera is orthographic. The rest view has a yaw of -16° and a pitch of 34°. A drag of more than 4px turns the city, within a yaw of -60° to 60° and a pitch of 8° to 89°. The arrow keys turn the focused stage, and a double-click returns to the rest view. A key that would turn the city past a limit keeps its default, so ArrowDown scrolls the page once the pitch reaches 89°. The stage has `touch-action: pan-y`, so a vertical swipe on a phone still scrolls the page.
 - The city and its month labels sit at the bottom of the stage. The city is never drawn larger than in the rest view, so turning it can shrink it but never zooms in.
 - Month labels are 11px `faint` mono, under the front edge of the week that holds the 1st. When the stage is narrower than 520px, every other label is hidden.
+- A label's center sits at least 7.5px below the city's front edge. The rest view at desktop size already leaves 7.9px. A phone draws the city at half that scale, so there the labels drop and the city rises by the difference, and no label touches the front row.
 - On first view the city rises from the ground in a wave across the weeks. Switching stats moves each column one voxel every 28ms, with the same wave. The scene renders only while something moves.
 - With `prefers-reduced-motion: reduce`, the stage has no fade, no rise, no voxel steps, and no camera easing. Every change shows its end state at once.
-- If WebGL is unavailable or the scene chunk fails to load, the flat bars below render as they did before the skyline, with no stage and no stat buttons.
+- If WebGL is unavailable or the scene chunk fails to load, the flat bars below render as they did before the skyline, with no stage and no stat buttons. The hidden monthly table stays.
 
 ### Caption and buttons
 
 - A mono line under the stage shows the selected stat's yearly total on the left, as in `3,058 contributions`, `596 prs merged`, or `1.39M lines added`, and `past year` in `faint` on the right.
 - Hovering a day, or tapping it on a touch screen, highlights the day's whole column and fades every other voxel toward `bg`. The caption then reads `tue 6 oct · 186 contributions · 39 merged · +20,167 lines`, with the selected stat first. Numbers are `ink`, and units and separators are `faint`. At 640px and below the caption shows only the date and the selected stat. It never wraps.
-- When PR stats exist, three buttons sit under the caption, 2.5ch apart: `contributions`, `prs merged`, and `lines added`. They are `faint` and turn `ink` on hover. The pressed one is `ink` with a 1px underline offset by 5px, like the current nav link. Without JavaScript the buttons are hidden.
-- The stage is one `role="img"` element whose `aria-label` states the year's total contributions and the busiest day. It takes focus for the arrow keys and shows the global focus outline. The buttons are `<button>` elements with `aria-pressed`, in a `role="group"`.
+- When PR stats exist, three buttons sit under the caption, 2.5ch apart, or 2ch at 640px and below: `contributions`, `prs merged`, and `lines added`. With the smaller gap they fit one line on a 390px-wide phone. Narrower phones wrap `lines added` to a second line. They are `faint` and turn `ink` on hover. The pressed one is `ink` with a 1px underline offset by 5px, like the current nav link. Without JavaScript the buttons are hidden.
+- The stage is one `role="img"` element whose `aria-label` follows the selected stat, as in `lines added per day over the past year: 1.39M total, busiest day 6 Oct with 41,203`. It takes focus for the arrow keys and shows the global focus outline. The buttons are `<button>` elements with `aria-pressed`, in a `role="group"`.
+- A visually hidden table follows the stage, with one row per month and one column per stat. Each month carries its year, as in `Oct 2025`, because the first and last months of the past year can share a name. The label gives the year's total and its peak, and the table gives the shape of the year, so neither repeats the other.
 
 ### Flat bars
 
@@ -223,10 +227,10 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 - The title follows 14px below. The prose starts 44px below the title and is at most 37rem wide.
 - Paragraphs have a 1.15em bottom margin. Bold text is `ink` at weight 500. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
 - An image alone in a paragraph renders as a figure as wide as the prose, with a 1.4em bottom margin.
-- Code blocks are plain `ink` on `wash`, with no syntax highlighting. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. They scroll horizontally instead of wrapping.
+- Code blocks are plain `ink` on `wash`, with no syntax highlighting. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. They scroll horizontally instead of wrapping. Inside a list item a code block has a 0.6em top margin, so it does not touch the line above.
 - Links in prose are `ink` with a 1px `faint` underline offset by 0.28em. The underline turns `ink` on hover. Ledes use the same style through `.text-link`.
 - Blockquotes have a 1px `rule` left border, `body` text, and no italics.
-- The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right.
+- The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right. A no-break space ties the `→` to the title's last word, so a long title never leaves the arrow alone on a line.
 
 Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string itself. The server and the browser can't disagree on the day, so dates never cause a hydration mismatch.
 
@@ -243,9 +247,12 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 ## Accessibility
 
 - Every text tone is at least 4.5:1 against `bg` in both schemes. See the contrast table under Colors.
+- Every page has one `main` landmark after the header, and a skip link to it.
 - Every interactive element shows `:focus-visible`. The global style is a 1px `ink` outline offset by 3px. Link rows invert instead.
+- Every page has one `h1`. A note page shows its title as a visible `h1` and passes `article` to `PageShell`. Every other page gets a visually hidden `h1` from `PageShell`, with the page title, or the name on the home page.
 - Section labels are `h2` elements, so screen reader users can move between sections.
-- The `↗` in the elsewhere rows is `aria-hidden`.
+- Decorative arrows are `aria-hidden`: the `↗` in the elsewhere rows, the arrows in section links, and the `←` and `→` in note footers and on the error pages. The `→` inside a job title stays, because it means "then".
+- Every link that opens a new tab goes through `ExternalLink`, so screen readers hear `(opens in new tab)` after its name.
 - Every animation respects `prefers-reduced-motion`.
 
 ## Do and don't

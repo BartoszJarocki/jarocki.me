@@ -15,8 +15,13 @@ const toneClass: Record<Tone, string> = {
   faint: 'text-faint',
 };
 
-export function ExternalLink(props: ComponentPropsWithoutRef<'a'>) {
-  return <a target="_blank" rel="noopener noreferrer" {...props} />;
+export function ExternalLink({ children, ...props }: ComponentPropsWithoutRef<'a'>) {
+  return (
+    <a target="_blank" rel="noopener noreferrer" {...props}>
+      {children}
+      <span className="sr-only"> (opens in new tab)</span>
+    </a>
+  );
 }
 
 export function Lede({ children }: { children: ReactNode }) {
@@ -25,11 +30,18 @@ export function Lede({ children }: { children: ReactNode }) {
 
 type SectionProps = {
   label: string;
-  more?: { href: string; label: ReactNode; external?: boolean };
+  more?: { href: string; label: string; context: string; external?: boolean };
   children: ReactNode;
 };
 
 export function IndexSection({ label, more, children }: SectionProps) {
+  const moreText = more && (
+    <>
+      {more.label}
+      <span className="sr-only"> {more.context}</span>{' '}
+      <span aria-hidden="true">{more.external ? '↗' : '→'}</span>
+    </>
+  );
   return (
     <section className="mt-14">
       <div className="mb-2 flex justify-between gap-[3ch] text-faint">
@@ -37,11 +49,11 @@ export function IndexSection({ label, more, children }: SectionProps) {
         {more &&
           (more.external ? (
             <ExternalLink href={more.href} className="faint-link">
-              {more.label}
+              {moreText}
             </ExternalLink>
           ) : (
             <Link href={more.href} className="faint-link">
-              {more.label}
+              {moreText}
             </Link>
           ))}
       </div>
@@ -70,6 +82,7 @@ type RowProps = {
   leadTone?: Tone;
   mainTone?: Tone;
   clip?: boolean;
+  stackTrail?: boolean;
 };
 
 export function IndexRow({
@@ -81,12 +94,17 @@ export function IndexRow({
   leadTone = 'faint',
   mainTone = 'ink',
   clip,
+  stackTrail,
 }: RowProps) {
   const cells = (
     <>
       <span className={toneClass[leadTone]}>{lead}</span>
       <span className={clsx(toneClass[mainTone], clip && 'index-clip')}>{main}</span>
-      {trail && <span className="index-trail text-faint">{trail}</span>}
+      {trail && (
+        <span className={clsx('index-trail text-faint', stackTrail && 'index-trail-stack')}>
+          {trail}
+        </span>
+      )}
     </>
   );
 
@@ -128,6 +146,7 @@ export function WorkRow({ entry }: { entry: WorkEntry }) {
       lead={`${entry.start}–${end}`}
       main={entry.company}
       trail={entry.title}
+      stackTrail
     />
   );
 }

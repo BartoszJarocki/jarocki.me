@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { activityStats } from '../lib/activityStats';
+import { activityStats, monthlyTotals } from '../lib/activityStats';
 import { dayMonth } from '../lib/date';
 import { Activity, weeklyTotals } from '../lib/githubActivity';
 import type { SkylineHandle } from '../lib/skylineScene';
@@ -20,6 +20,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
   const { dates, contributions } = activity;
   const stats = useMemo(() => activityStats(activity), [activity]);
   const weeks = useMemo(() => weeklyTotals(dates, contributions), [dates, contributions]);
+  const months = useMemo(() => monthlyTotals(dates, stats), [dates, stats]);
   const [phase, setPhase] = useState<Phase>('loading');
   const [selected, setSelected] = useState(0);
   const [day, setDay] = useState<number | null>(null);
@@ -63,7 +64,42 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
     };
   }, [dates, stats]);
 
-  if (phase === 'fallback') return <ContributionBars weeks={weeks} />;
+  const table = (
+    <div className="sr-only">
+      <table>
+        <caption>GitHub activity per month</caption>
+        <thead>
+          <tr>
+            <th scope="col">month</th>
+            {stats.map((option) => (
+              <th key={option.label} scope="col">
+                {option.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {months.map(({ month, totals }) => (
+            <tr key={month}>
+              <th scope="row">{month}</th>
+              {totals.map((total, i) => (
+                <td key={stats[i].label}>{count.format(total)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  if (phase === 'fallback') {
+    return (
+      <>
+        <ContributionBars weeks={weeks} />
+        {table}
+      </>
+    );
+  }
 
   function select(i: number) {
     latestSelected.current = i;
@@ -72,22 +108,20 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
   }
 
   const stat = stats[selected] ?? stats[0];
-  const total = contributions.reduce((sum, n) => sum + n, 0);
-  const busiest = contributions.indexOf(Math.max(...contributions));
-  const label = `GitHub contributions per day over the past year: ${count.format(total)} total, busiest day ${dayMonth(dates[busiest])} with ${count.format(contributions[busiest])}`;
 
   return (
     <>
       <div
         ref={stage}
         role="img"
-        aria-label={label}
+        aria-label={stat.summary}
         tabIndex={0}
         className="skyline"
         data-phase={phase}
       >
         <ContributionBarsPlaceholder weeks={weeks} className="skyline-placeholder" />
       </div>
+      {table}
       <p className="mt-3 flex justify-between gap-[3ch] tabular-nums">
         <span className="min-w-0 truncate text-ink">
           {day === null ? (
@@ -113,7 +147,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
         <div
           role="group"
           aria-label="Graph stat"
-          className="mt-[18px] flex flex-wrap gap-x-[2.5ch] gap-y-1 [@media(scripting:none)]:hidden"
+          className="mt-[18px] flex flex-wrap gap-x-[2.5ch] gap-y-1 max-[640px]:gap-x-[2ch] [@media(scripting:none)]:hidden"
         >
           {stats.map((option, i) => (
             <button

@@ -61,7 +61,13 @@ export function PageShell({
         />
       )}
       <div className="px-[clamp(20px,9vw,160px)] pb-40 pt-[clamp(48px,11vh,112px)]">
-        <div className="mx-auto max-w-[80ch]">
+        <div className="relative mx-auto max-w-[80ch]">
+          <a
+            href="#main"
+            className="sr-only text-ink focus:not-sr-only focus:absolute focus:bottom-full focus:left-0 focus:mb-3"
+          >
+            skip to content
+          </a>
           <header className="flex flex-wrap items-baseline justify-between gap-x-[3ch] gap-y-3">
             <Link href="/" className="font-pixel text-[28px] leading-none text-ink">
               {Name}
@@ -79,7 +85,10 @@ export function PageShell({
               ))}
             </nav>
           </header>
-          {children}
+          <main id="main" tabIndex={-1} className="focus:outline-none">
+            {!article && <h1 className="sr-only">{title}</h1>}
+            {children}
+          </main>
         </div>
       </div>
     </>

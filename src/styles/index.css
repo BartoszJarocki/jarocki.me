@@ -95,6 +95,12 @@
     .index-trail {
       display: none;
     }
+    .index-trail-stack {
+      display: block;
+      grid-column: 2;
+      text-align: left;
+      white-space: normal;
+    }
     .index-clip {
       white-space: normal;
     }
@@ -278,6 +284,9 @@
     line-height: 1.7;
     color: var(--ink);
     background: var(--wash);
+  }
+  .prose li > pre {
+    margin-top: 0.6em;
   }
   .prose pre code {
     font-size: inherit;
