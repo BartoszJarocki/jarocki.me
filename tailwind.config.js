@@ -4,7 +4,8 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: [
-          'var(--font-geist-sans)',
+          // Only note pages set the variable, and an unset var() without a fallback voids the whole stack.
+          'var(--font-geist-sans, ui-sans-serif)',
           'ui-sans-serif',
           'system-ui',
           'Helvetica',

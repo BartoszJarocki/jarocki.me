@@ -112,15 +112,19 @@ Every text tone passes WCAG AA against `bg` in both schemes. The ratios below we
 
 ## Typography
 
-`_app.tsx` loads three faces through `next/font` and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base.
+Three faces load through `next/font`, and `next/font` preloads a face only on the pages whose code imports it. `_app.tsx` loads Geist Mono and Geist Pixel Square and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base. The note page, `src/pages/notes/[slug].tsx`, loads Geist and sets its variable on the article, because only the note title and the prose use it. Other pages never download it.
 
-| Tailwind family | Face | CSS variable |
-| --- | --- | --- |
-| `font-sans` | Geist | `--font-geist-sans` |
-| `font-mono` | Geist Mono | `--font-geist-mono` |
-| `font-pixel` | Geist Pixel Square, falling back to Geist Mono | `--font-geist-pixel-square` |
+| Tailwind family | Face | CSS variable | Loaded in |
+| --- | --- | --- | --- |
+| `font-sans` | Geist | `--font-geist-sans` | `src/pages/notes/[slug].tsx` |
+| `font-mono` | Geist Mono | `--font-geist-mono` | `_app.tsx` |
+| `font-pixel` | Geist Pixel Square, falling back to Geist Mono | `--font-geist-pixel-square` | `_app.tsx` |
 
-Each Tailwind family ends in a system fallback stack. Pixel Square is declared with `localFont` in `_app.tsx` instead of being imported from `geist/font/pixel`, because that module declares all five pixel variants and importing it preloads every one of them.
+Each Tailwind family ends in a system fallback stack. Outside a note, `--font-geist-sans` is unset and `font-sans` renders in the system sans font. To use Geist on another page, import `GeistSans` in that page and set its variable there.
+
+Next looks up a page's own fonts by the request path, such as `/notes/time`, but keys them by route, `/notes/[slug]`, so it never preloads them on a dynamic route. `_document.tsx` adds the preloads it misses.
+
+Pixel Square is declared with `localFont` in `_app.tsx` instead of being imported from `geist/font/pixel`, because that module declares all five pixel variants and importing it preloads every one of them.
 
 Type roles:
 
@@ -192,7 +196,7 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 
 - `ContributionSkyline` renders a stage with `aspect-ratio: 672 / 300`, at least 150px and at most 300px tall. While the scene loads, the stage is empty, so the first thing a visitor sees in it is the city rising, not a jump from flat bars to the city.
 - The server also renders the flat weekly bars inside the stage, bottom-aligned and `aria-hidden`. They show only under `@media (scripting: none)`, so a visit without JavaScript still shows a graph. A browser that does not support the `scripting` media feature hides them and shows the empty stage.
-- The component starts to import `src/lib/skylineScene.ts` when it mounts. three.js is therefore an async chunk and never part of the home page's first load. The scene mounts only when the chunk has loaded and the stage is within 200px of the viewport, so a visitor who scrolls down sees the city rise instead of a finished city. `mountSkyline` draws the first frame, and the ground tiles and month labels fade in over 200ms. The empty stage keeps its height, so nothing below it moves.
+- The component starts to import `src/lib/skylineScene.ts` when it mounts. three.js is therefore an async chunk and never part of the home page's first load. The scene mounts only when the chunk has loaded and the stage is within 200px of the viewport, so a visitor who scrolls down sees the city rise instead of a finished city. `mountSkyline` creates the WebGL context, then builds the scene and draws the first frame in a later task. On a slow CPU the two halves take about the same time, so input that arrives during the mount waits for one half, not both. If the component unmounts in between, the context is released and no scene mounts. The ground tiles and month labels fade in over 200ms. The empty stage keeps its height, so nothing below it moves.
 - Weeks run left to right and start on Sunday in UTC. Days run from Sunday at the back to Saturday at the front. A voxel is 10/12 of a column wide, so the gaps match the 10px squares and 2px gaps of the flat bars. A day without activity shows a thin tile in `rule`.
 - The voxel shader has no lights. Each face is a fixed mix of `bg` and `ink`: the front at 100%, the top at 66%, the sides at 44%, and the bottom at 30%. Color management is off, and the scene reads the tokens through a 1x1 canvas, so the front faces are exactly `ink`. The scene reads the tokens again when the system color scheme changes.
 - The camera is orthographic. The rest view has a yaw of -16° and a pitch of 34°. A drag of more than 4px turns the city, within a yaw of -60° to 60° and a pitch of 8° to 89°. The arrow keys turn the focused stage, and a double-click returns to the rest view. A key that would turn the city past a limit keeps its default, so ArrowDown scrolls the page once the pitch reaches 89°. The stage has `touch-action: pan-y`, so a vertical swipe on a phone still scrolls the page.

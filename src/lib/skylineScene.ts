@@ -102,17 +102,27 @@ function tokenReader() {
   };
 }
 
-export function mountSkyline(
+export async function mountSkyline(
   stage: HTMLElement,
   dates: string[],
-  heights: number[],
+  heights: () => number[],
   onHover: (day: number | null) => void,
-): SkylineHandle | null {
+  cancel: AbortSignal,
+): Promise<SkylineHandle | null> {
   let renderer: WebGLRenderer;
   try {
     renderer = new WebGLRenderer({ antialias: true, alpha: true });
   } catch {
     return null;
+  }
+  // Creating the renderer takes about as long as building and drawing the scene on a slow CPU, so
+  // the two run in separate tasks. Input that arrives in between runs first, so heights() is read
+  // after the wait.
+  await new Promise((resolve) => setTimeout(resolve));
+  if (cancel.aborted) {
+    renderer.dispose();
+    renderer.forceContextLoss();
+    throw cancel.reason;
   }
   // Without color management the shader's mix of the token colors reaches the screen unchanged.
   ColorManagement.enabled = false;
@@ -452,7 +462,7 @@ export function mountSkyline(
   resizeObserver.observe(stage);
 
   paint();
-  setHeights(heights);
+  setHeights(heights());
   resize();
 
   return {

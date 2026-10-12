@@ -24,8 +24,6 @@ function Snapshots() {
             alt={photo.alt}
             width={64}
             height={64}
-            sizes="64px"
-            placeholder="blur"
             className="h-16 w-16 object-cover opacity-90 contrast-[1.05] grayscale transition-[filter,opacity] duration-200 hover:opacity-100 hover:contrast-100 hover:grayscale-0"
             onMouseEnter={() => setCaption(photo.title)}
             onMouseLeave={() => setCaption(null)}

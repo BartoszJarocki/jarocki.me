@@ -23,7 +23,8 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - **Static Generation** - Pages are built once with SSG. Only the home page revalidates, hourly, for its GitHub activity
 
 ### Core Architecture:
-- `src/pages/_app.tsx` - App wrapper that loads the fonts, sets the base text style, and renders `DefaultSeo`, the one place for site-wide SEO defaults: the title template, Open Graph site name and locale, and the X card
+- `src/pages/_app.tsx` - App wrapper that loads Geist Mono and Geist Pixel Square, sets the base text style, and renders `DefaultSeo`, the one place for site-wide SEO defaults: the title template, Open Graph site name and locale, and the X card
+- `src/pages/_document.tsx` - The HTML shell. It also preloads the fonts a dynamic route imports, because Next misses them
 - `src/components/PageShell.tsx` - Per-page SEO tags, page layout, and the header nav on every page. It sets the canonical URL and Open Graph tags, `noindex` on error pages, and a `BlogPosting` JSON-LD when a note passes `article`
 - `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
@@ -64,5 +65,5 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - Component files use PascalCase (e.g., `Avatar.tsx`)
 - Utility functions in `src/lib/`
 - Tailwind classes for styling, no CSS modules
-- Geist fonts: `font-mono` (Geist Mono) for chrome, `font-sans` (Geist) for note prose and titles, `font-pixel` (Geist Pixel Square) for the name and clock
+- Geist fonts: `font-mono` (Geist Mono) for chrome, `font-sans` (Geist) for note prose and titles, `font-pixel` (Geist Pixel Square) for the name and clock. Geist loads only on note pages, from `src/pages/notes/[slug].tsx`. Elsewhere `font-sans` is the system sans font
 - Pages use getStaticProps/getStaticPaths for SSG where applicable
