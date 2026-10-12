@@ -1,5 +1,4 @@
 import { Analytics } from '@vercel/analytics/react';
-import { GeistMono } from 'geist/font/mono';
 import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
@@ -8,9 +7,26 @@ import { Name } from '../data/bio';
 import { XUser } from '../data/links';
 import '../styles/index.css';
 
-// geist/font/pixel declares all five pixel variants, and importing it preloads every one of them.
+const GeistMono = localFont({
+  src: '../fonts/GeistMono-Variable.woff2',
+  variable: '--font-geist-mono',
+  weight: '100 900',
+  adjustFontFallback: false,
+  fallback: [
+    'ui-monospace',
+    'SFMono-Regular',
+    'Roboto Mono',
+    'Menlo',
+    'Monaco',
+    'Liberation Mono',
+    'DejaVu Sans Mono',
+    'Courier New',
+    'monospace',
+  ],
+});
+
 const GeistPixelSquare = localFont({
-  src: '../../node_modules/geist/dist/fonts/geist-pixel/GeistPixel-Square.woff2',
+  src: '../fonts/GeistPixel-Square.woff2',
   variable: '--font-geist-pixel-square',
   weight: '500',
   adjustFontFallback: false,

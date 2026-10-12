@@ -1,12 +1,18 @@
-import { GeistSans } from 'geist/font/sans';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { MDXRemoteSerializeResult } from 'next-mdx-remote';
+import localFont from 'next/font/local';
 import Link from 'next/link';
 
 import { NoteContent } from '../../components/NoteContent';
 import { PageShell } from '../../components/PageShell';
 import { dotDate } from '../../lib/date';
 import { Note as NoteType, getNoteContent, getNotes } from '../../lib/notes';
+
+const GeistSans = localFont({
+  src: '../../fonts/Geist-Variable.woff2',
+  variable: '--font-geist-sans',
+  weight: '100 900',
+});
 
 type Props = {
   note: NoteType;
