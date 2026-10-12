@@ -177,7 +177,7 @@ The home page shows the past year of GitHub activity as a skyline, where every d
 
 ### Stats
 
-`activityStats` in `src/lib/activityStats.ts` holds one table of stats. Each row sets a button label, the caption text, and how values become heights.
+`activityStats` in `src/lib/activityStats.ts` holds one table of stats. Each row sets a button label, the caption text, the stage's accessible name, and how values become heights.
 
 | Button | Height scale | Shown when |
 | --- | --- | --- |
@@ -199,14 +199,15 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 - Month labels are 11px `faint` mono, under the front edge of the week that holds the 1st. When the stage is narrower than 520px, every other label is hidden.
 - On first view the city rises from the ground in a wave across the weeks. Switching stats moves each column one voxel every 28ms, with the same wave. The scene renders only while something moves.
 - With `prefers-reduced-motion: reduce`, the stage has no fade, no rise, no voxel steps, and no camera easing. Every change shows its end state at once.
-- If WebGL is unavailable or the scene chunk fails to load, the flat bars below render as they did before the skyline, with no stage and no stat buttons.
+- If WebGL is unavailable or the scene chunk fails to load, the flat bars below render as they did before the skyline, with no stage and no stat buttons. The hidden monthly table stays.
 
 ### Caption and buttons
 
 - A mono line under the stage shows the selected stat's yearly total on the left, as in `3,058 contributions`, `596 prs merged`, or `1.39M lines added`, and `past year` in `faint` on the right.
 - Hovering a day, or tapping it on a touch screen, highlights the day's whole column and fades every other voxel toward `bg`. The caption then reads `tue 6 oct · 186 contributions · 39 merged · +20,167 lines`, with the selected stat first. Numbers are `ink`, and units and separators are `faint`. At 640px and below the caption shows only the date and the selected stat. It never wraps.
 - When PR stats exist, three buttons sit under the caption, 2.5ch apart: `contributions`, `prs merged`, and `lines added`. They are `faint` and turn `ink` on hover. The pressed one is `ink` with a 1px underline offset by 5px, like the current nav link. Without JavaScript the buttons are hidden.
-- The stage is one `role="img"` element whose `aria-label` states the year's total contributions and the busiest day. It takes focus for the arrow keys and shows the global focus outline. The buttons are `<button>` elements with `aria-pressed`, in a `role="group"`.
+- The stage is one `role="img"` element whose `aria-label` follows the selected stat, as in `lines added per day over the past year: 1.39M total, busiest day 6 Oct with 41,203`. It takes focus for the arrow keys and shows the global focus outline. The buttons are `<button>` elements with `aria-pressed`, in a `role="group"`.
+- A visually hidden table follows the stage, with one row per month and one column per stat. Each month carries its year, as in `Oct 2025`, because the first and last months of the past year can share a name. The label gives the year's total and its peak, and the table gives the shape of the year, so neither repeats the other.
 
 ### Flat bars
 

@@ -9,3 +9,8 @@ export function dayMonth(isoDate: string) {
   const [, month, day] = isoDate.split('-');
   return `${Number(day)} ${months[Number(month) - 1]}`;
 }
+
+export function monthYear(isoDate: string) {
+  const [year, month] = isoDate.split('-');
+  return `${months[Number(month) - 1]} ${year}`;
+}
