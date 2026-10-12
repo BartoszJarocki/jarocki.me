@@ -43,7 +43,8 @@ pnpm dev
 
 ```
 src/pages/          Routes (Pages Router)
-src/components/     PageShell, Index (rows), Clock, ContributionSkyline, ContributionBars, NoteContent
+src/components/     PageShell, Index (rows), Clock, ContributionSkyline, ContributionBars, NoteContent,
+                    JsonLd
 src/data/           bio, work, projects, books, links
 src/lib/            notes (reads and compiles the MDX notes), githubActivity (GitHub contributions
                     and merged PRs), activityStats (skyline stats), skylineScene (three.js scene)

@@ -1,5 +1,7 @@
 import { Head, Html, Main, NextScript } from 'next/document';
 
+import { Name, SiteUrl } from '../data/bio';
+
 export default function Document() {
   return (
     <Html className="antialiased" lang="en">
@@ -9,6 +11,7 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
         <link rel="shortcut icon" href="/favicon/favicon.ico" />
+        <link rel="alternate" type="application/rss+xml" title={Name} href={`${SiteUrl}/rss.xml`} />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fafaf8" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0c0a" />
       </Head>

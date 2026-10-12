@@ -5,7 +5,7 @@ import { PageShell } from '../components/PageShell';
 
 export default function ServerError() {
   return (
-    <PageShell seoTitle="Something broke">
+    <PageShell seoTitle="Something broke" noindex>
       <Lede>
         <p>500. Something broke.</p>
       </Lede>

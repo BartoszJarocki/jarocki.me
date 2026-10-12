@@ -8,7 +8,8 @@ import { Books } from '../data/books';
 import { travelImages } from '../images/travel';
 
 const seoTitle = 'About';
-const seoDescription = 'A few words about me.';
+const seoDescription =
+  'I live in Wrocław, Poland, and studied robotics there. I like programming, books, plants, mountain biking, whisky, and traveling with my wife, Kasia.';
 
 function Snapshots() {
   const [caption, setCaption] = useState<string | null>(null);

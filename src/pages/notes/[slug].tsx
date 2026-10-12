@@ -1,8 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { MDXRemoteSerializeResult } from 'next-mdx-remote';
-import { ArticleJsonLd } from 'next-seo';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 
 import { NoteContent } from '../../components/NoteContent';
 import { PageShell } from '../../components/PageShell';
@@ -20,46 +18,37 @@ export default function Note({
   noteContent,
   older,
 }: Props) {
-  const router = useRouter();
-  const url = `${process.env.NEXT_PUBLIC_URL}${router.asPath}`;
-  const openGraphImageUrl = `${process.env.NEXT_PUBLIC_URL}/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}`;
-
   return (
-    <>
-      <ArticleJsonLd
-        url={url}
-        images={[openGraphImageUrl]}
-        title={title}
-        datePublished={publishedAt}
-        authorName="Bartosz Jarocki"
-        description={description}
-      />
-      <PageShell seoTitle={title} seoDescription={description} current="notes">
-        <article className="mt-[72px]">
-          <header>
-            <p className="text-faint">
-              <time dateTime={publishedAt}>{dotDate(publishedAt)}</time> · {tags.join(', ')}
-            </p>
-            <h1 className="mt-3.5 max-w-[24ch] text-balance font-sans text-[30px] font-semibold leading-[1.18] tracking-[-0.028em] text-ink">
-              {title}
-            </h1>
-          </header>
+    <PageShell
+      seoTitle={title}
+      seoDescription={description}
+      article={{ publishedTime: publishedAt, tags }}
+      current="notes"
+    >
+      <article className="mt-[72px]">
+        <header>
+          <p className="text-faint">
+            <time dateTime={publishedAt}>{dotDate(publishedAt)}</time> · {tags.join(', ')}
+          </p>
+          <h1 className="mt-3.5 max-w-[24ch] text-balance font-sans text-[30px] font-semibold leading-[1.18] tracking-[-0.028em] text-ink">
+            {title}
+          </h1>
+        </header>
 
-          <NoteContent source={noteContent} className="mt-11" />
+        <NoteContent source={noteContent} className="mt-11" />
 
-          <footer className="mt-[72px] flex max-w-[37rem] justify-between gap-[3ch]">
-            <Link href="/notes" className="faint-link shrink-0">
-              ← all notes
+        <footer className="mt-[72px] flex max-w-[37rem] justify-between gap-[3ch]">
+          <Link href="/notes" className="faint-link shrink-0">
+            ← all notes
+          </Link>
+          {older && (
+            <Link href={`/notes/${older.slug}`} className="faint-link text-right">
+              next: {older.title} →
             </Link>
-            {older && (
-              <Link href={`/notes/${older.slug}`} className="faint-link text-right">
-                next: {older.title} →
-              </Link>
-            )}
-          </footer>
-        </article>
-      </PageShell>
-    </>
+          )}
+        </footer>
+      </article>
+    </PageShell>
   );
 }
 
