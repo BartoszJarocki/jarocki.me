@@ -7,7 +7,8 @@
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\" \"*.{js,mjs}\"",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\" \"*.{js,mjs}\" \"scripts/*.mjs\"",
+    "subset-fonts": "node scripts/fonts.mjs subset",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "postcss": "^8.4.14",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.4",
+    "subset-font": "2.9.0",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.2.2"
   },
