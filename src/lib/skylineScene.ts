@@ -419,8 +419,11 @@ export function mountSkyline(
     (event) => {
       const step = ARROWS[event.key];
       if (!step) return;
+      const next = clampView({ yaw: target.yaw + step.yaw, pitch: target.pitch + step.pitch });
+      // At a limit the key keeps its default, so the page scrolls instead of nothing happening.
+      if (next.yaw === target.yaw && next.pitch === target.pitch) return;
       event.preventDefault();
-      turnTo({ yaw: target.yaw + step.yaw, pitch: target.pitch + step.pitch });
+      turnTo(next);
     },
     { signal },
   );
