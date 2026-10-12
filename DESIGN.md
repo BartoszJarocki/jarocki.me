@@ -260,6 +260,17 @@ Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string its
 - Satori can't parse `oklch`, so the route copies the light tokens as hex: `bg` `#fafaf8`, `ink` `#1a1815`, `body` `#4a4744`, and `faint` `#716e6c`. They match what Chromium paints for the tokens. When a light token changes, change it there too.
 - The route runs on Node through `next/og`. Anyone can call it with any text, so it cuts the title at 200 characters and the description at 300. Both caps hold more than three lines, so a cut text still ends in the ellipsis. For a character the subsets lack, such as `€`, `next/og` fetches a Noto face from Google Fonts during that request. The build check keeps such characters out of real titles and descriptions.
 
+## Icon
+
+`scripts/icons.mjs` draws the favicon and the home screen icon from the Geist Pixel Square glyphs, so the icon is the monogram `JB`, surname first. Run `pnpm icons` after changing it.
+
+- Pixel Square builds each letter from square cells, 19 cells from the baseline to the cap height. The script reads the cells from the font and puts J and B side by side with two empty columns between them, 27 by 19 cells.
+- At 32px each cell is one pixel. That is what a 2x screen draws for a 16px tab icon, so the tab shows the font's own pixels without blur.
+- `public/icon.svg` is the 32px grid in `ink`, and in the dark `ink` under `prefers-color-scheme: dark`. Browsers that show SVG favicons use it.
+- `public/favicon.ico` holds the same 32px grid as a PNG, in `ink` on `bg`. The ICO can't follow the color scheme, so its light background keeps the letters readable on a dark tab bar.
+- `public/apple-touch-icon.png` is 180px, in `ink` on `bg`, with 4px cells. iOS rounds the corners itself.
+- The script copies `ink`, `bg`, and the dark `ink` as hex. When one of those tokens changes, change it there too.
+
 ## Motion
 
 On the home page the colon in the clock blinks with a 2s `steps(1)` animation that drops it to 0.15 opacity halfway through. It runs only under `motion-safe`, so readers who prefer reduced motion see a steady colon.
@@ -288,5 +299,5 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Do keep Geist Mono for chrome and Geist Sans for long prose.
 - Don't add an accent color, a gradient, a shadow, or rounded corners.
 - Don't add a theme toggle. The site follows the system setting.
-- Don't use Geist Pixel Square for anything but the name and the clock.
+- Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
 - Don't lower the contrast of `faint`.

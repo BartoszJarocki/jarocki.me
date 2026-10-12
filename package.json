@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\" \"*.{js,mjs}\" \"scripts/*.mjs\"",
+    "icons": "node scripts/icons.mjs",
     "subset-fonts": "node scripts/fonts.mjs subset",
     "typecheck": "tsc"
   },
