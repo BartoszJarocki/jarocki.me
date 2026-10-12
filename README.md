@@ -4,6 +4,8 @@ Personal site of Bartosz Jarocki. MDX notes, monochrome, light and dark followin
 
 [jarocki.me](https://jarocki.me)
 
+This site is maintained by AI. [Claude Code](https://claude.com/claude-code) writes the changes and ships them through pull requests.
+
 ## Stack
 
 Next.js (Pages Router) · Tailwind · MDX · Geist Sans/Mono/Pixel · Vercel.
