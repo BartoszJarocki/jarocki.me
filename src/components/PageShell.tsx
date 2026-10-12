@@ -28,8 +28,9 @@ export function PageShell({
   children,
 }: Props) {
   const router = useRouter();
-  const path = router.asPath.split(/[?#]/)[0];
-  const canonical = `${process.env.NEXT_PUBLIC_URL}${path === '/' ? '' : path}`;
+  // On Vercel, a regeneration renders the home page with asPath /index.
+  const path = router.pathname === '/' ? '' : router.asPath.split(/[?#]/)[0];
+  const canonical = `${process.env.NEXT_PUBLIC_URL}${path}`;
   const title = seoTitle ?? Name;
   const ogImage = `${process.env.NEXT_PUBLIC_URL}/api/og?${new URLSearchParams({
     title: seoTitle ?? '',
