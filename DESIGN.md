@@ -227,10 +227,10 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 - The title follows 14px below. The prose starts 44px below the title and is at most 37rem wide.
 - Paragraphs have a 1.15em bottom margin. Bold text is `ink` at weight 500. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
 - An image alone in a paragraph renders as a figure as wide as the prose, with a 1.4em bottom margin.
-- Code blocks are plain `ink` on `wash`, with no syntax highlighting. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. They scroll horizontally instead of wrapping.
+- Code blocks are plain `ink` on `wash`, with no syntax highlighting. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. They scroll horizontally instead of wrapping. Inside a list item a code block has a 0.6em top margin, so it does not touch the line above.
 - Links in prose are `ink` with a 1px `faint` underline offset by 0.28em. The underline turns `ink` on hover. Ledes use the same style through `.text-link`.
 - Blockquotes have a 1px `rule` left border, `body` text, and no italics.
-- The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right.
+- The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right. A no-break space ties the `→` to the title's last word, so a long title never leaves the arrow alone on a line.
 
 Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string itself. The server and the browser can't disagree on the day, so dates never cause a hydration mismatch.
 

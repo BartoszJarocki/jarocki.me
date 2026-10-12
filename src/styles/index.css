@@ -285,6 +285,9 @@
     color: var(--ink);
     background: var(--wash);
   }
+  .prose li > pre {
+    margin-top: 0.6em;
+  }
   .prose pre code {
     font-size: inherit;
   }

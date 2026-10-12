@@ -43,7 +43,7 @@ export default function Note({
           </Link>
           {older && (
             <Link href={`/notes/${older.slug}`} className="faint-link text-right">
-              next: {older.title} <span aria-hidden="true">→</span>
+              next: {older.title}&nbsp;<span aria-hidden="true">→</span>
             </Link>
           )}
         </footer>
