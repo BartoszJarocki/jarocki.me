@@ -112,7 +112,7 @@ Every text tone passes WCAG AA against `bg` in both schemes. The ratios below we
 
 ## Typography
 
-Three faces load through `next/font`, and `next/font` preloads a face only on the pages whose code imports it. `_app.tsx` loads Geist Mono and Geist Pixel Square and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base. The note page, `src/pages/notes/[slug].tsx`, loads Geist and sets its variable on the article, because only the note title and the prose use it. Other pages never download it.
+Three faces load through `localFont` from the subsets in `src/fonts`, and `next/font` preloads a face only on the pages whose code declares it. `_app.tsx` declares Geist Mono and Geist Pixel Square and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base. The note page, `src/pages/notes/[slug].tsx`, declares Geist and sets its variable on the article, because only the note title and the prose use it. Other pages never download it.
 
 | Tailwind family | Face | CSS variable | Loaded in |
 | --- | --- | --- | --- |
@@ -120,11 +120,9 @@ Three faces load through `next/font`, and `next/font` preloads a face only on th
 | `font-mono` | Geist Mono | `--font-geist-mono` | `_app.tsx` |
 | `font-pixel` | Geist Pixel Square, falling back to Geist Mono | `--font-geist-pixel-square` | `_app.tsx` |
 
-Each Tailwind family ends in a system fallback stack. Outside a note, `--font-geist-sans` is unset and `font-sans` renders in the system sans font. To use Geist on another page, import `GeistSans` in that page and set its variable there.
+Each Tailwind family ends in a system fallback stack. Outside a note, `--font-geist-sans` is unset and `font-sans` renders in the system sans font. To use Geist on another page, declare it with `localFont` in that page, as the note page does, and set its variable there.
 
 Next looks up a page's own fonts by the request path, such as `/notes/time`, but keys them by route, `/notes/[slug]`, so it never preloads them on a dynamic route. `_document.tsx` adds the preloads it misses.
-
-Pixel Square is declared with `localFont` in `_app.tsx` instead of being imported from `geist/font/pixel`, because that module declares all five pixel variants and importing it preloads every one of them.
 
 Type roles:
 
@@ -135,6 +133,16 @@ Type roles:
 - **Prose.** Geist Sans 16px/1.75 in `body`.
 - **Prose headings.** Geist Mono 500 at 14px in `ink`, prefixed with a faint `#`, `##`, or `###` for `h1`, `h2`, and `h3`.
 - **Code.** Geist Mono, 13px in blocks and 13.5px inline.
+
+### Font subsets
+
+The files in `src/fonts` are subsets of the faces in the `geist` package, at the version pinned in `package.json`. `pnpm subset-fonts` runs `scripts/fonts.mjs`, which writes them.
+
+- Each subset keeps Basic Latin, Latin-1 Supplement, Latin Extended-A, General Punctuation, and Arrows. That covers Polish names, the curly quotes and dashes in the notes, and the arrows in the chrome.
+- Geist and Geist Mono keep their weight axis, from 100 to 900. Pixel Square keeps its hinting.
+- Each subset keeps only the OpenType features that a browser applies without CSS asking for them, plus `tnum` for `tabular-nums`. The stylistic sets are gone. To use another feature, such as `slashed-zero`, add its tag to `features` in `scripts/fonts.mjs` and run `pnpm subset-fonts`.
+- `pnpm build` ends with `node scripts/fonts.mjs check`. It fails when a note, a data file, or a built page uses a character that a full Geist face has and its subset lacks, and it names the character and the file. To fix it, add the character's Unicode block to `blocks` in `scripts/fonts.mjs` and run `pnpm subset-fonts`.
+- ESLint rejects imports from `geist`, because `geist/font` loads the full files.
 
 ## Page layout
 

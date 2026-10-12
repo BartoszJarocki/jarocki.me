@@ -3,7 +3,6 @@ const config = {
   experimental: {
     scrollRestoration: true,
   },
-  transpilePackages: ['geist'],
   async redirects() {
     return [
       {

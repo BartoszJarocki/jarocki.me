@@ -1,4 +1,17 @@
 {
   "root": true,
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["geist", "geist/*"],
+            "message": "geist/font loads the full font files. Declare the face with localFont from the subsets in src/fonts."
+          }
+        ]
+      }
+    ]
+  }
 }

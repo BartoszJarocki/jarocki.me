@@ -37,7 +37,7 @@ pnpm dev
 
 3. Write the body in Markdown.
 4. To add a photo, put it in `public/images/notes/<slug>/` and reference it as `![What the photo shows](/images/notes/<slug>/1.jpg)`. The build reads its width and height from the file.
-5. Run `pnpm build`. A missing frontmatter field or a missing image fails the build and names the note.
+5. Run `pnpm build`. A missing frontmatter field or a missing image fails the build and names the note. So does a character that the font subsets lack, such as `€`. The error says how to add it.
 
 ## Layout
 
@@ -49,9 +49,12 @@ src/data/           bio, work, projects, books, links
 src/lib/            notes (reads and compiles the MDX notes), githubActivity (GitHub contributions
                     and merged PRs), activityStats (skyline stats), skylineScene (three.js scene)
 src/notes/          The notes, one MDX file each
+src/fonts/          Subsets of the Geist fonts, written by pnpm subset-fonts
 src/images/travel   Photos for /about
 src/styles/         Color tokens, row and prose styles
 public/images/notes Photos for the notes, one folder per note
+scripts/fonts.mjs   Writes the font subsets, and checks after each build that they hold every
+                    character the site uses
 ```
 
 ## License
