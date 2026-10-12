@@ -82,6 +82,7 @@ type RowProps = {
   leadTone?: Tone;
   mainTone?: Tone;
   clip?: boolean;
+  stackTrail?: boolean;
 };
 
 export function IndexRow({
@@ -93,12 +94,17 @@ export function IndexRow({
   leadTone = 'faint',
   mainTone = 'ink',
   clip,
+  stackTrail,
 }: RowProps) {
   const cells = (
     <>
       <span className={toneClass[leadTone]}>{lead}</span>
       <span className={clsx(toneClass[mainTone], clip && 'index-clip')}>{main}</span>
-      {trail && <span className="index-trail text-faint">{trail}</span>}
+      {trail && (
+        <span className={clsx('index-trail text-faint', stackTrail && 'index-trail-stack')}>
+          {trail}
+        </span>
+      )}
     </>
   );
 
@@ -140,6 +146,7 @@ export function WorkRow({ entry }: { entry: WorkEntry }) {
       lead={`${entry.start}–${end}`}
       main={entry.company}
       trail={entry.title}
+      stackTrail
     />
   );
 }

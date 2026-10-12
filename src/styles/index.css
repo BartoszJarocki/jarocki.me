@@ -95,6 +95,12 @@
     .index-trail {
       display: none;
     }
+    .index-trail-stack {
+      display: block;
+      grid-column: 2;
+      text-align: left;
+      white-space: normal;
+    }
     .index-clip {
       white-space: normal;
     }

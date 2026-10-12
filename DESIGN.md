@@ -149,7 +149,7 @@ The whole design is one shape: a labeled section of rows with three columns, `le
 
 - `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 4 →` or `more →`. `more` takes the visible `label` and a `context` that only screen readers hear after it, so the link reads `all 4 notes` or `more work`. The arrow is `↗` for an `external` link and `→` otherwise, and screen readers skip it.
 - `IndexList({ lead?, leadMobile?, children })` renders the `ul` and sets the lead column width through `--c1` and `--c1m`. The default is `10ch`. The reading list on /about uses `27ch`, and `minmax(0,1.3fr)` at mobile width.
-- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip? })` renders one row. With `href` it is a Next `Link`. With `external` it is an `ExternalLink`, which opens in a new tab with `rel="noopener noreferrer"` and ends in a visually hidden ` (opens in new tab)`. Without `href` it is a plain `div`.
+- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip?, stackTrail? })` renders one row. With `href` it is a Next `Link`. With `external` it is an `ExternalLink`, which opens in a new tab with `rel="noopener noreferrer"` and ends in a visually hidden ` (opens in new tab)`. Without `href` it is a plain `div`.
 
 By default `lead` is `faint`, `main` is `ink`, and `trail` is `faint`. A row whose lead is a name instead of a key, such as a project or a book, passes `leadTone="ink"` and a `mainTone` of `body` or `faint`.
 
@@ -162,6 +162,7 @@ Row rules:
 - The row bleeds 1ch past the column on each side, so the hover fill has padding without moving the text.
 - Link rows invert on hover and on `:focus-visible`: the background becomes `ink` and every cell becomes `bg`. Rows have no transition.
 - At 640px and below, the grid drops to two columns with a 2ch gap and the trail is hidden.
+- A row with `stackTrail` keeps its trail at 640px and below, as a second `faint` line under `main` that wraps when it is long. `WorkRow` passes it, so job titles stay on phones. Note tags and project domains stay hidden there.
 
 ## GitHub activity
 
