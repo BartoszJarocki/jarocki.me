@@ -147,9 +147,9 @@ Type roles:
 
 The whole design is one shape: a labeled section of rows with three columns, `lead`, `main`, and `trail`. `src/components/Index.tsx` exports it.
 
-- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 4 →` or `more →`.
+- `IndexSection({ label, more?, children })` renders the label row: the label as a faint `h2`, and an optional right-aligned link such as `all 4 →` or `more →`. `more` takes the visible `label` and a `context` that only screen readers hear after it, so the link reads `all 4 notes` or `more work`. The arrow is `↗` for an `external` link and `→` otherwise, and screen readers skip it.
 - `IndexList({ lead?, leadMobile?, children })` renders the `ul` and sets the lead column width through `--c1` and `--c1m`. The default is `10ch`. The reading list on /about uses `27ch`, and `minmax(0,1.3fr)` at mobile width.
-- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip? })` renders one row. With `href` it is a Next `Link`. With `external` it opens in a new tab with `rel="noopener noreferrer"`. Without `href` it is a plain `div`.
+- `IndexRow({ href?, external?, lead, main, trail?, leadTone?, mainTone?, clip? })` renders one row. With `href` it is a Next `Link`. With `external` it is an `ExternalLink`, which opens in a new tab with `rel="noopener noreferrer"` and ends in a visually hidden ` (opens in new tab)`. Without `href` it is a plain `div`.
 
 By default `lead` is `faint`, `main` is `ink`, and `trail` is `faint`. A row whose lead is a name instead of a key, such as a project or a book, passes `leadTone="ink"` and a `mainTone` of `body` or `faint`.
 
@@ -248,7 +248,8 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Every interactive element shows `:focus-visible`. The global style is a 1px `ink` outline offset by 3px. Link rows invert instead.
 - Every page has one `h1`. A note page shows its title as a visible `h1` and passes `article` to `PageShell`. Every other page gets a visually hidden `h1` from `PageShell`, with the page title, or the name on the home page.
 - Section labels are `h2` elements, so screen reader users can move between sections.
-- The `↗` in the elsewhere rows is `aria-hidden`.
+- Decorative arrows are `aria-hidden`: the `↗` in the elsewhere rows, the arrows in section links, and the `←` and `→` in note footers and on the error pages. The `→` inside a job title stays, because it means "then".
+- Every link that opens a new tab goes through `ExternalLink`, so screen readers hear `(opens in new tab)` after its name.
 - Every animation respects `prefers-reduced-motion`.
 
 ## Do and don't

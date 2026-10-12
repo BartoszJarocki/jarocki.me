@@ -11,7 +11,7 @@ export default function NotFound() {
       </Lede>
       <p className="mt-14">
         <Link href="/" className="faint-link">
-          ← home
+          <span aria-hidden="true">←</span> home
         </Link>
       </p>
     </PageShell>

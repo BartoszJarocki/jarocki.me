@@ -39,11 +39,11 @@ export default function Note({
 
         <footer className="mt-[72px] flex max-w-[37rem] justify-between gap-[3ch]">
           <Link href="/notes" className="faint-link shrink-0">
-            ← all notes
+            <span aria-hidden="true">←</span> all notes
           </Link>
           {older && (
             <Link href={`/notes/${older.slug}`} className="faint-link text-right">
-              next: {older.title} →
+              next: {older.title} <span aria-hidden="true">→</span>
             </Link>
           )}
         </footer>

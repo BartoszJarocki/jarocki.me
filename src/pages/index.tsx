@@ -81,11 +81,8 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
           label="github"
           more={{
             href: `https://github.com/${GitHubUser}`,
-            label: (
-              <>
-                {GitHubUser} <span aria-hidden="true">↗</span>
-              </>
-            ),
+            label: GitHubUser,
+            context: 'on GitHub',
             external: true,
           }}
         >
@@ -93,7 +90,10 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
         </IndexSection>
       )}
 
-      <IndexSection label="notes" more={{ href: '/notes', label: `all ${noteCount} →` }}>
+      <IndexSection
+        label="notes"
+        more={{ href: '/notes', label: `all ${noteCount}`, context: 'notes' }}
+      >
         <IndexList>
           {latestNotes.map((note) => (
             <NoteRow key={note.slug} note={note} />
@@ -109,7 +109,7 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
         </IndexList>
       </IndexSection>
 
-      <IndexSection label="work" more={{ href: '/work', label: 'more →' }}>
+      <IndexSection label="work" more={{ href: '/work', label: 'more', context: 'work' }}>
         <IndexList>
           {Work.slice(0, 3).map((entry) => (
             <WorkRow key={entry.company} entry={entry} />
