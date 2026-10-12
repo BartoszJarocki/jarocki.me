@@ -112,15 +112,19 @@ Every text tone passes WCAG AA against `bg` in both schemes. The ratios below we
 
 ## Typography
 
-`_app.tsx` loads three faces through `next/font` and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base.
+Three faces load through `next/font`, and `next/font` preloads a face only on the pages whose code imports it. `_app.tsx` loads Geist Mono and Geist Pixel Square and sets their variables on the app wrapper, together with `font-mono` and the 14px/1.72 base. The note page, `src/pages/notes/[slug].tsx`, loads Geist and sets its variable on the article, because only the note title and the prose use it. Other pages never download it.
 
-| Tailwind family | Face | CSS variable |
-| --- | --- | --- |
-| `font-sans` | Geist | `--font-geist-sans` |
-| `font-mono` | Geist Mono | `--font-geist-mono` |
-| `font-pixel` | Geist Pixel Square, falling back to Geist Mono | `--font-geist-pixel-square` |
+| Tailwind family | Face | CSS variable | Loaded in |
+| --- | --- | --- | --- |
+| `font-sans` | Geist | `--font-geist-sans` | `src/pages/notes/[slug].tsx` |
+| `font-mono` | Geist Mono | `--font-geist-mono` | `_app.tsx` |
+| `font-pixel` | Geist Pixel Square, falling back to Geist Mono | `--font-geist-pixel-square` | `_app.tsx` |
 
-Each Tailwind family ends in a system fallback stack. Pixel Square is declared with `localFont` in `_app.tsx` instead of being imported from `geist/font/pixel`, because that module declares all five pixel variants and importing it preloads every one of them.
+Each Tailwind family ends in a system fallback stack. Outside a note, `--font-geist-sans` is unset and `font-sans` renders in the system sans font. To use Geist on another page, import `GeistSans` in that page and set its variable there.
+
+Next looks up a page's own fonts by the request path, such as `/notes/time`, but keys them by route, `/notes/[slug]`, so it never preloads them on a dynamic route. `_document.tsx` adds the preloads it misses.
+
+Pixel Square is declared with `localFont` in `_app.tsx` instead of being imported from `geist/font/pixel`, because that module declares all five pixel variants and importing it preloads every one of them.
 
 Type roles:
 
