@@ -76,7 +76,13 @@ export default async function og(req: NextApiRequest, res: NextApiResponse) {
         )}
       </div>
     </div>,
-    { width: 1200, height: 630, fonts: [...fonts] },
+    {
+      width: 1200,
+      height: 630,
+      fonts: [...fonts],
+      // next/og marks the image immutable for a year, but a restyle keeps the same URL.
+      headers: { 'cache-control': 'public, max-age=86400, stale-while-revalidate=604800' },
+    },
   );
 
   const png = Buffer.from(await image.arrayBuffer());
