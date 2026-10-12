@@ -14,7 +14,6 @@
   "dependencies": {
     "@vercel/analytics": "^1.0.2",
     "clsx": "^2.0.0",
-    "gray-matter": "^4.0.3",
     "image-size": "^2.0.4",
     "js-yaml": "^4.3.2",
     "next": "^15.5.27",
