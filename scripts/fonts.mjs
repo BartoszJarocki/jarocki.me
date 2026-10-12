@@ -6,11 +6,21 @@ import subsetFont from 'subset-font';
 
 const geist = 'node_modules/geist';
 const outDir = 'src/fonts';
-const sources = [
-  'dist/fonts/geist-mono/GeistMono-Variable.woff2',
-  'dist/fonts/geist-pixel/GeistPixel-Square.woff2',
-  'dist/fonts/geist-sans/Geist-Variable.woff2',
+const extensions = { woff2: '.woff2', truetype: '.ttf' };
+// The pages load the woff2 subsets. The share image loads the ttf ones, because Satori reads no
+// woff2 and handles variable fonts poorly.
+const faces = [
+  { source: 'dist/fonts/geist-mono/GeistMono-Variable.woff2', format: 'woff2' },
+  { source: 'dist/fonts/geist-pixel/GeistPixel-Square.woff2', format: 'woff2' },
+  { source: 'dist/fonts/geist-sans/Geist-Variable.woff2', format: 'woff2' },
+  { source: 'dist/fonts/geist-mono/GeistMono-Regular.ttf', format: 'truetype' },
+  { source: 'dist/fonts/geist-pixel/GeistPixel-Square.woff2', format: 'truetype' },
+  { source: 'dist/fonts/geist-sans/Geist-SemiBold.ttf', format: 'truetype' },
 ];
+
+function subsetPath({ source, format }) {
+  return path.join(outDir, path.basename(source, path.extname(source)) + extensions[format]);
+}
 
 // The notes and data files come first, so a missing character points at the file to fix.
 const siteText = [
@@ -63,15 +73,15 @@ const text = Object.values(blocks)
 async function subset() {
   const { version } = JSON.parse(await readFile(path.join(geist, 'package.json'), 'utf8'));
   console.log(`geist ${version}`);
-  for (const source of sources) {
-    const input = await readFile(path.join(geist, source));
+  for (const face of faces) {
+    const input = await readFile(path.join(geist, face.source));
     const output = await subsetFont(input, text, {
-      targetFormat: 'woff2',
+      targetFormat: face.format,
       keepFeatures: features,
       // The OFL license description and URL, which the subsetter drops by default.
       preserveNameIds: [13, 14],
     });
-    const file = path.join(outDir, path.basename(source));
+    const file = subsetPath(face);
     await writeFile(file, output);
     console.log(`${file} ${input.length} -> ${output.length} bytes`);
   }
@@ -101,9 +111,9 @@ async function check() {
   }
 
   const missing = [];
-  for (const source of sources) {
-    const full = await codepoints(path.join(geist, source));
-    const subsetFile = path.join(outDir, path.basename(source));
+  for (const face of faces) {
+    const full = await codepoints(path.join(geist, face.source));
+    const subsetFile = subsetPath(face);
     const kept = await codepoints(subsetFile);
     for (const [codepoint, file] of firstFile) {
       const removedBySubset = full.has(codepoint) && !kept.has(codepoint);

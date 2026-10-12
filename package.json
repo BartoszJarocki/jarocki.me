@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.0.2",
-    "@vercel/og": "^0.5.17",
     "clsx": "^2.0.0",
     "gray-matter": "^4.0.3",
     "image-size": "^2.0.4",
