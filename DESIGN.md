@@ -42,10 +42,11 @@ typography:
     fontWeight: 400
     lineHeight: 1.75
   prose-heading:
-    fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
-    fontSize: "14px"
-    fontWeight: 500
-    lineHeight: 1.72
+    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "19px"
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: "-0.012em"
   code:
     fontFamily: "Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace"
     fontSize: "13px"
@@ -131,7 +132,7 @@ Type roles:
 - **Chrome.** Geist Mono 14px/1.72. Nav, ledes, section labels, rows, meta lines, and footers.
 - **Note title.** Geist Sans 600, 30px/1.18, tracking `-0.028em`, `ink`, `max-width: 24ch`, `text-wrap: balance`.
 - **Prose.** Geist Sans 16px/1.75 in `body`.
-- **Prose headings.** Geist Mono 500 at 14px in `ink`, prefixed with a faint `#`, `##`, or `###` for `h1`, `h2`, and `h3`.
+- **Prose headings.** Geist Sans 600, 19px/1.4, tracking `-0.012em`, `ink`. `h1`, `h2`, and `h3` look the same. Notes use only `h2`.
 - **Code.** Geist Mono, 13px in blocks and 13.5px inline.
 
 ### Font subsets
