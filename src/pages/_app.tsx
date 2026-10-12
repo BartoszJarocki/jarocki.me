@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
 import { GeistMono } from 'geist/font/mono';
-import { GeistSans } from 'geist/font/sans';
 import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
@@ -27,7 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
         twitter={{ cardType: 'summary_large_image', handle: `@${XUser}`, site: `@${XUser}` }}
       />
       <div
-        className={`${GeistSans.variable} ${GeistMono.variable} ${GeistPixelSquare.variable} font-mono text-[14px] leading-[1.72]`}
+        className={`${GeistMono.variable} ${GeistPixelSquare.variable} font-mono text-[14px] leading-[1.72]`}
       >
         <Component {...pageProps} />
       </div>

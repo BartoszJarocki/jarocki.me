@@ -1,3 +1,4 @@
+import { GeistSans } from 'geist/font/sans';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import Link from 'next/link';
@@ -25,7 +26,7 @@ export default function Note({
       article={{ publishedTime: publishedAt, tags }}
       current="notes"
     >
-      <article className="mt-[72px]">
+      <article className={`${GeistSans.variable} mt-[72px]`}>
         <header>
           <p className="text-faint">
             <time dateTime={publishedAt}>{dotDate(publishedAt)}</time> · {tags.join(', ')}
