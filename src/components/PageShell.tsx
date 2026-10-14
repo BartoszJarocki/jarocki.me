@@ -76,7 +76,7 @@ export function PageShell({
             <Link href="/" className="font-pixel text-[28px] leading-none text-ink">
               {Name}
             </Link>
-            <nav className="flex gap-[2.5ch]">
+            <nav className="plate flex gap-[2.5ch]">
               {sections.map((section) => (
                 <Link
                   key={section}

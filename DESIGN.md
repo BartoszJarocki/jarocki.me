@@ -82,7 +82,7 @@ components:
 
 The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, and the voxels and squares of the GitHub activity graph.
+There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, and the points of the home backdrop.
 
 The theme follows the reader's system setting. There is no toggle.
 
@@ -235,6 +235,36 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 - In the fallback, a mono line under the graph shows the year's total in `ink` on the left and `past year` in `faint` on the right. While the pointer is over a week, the total changes to that week, as in `week of 4 oct · 465`.
 - In the fallback, the graph is one `role="img"` element whose `aria-label` states the total and the peak week. The weeks are `aria-hidden`.
 
+## Backdrop
+
+The home page draws a toy embedding space behind its top 460px. It shows one thing a language model does: it places tokens near each other when they mean similar things.
+
+### What it computes
+
+- `src/lib/embeddingSpace.ts` builds a table of 3,202 tokens in 32 dimensions when the stage mounts. Each token is a seeded cluster center plus noise, in clusters such as function words, time, code, work, places, and numbers. Every vector has unit length.
+- The stage draws dimensions 0 to 2 through one linear map, so a sum or difference of vectors lands on the same spot on screen.
+- It reads a fixed passage, the home lede and lines from the note Time, one token every 3.4 seconds. Each token shows its 8 nearest neighbors by cosine similarity over all 32 dimensions, as a list with the cosines. A trail links the last 5 tokens.
+- Every 20 seconds it solves one analogy with 3CosAdd, as word2vec does: king - man + woman, paris - france + poland, and walked - walk + swim. The answer and its cosine are the argmax over the whole table, not a lookup.
+- Nothing is trained. The table is built so the analogies hold, the way training makes them hold in real embeddings.
+
+### Drawing
+
+- Tokens are square points, each a mix of `bg` and `ink` that fades toward `bg` with depth. There are no lights, as in the skyline. Lines are 1px. Labels are Geist Mono at 11px and 13px.
+- The stage is a `position: absolute` element, rendered before `PageShell`, 460px tall, at `z-index: -1` and 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede above it stay clickable.
+- On a wide stage the space is squashed vertically to fill the band. On a portrait stage, such as a phone, the camera rolls 90° so the clusters run down the screen.
+- A mouse resting on a cluster point shows that token's neighbors. Touch does nothing.
+- `mountEmbeddings` in `src/lib/embeddingsScene.ts` loads as an async chunk, like the skyline's scene, so three.js stays out of the first load. It builds the space, the neighbor lists, and the label atlases in slices of at most 16ms. At 4x CPU throttling its longest task is about 30ms, and the stage is ready about 1.3 seconds after navigation.
+- It draws at most 30 frames a second, and stops while the page is hidden or the band is out of view. Under reduced motion it draws one frame, at t = 6 seconds, and draws again only on a resize or a theme change.
+- If WebGL is unavailable or the chunk fails to load, the page has no backdrop.
+
+### Plates
+
+`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. The lede's `body` line drops under 4.5:1 when the reading list drifts behind it.
+
+So every piece of `faint` text in the band, and the lede's `body` line, sits on a plate. The `.plate` class gives an element a `bg` background 1ch wider on each side, with a negative margin, so nothing moves. The nav, the section labels and their `more` links, the clock's `in Wrocław`, and the lede's second line carry it. A plate on text that wraps inline, like the lede's, also has `py-[3px]` to fill its lines' half-leading. A plate on a flex item must not, because there the padding grows the row.
+
+Sampled for 150 seconds in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more.
+
 ## Note pages
 
 - The article starts 72px below the header with a faint meta line: the date as `yyyy.MM.dd`, a `·`, and the tags as plain text separated by commas.
@@ -277,6 +307,8 @@ On the home page the colon in the clock blinks with a 2s `steps(1)` animation th
 
 The GitHub skyline fades in over 200ms, rises in a wave, steps between stats one voxel every 28ms, and eases the camera after a drag or a key press. Under reduced motion it shows each end state at once.
 
+The home backdrop fades in over 200ms. It reads one token every 3.4 seconds, glides to it over 1.5 seconds, and swings the camera ±18° and back over 96 seconds. Under reduced motion it draws one still frame.
+
 Hover changes are color only: nav and footer links fade from `faint` to `ink` over 150ms, link underlines fade from `faint` to `ink`, and travel photos on /about go from grayscale to color over 200ms.
 
 The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time after hydration. It schedules each update for the next minute boundary instead of running a fixed interval.
@@ -291,6 +323,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Decorative arrows are `aria-hidden`: the `↗` in the elsewhere rows, the arrows in section links, and the `←` and `→` in note footers and on the error pages. The `→` inside a job title stays, because it means "then".
 - Every link that opens a new tab goes through `ExternalLink`, so screen readers hear `(opens in new tab)` after its name.
 - Every animation respects `prefers-reduced-motion`.
+- The home backdrop is `aria-hidden`. Text it can pass behind sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
 
 ## Do and don't
 
@@ -301,3 +334,4 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Don't add a theme toggle. The site follows the system setting.
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
 - Don't lower the contrast of `faint`.
+- Don't put anything behind `faint` text without a plate.
