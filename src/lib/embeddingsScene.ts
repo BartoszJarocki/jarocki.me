@@ -39,7 +39,8 @@ import {
 export type BackdropHandle = { destroy: () => void };
 
 type UV = [number, number, number, number];
-type Atlas = { texture: CanvasTexture; uv: (i: number) => UV; aspect: (i: number) => number };
+type Sprite = { uv: UV; w: number };
+type Atlas = { texture: CanvasTexture; h: number; sprites: Map<string, Sprite> };
 type Batch = {
   mat: ShaderMaterial;
   quad: (x: number, y: number, w: number, h: number, uv: UV, m: number) => void;
@@ -89,35 +90,57 @@ const show = (tok: string) => (tok.startsWith(' ') ? '·' + tok.slice(1) : tok);
 const fmt = (s: number) => s.toFixed(2);
 const nextTask = () => new Promise((resolve) => setTimeout(resolve));
 
-function atlas(strings: string[], px: number, weight: number, family: string): Atlas {
-  const g0 = document.createElement('canvas').getContext('2d')!;
+function atlas(
+  strings: Iterable<string>,
+  size: number,
+  weight: number,
+  family: string,
+  pr: number,
+): Atlas {
+  const px = Math.round(size * pr);
   const font = `${weight} ${px}px ${family}`;
-  g0.font = font;
-  const pad = Math.ceil(px * 0.15);
-  const widths = strings.map((s) => Math.ceil(g0.measureText(s).width) + pad * 2);
-  const cellW = Math.max(...widths);
-  const cellH = Math.ceil(px * 1.3);
-  const cols = Math.max(1, Math.floor(4096 / cellW));
-  const rows = Math.ceil(strings.length / cols);
   const c = document.createElement('canvas');
-  c.width = cols * cellW;
-  c.height = rows * cellH;
   const g = c.getContext('2d')!;
+  g.font = font;
+  const pad = Math.ceil(px * 0.15);
+  const lineH = Math.ceil(px * 1.3);
+  const rects = [...new Set(strings)].map((s) => {
+    const w = Math.ceil(g.measureText(s).width) + pad * 2;
+    return { s, w, x: 0, y: 0 };
+  });
+  const area = rects.reduce((sum, r) => sum + r.w * lineH, 0);
+  const width = Math.max(...rects.map((r) => r.w), Math.ceil(Math.sqrt(area)));
+  let x = 0;
+  let y = 0;
+  for (const r of rects) {
+    if (x + r.w > width) {
+      x = 0;
+      y += lineH;
+    }
+    r.x = x;
+    r.y = y;
+    x += r.w;
+  }
+  c.width = width;
+  c.height = y + lineH;
   g.font = font;
   g.fillStyle = '#fff';
   g.textBaseline = 'middle';
-  strings.forEach((s, i) =>
-    g.fillText(s, (i % cols) * cellW + pad, Math.floor(i / cols) * cellH + cellH / 2),
-  );
+  const sprites = new Map<string, Sprite>();
+  for (const r of rects) {
+    g.fillText(r.s, r.x + pad, r.y + lineH / 2);
+    const uv: UV = [
+      r.x / c.width,
+      1 - (r.y + lineH) / c.height,
+      (r.x + r.w) / c.width,
+      1 - r.y / c.height,
+    ];
+    sprites.set(r.s, { uv, w: r.w / pr });
+  }
   const texture = new CanvasTexture(c);
   texture.minFilter = LinearFilter;
   texture.generateMipmaps = false;
-  const uv = (i: number): UV => {
-    const x = (i % cols) * cellW;
-    const y = Math.floor(i / cols) * cellH;
-    return [x / c.width, 1 - (y + cellH) / c.height, (x + widths[i]) / c.width, 1 - y / c.height];
-  };
-  return { texture, uv, aspect: (i) => widths[i] / cellH };
+  return { texture, h: lineH / pr, sprites };
 }
 
 export async function mountEmbeddings(
@@ -213,33 +236,29 @@ export async function mountEmbeddings(
     return { ...r, qPos, caption };
   });
 
-  const small: string[] = [];
-  const smallIx = new Map<string, number>();
-  const want = (s: string) => {
-    if (smallIx.has(s)) return;
-    smallIx.set(s, small.length);
-    small.push(s);
-  };
+  const labelStrings: string[] = [];
   for (const i of new Set(seq)) {
-    want(show(tokens[i]));
-    for (const n of neighbors(i)) want(show(tokens[n.i]));
+    labelStrings.push(show(tokens[i]));
+    for (const n of neighbors(i)) labelStrings.push(show(tokens[n.i]));
   }
   for (const a of analogies) {
-    for (const i of [a.ia, a.ib, a.ic, a.answer]) want(show(tokens[i]));
-    want(a.caption);
-    want(fmt(a.cos));
+    for (const i of [a.ia, a.ib, a.ic, a.answer]) labelStrings.push(show(tokens[i]));
+    labelStrings.push(a.caption, fmt(a.cos));
   }
-  for (let c = 0; c <= 100; c++) want(fmt(c / 100));
-  want('cos');
-  const smallPx = Math.round(11 * pr);
+  for (let c = 0; c <= 100; c++) labelStrings.push(fmt(c / 100));
+  labelStrings.push('cos');
   await nextSlice();
-  const smallAtlas = atlas(small, smallPx, 400, family);
-  own(smallAtlas.texture);
-  const bigStrings = [...new Set(seq)].map((i) => show(tokens[i]));
-  const bigIx = new Map(bigStrings.map((s, i) => [s, i]));
+  const labelAtlas = atlas(labelStrings, 11, 400, family, pr);
+  own(labelAtlas.texture);
   await nextSlice();
-  const bigAtlas = atlas(bigStrings, Math.round(13 * pr), 500, family);
-  own(bigAtlas.texture);
+  const headAtlas = atlas(
+    seq.map((i) => show(tokens[i])),
+    13,
+    500,
+    family,
+    pr,
+  );
+  own(headAtlas.texture);
   await nextSlice();
 
   const scene = new Scene();
@@ -385,24 +404,24 @@ export async function mountEmbeddings(
     return b;
   };
   const plates = batch(white, 16, 1);
-  const smallText = batch(smallAtlas.texture, 80, 2);
-  const bigText = batch(bigAtlas.texture, 8, 3);
+  const labelText = batch(labelAtlas.texture, 80, 2);
+  const headText = batch(headAtlas.texture, 8, 3);
   const hoverText = batch(white, 12, 3);
-  const smallH = Math.ceil(smallPx * 1.3) / pr;
-  const bigH = Math.ceil(Math.round(13 * pr) * 1.3) / pr;
-  const textW = (a: Atlas, i: number, h: number) => a.aspect(i) * h;
-  const label = (s: string, x: number, y: number, m: number) => {
-    const i = smallIx.get(s);
-    if (i === undefined) return;
-    smallText.quad(x, y - smallH / 2, textW(smallAtlas, i, smallH), smallH, smallAtlas.uv(i), m);
-  };
+  const textSet = (a: Atlas, b: Batch): TextSet => ({
+    w: (s) => a.sprites.get(s)?.w ?? 0,
+    draw: (s, x, y, m) => {
+      const sprite = a.sprites.get(s);
+      if (sprite) b.quad(x, y - a.h / 2, sprite.w, a.h, sprite.uv, m);
+    },
+  });
+  const labels = textSet(labelAtlas, labelText);
+  const heads = textSet(headAtlas, headText);
   const placed: Placed[] = [];
   const hits = (x: number, y: number, w: number) =>
     placed.some((r) => x < r.x + r.w + 4 && x + w + 4 > r.x && Math.abs(y - r.y) < (r.h ?? 12));
   const tag = (s: string, p: ScreenPoint, m: number, dy = 0, extra = 0, optional = false) => {
-    const i = smallIx.get(s);
-    if (i === undefined) return { x: p.x, y: p.y, w: 0 };
-    const w = textW(smallAtlas, i, smallH);
+    const w = labelAtlas.sprites.get(s)?.w;
+    if (w === undefined) return { x: p.x, y: p.y, w: 0 };
     const full = w + extra;
     const sides = p.x + 7 + full > W - 6 ? [-1, 1] : [1, -1];
     const spots = [0, -12, 12, -24, 24].flatMap((off) =>
@@ -411,31 +430,21 @@ export async function mountEmbeddings(
     const best = spots.find((r) => !hits(r.x, r.y, full)) ?? (optional ? null : spots[0]);
     if (!best) return { x: p.x, y: p.y, w: 0 };
     placed.push({ x: best.x, y: best.y, w: full });
-    label(s, best.x, best.y, m);
+    labels.draw(s, best.x, best.y, m);
     return { x: best.x, y: best.y, w };
   };
-  const textSet = (a: Atlas, ix: Map<string, number>, b: Batch, h: number): TextSet => ({
-    w: (s) => {
-      const i = ix.get(s);
-      return i === undefined ? 0 : textW(a, i, h);
-    },
-    draw: (s, x, y, m) => {
-      const i = ix.get(s);
-      if (i !== undefined) b.quad(x, y - h / 2, textW(a, i, h), h, a.uv(i), m);
-    },
-  });
-  const smallSet = textSet(smallAtlas, smallIx, smallText, smallH);
-  const bigSet = textSet(bigAtlas, bigIx, bigText, bigH);
   const hoverSets = new Map<number, { atlas: Atlas; set: TextSet }>();
   const hoverSet = (tok: number) => {
     let entry = hoverSets.get(tok);
     if (!entry) {
-      const strings = [
-        ...new Set([show(tokens[tok]), ...neighbors(tok).map((n) => show(tokens[n.i]))]),
-      ];
-      const a = atlas(strings, smallPx, 400, family);
-      const ix = new Map(strings.map((x, i) => [x, i]));
-      entry = { atlas: a, set: textSet(a, ix, hoverText, smallH) };
+      const a = atlas(
+        [show(tokens[tok]), ...neighbors(tok).map((n) => show(tokens[n.i]))],
+        11,
+        400,
+        family,
+        pr,
+      );
+      entry = { atlas: a, set: textSet(a, hoverText) };
       hoverSets.set(tok, entry);
       if (hoverSets.size > 24) {
         const [oldest] = hoverSets.keys();
@@ -517,8 +526,8 @@ export async function mountEmbeddings(
     q: Vector3,
     fade: number,
     grow: number,
-    names = smallSet,
-    head = bigSet,
+    names = labels,
+    head = heads,
   ) => {
     const nn = neighbors(tok);
     for (let r = 0; r < nn.length; r++) {
@@ -536,20 +545,20 @@ export async function mountEmbeddings(
     let wMax = 0;
     for (const n of nn) wMax = Math.max(wMax, names.w(show(tokens[n.i])));
     const blockW = Math.max(colW + wMax, head.w(name));
-    const blockH = bigH + 6 + nn.length * rowH;
+    const blockH = headAtlas.h + 6 + nn.length * rowH;
     const gap = 22;
     const roomR = W - 16 - (p.x + gap + blockW);
     const roomL = p.x - gap - blockW - 16;
     const outward = p.x < W / 2 ? roomL > 0 : roomR < 0;
     const x0 = outward ? p.x - gap - blockW : p.x + gap;
-    const y0 = clamp(p.y - bigH / 2, 12, Hh - blockH - 12);
+    const y0 = clamp(p.y - headAtlas.h / 2, 12, Hh - blockH - 12);
     plates.quad(x0 - 8, y0 - 6, blockW + 16, blockH + 10, [0, 0, 1, 1], -fade);
     placed.push({ x: x0 - 8, y: y0 + blockH / 2, w: blockW + 16, h: blockH / 2 + 12 });
-    head.draw(name, x0, y0 + bigH / 2, fade);
-    oseg(x0, y0 + bigH + 2, x0 + blockW, y0 + bigH + 2, 0.25 * fade);
+    head.draw(name, x0, y0 + headAtlas.h / 2, fade);
+    oseg(x0, y0 + headAtlas.h + 2, x0 + blockW, y0 + headAtlas.h + 2, 0.25 * fade);
     nn.forEach((n, r) => {
-      const y = y0 + bigH + 6 + rowH * (r + 0.5);
-      label(fmt(n.s), x0, y, 0.5 * fade);
+      const y = y0 + headAtlas.h + 6 + rowH * (r + 0.5);
+      labels.draw(fmt(n.s), x0, y, 0.5 * fade);
       names.draw(show(tokens[n.i]), x0 + colW, y, 0.8 * fade);
     });
     box(p.x, p.y, 5, 0.9 * fade);
@@ -597,16 +606,16 @@ export async function mountEmbeddings(
     tag(show(tokens[a.ia]), sa, tm);
     tag(show(tokens[a.ib]), sb, tm * g1);
     tag(show(tokens[a.ic]), sc, tm * g2);
-    const d = tag(show(tokens[a.answer]), sd, tm * g4, 0, smallSet.w(fmt(a.cos)) + 4);
-    label(fmt(a.cos), d.x + d.w + 4, d.y, 0.45 * fade * g4);
-    const capW = smallSet.w(a.caption);
+    const d = tag(show(tokens[a.answer]), sd, tm * g4, 0, labels.w(fmt(a.cos)) + 4);
+    labels.draw(fmt(a.cos), d.x + d.w + 4, d.y, 0.45 * fade * g4);
+    const capW = labels.w(a.caption);
     const xs = [sa.x, sb.x, sc.x, sd.x, sq.x];
     const bottom = Math.max(sa.y, sb.y, sc.y, sd.y, sq.y) + 20;
     const outer =
       (Math.min(...xs) + Math.max(...xs)) / 2 > W / 2
         ? Math.min(...xs) - 8
         : Math.max(...xs) + 8 - capW;
-    label(a.caption, clamp(outer, 8, W - capW - 8), bottom, 0.6 * fade * g4);
+    labels.draw(a.caption, clamp(outer, 8, W - capW - 8), bottom, 0.6 * fade * g4);
   };
 
   // The pointer in stage coordinates from -1 to 1, y up, and when it last moved.
@@ -760,8 +769,8 @@ export async function mountEmbeddings(
     () => renderer.compile(scene, camera),
     () => renderer.compile(overlay, ortho),
     () => renderer.initTexture(white),
-    () => renderer.initTexture(smallAtlas.texture),
-    () => renderer.initTexture(bigAtlas.texture),
+    () => renderer.initTexture(labelAtlas.texture),
+    () => renderer.initTexture(headAtlas.texture),
     () => renderer.render(scene, camera),
     () => renderer.render(overlay, ortho),
     resize,
