@@ -27,11 +27,12 @@ type Vec3 = [number, number, number];
 type Cluster = { name: string; at: Vec3; words?: string; raw?: string[] };
 type Family = { pairs: [string, string][]; extra?: string };
 
-export const CORPUS =
+export const CORPUS = (
   'building AI at motion. exploring what software engineering looks like when agents do most of the typing. ' +
   "When I was in my early 20' I haven't thought too much about the time and how long life is. I was focused on finishing university and finding my first job. " +
   "During our lifetime everything has a start and an end. It's our nature to not appreciate things we already have and people who are around us. " +
-  "If you take it further and optimistically assume you'll live 80 years then if you're 32 like me you have 58 summers, winters, springs, and autumns left.";
+  "If you take it further and optimistically assume you'll live 80 years then if you're 32 like me you have 58 summers, winters, springs, and autumns left."
+).toLowerCase();
 
 // prettier-ignore
 const CLUSTERS: Cluster[] = [
@@ -343,15 +344,11 @@ export function* buildSpace(
 
   for (const tok of corpus) {
     if (index.has(tok)) continue;
-    const bare = tok.trim();
-    const base = index.get(' ' + bare.toLowerCase()) ?? index.get(' ' + bare);
-    if (base === undefined) put(tok, word(dust), dust);
-    else
-      put(
-        tok,
-        add([vecs[base]], [bare[0] !== bare[0].toLowerCase() ? capital : noSpace]),
-        cluster[base],
-      );
+    const spaced = index.get(' ' + tok.trim());
+    const capitalized = tokens.findIndex((t) => t.toLowerCase() === tok);
+    if (spaced !== undefined) put(tok, add([vecs[spaced]], [noSpace]), cluster[spaced]);
+    else if (capitalized >= 0) put(tok, add([vecs[capitalized]]), cluster[capitalized]);
+    else put(tok, word(dust), dust);
   }
 
   const N = tokens.length;
@@ -386,10 +383,10 @@ export function cosine(space: EmbeddingSpace, q: ArrayLike<number>) {
   return out;
 }
 
-export function topK(sims: Float32Array, k: number, exclude: number[]) {
+export function topK(sims: Float32Array, k: number, skip: (i: number) => boolean) {
   const best: Neighbor[] = [];
   for (let i = 0; i < sims.length; i++) {
-    if (exclude.includes(i)) continue;
+    if (skip(i)) continue;
     const s = sims[i];
     if (best.length < k || s > best[best.length - 1].s) {
       best.push({ i, s });
@@ -413,6 +410,6 @@ export function analogy(
   };
   const [ib, ia, ic] = [id(b), id(a), id(c)];
   const q = add([row(space, ib)], [row(space, ia), -1], [row(space, ic)]);
-  const [best] = topK(cosine(space, q), 1, [ia, ib, ic]);
+  const [best] = topK(cosine(space, q), 1, (i) => i === ia || i === ib || i === ic);
   return { ia, ib, ic, q, answer: best.i, cos: best.s };
 }
