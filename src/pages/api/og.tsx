@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { Name, SiteUrl } from '../../data/bio';
+import { lowercase } from '../../lib/lowercase';
 
 // The light tokens from src/styles/index.css in sRGB, because Satori cannot parse oklch.
 const colors = { bg: '#fafaf8', ink: '#1a1815', body: '#4a4744', faint: '#716e6c' };
@@ -21,8 +22,8 @@ function param(value: string | string[] | undefined, max: number) {
 }
 
 export default async function og(req: NextApiRequest, res: NextApiResponse) {
-  const title = param(req.query.title, 200);
-  const description = param(req.query.description, 300);
+  const title = lowercase(param(req.query.title, 200));
+  const description = lowercase(param(req.query.description, 300));
 
   const image = new ImageResponse(
     <div
