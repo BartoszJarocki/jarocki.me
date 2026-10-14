@@ -45,14 +45,14 @@ export function IndexSection({ label, more, children }: SectionProps) {
   return (
     <section className="mt-14">
       <div className="mb-2 flex justify-between gap-[3ch] text-faint">
-        <h2>{label}</h2>
+        <h2 className="plate">{label}</h2>
         {more &&
           (more.external ? (
-            <ExternalLink href={more.href} className="faint-link">
+            <ExternalLink href={more.href} className="faint-link plate">
               {moreText}
             </ExternalLink>
           ) : (
-            <Link href={more.href} className="faint-link">
+            <Link href={more.href} className="faint-link plate">
               {moreText}
             </Link>
           ))}

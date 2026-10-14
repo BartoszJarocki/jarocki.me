@@ -58,6 +58,17 @@
     color: var(--ink);
   }
 
+  /* the home backdrop must never pass behind faint text, which keeps 4.5:1 only on bg, or behind
+     the lede's body line, which drops under 4.5:1 when the reading list drifts behind it. A plate
+     on text that wraps inline, like the lede's, also needs py-[3px] to cover its half-leading. */
+  .plate {
+    margin-inline: -1ch;
+    padding-inline: 1ch;
+    background: var(--bg);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
   /* main is sized before trail, so a long trail (a note's tags) clips instead of the title */
   .index-row {
     display: grid;

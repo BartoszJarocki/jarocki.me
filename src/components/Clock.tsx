@@ -34,7 +34,7 @@ export function Clock() {
         <span className="motion-safe:animate-blink">:</span>
         {time.minutes}
       </span>
-      <span className="text-faint">in Wrocław</span>
+      <span className="plate text-faint">in Wrocław</span>
     </p>
   );
 }
