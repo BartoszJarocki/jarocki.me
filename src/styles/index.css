@@ -177,6 +177,10 @@
     overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
     mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    /* Chrome paints all page text into a layer above the canvas and drops subpixel antialiasing
+       there. While the stage is scrolled out of view, skipping its paint removes that layer, so
+       text below the band gets subpixel antialiasing back. */
+    content-visibility: auto;
   }
   .backdrop > canvas {
     display: block;
