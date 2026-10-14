@@ -6,6 +6,7 @@ import type { Project } from '../data/projects';
 import type { WorkEntry } from '../data/work';
 import { dotDate } from '../lib/date';
 import type { Note } from '../lib/notes';
+import { Cased } from './Cased';
 
 type Tone = 'ink' | 'body' | 'faint';
 
@@ -37,7 +38,7 @@ type SectionProps = {
 export function IndexSection({ label, more, children }: SectionProps) {
   const moreText = more && (
     <>
-      {more.label}
+      <Cased>{more.label}</Cased>
       <span className="sr-only"> {more.context}</span>{' '}
       <span aria-hidden="true">{more.external ? '↗' : '→'}</span>
     </>

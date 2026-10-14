@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { Name, SiteUrl } from '../data/bio';
+import { lowercase } from '../lib/lowercase';
+import { Cased } from './Cased';
 import { JsonLd } from './JsonLd';
 
 const sections = ['notes', 'work', 'about'] as const;
@@ -32,23 +34,25 @@ export function PageShell({
   const path = router.pathname === '/' ? '' : router.asPath.split(/[?#]/)[0];
   const canonical = `${process.env.NEXT_PUBLIC_URL}${path}`;
   const title = seoTitle ?? Name;
+  const metaTitle = seoTitle && lowercase(seoTitle);
+  const metaDescription = seoDescription && lowercase(seoDescription);
   const ogImage = `${process.env.NEXT_PUBLIC_URL}/api/og?${new URLSearchParams({
-    title: seoTitle ?? '',
-    description: seoDescription ?? '',
+    title: metaTitle ?? '',
+    description: metaDescription ?? '',
   })}`;
 
   return (
     <>
       <NextSeo
-        title={seoTitle}
-        description={seoDescription}
+        title={metaTitle}
+        description={metaDescription}
         canonical={noindex ? undefined : canonical}
         noindex={noindex}
         openGraph={{
-          title,
+          title: lowercase(title),
           type: article ? 'article' : undefined,
           article,
-          images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+          images: [{ url: ogImage, width: 1200, height: 630, alt: lowercase(title) }],
         }}
       />
       {article && (
@@ -74,7 +78,7 @@ export function PageShell({
           </a>
           <header className="flex flex-wrap items-baseline justify-between gap-x-[3ch] gap-y-3">
             <Link href="/" className="font-pixel text-[28px] leading-none text-ink">
-              {Name}
+              <Cased>{Name}</Cased>
             </Link>
             <nav className="plate flex gap-[2.5ch]">
               {sections.map((section) => (
@@ -90,7 +94,11 @@ export function PageShell({
             </nav>
           </header>
           <main id="main" tabIndex={-1} className="focus:outline-none">
-            {!article && <h1 className="sr-only">{title}</h1>}
+            {!article && (
+              <h1 className="sr-only">
+                <Cased>{title}</Cased>
+              </h1>
+            )}
             {children}
           </main>
         </div>

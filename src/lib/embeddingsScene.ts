@@ -186,6 +186,7 @@ export async function mountEmbeddings(
   for (; !step.done; step = build.next()) await pause();
   const space = step.value;
   const { N, tokens, vec } = space;
+  const capitalized = tokens.map((t) => t !== t.toLowerCase());
 
   const P = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) for (let d = 0; d < 3; d++) P[i * 3 + d] = vec[i * D + d] * SCALE[d];
@@ -196,7 +197,7 @@ export async function mountEmbeddings(
   const neighbors = (i: number) => {
     let list = nnMemo.get(i);
     if (!list) {
-      list = topK(cosine(space, row(space, i)), K, [i]);
+      list = topK(cosine(space, row(space, i)), K, (j) => j === i || capitalized[j]);
       nnMemo.set(i, list);
     }
     return list;
@@ -621,7 +622,7 @@ export async function mountEmbeddings(
     let best = -1;
     let bd = 14 * 14;
     for (let i = 0; i < N; i++) {
-      if (space.cluster[i] === dust) continue;
+      if (space.cluster[i] === dust || capitalized[i]) continue;
       const x = P[i * 3];
       const y = P[i * 3 + 1];
       const z = P[i * 3 + 2];
