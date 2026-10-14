@@ -135,6 +135,16 @@ Type roles:
 - **Prose headings.** Geist Sans 600, 19px/1.4, tracking `-0.012em`, `ink`. `h1`, `h2`, and `h3` look the same. Notes use only `h2`.
 - **Code.** Geist Mono, 13px in blocks and 13.5px inline.
 
+### Case
+
+Every piece of text a reader sees is lowercase, except the name Bartosz Jarocki and the handle BartoszJarocki, which also appears as @BartoszJarocki. `src/lib/lowercase.ts` holds the list of what keeps its case.
+
+- The root sets `text-transform: lowercase`, so notes, data files, and page copy keep their own case in the source and in JSON-LD. Chromium's accessibility tree holds the lowercase text too.
+- `code`, `kbd`, `pre`, and `samp` keep their case. Buttons inherit the root's case, because Tailwind's preflight resets them to `none`.
+- `Cased` renders a string with every name from the list wrapped in a `normal-case` span. The header name, the hidden `h1`, the `more` link of a section, and the elsewhere rows use it. Render any string that can hold the name or a handle through `Cased`.
+- Text outside the page goes through `lowercase`, which reads the same list: the tab title, the meta description, the Open Graph title, description, and image alt, the share image, and the feed's titles and descriptions. JSON-LD keeps the source text, because machines read it.
+- The home backdrop draws only lowercase labels. See Backdrop.
+
 ### Font subsets
 
 The files in `src/fonts` are subsets of the faces in the `geist` package, at the version pinned in `package.json`. `pnpm subset-fonts` runs `scripts/fonts.mjs`, which writes them.
@@ -154,7 +164,7 @@ The files in `src/fonts` are subsets of the faces in the `geist` package, at the
 - The column is `max-width: 80ch` and centered in the viewport. Text inside it stays left-aligned. The root sets `scrollbar-gutter: stable`, so the column does not shift by half a scrollbar between pages that scroll and pages that do not.
 - The header is a wrapping flex row with the name on the left and `notes work about` on the right. Nav links are `faint`, turn `ink` on hover, and the current section gets `aria-current="page"`, `ink`, and a 1px underline offset by 5px. Pages pass the section as `current`. The notes list and note pages pass `notes`.
 - A `skip to content` link comes first in the tab order. It stays visually hidden until it has focus. Then it shows in Geist Mono 14px `ink`, 12px above the column's top-left corner, in the page's top padding, so it covers nothing. It moves focus to `main`, which has `tabindex="-1"` and no focus outline.
-- A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy and capitalization.
+- A lede follows the header 40px below, in `ink`, at most 64ch wide. Pages keep their own copy, and the root sets it in lowercase.
 - Each section starts 56px below the previous block.
 
 ## The index row
@@ -244,6 +254,7 @@ The home page draws a toy embedding space behind its top 460px. It shows one thi
 - `src/lib/embeddingSpace.ts` builds a table of 3,202 tokens in 32 dimensions when the stage mounts. Each token is a seeded cluster center plus noise, in clusters such as function words, time, code, work, places, and numbers. Every vector has unit length.
 - The stage draws dimensions 0 to 2 through one linear map, so a sum or difference of vectors lands on the same spot on screen.
 - It reads a fixed passage, the home lede and lines from the note Time, one token every 3.4 seconds. Each token shows its 8 nearest neighbors by cosine similarity over all 32 dimensions, as a list with the cosines. A trail links the last 5 tokens.
+- The passage is lowercased before it is tokenized. The table also holds capitalized tokens, such as ` The`, and the lists and the hover skip them, so every label is lowercase. A passage word that the table holds only capitalized, such as ` ai` for ` AI`, copies that token's vector.
 - Every 20 seconds it solves one analogy with 3CosAdd, as word2vec does: king - man + woman, paris - france + poland, and walked - walk + swim. The answer and its cosine are the argmax over the whole table, not a lookup.
 - Nothing is trained. The table is built so the analogies hold, the way training makes them hold in real embeddings.
 
@@ -280,7 +291,7 @@ Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string its
 
 ## Share image
 
-`src/pages/api/og.tsx` draws the Open Graph image for every page. `PageShell` puts the page's SEO title and description in the image URL, as in `/api/og?title=Time&description=A+thing+about+time`.
+`src/pages/api/og.tsx` draws the Open Graph image for every page. `PageShell` puts the page's SEO title and description in the image URL in lowercase, as in `/api/og?title=time&description=a+thing+about+time`. The route lowercases both again with `lowercase`, so any caller gets a lowercase card, and the name and the handle keep their case.
 
 - The image is 1200 by 630 pixels on `bg`, with 80px of padding. A share card can't follow the viewer's color scheme, so it always uses the light tokens.
 - The top row repeats the page header. The name is Pixel Square at 44px in `ink` on the left, and `jarocki.me` is Geist Mono at 28px in `faint` on the right.
@@ -330,6 +341,8 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Do build new lists from `IndexSection`, `IndexList`, and `IndexRow`. Add a mapper next to `NoteRow` when a data module appears on more than one page.
 - Do pick colors from the six tokens. If a new element needs a color the tokens don't have, the element is probably too loud.
 - Do keep Geist Mono for chrome and Geist Sans for long prose.
+- Do write copy in its natural case. The root lowercases it. A name that must keep its case goes in the list in `src/lib/lowercase.ts`.
+- Don't show uppercase text anywhere a reader sees it, except the names in that list and code.
 - Don't add an accent color, a gradient, a shadow, or rounded corners.
 - Don't add a theme toggle. The site follows the system setting.
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
