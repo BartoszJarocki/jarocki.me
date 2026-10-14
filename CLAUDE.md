@@ -56,6 +56,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 ## Key Features
 
 - **Notes** - MDX files in `src/notes/`, each with tags shown on the note and in the notes list
+- **Home Backdrop** - `src/lib/embeddingsScene.ts` draws a toy embedding space with three.js behind the top of the home page, from the table in `src/lib/embeddingSpace.ts`. Text it can pass behind sits on a `.plate` (see `DESIGN.md`)
 - **Share Images** - `src/pages/api/og.tsx` draws each page's Open Graph image with `next/og` on Node, in the light tokens and Geist (see `DESIGN.md`)
 - **SEO Optimization** - NextSEO integration with sitemap generation
 - **Analytics** - Vercel Analytics integration
