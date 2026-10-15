@@ -51,7 +51,7 @@ type TextSet = {
   draw: (s: string, x: number, y: number, m: number) => void;
 };
 type ScreenPoint = { x: number; y: number };
-type Placed = { x: number; y: number; w: number; h?: number };
+type Placed = { x: number; y: number; w: number; halfH: number };
 
 const K = 8;
 // Seconds per token, the glide between tokens, and a phase offset that leaves t = 6 settled on
@@ -418,7 +418,7 @@ export async function mountEmbeddings(
   const heads = textSet(headAtlas, headText);
   const placed: Placed[] = [];
   const hits = (x: number, y: number, w: number) =>
-    placed.some((r) => x < r.x + r.w + 4 && x + w + 4 > r.x && Math.abs(y - r.y) < (r.h ?? 12));
+    placed.some((r) => x < r.x + r.w + 4 && x + w + 4 > r.x && Math.abs(y - r.y) < r.halfH);
   const placeLabel = (
     s: string,
     p: ScreenPoint,
@@ -436,7 +436,7 @@ export async function mountEmbeddings(
     );
     const best = spots.find((r) => !hits(r.x, r.y, full)) ?? (optional ? null : spots[0]);
     if (!best) return { x: p.x, y: p.y, w: 0 };
-    placed.push({ x: best.x, y: best.y, w: full });
+    placed.push({ x: best.x, y: best.y, w: full, halfH: 12 });
     labels.draw(s, best.x, best.y, m);
     return { x: best.x, y: best.y, w };
   };
@@ -560,7 +560,7 @@ export async function mountEmbeddings(
     const x0 = outward ? p.x - gap - blockW : p.x + gap;
     const y0 = clamp(p.y - headAtlas.h / 2, 12, Hh - blockH - 12);
     plates.quad(x0 - 8, y0 - 6, blockW + 16, blockH + 10, [0, 0, 1, 1], -fade);
-    placed.push({ x: x0 - 8, y: y0 + blockH / 2, w: blockW + 16, h: blockH / 2 + 12 });
+    placed.push({ x: x0 - 8, y: y0 + blockH / 2, w: blockW + 16, halfH: blockH / 2 + 12 });
     head.draw(name, x0, y0 + headAtlas.h / 2, fade);
     oseg(x0, y0 + headAtlas.h + 2, x0 + blockW, y0 + headAtlas.h + 2, 0.25 * fade);
     nn.forEach((n, r) => {
