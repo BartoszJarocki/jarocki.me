@@ -4,6 +4,7 @@ import { activityStats, monthlyTotals } from '../lib/activityStats';
 import { dayMonth } from '../lib/date';
 import { Activity, weeklyTotals } from '../lib/githubActivity';
 import type { SkylineHandle } from '../lib/skylineScene';
+import { release } from '../lib/teardown';
 import { ContributionBars, ContributionBarsPlaceholder } from './ContributionBars';
 
 type Phase = 'loading' | 'ready' | 'fallback';
@@ -50,8 +51,14 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
       .then(async ([{ mountSkyline }]) => {
         if (unmount.signal.aborted) return;
         const heights = () => (stats[latestSelected.current] ?? stats[0]).heights;
-        scene.current = await mountSkyline(element, dates, heights, setDay, unmount.signal);
-        setPhase(scene.current ? 'ready' : 'fallback');
+        const handle = await mountSkyline(element, dates, heights, setDay, unmount.signal);
+        // An unmount after the mount's last check of the signal still delivers the scene.
+        if (unmount.signal.aborted) {
+          release(handle);
+          return;
+        }
+        scene.current = handle;
+        setPhase(handle ? 'ready' : 'fallback');
       })
       .catch(() => {
         if (!unmount.signal.aborted) setPhase('fallback');
@@ -59,7 +66,7 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
     return () => {
       unmount.abort();
       observer.disconnect();
-      scene.current?.destroy();
+      release(scene.current);
       scene.current = null;
     };
   }, [dates, stats]);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { BackdropHandle } from '../lib/embeddingsScene';
+import { release } from '../lib/teardown';
 
 export function EmbeddingsBackdrop() {
   const stage = useRef<HTMLDivElement>(null);
@@ -15,8 +16,14 @@ export function EmbeddingsBackdrop() {
       .then(
         async ({ mountEmbeddings }) => {
           if (unmount.signal.aborted) return;
-          scene = await mountEmbeddings(element, unmount.signal);
-          setReady(scene !== null);
+          const handle = await mountEmbeddings(element, unmount.signal);
+          // An unmount after the mount's last check of the signal still delivers the scene.
+          if (unmount.signal.aborted) {
+            release(handle);
+            return;
+          }
+          scene = handle;
+          setReady(handle !== null);
         },
         // A chunk that fails to load, which webpack reports as a ChunkLoadError, leaves the page
         // without a backdrop and logs nothing, like the skyline's. Any other import error is logged.
@@ -29,7 +36,7 @@ export function EmbeddingsBackdrop() {
       });
     return () => {
       unmount.abort();
-      scene?.destroy();
+      release(scene);
     };
   }, []);
 
