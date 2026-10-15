@@ -9,7 +9,7 @@ export default function ServerError() {
       <Lede>
         <p>500. Something broke.</p>
       </Lede>
-      <p className="mt-14">
+      <p className="plate mt-14 w-fit">
         <Link href="/" className="faint-link">
           <span aria-hidden="true">←</span> home
         </Link>

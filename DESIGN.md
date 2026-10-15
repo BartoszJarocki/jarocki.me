@@ -82,7 +82,7 @@ components:
 
 The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, and the points of the home backdrop.
+There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, and the points of the backdrop.
 
 The theme follows the reader's system setting. There is no toggle.
 
@@ -143,7 +143,7 @@ Every piece of text a reader sees is lowercase, except the name Bartosz Jarocki 
 - `code`, `kbd`, `pre`, and `samp` keep their case. Buttons inherit the root's case, because Tailwind's preflight resets them to `none`.
 - `Cased` renders a string with every name from the list wrapped in a `normal-case` span. The header name, the hidden `h1`, the `more` link of a section, and the elsewhere rows use it. Render any string that can hold the name or a handle through `Cased`.
 - Text outside the page goes through `lowercase`, which reads the same list: the tab title, the meta description, the Open Graph title, description, and image alt, the share image, and the feed's titles and descriptions. JSON-LD keeps the source text, because machines read it.
-- The home backdrop draws only lowercase labels. See Backdrop.
+- The backdrop draws only lowercase labels. See Backdrop.
 
 ### Font subsets
 
@@ -247,7 +247,7 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 
 ## Backdrop
 
-The home page draws a toy embedding space behind its top 460px. It shows one thing a language model does: it places tokens near each other when they mean similar things.
+Every page draws a toy embedding space behind its top 460px. It shows one thing a language model does: it places tokens near each other when they mean similar things.
 
 ### What it computes
 
@@ -261,20 +261,29 @@ The home page draws a toy embedding space behind its top 460px. It shows one thi
 ### Drawing
 
 - Tokens are square points, each a mix of `bg` and `ink` that fades toward `bg` with depth. There are no lights, as in the skyline. Lines are 1px. Labels are Geist Mono at 11px and 13px.
-- The stage is a `position: absolute` element, rendered before `PageShell`, 460px tall, at `z-index: -1` and 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede above it stay clickable.
+- The stage is a `position: absolute` element, rendered by `_app` before the page, 460px tall, at `z-index: -1` and 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede above it stay clickable. `_app` clips it to the page, or to the screen when the page is shorter, so the stage never makes a page scroll.
 - On a wide stage the space is squashed vertically to fill the band. On a portrait stage, such as a phone, the camera rolls 90° so the clusters run down the screen.
 - A mouse resting on a cluster point shows that token's neighbors. Touch does nothing.
+- The stage stays mounted across client-side navigation, so the space is built once per visit and the animation carries on from page to page.
 - `mountEmbeddings` in `src/lib/embeddingsScene.ts` loads as an async chunk, like the skyline's scene, so three.js stays out of the first load. It builds the space, the neighbor lists, and the label atlases in slices of at most 16ms. At 4x CPU throttling its longest task is about 30ms, and the stage is ready about 1.3 seconds after navigation.
 - It draws at most 30 frames a second, and stops while the page is hidden or the band is out of view. Under reduced motion it draws one frame, at t = 6 seconds, and draws again only on a resize or a theme change.
 - If WebGL is unavailable or the chunk fails to load, the page has no backdrop.
 
 ### Plates
 
-`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. The lede's `body` line drops under 4.5:1 when the reading list drifts behind it.
+`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts behind it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity.
 
-So every piece of `faint` text in the band, and the lede's `body` line, sits on a plate. The `.plate` class gives an element a `bg` background 1ch wider on each side, with a negative margin, so nothing moves. The nav, the section labels and their `more` links, the clock's `in Wrocław`, and the lede's second line carry it. A plate on text that wraps inline, like the lede's, also has `py-[3px]` to fill its lines' half-leading. A plate on a flex item must not, because there the padding grows the row.
+So the tone decides. In the band, `ink` text needs no plate, and every piece of `body` or `faint` text sits on one. The `.plate` class gives an element a `bg` background 1ch wider on each side, with a negative margin, so nothing moves. These carry it:
 
-Sampled for 150 seconds in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more.
+- The nav, the section labels and their `more` links, and the clock's `in Wrocław`.
+- The `body` and `faint` cells of every index row. `IndexRow` wraps their text in a plate by tone, so a page never adds one. A plate inside a hovered or focused row is transparent, so the `ink` fill still covers the whole row.
+- The note meta line, the note footer links, and the `home` line on the 404 and 500 pages.
+- A lede's `body` text, on the home page and on /about, and the closing line under the last list on /about and /work.
+- Note prose. `.prose` has a `bg` background without the 1ch margin, because padding would narrow its 37rem measure. It also covers the faint list markers, which can't carry a plate of their own.
+
+A plate on inline text, like a lede's or a row's, also has `py-[3px]` to fill its lines' half-leading, so it covers the whole text box. A plate on a flex item or a block, like a section label or the meta line, must not, because there the padding grows the row.
+
+Sampled for 90 seconds on every page (home, notes, each note, work, about, 404, and 500), in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more, and the left edge of note prose, which stays at 5.3:1 or more.
 
 ## Note pages
 
@@ -318,7 +327,7 @@ On the home page the colon in the clock blinks with a 2s `steps(1)` animation th
 
 The GitHub skyline fades in over 200ms, rises in a wave, steps between stats one voxel every 28ms, and eases the camera after a drag or a key press. Under reduced motion it shows each end state at once.
 
-The home backdrop fades in over 200ms. It reads one token every 3.4 seconds, glides to it over 1.5 seconds, and swings the camera ±18° and back over 96 seconds. Under reduced motion it draws one still frame.
+The backdrop fades in over 200ms when it first mounts. It reads one token every 3.4 seconds, glides to it over 1.5 seconds, and swings the camera ±18° and back over 96 seconds. Under reduced motion it draws one still frame.
 
 Hover changes are color only: nav and footer links fade from `faint` to `ink` over 150ms, link underlines fade from `faint` to `ink`, and travel photos on /about go from grayscale to color over 200ms.
 
@@ -334,7 +343,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Decorative arrows are `aria-hidden`: the `↗` in the elsewhere rows, the arrows in section links, and the `←` and `→` in note footers and on the error pages. The `→` inside a job title stays, because it means "then".
 - Every link that opens a new tab goes through `ExternalLink`, so screen readers hear `(opens in new tab)` after its name.
 - Every animation respects `prefers-reduced-motion`.
-- The home backdrop is `aria-hidden`. Text it can pass behind sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
+- The backdrop is `aria-hidden`. Text it can pass behind sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
 
 ## Do and don't
 
@@ -347,4 +356,4 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Don't add a theme toggle. The site follows the system setting.
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
 - Don't lower the contrast of `faint`.
-- Don't put anything behind `faint` text without a plate.
+- Don't put anything behind `faint` or `body` text without a plate.

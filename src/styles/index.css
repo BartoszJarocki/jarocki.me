@@ -73,9 +73,8 @@
     color: var(--ink);
   }
 
-  /* the home backdrop must never pass behind faint text, which keeps 4.5:1 only on bg, or behind
-     the lede's body line, which drops under 4.5:1 when the reading list drifts behind it. A plate
-     on text that wraps inline, like the lede's, also needs py-[3px] to cover its half-leading. */
+  /* the backdrop must never pass behind faint or body text, which drop under 4.5:1 over it. A plate
+     on text that wraps inline, like a lede's, also needs py-[3px] to cover its half-leading. */
   .plate {
     margin-inline: -1ch;
     padding-inline: 1ch;
@@ -112,6 +111,10 @@
   a.index-row:hover *,
   a.index-row:focus-visible * {
     color: var(--bg);
+  }
+  a.index-row:hover .plate,
+  a.index-row:focus-visible .plate {
+    background: transparent;
   }
   @media (max-width: 640px) {
     .index-row {
@@ -276,6 +279,8 @@
     font-size: 16px;
     line-height: 1.75;
     color: var(--body);
+    /* a plate for the prose that reaches into the backdrop, including the faint list markers */
+    background: var(--bg);
   }
   .prose p {
     margin: 0 0 1.15em;

@@ -3,7 +3,6 @@ import { GetStaticProps } from 'next';
 import { Cased } from '../components/Cased';
 import { Clock } from '../components/Clock';
 import { ContributionSkyline } from '../components/ContributionSkyline';
-import { EmbeddingsBackdrop } from '../components/EmbeddingsBackdrop';
 import {
   ExternalLink,
   IndexList,
@@ -56,87 +55,84 @@ type Props = {
 
 export default function Home({ latestNotes, noteCount, activity }: Props) {
   return (
-    <>
-      <EmbeddingsBackdrop />
-      <PageShell seoDescription={seoDescription}>
-        <JsonLd data={profilePage} />
-        <JsonLd data={website} />
-        <Lede>
-          <p>
-            building AI at{' '}
-            <ExternalLink href="https://motionapp.com" className="text-link">
-              motion
-            </ExternalLink>{' '}
-            —{' '}
-            <ExternalLink href="https://motionapp.com/careers" className="text-link">
-              we&apos;re hiring
-            </ExternalLink>
-            !
-            <br />
-            <span className="plate py-[3px] text-body">
-              exploring what software engineering looks like when agents do most of the typing.
-            </span>
-          </p>
-        </Lede>
-        <Clock />
+    <PageShell seoDescription={seoDescription}>
+      <JsonLd data={profilePage} />
+      <JsonLd data={website} />
+      <Lede>
+        <p>
+          building AI at{' '}
+          <ExternalLink href="https://motionapp.com" className="text-link">
+            motion
+          </ExternalLink>{' '}
+          —{' '}
+          <ExternalLink href="https://motionapp.com/careers" className="text-link">
+            we&apos;re hiring
+          </ExternalLink>
+          !
+          <br />
+          <span className="plate py-[3px] text-body">
+            exploring what software engineering looks like when agents do most of the typing.
+          </span>
+        </p>
+      </Lede>
+      <Clock />
 
-        {activity && (
-          <IndexSection
-            label="github"
-            more={{
-              href: `https://github.com/${GitHubUser}`,
-              label: GitHubUser,
-              context: 'on GitHub',
-              external: true,
-            }}
-          >
-            <ContributionSkyline activity={activity} />
-          </IndexSection>
-        )}
-
+      {activity && (
         <IndexSection
-          label="notes"
-          more={{ href: '/notes', label: `all ${noteCount}`, context: 'notes' }}
+          label="github"
+          more={{
+            href: `https://github.com/${GitHubUser}`,
+            label: GitHubUser,
+            context: 'on GitHub',
+            external: true,
+          }}
         >
-          <IndexList>
-            {latestNotes.map((note) => (
-              <NoteRow key={note.slug} note={note} />
-            ))}
-          </IndexList>
+          <ContributionSkyline activity={activity} />
         </IndexSection>
+      )}
 
-        <IndexSection label="projects">
-          <IndexList>
-            {SideProjects.map((project) => (
-              <ProjectRow key={project.title} project={project} />
-            ))}
-          </IndexList>
-        </IndexSection>
+      <IndexSection
+        label="notes"
+        more={{ href: '/notes', label: `all ${noteCount}`, context: 'notes' }}
+      >
+        <IndexList>
+          {latestNotes.map((note) => (
+            <NoteRow key={note.slug} note={note} />
+          ))}
+        </IndexList>
+      </IndexSection>
 
-        <IndexSection label="work" more={{ href: '/work', label: 'more', context: 'work' }}>
-          <IndexList>
-            {Work.slice(0, 3).map((entry) => (
-              <WorkRow key={entry.company} entry={entry} />
-            ))}
-          </IndexList>
-        </IndexSection>
+      <IndexSection label="projects">
+        <IndexList>
+          {SideProjects.map((project) => (
+            <ProjectRow key={project.title} project={project} />
+          ))}
+        </IndexList>
+      </IndexSection>
 
-        <IndexSection label="elsewhere">
-          <IndexList>
-            {Elsewhere.map((link) => (
-              <IndexRow
-                key={link.key}
-                href={link.href}
-                external={link.href.startsWith('http')}
-                lead={link.key}
-                main={<Cased>{link.value}</Cased>}
-                trail={<span aria-hidden="true">↗</span>}
-              />
-            ))}
-          </IndexList>
-        </IndexSection>
-      </PageShell>
-    </>
+      <IndexSection label="work" more={{ href: '/work', label: 'more', context: 'work' }}>
+        <IndexList>
+          {Work.slice(0, 3).map((entry) => (
+            <WorkRow key={entry.company} entry={entry} />
+          ))}
+        </IndexList>
+      </IndexSection>
+
+      <IndexSection label="elsewhere">
+        <IndexList>
+          {Elsewhere.map((link) => (
+            <IndexRow
+              key={link.key}
+              href={link.href}
+              external={link.href.startsWith('http')}
+              lead={link.key}
+              main={<Cased>{link.value}</Cased>}
+              trail={<span aria-hidden="true">↗</span>}
+            />
+          ))}
+        </IndexList>
+      </IndexSection>
+    </PageShell>
   );
 }
 

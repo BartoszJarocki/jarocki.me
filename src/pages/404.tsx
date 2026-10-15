@@ -9,7 +9,7 @@ export default function NotFound() {
       <Lede>
         <p>404. That page isn&apos;t here.</p>
       </Lede>
-      <p className="mt-14">
+      <p className="plate mt-14 w-fit">
         <Link href="/" className="faint-link">
           <span aria-hidden="true">←</span> home
         </Link>
