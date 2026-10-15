@@ -137,12 +137,12 @@ Type roles:
 
 ### Case
 
-Every piece of text a reader sees is lowercase, except the name Bartosz Jarocki and the handle BartoszJarocki, which also appears as @BartoszJarocki. `src/lib/lowercase.ts` holds the list of what keeps its case.
+Every piece of text a reader sees is lowercase, except the name Bartosz Jarocki. Handles and acronyms are lowercase too, so a screen reader says what the page shows. `src/lib/lowercase.ts` holds the list of what keeps its case, and the name is its only entry. Where two entries overlap in a text, all the text they cover keeps its case.
 
 - The root sets `text-transform: lowercase`, so notes, data files, and page copy keep their own case in the source and in JSON-LD. Chromium's accessibility tree holds the lowercase text too.
 - `code`, `kbd`, `pre`, and `samp` keep their case. Buttons inherit the root's case, because Tailwind's preflight resets them to `none`.
-- `Cased` renders a string with every name from the list wrapped in a `normal-case` span. The header name, the hidden `h1`, the `more` link of a section, and the elsewhere rows use it. Render any string that can hold the name or a handle through `Cased`.
-- Text outside the page goes through `lowercase`, which reads the same list: the tab title, the meta description, the Open Graph title, description, and image alt, the share image, and the feed's titles and descriptions. JSON-LD keeps the source text, because machines read it.
+- `Cased` renders a string with every name from the list wrapped in a `normal-case` span. The header name and the hidden `h1` use it. Render any string that can hold the name through `Cased`.
+- Text outside the page goes through `lowercase`, which reads the same list: the tab title, the meta description, the Open Graph title, description, and image alt, the share image, and the feed's titles and descriptions. JSON-LD, hrefs, and the handle in the `twitter:site` and `twitter:creator` tags keep the source text, because machines read them.
 - The backdrop draws only lowercase labels. See Backdrop.
 
 ### Font subsets
@@ -301,7 +301,7 @@ Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string its
 
 ## Share image
 
-`src/pages/api/og.tsx` draws the Open Graph image for every page. `PageShell` puts the page's SEO title and description in the image URL in lowercase, as in `/api/og?title=time&description=a+thing+about+time`. The route lowercases both again with `lowercase`, so any caller gets a lowercase card, and the name and the handle keep their case.
+`src/pages/api/og.tsx` draws the Open Graph image for every page. `PageShell` puts the page's SEO title and description in the image URL in lowercase, as in `/api/og?title=time&description=a+thing+about+time`. The route lowercases both again with `lowercase`, so any caller gets a lowercase card, and the name keeps its case.
 
 - The image is 1200 by 630 pixels on `bg`, with 80px of padding. A share card can't follow the viewer's color scheme, so it always uses the light tokens.
 - The top row repeats the page header. The name is Pixel Square at 44px in `ink` on the left, and `jarocki.me` is Geist Mono at 28px in `faint` on the right.
@@ -351,8 +351,8 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Do build new lists from `IndexSection`, `IndexList`, and `IndexRow`. Add a mapper next to `NoteRow` when a data module appears on more than one page.
 - Do pick colors from the six tokens. If a new element needs a color the tokens don't have, the element is probably too loud.
 - Do keep Geist Mono for chrome and Geist Sans for long prose.
-- Do write copy in its natural case. The root lowercases it. A name that must keep its case goes in the list in `src/lib/lowercase.ts`.
-- Don't show uppercase text anywhere a reader sees it, except the names in that list and code.
+- Do write copy in its natural case, handles and acronyms included. The root lowercases it.
+- Don't show uppercase text anywhere a reader sees it, except the name and code. Don't add a handle or an acronym to the list in `src/lib/lowercase.ts`.
 - Don't add an accent color, a gradient, a shadow, or rounded corners.
 - Don't add a theme toggle. The site follows the system setting.
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.

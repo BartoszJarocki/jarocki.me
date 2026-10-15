@@ -1,6 +1,5 @@
 import { GetStaticProps } from 'next';
 
-import { Cased } from '../components/Cased';
 import { Clock } from '../components/Clock';
 import { ContributionSkyline } from '../components/ContributionSkyline';
 import {
@@ -126,7 +125,7 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
               href={link.href}
               external={link.href.startsWith('http')}
               lead={link.key}
-              main={<Cased>{link.value}</Cased>}
+              main={link.value}
               trail={<span aria-hidden="true">↗</span>}
             />
           ))}
