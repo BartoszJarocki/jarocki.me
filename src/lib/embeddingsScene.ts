@@ -178,7 +178,7 @@ export async function mountEmbeddings(
       throw cancel.reason;
     }
   };
-  const pause = async () => {
+  const yieldIfSpent = async () => {
     if (performance.now() - sliceStart >= SLICE_MS) await nextSlice();
   };
 
@@ -206,7 +206,7 @@ export async function mountEmbeddings(
   const words = tokenize(CORPUS);
   const build = buildSpace(seeded(11), words);
   let step = build.next();
-  for (; !step.done; step = build.next()) await pause();
+  for (; !step.done; step = build.next()) await yieldIfSpent();
   const space = step.value;
   const { N, tokens, vec } = space;
   const capitalized = tokens.map((t) => t !== t.toLowerCase());
@@ -227,7 +227,7 @@ export async function mountEmbeddings(
   };
   for (const i of new Set(seq)) {
     neighbors(i);
-    await pause();
+    await yieldIfSpent();
   }
   const analogies = ANALOGIES.map((a) => {
     const r = analogy(space, a);
@@ -419,7 +419,14 @@ export async function mountEmbeddings(
   const placed: Placed[] = [];
   const hits = (x: number, y: number, w: number) =>
     placed.some((r) => x < r.x + r.w + 4 && x + w + 4 > r.x && Math.abs(y - r.y) < (r.h ?? 12));
-  const tag = (s: string, p: ScreenPoint, m: number, dy = 0, extra = 0, optional = false) => {
+  const placeLabel = (
+    s: string,
+    p: ScreenPoint,
+    m: number,
+    dy = 0,
+    extra = 0,
+    optional = false,
+  ) => {
     const w = labelAtlas.sprites.get(s)?.w;
     if (w === undefined) return { x: p.x, y: p.y, w: 0 };
     const full = w + extra;
@@ -521,7 +528,7 @@ export async function mountEmbeddings(
 
   const nb = new Vector3();
   const tip = new Vector3();
-  const drawList = (
+  const drawNeighbors = (
     tok: number,
     q: Vector3,
     fade: number,
@@ -603,10 +610,10 @@ export async function mountEmbeddings(
     const sq = toScreen(pq);
     if (g3 >= 1) box(sq.x, sq.y, 3, 0.8 * fade * g4 + 0.4 * fade * (1 - g4));
     const tm = 0.75 * fade;
-    tag(show(tokens[a.ia]), sa, tm);
-    tag(show(tokens[a.ib]), sb, tm * g1);
-    tag(show(tokens[a.ic]), sc, tm * g2);
-    const d = tag(show(tokens[a.answer]), sd, tm * g4, 0, labels.w(fmt(a.cos)) + 4);
+    placeLabel(show(tokens[a.ia]), sa, tm);
+    placeLabel(show(tokens[a.ib]), sb, tm * g1);
+    placeLabel(show(tokens[a.ic]), sc, tm * g2);
+    const d = placeLabel(show(tokens[a.answer]), sd, tm * g4, 0, labels.w(fmt(a.cos)) + 4);
     labels.draw(fmt(a.cos), d.x + d.w + 4, d.y, 0.45 * fade * g4);
     const capW = labels.w(a.caption);
     const xs = [sa.x, sb.x, sc.x, sd.x, sq.x];
@@ -711,7 +718,7 @@ export async function mountEmbeddings(
     qv.copy(va).lerp(vb, move);
 
     let head = qv.clone();
-    const trailTags: [string, ScreenPoint, number][] = [];
+    const trailLabels: [string, ScreenPoint, number][] = [];
     for (let j = 1; j <= TRAIL; j++) {
       const p = at(tokAt(k - j));
       const age = (j - 1 + move) / TRAIL;
@@ -720,7 +727,7 @@ export async function mountEmbeddings(
       if (j > 1 || move > 0.6) {
         highlight(p, 0.85 * (1 - age), 2.8);
         const shown = 0.6 * (1 - age) * (j === 1 ? smooth(0.6, 1, move) : 1);
-        trailTags.push([show(tokens[tokAt(k - j)]), toScreen(p), shown]);
+        trailLabels.push([show(tokens[tokAt(k - j)]), toScreen(p), shown]);
       }
       head = p;
     }
@@ -728,17 +735,17 @@ export async function mountEmbeddings(
     const hover = hovered();
     if (hover >= 0) {
       const set = hoverSet(hover);
-      drawList(hover, at(hover), 1, 1, set, set);
+      drawNeighbors(hover, at(hover), 1, 1, set, set);
     } else {
       const out = 1 - smooth(0, 0.35, ph);
-      if (out > 0) drawList(prev, va.clone(), out, 1);
+      if (out > 0) drawNeighbors(prev, va.clone(), out, 1);
       const inn = smooth(GLIDE + 0.05, GLIDE + 0.45, ph);
-      if (inn > 0) drawList(cur, vb.clone(), inn, smooth(GLIDE, GLIDE + 0.7, ph));
+      if (inn > 0) drawNeighbors(cur, vb.clone(), inn, smooth(GLIDE, GLIDE + 0.7, ph));
     }
     highlight(qv, 1, 5.5);
 
     drawAnalogy(t);
-    for (const [str, p, m] of trailTags) tag(str, p, m, -9, 0, true);
+    for (const [str, p, m] of trailLabels) placeLabel(str, p, m, -9, 0, true);
 
     lineGeo.setDrawRange(0, nl * 2);
     linePos.needsUpdate = true;
