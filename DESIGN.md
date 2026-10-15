@@ -261,7 +261,7 @@ Every page draws a toy embedding space behind its top 460px. It shows one thing 
 ### Drawing
 
 - Tokens are square points, each a mix of `bg` and `ink` that fades toward `bg` with depth. There are no lights, as in the skyline. Lines are 1px. Labels are Geist Mono at 11px and 13px.
-- The stage is a `position: absolute` element, rendered by `_app` before the page, 460px tall, at `z-index: -1` and 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede above it stay clickable. `_app` clips it to the page, or to the screen when the page is shorter, so the stage never makes a page scroll.
+- The stage is a `position: absolute` element, rendered by `_app` before the page, 460px tall, at 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede under it stay clickable. `_app` clips it to the page, or to the screen when the page is shorter, so the stage never makes a page scroll.
 - On a wide stage the space is squashed vertically to fill the band. On a portrait stage, such as a phone, the camera rolls 90° so the clusters run down the screen.
 - A portrait stage shows no words: no neighbor list, no trail or analogy labels, no cosines. The header covers much of the band there, and any word can drift behind it. The points, the lines, and the boxes around the current token and the analogy's sum stay.
 - A mouse resting on a cluster point shows that token's neighbors. On a portrait stage the hover draws the lines to the neighbors and the box around the token, but no words. Touch does nothing.
@@ -270,6 +270,17 @@ Every page draws a toy embedding space behind its top 460px. It shows one thing 
 - It draws at most 30 frames a second, and stops while the page is hidden or the band is out of view. Under reduced motion it draws one frame, at t = 6 seconds, and draws again only on a resize or a theme change.
 - If WebGL is unavailable or the chunk fails to load, the page has no backdrop.
 - Print hides it. Printing drops background graphics, so the plates would vanish and text would print over the cloud.
+
+### Stacking
+
+The stage paints above the page text, at `z-index: 1`, so that text keeps subpixel antialiasing on screens that use it, such as Windows with ClearType. Chrome draws subpixel text only in a layer with an opaque background. With the stage under the page, Chrome put the page text in a layer above the stage's canvas, with no background, and drew it in grayscale while the band was on screen.
+
+- Above the page, the stage blends with `darken` in light and `lighten` in dark. Every color it draws lies between `bg` and `ink`, so over `bg` the blend gives the same pixel as a stage under the page.
+- Over text it does not. Where the cloud crosses `ink` text without a plate, the glyph edges move by up to 23 levels. Selected text in the band shows the cloud over its letters.
+- The blend reads back the page under the stage on every frame it draws. On an Intel Iris Xe that keeps the GPU awake about 0.5ms longer per frame at 1x and 2.3ms longer at 2x.
+- Anything opaque that can sit in the band rises above the stage, at `z-index: 2`, or the stage would draw over it. That is every plate, a hovered or focused row, the skyline, and note prose with its images and code. `src/styles/index.css` lists them right after `.backdrop`.
+- A clipping row cell rises in place of its plate, because Chrome drops a clipped line's ellipsis when the text sits in a raised inline.
+- Text on a raised plate keeps subpixel antialiasing only while Chrome can tell that it sits on the plate. Chrome tracks one opaque rectangle per raised element, so a plate that wraps to a second line, like the ledes on the home page and on /about, stays grayscale. Row plates that Chrome merges into one layer can stay grayscale too, like the second and third authors on /about.
 
 ### Plates
 
@@ -281,11 +292,11 @@ So the tone decides. In the band, `ink` text needs no plate, and every piece of 
 - The `body` and `faint` cells of every index row. `IndexRow` wraps their text in a plate by tone, so a page never adds one. A plate inside a hovered or focused row is transparent, so the `ink` fill still covers the whole row.
 - The note meta line, the note footer links, and the `home` line on the 404 and 500 pages.
 - A lede's `body` text, on the home page and on /about, and the closing line under the last list on /about and /work.
-- Note prose. `.prose` has a `bg` background without the 1ch margin, because padding would narrow its 37rem measure. It also covers the faint list markers, which can't carry a plate of their own.
+- Note prose. `.prose` has a `bg` background that reaches 1px past the text on each side, not 1ch, because the column can sit on a half pixel and Chrome must see the text inside the plate's whole pixels. Its max-width grows by the same 2px, so the measure stays 37rem. It also covers the faint list markers, which can't carry a plate of their own.
 
 A plate on inline text, like a lede's or a row's, is `.plate-inline`, a plate with `3px` of block padding that fills its lines' half-leading, so it covers the whole text box. A plate on a flex item or a block, like a section label or the meta line, is `.plate`, without the padding, because there the padding grows the row.
 
-Sampled for 90 seconds on every page (home, notes, each note, work, about, 404, and 500), in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more, and the left edge of note prose, which stays at 5.3:1 or more.
+Sampled for 60 seconds on every page (home, notes, each note, work, about, 404, and 500), in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more.
 
 ## Note pages
 
@@ -345,7 +356,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Decorative arrows are `aria-hidden`: the `↗` in the elsewhere rows, the arrows in section links, and the `←` and `→` in note footers and on the error pages. The `→` inside a job title stays, because it means "then".
 - Every link that opens a new tab goes through `ExternalLink`, so screen readers hear `(opens in new tab)` after its name.
 - Every animation respects `prefers-reduced-motion`.
-- The backdrop is `aria-hidden`. Text it can pass behind sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
+- The backdrop is `aria-hidden`. Text it can reach sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
 
 ## Do and don't
 
