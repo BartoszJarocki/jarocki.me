@@ -1,0 +1,21 @@
+{"label":"names C32 L2 H4 T16 B32","data":"names","config":{"vocab":27,"ctx":16,"dim":32,"layers":2,"heads":4},"B":32,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":27739,"vocab":27,"trainTokens":205360,"valTokens":22788,"baselines":{"uniform":3.295836866004329,"bigram":{"train":2.455004154239252,"val":2.4528019493119815}}}
+
+=== names C32 L2 H4 T16 B32 at 10s: step 242, train(last 5s) 2.376, val 2.324
+--- sample
+abyona dhie ridele ydrca enocthanthii bhaacom kurleh bshana mthory khoyshoven
+
+=== names C32 L2 H4 T16 B32 at 30s: step 748, train(last 5s) 2.279, val 2.238
+--- sample
+abyne janna phandi zayd bino tinny trah jadrie woric brefie
+
+=== names C32 L2 H4 T16 B32 at 60s: step 1501, train(last 5s) 2.212, val 2.197
+--- sample
+abyna janna phalen zaya bensath mylut cchadia jurjae braen arylonn
+
+=== names C32 L2 H4 T16 B32 at 120s: step 2937, train(last 5s) 2.162, val 2.153
+--- sample
+abxton derhana handy saeeler thinyali bila remetth gaese mackyen tannysonee
+
+=== names C32 L2 H4 T16 B32 at 300s: step 7518, train(last 5s) 2.089, val 2.106
+--- sample
+abyred derian calkey sadaile therynn adel arihaura gadtel garvin tamiyem

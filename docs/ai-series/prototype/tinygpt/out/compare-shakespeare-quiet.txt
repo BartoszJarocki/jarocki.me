@@ -1,0 +1,7 @@
+
+shakespeare C64 L2 H4 T64 B16, params 112577, 3 runs per variant x 30 steps after 10 warmup
+naive+fresh     median of run medians 690.6 ms (run medians 635.4 to 784.3), all steps 584.8 to 903.9 ms, 1483 tok/s, speedup vs naive+fresh 1.00x, loss 4.183 -> 2.897
+naive+prealloc  median of run medians 671.0 ms (run medians 646.0 to 945.4), all steps 569.4 to 1032.5 ms, 1526 tok/s, speedup vs naive+fresh 1.03x, loss 4.183 -> 2.897
+ikj+fresh       median of run medians 553.3 ms (run medians 545.1 to 671.4), all steps 455.3 to 817.0 ms, 1851 tok/s, speedup vs naive+fresh 1.25x, loss 4.183 -> 2.897
+ikj+prealloc    median of run medians 636.7 ms (run medians 551.7 to 680.3), all steps 542.0 to 816.1 ms, 1608 tok/s, speedup vs naive+fresh 1.08x, loss 4.183 -> 2.897
+ikj4+prealloc   median of run medians 335.6 ms (run medians 333.0 to 378.3), all steps 311.4 to 407.0 ms, 3051 tok/s, speedup vs naive+fresh 2.06x, loss 4.183 -> 2.897

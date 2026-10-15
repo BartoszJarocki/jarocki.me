@@ -1,0 +1,21 @@
+{"label":"names C64 L2 H4 T16 B32","data":"names","config":{"vocab":27,"ctx":16,"dim":64,"layers":2,"heads":4},"B":32,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":104603,"vocab":27,"trainTokens":205360,"valTokens":22788,"baselines":{"uniform":3.295836866004329,"bigram":{"train":2.455004154239252,"val":2.4528019493119815}}}
+
+=== names C64 L2 H4 T16 B32 at 10s: step 67, train(last 5s) 2.578, val 2.496
+--- sample
+abypilichia peddalay s baher tingykto bej arelhuriah bui le mshnevamisvonvyco
+
+=== names C64 L2 H4 T16 B32 at 30s: step 214, train(last 5s) 2.365, val 2.338
+--- sample
+acynee dirdana fandyal ademlaya myntra elacoma vireia teendaeten tanluynansa amariovel
+
+=== names C64 L2 H4 T16 B32 at 60s: step 434, train(last 5s) 2.309, val 2.283
+--- sample
+abyneea kikanga endyfra benrash myous cbi arineven gaeved farynnir kiuyonrsan
+
+=== names C64 L2 H4 T16 B32 at 120s: step 916, train(last 5s) 2.241, val 2.218
+--- sample
+abynlee kleere handy sagalin tiorynn aelia pelkynn gaetlen arxison ketynnno
+
+=== names C64 L2 H4 T16 B32 at 300s: step 2295, train(last 5s) 2.140, val 2.147
+--- sample
+aburiah kihari haney sadaine theovera camadie jurmah brafif mortis khowsityn

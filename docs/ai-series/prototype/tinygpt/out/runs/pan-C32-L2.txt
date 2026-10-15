@@ -1,0 +1,101 @@
+{"label":"pan C32 L2 H4 T64 B16","data":"pan","config":{"vocab":58,"ctx":64,"dim":32,"layers":2,"heads":4},"B":16,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":31290,"vocab":58,"trainTokens":401074,"valTokens":44564,"baselines":{"uniform":4.060443010546419,"bigram":{"train":2.5362420988623735,"val":2.5400179771755553}}}
+
+=== pan C32 L2 H4 T64 B16 at 10s: step 57, train(last 5s) 2.808, val 2.739
+--- sample
+
+ łli, gore to majań wa djepazienzizu dni bociełopi;
+ za si sziliy powyrząłas
+kiejię wieni,
+
+
+zuk srzł śmiescń pabaszkożeny.
+minaieda ni  d byś doje:
+tosniajadz jnoskiza, wię nie wiłrtemwie siesi,
+pró
+--- sample
+ d szoszał porziemi wi tolitóce, nusnu pzikiyłt dza zalgrz oś biho;
+ pokaries dzy wi.
+ śm padosena dz  zybie pakot/ja za kifrzopukoniam jekodzapodosajemi nylie,y ti phr… zada sta
+kobię pri sajdzunieji
+--- sample
+kielieszie jł z tosi liebaby die
+s
+łełeczacuniecza m ta,
+czyczy
+ dodach  ski niokośł woszie kobo rzacxki
+mc  namiiepozyczy woja pósienielo ty niedoćł siedsiekra w wam, gadw ł snaszi du ki biełiedo kie
+
+=== pan C32 L2 H4 T64 B16 at 30s: step 183, train(last 5s) 2.598, val 2.597
+--- sample
+
+ zdo m pra sy k, ję wa ch siąciełewsa ma czegoć, ma dze snanyjumy powysząłaz poszyńeroprwe a zyj szyż żerzy — rajawymiłatórelowam piaje  i dzą iejechorzinie pra wym ny niteśm,
+powiłokiewie telu,
+czył
+--- sample
+   nurzą ł ponienie wi stliął chaczyczbozszetąp ii czco wo oś chorknakie wdzy jetałe,
+dło, codzasia z być rzak szy ro za leszyrzyliechochamiem wieczaliek ołegroś wi:
+izżezaj brza
+oneku rzcem roprznoko
+--- sample
+dyjenitykna ż z tno idzo,
+ku dep s ślądoskierynie ch wa,
+kuszyt jado po  sy boszieźzeszyłoroby w ry pozc ro blarzynojąć zy, wie.
+«taszorzy wy osziezę sniekiemo ju wczere po « szawym ie m,
+dorzrzed nie
+
+=== pan C32 L2 H4 T64 B16 at 60s: step 440, train(last 5s) 2.481, val 2.490
+--- sample
+
+ zechchoro tobi! lą wa gnie zdwięczy h na uciewie m dzecze sziurz!
+prówiły w poszyłowekni?
+
+ zrz szożeśmiercę rederzycą; ze rzy ponadry aca wą iemniczych?
+o rz krzwiał ninię, miczkły oszko strzedawoł
+--- sample
+hlarzymy ściemiekie wi stryty domięjesnię,
+kłów gra zanerz oża niebo ponazaty
+iesnoda dło panik tadał bywiem parzy pi zadojowy;
+wiem orocyczek trycz poszamykie ś umieczźrz piasza orony,
+ro siejerzem u
+--- sample
+przyszyszka, ju toskadzia ku fin s ślówerogrzucich nerech zylim
+i pobod ary botyjeźć wszynicha w podwię,
+po cnaszynieszety zwie pyrszymiem
+ty oszegłą skokodzli iwazem waconał szawyca pieka połory.
+
+ g
+
+=== pan C32 L2 H4 T64 B16 at 120s: step 1030, train(last 5s) 2.275, val 2.280
+--- sample
+  zelech tadzie mież z i milała sącit i o dwekość,
+jako jed szlkoł rzyść zwie porysów.
+przeca zniach — — wfrażej poszuczymnie, z pojajej ak dzła ogrpientem reko kszy,
+z miegł poleszę, oprzy sleroga. —
+--- sample
+biały! śluciała to licem stut do niegreją;
+jość i dał się cię domiega! razemi jeźnkie gło panie tak z bóźnie panny
+po z gdyszym: suroją konnie to niebrzy ozkno,
+adj posłoś, i szcarze; krzodzie, worzys
+--- sample
+ogrzykuno, jący terj nie dowa li
+saślujny niech sielem na zposz i podje bruda,
+wieży znikoroczu. stanika
+po cierzyny zudłwała odlumano: szawy przkisł się roztwa,
+alegdziają z stawy: jednie przysta nie
+
+=== pan C32 L2 H4 T64 B16 at 300s: step 2869, train(last 5s) 2.069, val 2.102
+--- sample
+                   i w gerwnał stym, biela ten zamiedzą!
+na tylkopanim, późnn postoło odobic będzej tłożonym że i którył tylczyć polami.
+
+   słabiego wołożny projąc obydany zagodzonę,
+i zaparnie małoś
+--- sample
+a  niecz śmienie stał? tak zwajego wiskikie zwy i dlugi!
+się, co się pokać szabowić maczą panana;
+i w błynie panie robu hrabiąc zaruchają, rozem najchem dowodził waniać…
+pielczni podką przernie wolnie
+--- sample
+nie wszysta — w to kiedy goś jak w — zboże trozkie pisiedząc wybia?
+bo baroda tylkąg wszysta w tak korze robajem worząc zwiątnie,
+postem w tylisu opławiny odgła w w rozcielbów pitąd i kona przerwa mni

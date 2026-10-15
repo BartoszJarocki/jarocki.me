@@ -1,0 +1,125 @@
+{"label":"shakespeare-lower C32 L2 H4 T64 B16","data":"shakespeare-lower","config":{"vocab":39,"ctx":64,"dim":32,"layers":2,"heads":4},"B":16,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":30055,"vocab":39,"trainTokens":1003854,"valTokens":111540,"baselines":{"uniform":3.6635616461296463,"bigram":{"train":2.437871000764494,"val":2.451276246540849}}}
+
+=== shakespeare-lower C32 L2 H4 T64 B16 at 10s: step 77, train(last 5s) 2.579, val 2.542
+--- sample
+!
+yore, os cor ile y t.
+amer whenthou che as lethe iceth rd sthist nntourtres
+lererwhinischa auth
+ngiy y thiduplanathenverth prpand ced c c,
+tt cherd thinongeml fousante:
+ththe,
+coryoonoven s prd botr
+--- sample
+fe soust,of kerenghath thedet bed wint, whimuut
+as atar th ly beshan men:
+d t d?
+cord bynd aner, ce u atonglan pou on we gesousitherannd meonofoond,
+meng lus s y thanatzet maasha mimetelld s nd therer
+--- sample
+norereshee fy w thld his bet cer
+r
+ydtheranlorlencan, ch itirlr d le me
+
+ond mlreryrdesowhe hino or mith
+me anarlousatmetomyehamethasheres tof thantuar one, pr d.
+tend,
+ang w re tos d f lad sthele hen
+
+=== shakespeare-lower C32 L2 H4 T64 B16 at 30s: step 227, train(last 5s) 2.418, val 2.411
+--- sample
+adthe meis cor hee wer ce noburenthou ce ade inthe hagr de asthirs mervintorg melisthind nd a wio orexething y o:
+butheventhe, t neake ld
+badow chend thinond mo fous, we lomy ind thyinderas s ouce sow
+--- sample
+he totht wee thened that.
+
+to belestho my thowi do bu, fot ly bepo:
+
+lincofou dit:
+se bye mareo te do avinelar ous om we genousithe:
+he fare t, me techio ithelet the ery we d the mines oular nderinghe
+--- sample
+orirngrskif y, athin'd s bes ber
+t yowinomeis ted ande hansther d in,
+h ase anourivokises-s hing or irs are andengouprsavinppe geshengheat tof the ws rareanghid t thinle in wase tot cile ce!
+wire anee
+
+=== shakespeare-lower C32 L2 H4 T64 B16 at 60s: step 452, train(last 5s) 2.298, val 2.288
+--- sample
+acus:
+iell cop ilily uke hen wings wo dee
+athe wis haknd pe sursts moutints tar soouringee,
+
+avio ongw yourk you ierrfewers efoulf mand bak atuce.
+
+
+butontee mo fotin, finoly illdedus irten sino has: 
+--- sample
+haclutht yee spllincin's nous and wors lorimuth
+at aule ti iuceere man mat stalls the ay fo merat eat avind be ors omave herrssoved,
+gomand ir the the pochte sfucin lery weeabll apleave.
+
+
+marenster t
+--- sample
+llis, to peay was thand hanr ben
+ray your iourebe anco?
+
+duthit che bea ase anit swoerersen himo:
+if pthar ach rouss: wito winch youreer thit ise?
+
+you noser, alo the thand yeliers.
+
+
+and anitend anen
+
+=== shakespeare-lower C32 L2 H4 T64 B16 at 120s: step 889, train(last 5s) 2.076, val 2.101
+--- sample
+
+ausing oof the godser camen uplowdsace, a the with cate se sthirl,
+tollent talll to the of a wild prwether,
+you i's thours forld me gof ald to ding itht the nof the it ishave he thou.
+
+whe sher hatho
+--- sample
+ficht:
+why me, quen thate noughld with my thown
+colave his my benill me do staior the by goand;
+the teawor the prof i whard. ther sof share, the lerchen,
+my moay the fry wee and and noper;
+the sto the
+--- sample
+mearsess:
+bet vargle hir bet chi-p your their.
+
+i be the ithath fine me and anst sword; with:
+is olld what a lend therress wis hese then! bow low,
+woll of loth'd and it dincrced to am, he benthege hen
+
+=== shakespeare-lower C32 L2 H4 T64 B16 at 300s: step 2449, train(last 5s) 1.838, val 1.929
+--- sample
+
+ating her doond of-ather pray souls:
+be a the wis i come i sumpord tood, who
+now to the peac wit sonseshed, you have swers else
+the goan eappy be the to the on his merce.
+
+vinius:
+you. which stincect
+--- sample
+ficiushaly mease prers the train.
+how, my thown es by rest my beding
+of doing ere the by for my the teath so partt peate,
+his thou shal good the men some my or
+was forly we dast and rught and now.
+
+kn
+--- sample
+of there seculo thing the hold tam with the this fandom
+anght teed man a the my ortumprous good.
+
+leptina:
+a marry thy, worth'd now their,
+to my misune pore stank the the set slation
+the darty siman t

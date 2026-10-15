@@ -1,0 +1,2 @@
+/result {"data":"names","dim":32,"layers":2,"heads":4,"ctx":16,"batch":32,"kernel":"ikj4","warmup":2,"steps":3,"params":27739,"medianMs":185.89999997615814,"minMs":169.89999997615814,"maxMs":253.7999999821186,"firstLoss":3.297045287653423,"lastLoss":3.062815186637761}
+/done Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36

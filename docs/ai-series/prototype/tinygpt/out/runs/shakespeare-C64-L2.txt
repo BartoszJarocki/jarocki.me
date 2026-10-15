@@ -1,0 +1,118 @@
+{"label":"shakespeare C64 L2 H4 T64 B16","data":"shakespeare","config":{"vocab":65,"ctx":64,"dim":64,"layers":2,"heads":4},"B":16,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":112577,"vocab":65,"trainTokens":1003854,"valTokens":111540,"baselines":{"uniform":4.174387269895637,"bigram":{"train":2.4545713757197,"val":2.4818894321157265}}}
+
+=== shakespeare C64 L2 H4 T64 B16 at 10s: step 21, train(last 5s) 3.253, val 3.270
+--- sample
+
+ yhe iben  re e l y t   ben teeivesn  e,
+ r eethh e  t  oW oteoit lhrtneuufo
+e relugnaone R
+
+tme
+hehy yeoho yan e sonhyeiue mnr lee W,; 
+ 
+ tu  edh enireoan ir asood t ednaxeaee tewoearseh oanr c onu
+--- sample
+ad rthou y lJireing sa ranert  Xe,roes ithn tus
+ r  t n si fu  eol i ige r pr  rr tg   yh i ldi r aat
+
+treei.e nnr na t  c sornlreio eh alehar reaeo mehe etheh w raal tyds h  oo 
+eh kt lid n ldeonenel
+--- sample
+linnrlsrhg Iy t oeo  dhe  at  .h
+n
+ueuh,h ehlenan  e r d etoghr
+ , g g 
+
+ie  giteiyt tisshh cl r me ger 
+ed  e onoooesretr tiie iuo rinleo sr eireItx o lee,heo  t s n s  he w ne ssh
+ n d'  hhtheae dee
+
+=== shakespeare C64 L2 H4 T64 B16 at 30s: step 60, train(last 5s) 2.750, val 2.730
+--- sample
+
+
+je he me ble he ht vad her weeeurriag h as inthe hadod s assatho orrtortthi naseruprarioii Iror sery y thk'y p katosiy tre rnr pee g; c c att cher; thiothe no gotinbt, monuonar vevindethe tenram, ts
+--- sample
+CE
+RWits welenmerelath, mecst ameatletaourinsti bl at, hir iw,
+Fnlan nd cofer coudir acy he nde t f v Setheo, arit pe wad hitosnsislanin ngher the, befen ltheoku than ty wan asoN
+I het, t.
+N; merirler
+--- sample
+NNOLSAror.
+By w thimanir,
+Cs bdc
+S
+inur tanis tfe an t h hourit d ke me  s, anouoswtatisthe hino plMnls -sa!
+F thisoptorstatind ntheririro to, the.Nwar rd liro dn tKnat bem,o saersi!
+Md machethece hen
+
+=== shakespeare C64 L2 H4 T64 B16 at 60s: step 122, train(last 5s) 2.598, val 2.559
+--- sample
+
+
+Yeand oul thand guat:
+
+ASe uremy us che as mesis ig ulck,
+Oshist otowortres
+ENmerurs sionc' wot s.
+imy thigwhe m tisay tpilloud nd faoc cadevaleer, thinmar ou fous ls les whe,
+
+Thyorasthe thes h snt
+--- sample
+CE:
+Wmow y orlouree thas otow ale, thof wis vou
+
+RAEUEO:
+P my anke n nd congo couloth ay:
+G nd?
+RGUEUA worer n pou ph we ghissouther, s fenghe the? bingh, wingeu thar, y war asof ngelther.
+CI mesorpki
+--- sample
+LLLOSOUTe,
+Aves s thanghad w all s whre theningele k t.
+
+Asthes d me me Bund mithiwsathithe, thicir mes I n anclousortortonsind nthasferes tocherchry s rd meno de the, f ng w shasth cilee aotothe.
+
+Fh
+
+=== shakespeare C64 L2 H4 T64 B16 at 120s: step 258, train(last 5s) 2.375, val 2.393
+--- sample
+
+Aved larg cos har y thaim t urgitave d lad,
+Loveind buncin sthist outrsets: I hinowat she f aven rgoway ter y pematisewast,
+Prs osrceeak
+CHatt cenind therd her groupes kerdsme omy yothesI ck pread, w
+--- sample
+I asthit y nourd pomte the'st beinss undlll vou
+Buces omus ly anoune nd dimou d third by, o, mulof fpabyoteof argr pe unceeroushmeme lld ourd,
+The t ourod wing y thandoy w macoul ngent pre sboristerd.
+--- sample
+Rird srour fwat thil his bes chi s yowe, ghis she anat hanth st d lleme
+
+Son muthevonst: sshend armangr Ond an; this wotountand my istheng tled,
+Mesw sI minirr d, theat cen y sperur end madepureg bhen
+
+=== shakespeare C64 L2 H4 T64 B16 at 300s: step 739, train(last 5s) 2.034, val 2.094
+--- sample
+
+At me for booind, you be nobut'staus com are my shal what and tis mertonsunt
+The sunt sof factiod oft, sominus be tof your dish not for Cabesuch,
+Then thing nof tor home thrim not your with kis gantu
+--- sample
+Fades'se your thear the meatt:
+He worn my thour com, foren lof his mand comin dot tin by.
+
+
+Nis shall ave ombleatiences cintous, som ir fore.
+
+PUININENIU:
+Wheirs the fry we carrd mings, shan of ting,
+
+--- sample
+ORKE, with full thim his bet beo say's him sto is and-
+LANd, to deen me I had to sworlnay, hee sand mise
+Than eposterst worss in with sone to is mest of meathe dof him.
+
+LONT:
+Mest a sech ande shall o

@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>tinygpt bench</title>
+<pre id="log">running</pre>
+<script type="module">
+const runs = JSON.parse(new URLSearchParams(location.search).get('runs'));
+const worker = new Worker('./worker.js', { type: 'module' });
+const results = [];
+worker.onmessage = async ({ data }) => {
+  results.push(data);
+  document.getElementById('log').textContent = JSON.stringify(results, null, 1);
+  await fetch('/result', { method: 'POST', body: JSON.stringify(data) });
+  if (results.length === runs.length) await fetch('/done', { method: 'POST', body: navigator.userAgent });
+};
+worker.onerror = (e) => fetch('/result', { method: 'POST', body: JSON.stringify({ error: e.message }) });
+worker.postMessage(runs);
+</script>
