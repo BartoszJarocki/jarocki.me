@@ -36,7 +36,24 @@ The valley goes here, with every setting of the two knobs and a cube that walks 
 
 ## Which way is downhill?
 
-The receipt goes here, with one ride worked out line by line and then walked back from the bottom line.
+Each step needs the slope for every knob. Here is how the machine gets it. Take one ride and work out its loss like a receipt, one line at a time. Distance times price per km. Plus the starting fee, which gives the guessed fare. Minus what the rider paid, which gives the miss. Then the miss times itself, which is this ride's loss.
+
+Press nudge to add one cent to the price per km and watch the bottom line. It changes a little. That change divided by one cent is very close to the slope for this knob. It says how fast the loss moves when the knob turns, and which way. A negative slope means turning the knob up makes the loss smaller.
+
+<FareReceipt label="One taxi ride's loss, worked out line by line like a receipt">
+
+One 0.3 km ride, worked out like a receipt from your starting fee and price per km, one line per step, down to this ride's loss. Nudge adds one cent to the price per km and shows how the loss changes. Backward fills in each line's slope, from the bottom line up.
+
+</FareReceipt>
+
+Nudging works, but a real model has millions of knobs, and nudging each one in turn would take forever. So the machine walks the receipt from the bottom line up instead, like tracing a wrong total back to the items that caused it. A line's slope says how much the bottom line moves for each unit that line moves, and each line works it out from the line after it.
+
+The bottom line is the miss times itself. If the miss is 3, this ride's loss is 9. Make the miss 3.01 and the loss is 9.0601, about 0.06 more, which is 2 × 3 × 0.01. So the loss moves about two times the miss for each unit the miss moves, and the miss gets a slope of two times the miss. The guessed fare moves the miss one for one, so it gets the same slope, and so does the starting fee. The price per km moves its line only 0.3 times as much, because the ride was 0.3 km, so its slope is 0.3 times that. Press backward to watch it. The slope it gets for the price per km is almost exactly what the nudge gave, and the starting fee got its slope in the same walk. This walk backwards is **backpropagation**. Do it for all eight rides, average the slopes, and you have the gradient from the valley.
+
+For readers who know JavaScript, here is `Value`, the class the receipt above runs on. A `Value` keeps its number in `data`, its slope in `grad`, and the values it was made from. Each of those comes paired with how much this value moves when that one moves by one. `backward` walks from the bottom line up, and each value passes its slope back to the values it was made from, times those numbers. It works for any calculation built from these methods, not only this receipt. The code is TypeScript, which is JavaScript with the type of each value written after a colon.
+
+```ts include=src/lib/ml/value.ts#backward
+```
 
 ## When a straight line isn't enough
 
