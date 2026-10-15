@@ -10,15 +10,19 @@ export type Note = {
   description: string;
   publishedAt: string;
   tags: string[];
+  draft: boolean;
 };
 
 const notesDir = path.join(process.cwd(), 'src/notes');
+const fields = ['title', 'description', 'publishedAt', 'tags', 'draft'];
 
 export function getNotes(): Note[] {
+  const production = process.env.VERCEL_ENV === 'production';
   return fs
     .readdirSync(notesDir)
     .filter((file) => file.endsWith('.mdx'))
     .map((file) => parseNote(file, readNote(file).data))
+    .filter((note) => !(production && note.draft))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 }
 
@@ -32,27 +36,40 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
 }
 
 // An editor on Windows can save the file with a byte order mark and \r\n line endings.
-const frontmatter = /^\uFEFF?---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
+const frontmatter = /^\uFEFF?(---[ \t]*\r?\n[\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 
 function readNote(file: string) {
   const source = fs.readFileSync(path.join(notesDir, file), 'utf8');
-  const [block, yamlSource = ''] = frontmatter.exec(source) ?? [''];
-  // The JSON schema keeps an unquoted 2024-02-16 as the text written instead of a Date, which YAML
-  // would roll over from 2024-02-30 to March or shift to UTC from a timestamp with an offset.
-  const data = yaml.load(yamlSource, { schema: yaml.JSON_SCHEMA }) ?? {};
+  const [block, yamlFromLineOne = ''] = frontmatter.exec(source) ?? [''];
+  let data: unknown;
+  try {
+    // The JSON schema keeps an unquoted 2024-02-16 as the text written instead of a Date, which
+    // YAML would roll over from 2024-02-30 to March or shift to UTC from a timestamp with an offset.
+    data = yaml.load(yamlFromLineOne, { schema: yaml.JSON_SCHEMA }) ?? {};
+  } catch (error) {
+    throw new Error(`src/notes/${file}: ${(error as Error).message}`);
+  }
+  if (typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error(`src/notes/${file}: frontmatter needs fields as key: value`);
+  }
   return { data: data as Record<string, unknown>, content: source.slice(block.length) };
 }
 
 function parseNote(file: string, data: Record<string, unknown>): Note {
-  const { title, description, publishedAt, tags } = data;
+  const { title, description, publishedAt, tags, draft = false } = data;
   const invalid = (field: string) => new Error(`src/notes/${file}: frontmatter needs ${field}`);
+  const unknown = Object.keys(data).find((key) => !fields.includes(key));
 
+  if (unknown !== undefined) {
+    throw new Error(`src/notes/${file}: frontmatter has an unknown field ${unknown}`);
+  }
   if (!isText(title)) throw invalid('a title');
   if (!isText(description)) throw invalid('a description');
   if (!isCalendarDate(publishedAt)) throw invalid('publishedAt as a YYYY-MM-DD date');
   if (!Array.isArray(tags) || tags.length === 0 || !tags.every(isText)) {
     throw invalid('a non-empty list of tags');
   }
+  if (typeof draft !== 'boolean') throw invalid('draft as true or false');
 
   return {
     slug: file.replace(/\.mdx$/, ''),
@@ -60,6 +77,7 @@ function parseNote(file: string, data: Record<string, unknown>): Note {
     description,
     publishedAt,
     tags,
+    draft,
   };
 }
 

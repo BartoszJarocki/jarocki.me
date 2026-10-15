@@ -10,6 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm lint` - Run ESLint
 - `pnpm format` - Format code and CSS with Prettier. Markdown and MDX stay as written
 - `pnpm typecheck` - Run TypeScript type checking
+- `pnpm test` - Run the `*.test.ts` files under `src/lib` with `node --test`. The script passes a quoted glob that Node expands, because Node 22 and 24 reject a folder there. Node 22.18 or a later 22 release, or Node 23.6 or later, strips the types, so a test imports a module by its `.ts` path
 - `pnpm postbuild` - Generate sitemap (runs automatically after build)
 - `pnpm subset-fonts` - Write the Geist subsets in `src/fonts` from the `geist` package
 - `pnpm icons` - Write the favicon, the SVG icon, and the home screen icon in `public` from the Geist Pixel Square glyphs
@@ -40,6 +41,8 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 ### Notes:
 - Each note is one `.mdx` file in `src/notes/`. The file name is the slug
 - The frontmatter needs `title`, `description`, `publishedAt` as a `YYYY-MM-DD` date, and `tags` as a list of strings. A missing or empty field fails the build
+- `draft: true` in the frontmatter keeps a note out of production. When `VERCEL_ENV` is `production`, `getNotes` drops it. So the notes list, the home page, the RSS feed, and the sitemap leave it out, and its page is a 404. Local builds and preview deployments show it, and its page sets `noindex`. `draft` is optional, and any value that YAML does not read as true or false fails the build. The RSS route and the home page call `getNotes` at run time. To check production locally, set `VERCEL_ENV=production` for both `pnpm build` and `pnpm start`
+- Any other frontmatter field fails the build with an error that names it, so a misspelled `draft` can't publish a draft. To add a field, add it to `fields` in `src/lib/notes.ts`
 - A note's images live in `public/images/notes/<slug>/`, and the note references them as `![alt](/images/notes/<slug>/1.jpg)`
 - The build reads each image's width and height from the file, so a missing image fails the build
 
