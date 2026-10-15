@@ -794,7 +794,6 @@ async function mountScene(
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const darkScheme = matchMedia('(prefers-color-scheme: dark)');
   const t0 = performance.now();
-  const now = () => (reducedMotion.matches ? REST_T : (performance.now() - t0) / 1000);
 
   // The shaders, the textures, the buffers of each scene, and the drawing buffer each take a task
   // here, so the first frame only draws.
@@ -807,19 +806,25 @@ async function mountScene(
     () => renderer.render(scene, camera),
     () => renderer.render(overlay, ortho),
     resize,
-    () => frame(now()),
   ];
   for (const step of warmUp) {
     await nextSlice();
     step();
   }
+  await nextSlice();
+  // Chrome drops the change event when .matches is read between a change and its event, as a frame
+  // loop does, so the query is read once, in the task that starts listening, and then only through
+  // its events.
+  let reduced = reducedMotion.matches;
+  const now = () => (reduced ? REST_T : (performance.now() - t0) / 1000);
+  frame(now());
   stage.append(renderer.domElement);
 
   let visible = false;
   let raf = 0;
   cleanup.add(() => cancelAnimationFrame(raf));
   let last = -Infinity;
-  const running = () => visible && !document.hidden && !reducedMotion.matches;
+  const running = () => visible && !document.hidden && !reduced;
 
   function tick(time: number) {
     raf = 0;
@@ -851,8 +856,9 @@ async function mountScene(
   document.addEventListener('visibilitychange', play, { signal });
   reducedMotion.addEventListener(
     'change',
-    () => {
-      if (reducedMotion.matches) frame(REST_T);
+    (event) => {
+      reduced = event.matches;
+      if (reduced) frame(REST_T);
       else play();
     },
     { signal },

@@ -319,11 +319,12 @@ async function mountScene(
   }
 
   function tick(now: number) {
+    const elapsed = reducedMotion.matches ? Infinity : now - morphStart;
     let changed = false;
     let moving = false;
     for (let i = 0; i < shown.length; i++) {
       if (shown[i] === goal[i]) continue;
-      const steps = Math.floor(Math.max(0, now - morphStart - columns[i].delay) / 28);
+      const steps = Math.floor(Math.max(0, elapsed - columns[i].delay) / 28);
       const distance = goal[i] - from[i];
       const next = from[i] + Math.sign(distance) * Math.min(Math.abs(distance), steps);
       if (next !== shown[i]) {
