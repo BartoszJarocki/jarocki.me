@@ -72,6 +72,13 @@ const SCALE = [18, 15, 18];
 const HALF_W = 11.6;
 const HALF_H = 6;
 const DEPTH = 6;
+// A very wide stage, like the band behind the header, squashes y and lifts the band. Both ramp in
+// as the aspect grows from WIDE_FROM to WIDE_FROM + WIDE_SPAN. The lift, a share of the stage
+// height, keeps the band inside the top 55% that the .backdrop mask in index.css leaves unfaded.
+const WIDE_FROM = 2.4;
+const WIDE_SPAN = 0.8;
+const WIDE_SQUASH = 0.42;
+const WIDE_LIFT = 0.15;
 const AN_PERIOD = 20;
 const AN_OFFSET = 2;
 const REST_T = 6;
@@ -671,14 +678,13 @@ export async function mountEmbeddings(
     const along = portrait ? tan : tan * a;
     const across = portrait ? tan * a : tan;
     const e = along / across;
-    // A very wide stage, like the hero band, squashes y and lifts the band into the unfaded top.
-    const wide = clamp((e - 2.4) / 0.8, 0, 1);
-    world.scale.set(1, 1 - 0.42 * wide, 1);
+    const wide = clamp((e - WIDE_FROM) / WIDE_SPAN, 0, 1);
+    world.scale.set(1, 1 - WIDE_SQUASH * wide, 1);
     world.updateMatrixWorld();
     const dW = HALF_W / along;
     const dH = (HALF_H * world.scale.y) / across;
     dist = Math.min(dW, Math.max(dH * 1.3, dW * 0.4));
-    camera.setViewOffset(w, h, 0, 0.15 * wide * h, w, h);
+    camera.setViewOffset(w, h, 0, WIDE_LIFT * wide * h, w, h);
     camera.updateProjectionMatrix();
     ortho.left = 0;
     ortho.right = w;

@@ -178,6 +178,8 @@
     opacity: 0.4;
     pointer-events: none;
     overflow: hidden;
+    /* the scene lifts a wide stage's band into this unfaded top 55% (WIDE_LIFT in
+       src/lib/embeddingsScene.ts) */
     -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
     mask-image: linear-gradient(to bottom, #000 55%, transparent);
     /* Chrome paints all page text into a layer above the canvas and drops subpixel antialiasing
