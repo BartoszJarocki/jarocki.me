@@ -232,10 +232,10 @@ export async function mountEmbeddings(
     neighbors(i);
     await yieldIfSpent();
   }
-  const analogies = ANALOGIES.map((a) => {
-    const r = analogy(space, a);
+  const analogies = ANALOGIES.map((query) => {
+    const r = analogy(space, query);
     const qPos = new Vector3(r.q[0] * SCALE[0], r.q[1] * SCALE[1], r.q[2] * SCALE[2]);
-    const caption = `${a[0].trim()} - ${a[1].trim()} + ${a[2].trim()} → ${tokens[r.answer].trim()}`;
+    const caption = `${query.b.trim()} - ${query.a.trim()} + ${query.c.trim()} → ${tokens[r.answer].trim()}`;
     return { ...r, qPos, caption };
   });
 
