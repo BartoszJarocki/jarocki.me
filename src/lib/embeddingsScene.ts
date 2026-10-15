@@ -53,6 +53,7 @@ type TextSet = {
 };
 type ScreenPoint = { x: number; y: number };
 type Placed = { x: number; y: number; w: number; halfH: number };
+type Teardown = (() => void)[];
 
 const K = 8;
 // Seconds per token, the glide between tokens, and a phase offset that leaves t = 6 settled on
@@ -167,25 +168,40 @@ export async function mountEmbeddings(
   } catch {
     return null;
   }
-  const owned: { dispose: () => void }[] = [];
+  const teardown: Teardown = [
+    () => {
+      renderer.dispose();
+      renderer.forceContextLoss();
+      renderer.domElement.remove();
+    },
+  ];
+  try {
+    return await mountScene(stage, cancel, renderer, teardown);
+  } catch (error) {
+    release(teardown);
+    throw error;
+  }
+}
+
+function release(teardown: Teardown) {
+  while (teardown.length) teardown.pop()!();
+}
+
+async function mountScene(
+  stage: HTMLElement,
+  cancel: AbortSignal,
+  renderer: WebGLRenderer,
+  teardown: Teardown,
+): Promise<BackdropHandle> {
   const own = <T extends { dispose: () => void }>(resource: T) => {
-    owned.push(resource);
+    teardown.push(() => resource.dispose());
     return resource;
-  };
-  const release = () => {
-    for (const resource of owned) resource.dispose();
-    renderer.dispose();
-    renderer.forceContextLoss();
-    renderer.domElement.remove();
   };
   let sliceStart = 0;
   const nextSlice = async () => {
     await nextTask();
     sliceStart = performance.now();
-    if (cancel.aborted) {
-      release();
-      throw cancel.reason;
-    }
+    if (cancel.aborted) throw cancel.reason;
   };
   const yieldIfSpent = async () => {
     if (performance.now() - sliceStart >= SLICE_MS) await nextSlice();
@@ -451,6 +467,9 @@ export async function mountEmbeddings(
     return { x: best.x, y: best.y, w };
   };
   const hoverSets = new Map<number, { atlas: Atlas; set: TextSet }>();
+  teardown.push(() => {
+    for (const { atlas: a } of hoverSets.values()) a.texture.dispose();
+  });
   const hoverSet = (tok: number) => {
     let entry = hoverSets.get(tok);
     if (!entry) {
@@ -798,6 +817,7 @@ export async function mountEmbeddings(
 
   let visible = false;
   let raf = 0;
+  teardown.push(() => cancelAnimationFrame(raf));
   let last = -Infinity;
   const running = () => visible && !document.hidden && !reducedMotion.matches;
 
@@ -815,6 +835,7 @@ export async function mountEmbeddings(
   }
 
   const listeners = new AbortController();
+  teardown.push(() => listeners.abort());
   const { signal } = listeners;
   addEventListener(
     'pointermove',
@@ -850,21 +871,14 @@ export async function mountEmbeddings(
     resize();
     frame(now());
   });
+  teardown.push(() => resizeObserver.disconnect());
   resizeObserver.observe(stage);
   const intersectionObserver = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     play();
   });
+  teardown.push(() => intersectionObserver.disconnect());
   intersectionObserver.observe(stage);
 
-  return {
-    destroy() {
-      cancelAnimationFrame(raf);
-      resizeObserver.disconnect();
-      intersectionObserver.disconnect();
-      listeners.abort();
-      for (const { atlas: a } of hoverSets.values()) a.texture.dispose();
-      release();
-    },
-  };
+  return { destroy: () => release(teardown) };
 }
