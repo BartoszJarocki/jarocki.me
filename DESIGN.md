@@ -141,7 +141,7 @@ Every piece of text a reader sees is lowercase, except the name Bartosz Jarocki.
 
 - The root sets `text-transform: lowercase`, so notes, data files, and page copy keep their own case in the source and in JSON-LD. Chromium's accessibility tree holds the lowercase text too.
 - `code`, `kbd`, `pre`, and `samp` keep their case. Buttons inherit the root's case, because Tailwind's preflight resets them to `none`.
-- `Cased` renders a string with every name from the list wrapped in a `normal-case` span. The header name, the hidden `h1`, the `more` link of a section, and the elsewhere rows use it. Render any string that can hold the name or a handle through `Cased`.
+- `Cased` renders a string with every name from the list wrapped in a `normal-case` span. The header name and the hidden `h1` use it. Render any string that can hold the name through `Cased`.
 - Text outside the page goes through `lowercase`, which reads the same list: the tab title, the meta description, the Open Graph title, description, and image alt, the share image, and the feed's titles and descriptions. JSON-LD, hrefs, and the handle in the `twitter:site` and `twitter:creator` tags keep the source text, because machines read them.
 - The backdrop draws only lowercase labels. See Backdrop.
 
