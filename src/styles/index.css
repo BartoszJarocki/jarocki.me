@@ -74,13 +74,18 @@
   }
 
   /* the backdrop must never pass behind faint or body text, which drop under 4.5:1 over it. A plate
-     on text that wraps inline, like a lede's, also needs py-[3px] to cover its half-leading. */
-  .plate {
+     on text that wraps inline, like a lede's, is .plate-inline, whose 3px of block padding covers
+     the lines' half-leading. */
+  .plate,
+  .plate-inline {
     margin-inline: -1ch;
     padding-inline: 1ch;
     background: var(--bg);
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+  }
+  .plate-inline {
+    padding-block: 3px;
   }
 
   /* main is sized before trail, so a long trail (a note's tags) clips instead of the title */
@@ -112,8 +117,8 @@
   a.index-row:focus-visible * {
     color: var(--bg);
   }
-  a.index-row:hover .plate,
-  a.index-row:focus-visible .plate {
+  a.index-row:hover :is(.plate, .plate-inline),
+  a.index-row:focus-visible :is(.plate, .plate-inline) {
     background: transparent;
   }
   @media (max-width: 640px) {

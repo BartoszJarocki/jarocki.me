@@ -40,7 +40,7 @@ export default function About() {
     <PageShell seoTitle={seoTitle} seoDescription={seoDescription} current="about">
       <Lede>
         <p>
-          <span className="plate py-[3px] text-body">{AboutExtended}</span>
+          <span className="plate-inline text-body">{AboutExtended}</span>
         </p>
       </Lede>
 
@@ -59,7 +59,7 @@ export default function About() {
           ))}
         </IndexList>
         <p className="mt-5">
-          <span className="plate py-[3px]">And various crime stories.</span>
+          <span className="plate-inline">And various crime stories.</span>
         </p>
       </IndexSection>
 

@@ -281,7 +281,7 @@ So the tone decides. In the band, `ink` text needs no plate, and every piece of 
 - A lede's `body` text, on the home page and on /about, and the closing line under the last list on /about and /work.
 - Note prose. `.prose` has a `bg` background without the 1ch margin, because padding would narrow its 37rem measure. It also covers the faint list markers, which can't carry a plate of their own.
 
-A plate on inline text, like a lede's or a row's, also has `py-[3px]` to fill its lines' half-leading, so it covers the whole text box. A plate on a flex item or a block, like a section label or the meta line, must not, because there the padding grows the row.
+A plate on inline text, like a lede's or a row's, is `.plate-inline`, a plate with `3px` of block padding that fills its lines' half-leading, so it covers the whole text box. A plate on a flex item or a block, like a section label or the meta line, is `.plate`, without the padding, because there the padding grows the row.
 
 Sampled for 90 seconds on every page (home, notes, each note, work, about, 404, and 500), in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more, and the left edge of note prose, which stays at 5.3:1 or more.
 
