@@ -18,6 +18,7 @@ import {
 
 import { LEVELS } from './activityStats';
 import { tokenReader } from './colorTokens';
+import { Teardown, teardown } from './teardown';
 
 type View = { yaw: number; pitch: number };
 
@@ -72,8 +73,9 @@ const fragmentShader = `
     gl_FragColor = vec4(c, 1.0);
   }`;
 
-function voxels(count: number, height: number) {
+function voxels(cleanup: Teardown, count: number, height: number) {
   const geometry = new BoxGeometry(UNIT, height, UNIT);
+  cleanup.add(() => geometry.dispose());
   const lit = new InstancedBufferAttribute(new Float32Array(count), 1);
   geometry.setAttribute('aHi', lit);
   const material = new ShaderMaterial({
@@ -81,7 +83,9 @@ function voxels(count: number, height: number) {
     vertexShader,
     fragmentShader,
   });
+  cleanup.add(() => material.dispose());
   const mesh = new InstancedMesh(geometry, material, count);
+  cleanup.add(() => mesh.dispose());
   mesh.count = 0;
   mesh.frustumCulled = false;
   return { mesh, lit, columnOf: new Int32Array(count) };
@@ -102,21 +106,43 @@ export async function mountSkyline(
   } catch {
     return null;
   }
+  const cleanup = teardown();
+  cleanup.add(() => renderer.domElement.remove());
+  cleanup.add(() => renderer.forceContextLoss());
+  cleanup.add(() => renderer.dispose());
+  try {
+    return await mountScene(stage, dates, heights, onHover, cancel, renderer, cleanup);
+  } catch (error) {
+    try {
+      cleanup.run();
+    } catch (cleanupError) {
+      console.error(cleanupError);
+    }
+    throw error;
+  }
+}
+
+async function mountScene(
+  stage: HTMLElement,
+  dates: string[],
+  heights: () => number[],
+  onHover: (day: number | null) => void,
+  cancel: AbortSignal,
+  renderer: WebGLRenderer,
+  cleanup: Teardown,
+): Promise<SkylineHandle> {
   // Creating the renderer takes about as long as building and drawing the scene on a slow CPU, so
   // the two run in separate tasks. Input that arrives in between runs first, so heights() is read
   // after the wait.
   await new Promise((resolve) => setTimeout(resolve));
-  if (cancel.aborted) {
-    renderer.dispose();
-    renderer.forceContextLoss();
-    throw cancel.reason;
-  }
+  if (cancel.aborted) throw cancel.reason;
   // Without color management the shader's mix of the token colors reaches the screen unchanged.
   ColorManagement.enabled = false;
   renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
 
   const overlay = document.createElement('div');
+  cleanup.add(() => overlay.remove());
   overlay.className = 'skyline-overlay';
   stage.append(renderer.domElement, overlay);
 
@@ -145,8 +171,8 @@ export async function mountSkyline(
 
   const scene = new Scene();
   const camera = new OrthographicCamera(-1, 1, 1, -1, -500, 500);
-  const solids = voxels(dates.length * LEVELS, UNIT);
-  const flats = voxels(dates.length, 0.16);
+  const solids = voxels(cleanup, dates.length * LEVELS, UNIT);
+  const flats = voxels(cleanup, dates.length, 0.16);
   scene.add(solids.mesh, flats.mesh);
   const center = new Vector3(0, 3, 0);
   const bounds = new Box3(
@@ -175,6 +201,7 @@ export async function mountSkyline(
   let hovered: number | null = null;
   let drag: { x: number; y: number; from: View; moved: boolean; pointer: number } | null = null;
   let raf = 0;
+  cleanup.add(() => cancelAnimationFrame(raf));
 
   function paint() {
     const bg = token('--bg');
@@ -380,6 +407,8 @@ export async function mountSkyline(
   }
 
   const listeners = new AbortController();
+  cleanup.add(() => delete stage.dataset.dragging);
+  cleanup.add(() => listeners.abort());
   const { signal } = listeners;
   stage.addEventListener(
     'pointerdown',
@@ -446,28 +475,12 @@ export async function mountSkyline(
   // three cancels webglcontextlost and rebuilds its state on restore, but only a draw repaints.
   renderer.domElement.addEventListener('webglcontextrestored', draw, { signal });
   const resizeObserver = new ResizeObserver(resize);
+  cleanup.add(() => resizeObserver.disconnect());
   resizeObserver.observe(stage);
 
   paint();
   setHeights(heights());
   resize();
 
-  return {
-    setHeights,
-    destroy() {
-      cancelAnimationFrame(raf);
-      resizeObserver.disconnect();
-      listeners.abort();
-      for (const { mesh } of [solids, flats]) {
-        mesh.geometry.dispose();
-        mesh.material.dispose();
-        mesh.dispose();
-      }
-      renderer.dispose();
-      renderer.forceContextLoss();
-      renderer.domElement.remove();
-      overlay.remove();
-      delete stage.dataset.dragging;
-    },
-  };
+  return { setHeights, destroy: cleanup.run };
 }
