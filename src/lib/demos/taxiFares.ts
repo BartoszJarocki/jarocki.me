@@ -1,7 +1,7 @@
 export type Ride = { km: number; paid: number };
 
 // The model's two knobs: the starting fee is the bias and the price per km is the weight.
-export type FareRule = { fee: number; price: number };
+export type FareRule = { readonly fee: number; readonly price: number };
 
 // Made up: a fee near 5 and a price near 1.5 per km, plus traffic, so no line touches every ride.
 // Short rides keep the loss valley wide enough to walk down in tens of steps.
@@ -15,6 +15,15 @@ export const rides: readonly Ride[] = [
   { km: 2.1, paid: 7.85 },
   { km: 2.4, paid: 9.2 },
 ];
+
+export const start: FareRule = { fee: 2, price: 2.5 };
+
+export const fareBox = {
+  fee: { min: 0, max: 10, step: 0.01 },
+  price: { min: 0, max: 5, step: 0.01 },
+} as const;
+
+export const money = (dollars: number) => `$${dollars.toFixed(2)}`;
 
 export const predict = (rule: FareRule, km: number) => rule.fee + rule.price * km;
 
@@ -31,3 +40,22 @@ export function leastSquares(): FareRule {
     (mean((ride) => ride.km * ride.paid) - km * paid) / (mean((ride) => ride.km ** 2) - km ** 2);
   return { fee: paid - price * km, price };
 }
+
+// The reader's fee and price, shared by every fare demo on the page for the session. A rule is
+// never changed in place, so a demo that kept the rule it last saw can tell another demo moved it.
+let rule = start;
+const listeners = new Set<() => void>();
+
+export const fareRule = {
+  get: () => rule,
+  set(next: FareRule) {
+    if (next.fee === rule.fee && next.price === rule.price) return;
+    rule = next;
+    for (const listener of listeners) listener();
+  },
+  subscribe(listener: () => void, signal: AbortSignal) {
+    if (signal.aborted) return;
+    listeners.add(listener);
+    signal.addEventListener('abort', () => listeners.delete(listener), { once: true });
+  },
+};
