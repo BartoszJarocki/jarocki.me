@@ -467,7 +467,9 @@ async function mountScene(
   };
   const hoverSets = new Map<number, { atlas: Atlas; set: TextSet }>();
   cleanup.add(() => {
-    for (const { atlas: a } of hoverSets.values()) a.texture.dispose();
+    const each = teardown();
+    for (const { atlas: a } of hoverSets.values()) each.add(() => a.texture.dispose());
+    each.run();
   });
   const hoverSet = (tok: number) => {
     let entry = hoverSets.get(tok);
@@ -482,9 +484,9 @@ async function mountScene(
       entry = { atlas: a, set: textSet(a, hoverText) };
       hoverSets.set(tok, entry);
       if (hoverSets.size > 24) {
-        const [oldest] = hoverSets.keys();
-        hoverSets.get(oldest)?.atlas.texture.dispose();
+        const [[oldest, evicted]] = hoverSets;
         hoverSets.delete(oldest);
+        evicted.atlas.texture.dispose();
       }
     }
     hoverText.mat.uniforms.map.value = entry.atlas.texture;
