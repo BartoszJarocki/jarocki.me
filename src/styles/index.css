@@ -548,7 +548,7 @@
   .demo-description > :last-child {
     margin-bottom: 0;
   }
-  .demo[data-phase='fallback'] :is(.demo-caption, .demo-controls) {
+  .demo:is([data-phase='still'], [data-phase='fallback']) :is(.demo-caption, .demo-controls) {
     visibility: hidden;
   }
   .demo[data-phase='fallback'] .demo-description {

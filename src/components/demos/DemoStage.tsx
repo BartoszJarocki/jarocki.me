@@ -12,7 +12,9 @@ import {
 
 import type { Scene } from '../../lib/demos/stage';
 
-export type Phase = 'shell' | 'loading' | 'ready' | 'fallback';
+export type Phase = 'shell' | 'loading' | 'ready' | 'still' | 'fallback';
+
+const quiet = ['ChunkLoadError', 'Unsupported'];
 
 export type DemoProps = { label: string; children: ReactNode };
 
@@ -32,11 +34,13 @@ export function DemoStage<P>({
   }
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
-  // React never renders what is inside a noscript on the client, so only the server loads Still.
+  // React never renders what is inside a noscript on the client, so the client loads Still only
+  // after a failed mount, when the scene's code is already there.
   const [{ parts, Still }] = useState(() => ({
     parts: {} as Partial<P>,
     Still: lazy(() => scene().then((module) => ({ default: module.Still }))),
   }));
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const element = root.current!;
@@ -49,14 +53,17 @@ export function DemoStage<P>({
         if (!entries.some((entry) => entry.isIntersecting)) return;
         near.disconnect();
         setPhase('loading');
+        let loaded = false;
         scene()
-          .then((module) =>
-            module.default.start(element, parts, unmount.signal, () => setPhase('ready')),
-          )
+          .then((module) => {
+            loaded = true;
+            return module.default.start(element, parts, unmount.signal, () => setPhase('ready'));
+          })
           .catch((error) => {
             if (unmount.signal.aborted) return;
-            if (error?.name !== 'ChunkLoadError') console.error(error);
-            setPhase('fallback');
+            if (!quiet.includes(error?.name)) console.error(error);
+            setPhase(loaded ? 'still' : 'fallback');
+            setFailed(loaded);
           });
       },
       { rootMargin: '200px' },
@@ -83,11 +90,17 @@ export function DemoStage<P>({
     >
       <div className="demo-stage">
         {body}
-        <noscript>
+        {failed ? (
           <Suspense>
             <Still />
           </Suspense>
-        </noscript>
+        ) : (
+          <noscript>
+            <Suspense>
+              <Still />
+            </Suspense>
+          </noscript>
+        )}
       </div>
       <div className="demo-caption">{caption}</div>
       <div className="demo-controls">{controls}</div>
