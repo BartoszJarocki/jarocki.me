@@ -1,4 +1,4 @@
-import { release, teardown } from '../teardown';
+import { release, teardown } from '../teardown.ts';
 
 export type PartTags = Record<string, keyof HTMLElementTagNameMap>;
 export type PartsOf<T extends PartTags> = { [K in keyof T]: HTMLElementTagNameMap[T[K]] };
