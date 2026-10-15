@@ -144,16 +144,7 @@ export default defineScene({
       { key: 'price', input: p.price, text: p.priceText },
     ] as const;
     const read = () => fareRule.set({ fee: p.fee.valueAsNumber, price: p.price.valueAsNumber });
-    for (const { key, input } of knobs) {
-      const { min, max, step } = fareBox[key];
-      input.min = String(min);
-      input.max = String(max);
-      input.step = String(step);
-      input.addEventListener('input', read, { signal: stage.signal });
-    }
-    fareRule.subscribe(stage.wake, stage.signal);
-
-    return () => {
+    const show = () => {
       const rule = fareRule.get();
       for (const { key, input, text } of knobs) {
         if (input.valueAsNumber !== rule[key]) input.value = String(rule[key]);
@@ -161,8 +152,28 @@ export default defineScene({
         input.setAttribute('aria-valuetext', money(rule[key]));
       }
       p.loss.textContent = meanSquaredError(rule).toFixed(2);
+    };
+    for (const { key, input } of knobs) {
+      const { min, max, step } = fareBox[key];
+      input.min = String(min);
+      input.max = String(max);
+      input.step = String(step);
+      input.addEventListener('input', read, { signal: stage.signal });
+    }
+    show();
+    fareRule.subscribe(() => {
+      show();
+      stage.wake();
+    }, stage.signal);
+
+    return () => {
       const ctx = stage.canvas(p.chart);
-      drawFares(ctx, fareFigure(rule, ctx.width, ctx.height), stage.tokens, stage.font(11));
+      drawFares(
+        ctx,
+        fareFigure(fareRule.get(), ctx.width, ctx.height),
+        stage.tokens,
+        stage.font(11),
+      );
     };
   },
 });
