@@ -34,8 +34,8 @@ export function DemoStage<P>({
   }
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
-  // React never renders what is inside a noscript on the client, so the client loads Still only
-  // after a failed mount, when the scene's code is already there.
+  // React never renders noscript children on the client, so this lazy Still imports nothing there
+  // until a failed mount shows it.
   const [{ parts, Still }] = useState(() => ({
     parts: {} as Partial<P>,
     Still: lazy(() => scene().then((module) => ({ default: module.Still }))),
