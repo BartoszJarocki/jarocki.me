@@ -2,10 +2,8 @@ import {
   Box3,
   BoxGeometry,
   Color,
-  ColorManagement,
   InstancedBufferAttribute,
   InstancedMesh,
-  LinearSRGBColorSpace,
   Matrix4,
   OrthographicCamera,
   Raycaster,
@@ -137,9 +135,6 @@ async function mountScene(
   // after the wait.
   await nextTask();
   if (cancel.aborted) throw cancel.reason;
-  // Without color management the shader's mix of the token colors reaches the screen unchanged.
-  ColorManagement.enabled = false;
-  renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
 
   const overlay = document.createElement('div');

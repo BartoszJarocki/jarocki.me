@@ -204,6 +204,8 @@ async function mountScene(
     if (performance.now() - sliceStart >= SLICE_MS) await nextSlice();
   };
 
+  // The lines' material converts its colors to the output color space, and those colors already
+  // mix the page's sRGB bytes, so a linear output keeps them as mixed.
   renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
