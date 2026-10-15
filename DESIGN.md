@@ -82,7 +82,7 @@ components:
 
 The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, and the points of the backdrop.
+There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, the points of the backdrop, and the points and thumbs in a demo.
 
 The theme follows the reader's system setting. There is no toggle.
 
@@ -324,6 +324,37 @@ Sampled for 60 seconds on every page (home, notes, each note, work, about, 404, 
 - The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right. A no-break space ties the `→` to the title's last word, so a long title never leaves the arrow alone on a line.
 
 Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string itself. The server and the browser can't disagree on the day, so dates never cause a hydration mismatch.
+
+## Demos
+
+A note can hold a demo that runs in the page, such as the taxi fare chart in part 1 of the ai series. Every demo behaves like the skyline. Its shell is in the HTML, its code loads only when it is near, and it stops when nobody can see it.
+
+### The stage
+
+- A note writes the demo on its own line, with blank lines around it, as `<TaxiFares label="…">description</TaxiFares>`. `label` is the figure's accessible name, and the markdown inside is the description of what the figure shows. A build fails when either is missing. MDX passes only string props.
+- `src/components/demos/index.ts` lists every demo, and `NoteContent` spreads it into the MDX components. A new demo adds one line there.
+- `DemoStage` renders the whole shell on the server: the figure box, a mono caption row, a controls row, and the description. Nothing moves when the demo starts, on a cold load or after client-side navigation.
+- The stage starts the `import()` of the demo's code when the shell comes within 200px of the viewport. The code is its own chunk, so a note's first load carries only the shells. `data-phase` on the root reads `shell`, `loading`, `ready`, or `fallback`.
+- Each demo is two files. The shell in `src/components/demos/` holds only structure. The scene in `src/lib/demos/` holds every value and all the drawing, and declares the elements it needs by tag with `defineScene`. The shell's refs are typed from that list.
+- The scene draws one frame when it mounts. After that it draws only while the stage is in the viewport and the tab is visible. Input, a theme change, or a resize while it is off screen waits until it is back. A demo that trains or walks asks for the next frame, and those frames stop while it is off screen.
+- Under reduced motion nothing starts on its own. Step buttons and sliders still work. Each scene decides what a long action does, such as jumping to the end.
+- Without JavaScript the figure box shows a still SVG of the demo's first frame, rendered only on the server, and the description shows below it. The caption and controls are hidden.
+- If the demo's code fails to load, the figure box keeps its height and shows the description. The caption and controls keep their space.
+- An abort signal owns teardown, so leaving the page releases every listener, observer, and frame, even halfway through a mount.
+
+### Layout
+
+- A demo widens from the 37rem prose to the 80ch column. The article of a note with a demo is a size container, and `.demo` is `100cqw` wide. On a phone the column is the prose width, so the demo is too. Notes without a demo are untouched.
+- `.demo` sets Geist Mono 14px/1.72 and its own `bg`, so the part past the prose sits on a plate too.
+- The chrome inside a demo uses `div`, `span`, `label`, and `input`, because the `.prose` rules for `p` and `figure` would win over its classes.
+
+### Look
+
+- Canvas colors come from the six tokens, read through a 1x1 canvas, and they follow a change of the system color scheme.
+- Canvas text is Geist Mono 11px in `faint`, written in lowercase in the code, because the root's `text-transform` does not reach a canvas.
+- Sliders have a 1px `faint` track and a 12px square `ink` thumb, with a `faint` label on the left and the value on the right. A thumb stays hidden until the scene sets its range and value.
+- The caption shows numbers in `ink` and words in `faint`, as in `loss 4.43`, with a `faint` note on the right.
+- Buttons use `.demo-button`, which looks like the skyline's stat buttons.
 
 ## Share image
 
