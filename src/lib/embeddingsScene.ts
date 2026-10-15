@@ -417,9 +417,11 @@ async function mountScene(
       },
       flush() {
         geo.setDrawRange(0, n * 6);
-        pos.needsUpdate = true;
-        uv.needsUpdate = true;
-        mx.needsUpdate = true;
+        if (n > 0) {
+          pos.needsUpdate = true;
+          uv.needsUpdate = true;
+          mx.needsUpdate = true;
+        }
         n = 0;
       },
     };
