@@ -19,3 +19,4 @@ function demo(load: () => Promise<{ default: ComponentType<DemoProps> }>) {
 }
 
 export const TaxiFares = demo(() => import('./TaxiFares'));
+export const FareReceipt = demo(() => import('./FareReceipt'));
