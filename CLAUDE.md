@@ -32,7 +32,8 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - `src/components/EmbeddingsBackdrop.tsx` - The backdrop over the top 460px of every page. It paints above the page text with a blend, so the text keeps subpixel antialiasing. `_app.tsx` mounts it once, so it keeps running across client-side navigation. Its mask starts to fade at `--unfaded` on `.backdrop` in `src/styles/index.css`, the only place that stop is written. Faint and body text it can reach sits on a plate that rises above it (see `DESIGN.md`)
 - `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
-- `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote
+- `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote, and fills each included code block from its region
+- `src/lib/ml/value.ts` - `Value`, the small autograd class that part 1 of the ai series shows in full and its demos run on
 - `src/components/NoteContent.tsx` - Renders a compiled note, with `next/image` for images
 - `src/components/` - Reusable React components
 - `src/data/` - Static data and content
@@ -45,6 +46,8 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - Any other frontmatter field fails the build with an error that names it, so a misspelled `draft` can't publish a draft. To add a field, add it to `fields` in `src/lib/notes.ts`
 - A note's images live in `public/images/notes/<slug>/`, and the note references them as `![alt](/images/notes/<slug>/1.jpg)`
 - The build reads each image's width and height from the file, so a missing image fails the build
+- A code block that shows code from the repo is written empty, with an `include` meta, as ```` ```ts include=src/lib/ml/value.ts#backward ````. The build fills it with the lines between `// #region backward` and `// #endregion` in that file, as they are. The file must be in `src/`. Regions don't nest, and a name appears once in a file. A missing file or region, a region that never ends, or text inside the block fails the build
+- Every error about a note's body reads `src/notes/<file>: <problem>`. The plugins in `getNoteContent` fail through `fail`, because next-mdx-remote rewraps anything a plugin throws
 
 ### Styling:
 - `DESIGN.md` describes the design system: tokens, type roles, the index row, and contrast numbers
@@ -71,6 +74,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - TypeScript throughout with strict configuration
 - Component files use PascalCase (e.g., `Avatar.tsx`)
 - Utility functions in `src/lib/`
+- Code under `src/lib/` that a test imports uses only TypeScript that Node can strip (`erasableSyntaxOnly`) and imports its own files with the `.ts` extension, so `pnpm test` runs it as is. An included region runs when pasted into `node --input-type=module-typescript`
 - Tailwind classes for styling, no CSS modules
 - Geist fonts: `font-mono` (Geist Mono) for chrome, `font-sans` (Geist) for note prose and titles, `font-pixel` (Geist Pixel Square) for the name and clock. Each face loads with `localFont` from a subset in `src/fonts`, never from `geist/font` (see `DESIGN.md`). Geist loads only on note pages, from `src/pages/notes/[slug].tsx`. Elsewhere `font-sans` is the system sans font
 - Pages use getStaticProps/getStaticPaths for SSG where applicable

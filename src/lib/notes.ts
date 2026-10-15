@@ -30,10 +30,24 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
   const file = `${slug}.mdx`;
   // Imported here so the home page and the RSS route, which only list notes, never load the compiler.
   const { serialize } = await import('next-mdx-remote/serialize');
-  return serialize(readNote(file).content, {
-    mdxOptions: { rehypePlugins: [[rehypeNoteImages, file]] },
-  });
+  let problem: Error | undefined;
+  const fail: Fail = (message) => {
+    throw (problem = new Error(`src/notes/${file}: ${message}`));
+  };
+  try {
+    return await serialize(readNote(file).content, {
+      mdxOptions: {
+        remarkPlugins: [[remarkIncludeRegions, fail]],
+        rehypePlugins: [[rehypeNoteImages, fail]],
+      },
+    });
+  } catch (error) {
+    // next-mdx-remote rewraps what a plugin throws, which would bury the plugin's message.
+    throw problem ?? error;
+  }
 }
+
+type Fail = (message: string) => never;
 
 // An editor on Windows can save the file with a byte order mark and \r\n line endings.
 const frontmatter = /^\uFEFF?(---[ \t]*\r?\n[\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
@@ -101,7 +115,7 @@ type HastNode = {
 // Markdown puts an image in a paragraph. A paragraph that holds only an image becomes a figure, so
 // it takes the .prose figure spacing. next/image needs the intrinsic size to reserve the image's
 // space. An image that opens the note is the largest paint, so only that one loads with priority.
-function rehypeNoteImages(noteFile: string) {
+function rehypeNoteImages(fail: Fail) {
   return (tree: HastNode) => {
     const opener = tree.children?.find((node) => node.type === 'element');
     const walk = (node: HastNode, inOpener: boolean) => {
@@ -111,13 +125,9 @@ function rehypeNoteImages(noteFile: string) {
       }
       const src = properties?.src;
       if (node.tagName === 'img' && properties && typeof src === 'string') {
-        if (!src.startsWith('/')) {
-          throw new Error(`src/notes/${noteFile}: ${src} must be a file in public/images/notes/`);
-        }
+        if (!src.startsWith('/')) fail(`${src} must be a file in public/images/notes/`);
         const file = path.join(process.cwd(), 'public', src);
-        if (!fs.existsSync(file)) {
-          throw new Error(`src/notes/${noteFile}: ${src} is not in public/`);
-        }
+        if (!fs.existsSync(file)) fail(`${src} is not in public/`);
         const { width, height } = imageSize(fs.readFileSync(file));
         Object.assign(properties, { width, height, priority: inOpener });
       }
@@ -125,4 +135,50 @@ function rehypeNoteImages(noteFile: string) {
     };
     walk(tree, false);
   };
+}
+
+type MdastNode = {
+  type: string;
+  meta?: string | null;
+  value?: string;
+  children?: MdastNode[];
+};
+
+function remarkIncludeRegions(fail: Fail) {
+  return (tree: MdastNode) => {
+    const walk = (node: MdastNode) => {
+      const { meta } = node;
+      if (node.type === 'code' && meta?.startsWith('include=')) {
+        const [, file, name] =
+          /^include=(\S+)#([\w-]+)$/.exec(meta) ??
+          fail(`${meta} needs a file and a region, as include=src/lib/ml/value.ts#backward`);
+        if (node.value) fail(`the ${meta} block must be empty, because the build fills it`);
+        node.value = readRegion(file, name, fail);
+      }
+      node.children?.forEach(walk);
+    };
+    walk(tree);
+  };
+}
+
+function readRegion(file: string, name: string, fail: Fail) {
+  const src = path.join(process.cwd(), 'src');
+  const source = path.resolve(process.cwd(), file);
+  if (!source.startsWith(src + path.sep)) fail(`${file} must be a file in src/`);
+  if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile()) fail(`${file} does not exist`);
+
+  const lines = fs.readFileSync(source, 'utf8').split('\n');
+  const markers = lines.map((line) => line.trim());
+  const start = markers.indexOf(`// #region ${name}`);
+  if (start === -1) fail(`${file} has no region ${name}`);
+  if (markers.lastIndexOf(`// #region ${name}`) !== start) fail(`${file} has region ${name} twice`);
+
+  const region: string[] = [];
+  for (const line of lines.slice(start + 1)) {
+    const marker = line.trim();
+    if (marker === '// #endregion') return region.join('\n');
+    if (marker.startsWith('// #region ')) fail(`${file} starts a region inside region ${name}`);
+    region.push(line);
+  }
+  return fail(`${file} never ends region ${name}`);
 }
