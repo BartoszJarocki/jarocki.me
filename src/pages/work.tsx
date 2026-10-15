@@ -65,20 +65,22 @@ export default function WorkPage() {
           ))}
         </IndexList>
         <p className="mt-5">
-          And many mobile apps for companies like{' '}
-          {mobile.map((project, i, all) => (
-            <React.Fragment key={project.title}>
-              {i > 0 && (i === all.length - 1 ? ', and ' : ', ')}
-              {project.href ? (
-                <ExternalLink href={project.href} className="text-link">
-                  {project.title}
-                </ExternalLink>
-              ) : (
-                <span className="text-ink">{project.title}</span>
-              )}
-            </React.Fragment>
-          ))}
-          .
+          <span className="plate py-[3px]">
+            And many mobile apps for companies like{' '}
+            {mobile.map((project, i, all) => (
+              <React.Fragment key={project.title}>
+                {i > 0 && (i === all.length - 1 ? ', and ' : ', ')}
+                {project.href ? (
+                  <ExternalLink href={project.href} className="text-link">
+                    {project.title}
+                  </ExternalLink>
+                ) : (
+                  <span className="text-ink">{project.title}</span>
+                )}
+              </React.Fragment>
+            ))}
+            .
+          </span>
         </p>
       </IndexSection>
     </PageShell>

@@ -74,6 +74,23 @@ export function IndexList({ lead, leadMobile, children }: ListProps) {
   return <ul style={columns}>{children}</ul>;
 }
 
+// Only ink keeps 4.5:1 over the backdrop, so body and faint text sit on a plate that hugs the text.
+function Cell({
+  tone,
+  className,
+  children,
+}: {
+  tone: Tone;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <span className={clsx(toneClass[tone], className)}>
+      {tone === 'ink' ? children : <span className="plate py-[3px]">{children}</span>}
+    </span>
+  );
+}
+
 type RowProps = {
   href?: string;
   external?: boolean;
@@ -99,12 +116,14 @@ export function IndexRow({
 }: RowProps) {
   const cells = (
     <>
-      <span className={toneClass[leadTone]}>{lead}</span>
-      <span className={clsx(toneClass[mainTone], clip && 'index-clip')}>{main}</span>
+      <Cell tone={leadTone}>{lead}</Cell>
+      <Cell tone={mainTone} className={clip ? 'index-clip' : undefined}>
+        {main}
+      </Cell>
       {trail && (
-        <span className={clsx('index-trail text-faint', stackTrail && 'index-trail-stack')}>
+        <Cell tone="faint" className={clsx('index-trail', stackTrail && 'index-trail-stack')}>
           {trail}
-        </span>
+        </Cell>
       )}
     </>
   );

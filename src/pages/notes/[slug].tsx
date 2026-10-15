@@ -34,7 +34,7 @@ export default function Note({
     >
       <article className={`${GeistSans.variable} mt-[72px]`}>
         <header>
-          <p className="text-faint">
+          <p className="plate w-fit text-faint">
             <time dateTime={publishedAt}>{dotDate(publishedAt)}</time> · {tags.join(', ')}
           </p>
           <h1 className="mt-3.5 max-w-[24ch] text-balance font-sans text-[30px] font-semibold leading-[1.18] tracking-[-0.028em] text-ink">
@@ -45,11 +45,11 @@ export default function Note({
         <NoteContent source={noteContent} className="mt-11" />
 
         <footer className="mt-[72px] flex max-w-[37rem] justify-between gap-[3ch]">
-          <Link href="/notes" className="faint-link shrink-0">
+          <Link href="/notes" className="faint-link plate shrink-0">
             <span aria-hidden="true">←</span> all notes
           </Link>
           {older && (
-            <Link href={`/notes/${older.slug}`} className="faint-link text-right">
+            <Link href={`/notes/${older.slug}`} className="faint-link plate text-right">
               next: {older.title}&nbsp;<span aria-hidden="true">→</span>
             </Link>
           )}
