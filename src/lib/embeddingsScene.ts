@@ -36,6 +36,7 @@ import {
   tokenize,
   topK,
 } from './embeddingSpace';
+import { nextTask } from './nextTask';
 import { Teardown, teardown } from './teardown';
 
 export type BackdropHandle = { destroy: () => void };
@@ -98,7 +99,6 @@ const smooth = (a: number, b: number, x: number) => {
 };
 const show = (tok: string) => (tok.startsWith(' ') ? '·' + tok.slice(1) : tok);
 const fmt = (s: number) => s.toFixed(2);
-const nextTask = () => new Promise((resolve) => setTimeout(resolve));
 
 function atlas(
   strings: Iterable<string>,

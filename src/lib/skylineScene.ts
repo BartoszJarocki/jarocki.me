@@ -18,6 +18,7 @@ import {
 
 import { LEVELS } from './activityStats';
 import { tokenReader } from './colorTokens';
+import { nextTask } from './nextTask';
 import { Teardown, teardown } from './teardown';
 
 type View = { yaw: number; pitch: number };
@@ -134,7 +135,7 @@ async function mountScene(
   // Creating the renderer takes about as long as building and drawing the scene on a slow CPU, so
   // the two run in separate tasks. Input that arrives in between runs first, so heights() is read
   // after the wait.
-  await new Promise((resolve) => setTimeout(resolve));
+  await nextTask();
   if (cancel.aborted) throw cancel.reason;
   // Without color management the shader's mix of the token colors reaches the screen unchanged.
   ColorManagement.enabled = false;
