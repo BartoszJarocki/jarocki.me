@@ -179,7 +179,11 @@
     left: 0;
     right: 0;
     height: 460px;
-    z-index: -1;
+    /* the stage paints above the page text, so Chrome keeps that text in its opaque root layer,
+       with subpixel antialiasing. darken (lighten in dark) leaves bg as if the stage sat behind,
+       because the scene draws only mixes of bg and ink. Anything opaque in the band rises above. */
+    z-index: 1;
+    mix-blend-mode: darken;
     /* ink text keeps 4.5:1 over the stage only up to about 42%; above that it needs plates too */
     opacity: 0.4;
     pointer-events: none;
@@ -192,6 +196,20 @@
        there. While the stage is scrolled out of view, skipping its paint removes that layer, so
        text below the band gets subpixel antialiasing back. */
     content-visibility: auto;
+  }
+  @media (prefers-color-scheme: dark) {
+    .backdrop {
+      mix-blend-mode: lighten;
+    }
+  }
+  .plate,
+  .plate-inline,
+  a.index-row:hover,
+  a.index-row:focus-visible,
+  .skyline,
+  .prose {
+    position: relative;
+    z-index: 2;
   }
   .backdrop > canvas {
     display: block;
