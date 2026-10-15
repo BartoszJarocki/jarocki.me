@@ -26,6 +26,7 @@ import {
   ANALOGIES,
   CORPUS,
   D,
+  DRAWN,
   Neighbor,
   analogy,
   buildSpace,
@@ -51,7 +52,8 @@ type TextSet = {
   draw: (s: string, x: number, y: number, m: number) => void;
 };
 type ScreenPoint = { x: number; y: number };
-type Placed = { x: number; y: number; w: number; h?: number };
+type Placed = { x: number; y: number; w: number; halfH: number };
+type Teardown = (() => void)[];
 
 const K = 8;
 // Seconds per token, the glide between tokens, and a phase offset that leaves t = 6 settled on
@@ -71,12 +73,20 @@ const SCALE = [18, 15, 18];
 const HALF_W = 11.6;
 const HALF_H = 6;
 const DEPTH = 6;
+// A very wide stage, like the band behind the header, squashes y and lifts the band. Both ramp in
+// as the aspect grows from WIDE_FROM to WIDE_FROM + WIDE_SPAN. The lift, a share of the stage
+// height, keeps the band inside the top 55% that the .backdrop mask in index.css leaves unfaded.
+const WIDE_FROM = 2.4;
+const WIDE_SPAN = 0.8;
+const WIDE_SQUASH = 0.42;
+const WIDE_LIFT = 0.15;
 const AN_PERIOD = 20;
 const AN_OFFSET = 2;
 const REST_T = 6;
 // The motion is slow, so 30 frames a second look the same as 60 and cost half.
 const FPS = 30;
 const POINTER_MS = 3000;
+const HOVER_RADIUS = 14;
 // The loops of the mount yield once a slice has run this long, so on a slow phone none of its tasks
 // comes near the 50ms of a long task.
 const SLICE_MS = 16;
@@ -158,27 +168,42 @@ export async function mountEmbeddings(
   } catch {
     return null;
   }
-  const owned: { dispose: () => void }[] = [];
+  const teardown: Teardown = [
+    () => {
+      renderer.dispose();
+      renderer.forceContextLoss();
+      renderer.domElement.remove();
+    },
+  ];
+  try {
+    return await mountScene(stage, cancel, renderer, teardown);
+  } catch (error) {
+    release(teardown);
+    throw error;
+  }
+}
+
+function release(teardown: Teardown) {
+  while (teardown.length) teardown.pop()!();
+}
+
+async function mountScene(
+  stage: HTMLElement,
+  cancel: AbortSignal,
+  renderer: WebGLRenderer,
+  teardown: Teardown,
+): Promise<BackdropHandle> {
   const own = <T extends { dispose: () => void }>(resource: T) => {
-    owned.push(resource);
+    teardown.push(() => resource.dispose());
     return resource;
-  };
-  const release = () => {
-    for (const resource of owned) resource.dispose();
-    renderer.dispose();
-    renderer.forceContextLoss();
-    renderer.domElement.remove();
   };
   let sliceStart = 0;
   const nextSlice = async () => {
     await nextTask();
     sliceStart = performance.now();
-    if (cancel.aborted) {
-      release();
-      throw cancel.reason;
-    }
+    if (cancel.aborted) throw cancel.reason;
   };
-  const pause = async () => {
+  const yieldIfSpent = async () => {
     if (performance.now() - sliceStart >= SLICE_MS) await nextSlice();
   };
 
@@ -206,14 +231,15 @@ export async function mountEmbeddings(
   const words = tokenize(CORPUS);
   const build = buildSpace(seeded(11), words);
   let step = build.next();
-  for (; !step.done; step = build.next()) await pause();
+  for (; !step.done; step = build.next()) await yieldIfSpent();
   const space = step.value;
   const { N, tokens, vec } = space;
   const capitalized = tokens.map((t) => t !== t.toLowerCase());
 
-  const P = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) for (let d = 0; d < 3; d++) P[i * 3 + d] = vec[i * D + d] * SCALE[d];
-  const at = (i: number, out = new Vector3()) => out.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]);
+  const P = new Float32Array(N * DRAWN);
+  for (let i = 0; i < N; i++)
+    for (let d = 0; d < DRAWN; d++) P[i * DRAWN + d] = vec[i * D + d] * SCALE[d];
+  const at = (i: number, out = new Vector3()) => out.fromArray(P, i * DRAWN);
 
   const seq = words.map((w) => space.index.get(w)!);
   const nnMemo = new Map<number, Neighbor[]>();
@@ -227,12 +253,12 @@ export async function mountEmbeddings(
   };
   for (const i of new Set(seq)) {
     neighbors(i);
-    await pause();
+    await yieldIfSpent();
   }
-  const analogies = ANALOGIES.map((a) => {
-    const r = analogy(space, a);
+  const analogies = ANALOGIES.map((query) => {
+    const r = analogy(space, query);
     const qPos = new Vector3(r.q[0] * SCALE[0], r.q[1] * SCALE[1], r.q[2] * SCALE[2]);
-    const caption = `${a[0].trim()} - ${a[1].trim()} + ${a[2].trim()} → ${tokens[r.answer].trim()}`;
+    const caption = `${query.b.trim()} - ${query.a.trim()} + ${query.c.trim()} → ${tokens[r.answer].trim()}`;
     return { ...r, qPos, caption };
   });
 
@@ -306,7 +332,7 @@ export async function mountEmbeddings(
     baseMix[i] = isDust ? 0.34 : 0.62;
     baseSize[i] = isDust ? 1.4 : 2.1;
   }
-  cloudGeo.setAttribute('position', new BufferAttribute(P, 3));
+  cloudGeo.setAttribute('position', new BufferAttribute(P, DRAWN));
   cloudGeo.setAttribute('aMix', new BufferAttribute(baseMix, 1));
   cloudGeo.setAttribute('aSize', new BufferAttribute(baseSize, 1));
   const cloudMat = pointMat(0.62);
@@ -418,8 +444,15 @@ export async function mountEmbeddings(
   const heads = textSet(headAtlas, headText);
   const placed: Placed[] = [];
   const hits = (x: number, y: number, w: number) =>
-    placed.some((r) => x < r.x + r.w + 4 && x + w + 4 > r.x && Math.abs(y - r.y) < (r.h ?? 12));
-  const tag = (s: string, p: ScreenPoint, m: number, dy = 0, extra = 0, optional = false) => {
+    placed.some((r) => x < r.x + r.w + 4 && x + w + 4 > r.x && Math.abs(y - r.y) < r.halfH);
+  const placeLabel = (
+    s: string,
+    p: ScreenPoint,
+    m: number,
+    dy = 0,
+    extra = 0,
+    optional = false,
+  ) => {
     const w = labelAtlas.sprites.get(s)?.w;
     if (w === undefined) return { x: p.x, y: p.y, w: 0 };
     const full = w + extra;
@@ -429,11 +462,14 @@ export async function mountEmbeddings(
     );
     const best = spots.find((r) => !hits(r.x, r.y, full)) ?? (optional ? null : spots[0]);
     if (!best) return { x: p.x, y: p.y, w: 0 };
-    placed.push({ x: best.x, y: best.y, w: full });
+    placed.push({ x: best.x, y: best.y, w: full, halfH: 12 });
     labels.draw(s, best.x, best.y, m);
     return { x: best.x, y: best.y, w };
   };
   const hoverSets = new Map<number, { atlas: Atlas; set: TextSet }>();
+  teardown.push(() => {
+    for (const { atlas: a } of hoverSets.values()) a.texture.dispose();
+  });
   const hoverSet = (tok: number) => {
     let entry = hoverSets.get(tok);
     if (!entry) {
@@ -521,7 +557,7 @@ export async function mountEmbeddings(
 
   const nb = new Vector3();
   const tip = new Vector3();
-  const drawList = (
+  const drawNeighbors = (
     tok: number,
     q: Vector3,
     fade: number,
@@ -553,7 +589,7 @@ export async function mountEmbeddings(
     const x0 = outward ? p.x - gap - blockW : p.x + gap;
     const y0 = clamp(p.y - headAtlas.h / 2, 12, Hh - blockH - 12);
     plates.quad(x0 - 8, y0 - 6, blockW + 16, blockH + 10, [0, 0, 1, 1], -fade);
-    placed.push({ x: x0 - 8, y: y0 + blockH / 2, w: blockW + 16, h: blockH / 2 + 12 });
+    placed.push({ x: x0 - 8, y: y0 + blockH / 2, w: blockW + 16, halfH: blockH / 2 + 12 });
     head.draw(name, x0, y0 + headAtlas.h / 2, fade);
     oseg(x0, y0 + headAtlas.h + 2, x0 + blockW, y0 + headAtlas.h + 2, 0.25 * fade);
     nn.forEach((n, r) => {
@@ -603,10 +639,10 @@ export async function mountEmbeddings(
     const sq = toScreen(pq);
     if (g3 >= 1) box(sq.x, sq.y, 3, 0.8 * fade * g4 + 0.4 * fade * (1 - g4));
     const tm = 0.75 * fade;
-    tag(show(tokens[a.ia]), sa, tm);
-    tag(show(tokens[a.ib]), sb, tm * g1);
-    tag(show(tokens[a.ic]), sc, tm * g2);
-    const d = tag(show(tokens[a.answer]), sd, tm * g4, 0, labels.w(fmt(a.cos)) + 4);
+    placeLabel(show(tokens[a.ia]), sa, tm);
+    placeLabel(show(tokens[a.ib]), sb, tm * g1);
+    placeLabel(show(tokens[a.ic]), sc, tm * g2);
+    const d = placeLabel(show(tokens[a.answer]), sd, tm * g4, 0, labels.w(fmt(a.cos)) + 4);
     labels.draw(fmt(a.cos), d.x + d.w + 4, d.y, 0.45 * fade * g4);
     const capW = labels.w(a.caption);
     const xs = [sa.x, sb.x, sc.x, sd.x, sq.x];
@@ -618,26 +654,24 @@ export async function mountEmbeddings(
     labels.draw(a.caption, clamp(outer, 8, W - capW - 8), bottom, 0.6 * fade * g4);
   };
 
-  // The pointer in stage coordinates from -1 to 1, y up, and when it last moved.
+  // The pointer in CSS pixels from the stage's top left, and when it last moved.
   const pointer = { x: 0, y: 0, at: -Infinity };
   const pm = new Matrix4();
   const hovered = () => {
     if (performance.now() - pointer.at >= POINTER_MS) return -1;
-    const px = (pointer.x * 0.5 + 0.5) * W;
-    const py = (0.5 - pointer.y * 0.5) * Hh;
     const e = pm
       .multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
       .multiply(world.matrixWorld).elements;
     let best = -1;
-    let bd = 14 * 14;
+    let bd = HOVER_RADIUS * HOVER_RADIUS;
     for (let i = 0; i < N; i++) {
       if (space.cluster[i] === dust || capitalized[i]) continue;
-      const x = P[i * 3];
-      const y = P[i * 3 + 1];
-      const z = P[i * 3 + 2];
+      const x = P[i * DRAWN];
+      const y = P[i * DRAWN + 1];
+      const z = P[i * DRAWN + 2];
       const cw = e[3] * x + e[7] * y + e[11] * z + e[15];
-      const sx = ((e[0] * x + e[4] * y + e[8] * z + e[12]) / cw) * 0.5 * W + W / 2 - px;
-      const sy = Hh / 2 - ((e[1] * x + e[5] * y + e[9] * z + e[13]) / cw) * 0.5 * Hh - py;
+      const sx = ((e[0] * x + e[4] * y + e[8] * z + e[12]) / cw) * 0.5 * W + W / 2 - pointer.x;
+      const sy = Hh / 2 - ((e[1] * x + e[5] * y + e[9] * z + e[13]) / cw) * 0.5 * Hh - pointer.y;
       const dd = sx * sx + sy * sy;
       if (dd < bd) {
         bd = dd;
@@ -663,14 +697,13 @@ export async function mountEmbeddings(
     const along = portrait ? tan : tan * a;
     const across = portrait ? tan * a : tan;
     const e = along / across;
-    // A very wide stage, like the hero band, squashes y and lifts the band into the unfaded top.
-    const wide = clamp((e - 2.4) / 0.8, 0, 1);
-    world.scale.set(1, 1 - 0.42 * wide, 1);
+    const wide = clamp((e - WIDE_FROM) / WIDE_SPAN, 0, 1);
+    world.scale.set(1, 1 - WIDE_SQUASH * wide, 1);
     world.updateMatrixWorld();
     const dW = HALF_W / along;
     const dH = (HALF_H * world.scale.y) / across;
     dist = Math.min(dW, Math.max(dH * 1.3, dW * 0.4));
-    camera.setViewOffset(w, h, 0, 0.15 * wide * h, w, h);
+    camera.setViewOffset(w, h, 0, WIDE_LIFT * wide * h, w, h);
     camera.updateProjectionMatrix();
     ortho.left = 0;
     ortho.right = w;
@@ -711,7 +744,7 @@ export async function mountEmbeddings(
     qv.copy(va).lerp(vb, move);
 
     let head = qv.clone();
-    const trailTags: [string, ScreenPoint, number][] = [];
+    const trailLabels: [string, ScreenPoint, number][] = [];
     for (let j = 1; j <= TRAIL; j++) {
       const p = at(tokAt(k - j));
       const age = (j - 1 + move) / TRAIL;
@@ -720,7 +753,7 @@ export async function mountEmbeddings(
       if (j > 1 || move > 0.6) {
         highlight(p, 0.85 * (1 - age), 2.8);
         const shown = 0.6 * (1 - age) * (j === 1 ? smooth(0.6, 1, move) : 1);
-        trailTags.push([show(tokens[tokAt(k - j)]), toScreen(p), shown]);
+        trailLabels.push([show(tokens[tokAt(k - j)]), toScreen(p), shown]);
       }
       head = p;
     }
@@ -728,17 +761,17 @@ export async function mountEmbeddings(
     const hover = hovered();
     if (hover >= 0) {
       const set = hoverSet(hover);
-      drawList(hover, at(hover), 1, 1, set, set);
+      drawNeighbors(hover, at(hover), 1, 1, set, set);
     } else {
       const out = 1 - smooth(0, 0.35, ph);
-      if (out > 0) drawList(prev, va.clone(), out, 1);
+      if (out > 0) drawNeighbors(prev, va.clone(), out, 1);
       const inn = smooth(GLIDE + 0.05, GLIDE + 0.45, ph);
-      if (inn > 0) drawList(cur, vb.clone(), inn, smooth(GLIDE, GLIDE + 0.7, ph));
+      if (inn > 0) drawNeighbors(cur, vb.clone(), inn, smooth(GLIDE, GLIDE + 0.7, ph));
     }
     highlight(qv, 1, 5.5);
 
     drawAnalogy(t);
-    for (const [str, p, m] of trailTags) tag(str, p, m, -9, 0, true);
+    for (const [str, p, m] of trailLabels) placeLabel(str, p, m, -9, 0, true);
 
     lineGeo.setDrawRange(0, nl * 2);
     linePos.needsUpdate = true;
@@ -784,6 +817,7 @@ export async function mountEmbeddings(
 
   let visible = false;
   let raf = 0;
+  teardown.push(() => cancelAnimationFrame(raf));
   let last = -Infinity;
   const running = () => visible && !document.hidden && !reducedMotion.matches;
 
@@ -801,14 +835,15 @@ export async function mountEmbeddings(
   }
 
   const listeners = new AbortController();
+  teardown.push(() => listeners.abort());
   const { signal } = listeners;
   addEventListener(
     'pointermove',
     (event) => {
       if (event.pointerType !== 'mouse') return;
       const rect = stage.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      pointer.x = event.clientX - rect.left;
+      pointer.y = event.clientY - rect.top;
       pointer.at = performance.now();
     },
     { signal },
@@ -836,21 +871,14 @@ export async function mountEmbeddings(
     resize();
     frame(now());
   });
+  teardown.push(() => resizeObserver.disconnect());
   resizeObserver.observe(stage);
   const intersectionObserver = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     play();
   });
+  teardown.push(() => intersectionObserver.disconnect());
   intersectionObserver.observe(stage);
 
-  return {
-    destroy() {
-      cancelAnimationFrame(raf);
-      resizeObserver.disconnect();
-      intersectionObserver.disconnect();
-      listeners.abort();
-      for (const { atlas: a } of hoverSets.values()) a.texture.dispose();
-      release();
-    },
-  };
+  return { destroy: () => release(teardown) };
 }

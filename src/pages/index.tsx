@@ -70,7 +70,7 @@ export default function Home({ latestNotes, noteCount, activity }: Props) {
           </ExternalLink>
           !
           <br />
-          <span className="plate py-[3px] text-body">
+          <span className="plate-inline text-body">
             exploring what software engineering looks like when agents do most of the typing.
           </span>
         </p>

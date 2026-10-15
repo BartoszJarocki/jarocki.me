@@ -74,13 +74,18 @@
   }
 
   /* the backdrop must never pass behind faint or body text, which drop under 4.5:1 over it. A plate
-     on text that wraps inline, like a lede's, also needs py-[3px] to cover its half-leading. */
-  .plate {
+     on text that wraps inline, like a lede's, is .plate-inline, whose 3px of block padding covers
+     the lines' half-leading. */
+  .plate,
+  .plate-inline {
     margin-inline: -1ch;
     padding-inline: 1ch;
     background: var(--bg);
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+  }
+  .plate-inline {
+    padding-block: 3px;
   }
 
   /* main is sized before trail, so a long trail (a note's tags) clips instead of the title */
@@ -112,8 +117,8 @@
   a.index-row:focus-visible * {
     color: var(--bg);
   }
-  a.index-row:hover .plate,
-  a.index-row:focus-visible .plate {
+  a.index-row:hover :is(.plate, .plate-inline),
+  a.index-row:focus-visible :is(.plate, .plate-inline) {
     background: transparent;
   }
   @media (max-width: 640px) {
@@ -175,9 +180,12 @@
     right: 0;
     height: 460px;
     z-index: -1;
+    /* ink text keeps 4.5:1 over the stage only up to about 42%; above that it needs plates too */
     opacity: 0.4;
     pointer-events: none;
     overflow: hidden;
+    /* the scene lifts a wide stage's band into this unfaded top 55% (WIDE_LIFT in
+       src/lib/embeddingsScene.ts) */
     -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
     mask-image: linear-gradient(to bottom, #000 55%, transparent);
     /* Chrome paints all page text into a layer above the canvas and drops subpixel antialiasing
@@ -196,6 +204,13 @@
   @media (prefers-reduced-motion: no-preference) {
     .backdrop[data-phase='ready'] > canvas {
       animation: fade-in 200ms;
+    }
+  }
+  /* printing drops background graphics, so the plates would vanish and text would print over the
+     cloud */
+  @media print {
+    .backdrop {
+      display: none;
     }
   }
 

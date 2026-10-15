@@ -1,7 +1,7 @@
-// A toy token embedding table: N tokens in D dims, unit length. Dims 0..2 are the ones the scene
-// draws, so the drawing is a linear projection and vector arithmetic stays exact on screen.
+// A toy token embedding table: N tokens in D dims, unit length. The scene draws dims 0 to DRAWN - 1,
+// so the drawing is a linear projection and vector arithmetic stays exact on screen.
 export const D = 32;
-const H0 = 3;
+export const DRAWN = 3;
 
 export type EmbeddingSpace = {
   tokens: string[];
@@ -23,9 +23,16 @@ export type Analogy = {
   q: Float32Array;
 };
 
+// An analogy a : b :: c : ?.
+export type AnalogyQuery = { a: string; b: string; c: string };
+
 type Vec3 = [number, number, number];
 type Cluster = { name: string; at: Vec3; words?: string; raw?: string[] };
-type Family = { pairs: [string, string][]; extra?: string };
+type Pair = [string, string];
+// The first two pairs [[x0, y0], [x1, y1]] make the family's analogy, read within the pairs,
+// x0 : y0 :: x1 : y1 (france : paris :: poland : warsaw), or across them, x0 : x1 :: y0 : y1
+// (man : king :: woman : queen).
+type Family = { pairs: [Pair, Pair, ...Pair[]]; reads: 'within' | 'across'; extra?: string };
 
 export const CORPUS = (
   'building AI at motion. exploring what software engineering looks like when agents do most of the typing. ' +
@@ -133,6 +140,7 @@ const CLUSTERS: Cluster[] = [
 // prettier-ignore
 const FAMILIES: Record<string, Family> = {
   people: {
+    reads: 'across',
     pairs: [
       ['man', 'woman'], ['king', 'queen'], ['prince', 'princess'], ['boy', 'girl'],
       ['father', 'mother'], ['son', 'daughter'], ['brother', 'sister'], ['husband', 'wife'],
@@ -145,6 +153,7 @@ const FAMILIES: Record<string, Family> = {
       'people person friend friends parent parents child children family spouse human someone everyone baby kid kids neighbor stranger guest',
   },
   place: {
+    reads: 'within',
     pairs: [
       ['france', 'paris'], ['poland', 'warsaw'], ['germany', 'berlin'], ['japan', 'tokyo'],
       ['italy', 'rome'], ['spain', 'madrid'], ['england', 'london'], ['portugal', 'lisbon'],
@@ -156,6 +165,7 @@ const FAMILIES: Record<string, Family> = {
       'city country capital town village street home campus europe asia america africa north south east west krakow gdansk wroclaw nokia abroad border',
   },
   verb: {
+    reads: 'within',
     pairs: [
       ['walk', 'walked'], ['swim', 'swam'], ['run', 'ran'], ['go', 'went'], ['write', 'wrote'],
       ['think', 'thought'], ['take', 'took'], ['find', 'found'], ['see', 'saw'], ['give', 'gave'],
@@ -168,11 +178,12 @@ const FAMILIES: Record<string, Family> = {
   },
 };
 
-export const ANALOGIES: readonly (readonly [string, string, string, string])[] = [
-  [' king', ' man', ' woman', ' queen'],
-  [' paris', ' france', ' poland', ' warsaw'],
-  [' walked', ' walk', ' swim', ' swam'],
-];
+export const ANALOGIES: readonly AnalogyQuery[] = Object.values(FAMILIES).map(
+  ({ pairs: [[x0, y0], [x1]], reads }) => {
+    const [b, c] = reads === 'within' ? [y0, x1] : [x1, y0];
+    return { a: ' ' + x0, b: ' ' + b, c: ' ' + c };
+  },
+);
 
 const SYLLABLES =
   'th he in er an re on at en nd ti es or te of ed is it al ar st to nt ng se ha as ou io le ve co me de hi ri ro ic ne ea ra ce li ch ll be ma si om ur ca el ta la ns di fo ho pe ec pr no ct us ac ot il tr ly nc et ut ss so rs un lo wa ge ie wh ee wi em ad ol rt po we na ul ni ts mo ow pa im mi ai sh ir su id os iv ia am fi ci vi pl ig tu ev ld ry mp fe bl ab gh ty op wo sa ay ex ke fr oo av ag if ap gr od bo sp rd do uc bu ei ov by rm ep tt oc fa ef cu rn sc gi da yo cr cl du ga qu ue ff ba ey ls va um pp ua up lu go ht ru ug ds lt pi rc rr eg au ck ew mu br bi pt ak pu ui rg ib tl ny ki rk ys ob mm fu ph og ms ye ud mb ip ub oi rl gu dr hr cc tw ft wn nu af hu nn eo vo rv nf xp gn sm fl iz ok nl my gl aw sy oa';
@@ -209,15 +220,15 @@ function direction(rand: () => number, display: ArrayLike<number>, hiddenNorm: n
   const v = new Float32Array(D);
   v.set(display, 0);
   let n = 0;
-  for (let i = H0; i < D; i++) n += (v[i] = gauss(rand)) ** 2;
+  for (let i = DRAWN; i < D; i++) n += (v[i] = gauss(rand)) ** 2;
   n = Math.sqrt(n);
-  for (let i = H0; i < D; i++) v[i] *= hiddenNorm / n;
+  for (let i = DRAWN; i < D; i++) v[i] *= hiddenNorm / n;
   return v;
 }
 
 function noise(rand: () => number, sd: number, sh: number) {
   const v = new Float32Array(D);
-  for (let i = 0; i < D; i++) v[i] = gauss(rand) * (i < H0 ? sd : sh);
+  for (let i = 0; i < D; i++) v[i] = gauss(rand) * (i < DRAWN ? sd : sh);
   return v;
 }
 
@@ -256,11 +267,11 @@ export function* buildSpace(
   const centers = CLUSTERS.map((c) => {
     const v = direction(rand, c.at, 1);
     let dot = 0;
-    for (let i = H0; i < D; i++) dot += v[i] * rare[i];
+    for (let i = DRAWN; i < D; i++) dot += v[i] * rare[i];
     let n = 0;
-    for (let i = H0; i < D; i++) n += (v[i] -= dot * rare[i]) ** 2;
+    for (let i = DRAWN; i < D; i++) n += (v[i] -= dot * rare[i]) ** 2;
     const k = Math.sqrt(1 - Math.hypot(...c.at) ** 2) / Math.sqrt(n);
-    for (let i = H0; i < D; i++) v[i] *= k;
+    for (let i = DRAWN; i < D; i++) v[i] *= k;
     return v;
   });
   const noSpace = direction(rand, [0.0, 0.03, 0.0], 0.34);
@@ -323,11 +334,11 @@ export function* buildSpace(
     const th100 = (2 * Math.PI * n) / 100;
     v[1] += 0.035 * Math.cos(th10);
     v[2] += 0.035 * Math.sin(th10);
-    v[H0 + 0] += 0.32 * Math.cos(th10);
-    v[H0 + 1] += 0.32 * Math.sin(th10);
-    v[H0 + 2] += 0.22 * Math.cos(th100);
-    v[H0 + 3] += 0.22 * Math.sin(th100);
-    v[H0 + 4] += 0.4 * (n >= 1900 && n <= 2100 ? 1 : 0);
+    v[DRAWN + 0] += 0.32 * Math.cos(th10);
+    v[DRAWN + 1] += 0.32 * Math.sin(th10);
+    v[DRAWN + 2] += 0.22 * Math.cos(th100);
+    v[DRAWN + 3] += 0.22 * Math.sin(th100);
+    v[DRAWN + 4] += 0.4 * (n >= 1900 && n <= 2100 ? 1 : 0);
     put(' ' + n, v, num);
     if (n < 100 && rand() < 0.5) put(String(n), add([v], [noSpace]), num);
   }
@@ -399,10 +410,7 @@ export function topK(sims: Float32Array, k: number, skip: (i: number) => boolean
 
 // 3CosAdd, as word2vec evaluates analogies: argmax cos(x, b - a + c) over the vocabulary without
 // a, b, and c.
-export function analogy(
-  space: EmbeddingSpace,
-  [b, a, c]: readonly [string, string, string, string],
-): Analogy {
+export function analogy(space: EmbeddingSpace, { a, b, c }: AnalogyQuery): Analogy {
   const id = (s: string) => {
     const i = space.index.get(s);
     if (i === undefined) throw new Error(`${JSON.stringify(s)} is not in the embedding space`);

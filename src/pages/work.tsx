@@ -65,7 +65,7 @@ export default function WorkPage() {
           ))}
         </IndexList>
         <p className="mt-5">
-          <span className="plate py-[3px]">
+          <span className="plate-inline">
             And many mobile apps for companies like{' '}
             {mobile.map((project, i, all) => (
               <React.Fragment key={project.title}>

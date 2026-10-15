@@ -86,7 +86,7 @@ function Cell({
 }) {
   return (
     <span className={clsx(toneClass[tone], className)}>
-      {tone === 'ink' ? children : <span className="plate py-[3px]">{children}</span>}
+      {tone === 'ink' ? children : <span className="plate-inline">{children}</span>}
     </span>
   );
 }

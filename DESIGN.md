@@ -268,10 +268,11 @@ Every page draws a toy embedding space behind its top 460px. It shows one thing 
 - `mountEmbeddings` in `src/lib/embeddingsScene.ts` loads as an async chunk, like the skyline's scene, so three.js stays out of the first load. It builds the space, the neighbor lists, and the label atlases in slices of at most 16ms. At 4x CPU throttling its longest task is about 30ms, and the stage is ready about 1.3 seconds after navigation.
 - It draws at most 30 frames a second, and stops while the page is hidden or the band is out of view. Under reduced motion it draws one frame, at t = 6 seconds, and draws again only on a resize or a theme change.
 - If WebGL is unavailable or the chunk fails to load, the page has no backdrop.
+- Print hides it. Printing drops background graphics, so the plates would vanish and text would print over the cloud.
 
 ### Plates
 
-`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts behind it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity.
+`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts behind it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity. That holds only while the stage stays at or under about 42% opacity (42.3% in dark, 53.7% in light). Raising it needs plates under `ink` text too.
 
 So the tone decides. In the band, `ink` text needs no plate, and every piece of `body` or `faint` text sits on one. The `.plate` class gives an element a `bg` background 1ch wider on each side, with a negative margin, so nothing moves. These carry it:
 
@@ -281,7 +282,7 @@ So the tone decides. In the band, `ink` text needs no plate, and every piece of 
 - A lede's `body` text, on the home page and on /about, and the closing line under the last list on /about and /work.
 - Note prose. `.prose` has a `bg` background without the 1ch margin, because padding would narrow its 37rem measure. It also covers the faint list markers, which can't carry a plate of their own.
 
-A plate on inline text, like a lede's or a row's, also has `py-[3px]` to fill its lines' half-leading, so it covers the whole text box. A plate on a flex item or a block, like a section label or the meta line, must not, because there the padding grows the row.
+A plate on inline text, like a lede's or a row's, is `.plate-inline`, a plate with `3px` of block padding that fills its lines' half-leading, so it covers the whole text box. A plate on a flex item or a block, like a section label or the meta line, is `.plate`, without the padding, because there the padding grows the row.
 
 Sampled for 90 seconds on every page (home, notes, each note, work, about, 404, and 500), in light and dark, at 1440px and 390px, every text tone in the band keeps its plain `bg` contrast, except `ink`, which stays at 4.88:1 or more, and the left edge of note prose, which stays at 5.3:1 or more.
 
