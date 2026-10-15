@@ -260,3 +260,44 @@ test('start calls ready after the first frame and resolves on unmount', async ()
   await running;
   assert.deepEqual({ order, held: browser.held() }, { order: ['frame', 'ready'], held: released });
 });
+
+test('an onLive listener added after mount that throws at once rejects start and releases the stage', async () => {
+  const browser = fakeBrowser();
+  let stage!: Stage;
+  let outcome = 'pending';
+  const scene = sceneOf((given) => {
+    stage = given;
+    return ignore;
+  });
+  scene.start(root, { chart: canvas() }, new AbortController().signal, ignore).then(
+    () => (outcome = 'resolved'),
+    (error: Error) => (outcome = error.message),
+  );
+  await browser.render();
+  await browser.render();
+  try {
+    stage.onLive(() => {
+      throw new Error('late listener broke');
+    });
+  } catch {}
+  await browser.render();
+  assert.deepEqual(
+    { outcome, held: browser.held() },
+    { outcome: 'late listener broke', held: released },
+  );
+});
+
+test('a first frame that ends the scene never calls ready', async () => {
+  const browser = fakeBrowser();
+  const unmount = new AbortController();
+  const order: string[] = [];
+  const scene = sceneOf(() => () => {
+    order.push('frame');
+    unmount.abort();
+  });
+  const running = scene.start(root, { chart: canvas() }, unmount.signal, () => order.push('ready'));
+  await browser.render();
+  await browser.render();
+  await running;
+  assert.deepEqual({ order, held: browser.held() }, { order: ['frame'], held: released });
+});
