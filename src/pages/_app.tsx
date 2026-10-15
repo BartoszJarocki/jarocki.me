@@ -3,6 +3,7 @@ import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/app';
 import localFont from 'next/font/local';
 
+import { EmbeddingsBackdrop } from '../components/EmbeddingsBackdrop';
 import { Name } from '../data/bio';
 import { XUser } from '../data/links';
 import '../styles/index.css';
@@ -42,8 +43,13 @@ export default function App({ Component, pageProps }: AppProps) {
         twitter={{ cardType: 'summary_large_image', handle: `@${XUser}`, site: `@${XUser}` }}
       />
       <div
-        className={`${GeistMono.variable} ${GeistPixelSquare.variable} font-mono text-[14px] leading-[1.72]`}
+        className={`relative ${GeistMono.variable} ${GeistPixelSquare.variable} font-mono text-[14px] leading-[1.72]`}
       >
+        {/* clips the 460px stage to the page, or to the screen when the page is shorter, so the
+            stage never makes a page scroll */}
+        <div className="pointer-events-none absolute inset-0 min-h-svh overflow-hidden">
+          <EmbeddingsBackdrop />
+        </div>
         <Component {...pageProps} />
       </div>
       <Analytics />
