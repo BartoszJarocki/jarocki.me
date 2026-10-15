@@ -78,6 +78,7 @@ const REST_T = 6;
 // The motion is slow, so 30 frames a second look the same as 60 and cost half.
 const FPS = 30;
 const POINTER_MS = 3000;
+const HOVER_RADIUS = 14;
 // The loops of the mount yield once a slice has run this long, so on a slow phone none of its tasks
 // comes near the 50ms of a long task.
 const SLICE_MS = 16;
@@ -627,26 +628,24 @@ export async function mountEmbeddings(
     labels.draw(a.caption, clamp(outer, 8, W - capW - 8), bottom, 0.6 * fade * g4);
   };
 
-  // The pointer in stage coordinates from -1 to 1, y up, and when it last moved.
+  // The pointer in CSS pixels from the stage's top left, and when it last moved.
   const pointer = { x: 0, y: 0, at: -Infinity };
   const pm = new Matrix4();
   const hovered = () => {
     if (performance.now() - pointer.at >= POINTER_MS) return -1;
-    const px = (pointer.x * 0.5 + 0.5) * W;
-    const py = (0.5 - pointer.y * 0.5) * Hh;
     const e = pm
       .multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
       .multiply(world.matrixWorld).elements;
     let best = -1;
-    let bd = 14 * 14;
+    let bd = HOVER_RADIUS * HOVER_RADIUS;
     for (let i = 0; i < N; i++) {
       if (space.cluster[i] === dust || capitalized[i]) continue;
       const x = P[i * DRAWN];
       const y = P[i * DRAWN + 1];
       const z = P[i * DRAWN + 2];
       const cw = e[3] * x + e[7] * y + e[11] * z + e[15];
-      const sx = ((e[0] * x + e[4] * y + e[8] * z + e[12]) / cw) * 0.5 * W + W / 2 - px;
-      const sy = Hh / 2 - ((e[1] * x + e[5] * y + e[9] * z + e[13]) / cw) * 0.5 * Hh - py;
+      const sx = ((e[0] * x + e[4] * y + e[8] * z + e[12]) / cw) * 0.5 * W + W / 2 - pointer.x;
+      const sy = Hh / 2 - ((e[1] * x + e[5] * y + e[9] * z + e[13]) / cw) * 0.5 * Hh - pointer.y;
       const dd = sx * sx + sy * sy;
       if (dd < bd) {
         bd = dd;
@@ -816,8 +815,8 @@ export async function mountEmbeddings(
     (event) => {
       if (event.pointerType !== 'mouse') return;
       const rect = stage.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      pointer.x = event.clientX - rect.left;
+      pointer.y = event.clientY - rect.top;
       pointer.at = performance.now();
     },
     { signal },
