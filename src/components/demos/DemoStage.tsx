@@ -40,7 +40,7 @@ export function DemoStage<P>({
     parts: {} as Partial<P>,
     Still: lazy(() => scene().then((module) => ({ default: module.Still }))),
   }));
-  const [failed, setFailed] = useState(false);
+  const [showStill, setShowStill] = useState(false);
 
   useEffect(() => {
     const element = root.current!;
@@ -63,7 +63,7 @@ export function DemoStage<P>({
             if (unmount.signal.aborted) return;
             if (!quiet.includes(error?.name)) console.error(error);
             setPhase(loaded ? 'still' : 'fallback');
-            setFailed(loaded);
+            setShowStill(loaded);
           });
       },
       { rootMargin: '200px' },
@@ -78,6 +78,11 @@ export function DemoStage<P>({
   const { body, caption, controls } = render((key) => (element) => {
     parts[key] = element ?? undefined;
   });
+  const still = (
+    <Suspense>
+      <Still />
+    </Suspense>
+  );
 
   return (
     <div
@@ -90,17 +95,7 @@ export function DemoStage<P>({
     >
       <div className="demo-stage">
         {body}
-        {failed ? (
-          <Suspense>
-            <Still />
-          </Suspense>
-        ) : (
-          <noscript>
-            <Suspense>
-              <Still />
-            </Suspense>
-          </noscript>
-        )}
+        {showStill ? still : <noscript>{still}</noscript>}
       </div>
       <div className="demo-caption">{caption}</div>
       <div className="demo-controls">{controls}</div>
