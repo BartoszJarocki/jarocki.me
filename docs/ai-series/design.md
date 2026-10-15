@@ -183,7 +183,7 @@ The font subsets in `src/fonts` cover Latin, punctuation, and arrows. Measured o
 
 ### Lowercase
 
-The root lowercases every visible character except code, so "GPT" shows as "gpt" without any work. The MDX source is written in lowercase anyway, so it reads the way the page does.
+The root lowercases every visible character except code, so "GPT" shows as "gpt" without any work. The feed, the meta tags, and the share card go through `lowercase()` in `src/lib/lowercase.ts`. So the MDX source is written in natural case, as `DESIGN.md` says, like every other note.
 
 ### A glossary and a series index on every note
 

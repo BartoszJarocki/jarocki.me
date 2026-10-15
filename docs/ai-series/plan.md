@@ -380,7 +380,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 **Build.**
 
-- [ ] Write the prose for every section from the part 1 outline in `docs/ai-series/design.md`, in lowercase and plain words, with no symbol outside the font subsets. Every term comes after the everyday thing it names, and the sample there sets the voice. The prose never depends on a code block.
+- [ ] Write the prose for every section from the part 1 outline in `docs/ai-series/design.md`, in natural case, as `DESIGN.md` says, and in plain words, with no symbol outside the font subsets. Every term comes after the everyday thing it names, and the sample there sets the voice. The prose never depends on a code block.
 - [ ] Keep the corrections the Codex review made to the part 1 outline. The loss is named before the first demo. The nudge is very close to the slope, not equal to it. Too big raises the loss on every step from where the cube starts, and any rate above the limit climbs out sooner or later. The learning rate scales the slope. The landscape squeezes its tall parts. The inference question is a 1.6 km ride. A filled square is a positive number and the later layers decide what it does to the answer. The playground scores yes or no answers differently and steps with adam, and the prose says so before train.
 - [ ] `Glossary` and `Term` render an `IndexSection` labeled `words from this note` with one `IndexRow` per term, so the glossary looks like every other list on the site. Each meaning points back at the example, as in `weight` with `a knob that scales an input, like the price per km`.
 - [ ] Remove `draft: true` and set `publishedAt` to the landing date.
