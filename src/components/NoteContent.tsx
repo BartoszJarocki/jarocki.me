@@ -2,6 +2,8 @@ import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
 import Image from 'next/image';
 import { ComponentProps } from 'react';
 
+import * as demos from './demos';
+
 type Props = {
   source: MDXRemoteSerializeResult;
   className?: string;
@@ -27,7 +29,7 @@ function NoteImage({
   );
 }
 
-const components = { img: NoteImage };
+const components = { img: NoteImage, ...demos };
 
 export function NoteContent({ source, className = '' }: Props) {
   return (
