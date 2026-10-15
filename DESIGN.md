@@ -327,24 +327,47 @@ Dates come from `dotDate` in `src/lib/date.ts`, which formats the ISO string its
 
 ## Demos
 
-A note can hold a demo that runs in the page, such as the taxi fare chart in part 1 of the ai series. Every demo behaves like the skyline. Its shell is in the HTML, its code loads only when it is near, and it stops when nobody can see it.
+A note can hold a demo that runs in the page, such as the taxi fare chart in part 1 of the ai series. Like the skyline, the server renders a demo's shell at its final size, and the scene that draws in it is an async chunk. The timing differs. The skyline starts to import its scene when it mounts. A demo starts only when its shell comes within 200px of the viewport.
 
 ### The stage
 
 - A note writes the demo on its own line, with blank lines around it, as `<TaxiFares label="…">description</TaxiFares>`. `label` is the figure's accessible name, and the markdown inside is the description of what the figure shows. A build fails when either is missing. MDX passes only string props.
 - `src/components/demos/index.ts` lists every demo, and `NoteContent` spreads it into the MDX components. A new demo adds one line there.
 - `DemoStage` renders the whole shell on the server: the figure box, a mono caption row, a controls row, and the description. Nothing moves when the demo starts, on a cold load or after client-side navigation.
-- The stage starts the `import()` of the demo's code when the shell comes within 200px of the viewport. The code is its own chunk, so a note's first load carries only the shells. `data-phase` on the root reads `shell`, `loading`, `ready`, or `fallback`.
-- Each demo is two files. The shell in `src/components/demos/` holds only structure. The scene in `src/lib/demos/` holds every value and all the drawing, and declares the elements it needs by tag with `defineScene`. The shell's refs are typed from that list.
-- The scene draws one frame when it mounts. After that it draws only while the stage is in the viewport and the tab is visible. Input, a theme change, or a resize while it is off screen waits until it is back. A demo that trains or walks asks for the next frame, and those frames stop while it is off screen.
-- Under reduced motion nothing starts on its own. Step buttons and sliders still work. Each scene decides what a long action does, such as jumping to the end.
+- The stage starts the `import()` of the demo's code when the shell comes within 200px of the viewport. The code is its own chunk, so a note's first load carries only the shells.
+- `data-phase` on the root reads `shell`, then `loading` once the import starts, then `ready` once the scene has drawn its first frame. A failure ends in `still` or `fallback`. See When a demo fails.
+
+### A demo's files
+
+`TaxiFares` is three files, and later demos follow the same split.
+
+- `src/components/demos/TaxiFares.tsx` is the shell. It holds the markup and the words around the chart: the caption's `loss` and `eight made-up rides`, and the slider labels.
+- `src/lib/demos/taxiFares.ts` holds the data and the math: the rides, the starting rule, the slider ranges, the loss, the least-squares fit, and `fareRule`, the reader's settings, which other demos read and write.
+- `src/lib/demos/taxiFaresScene.tsx` is the scene. It names the elements it needs and their tags with `defineScene`, draws the chart and its axis labels, and exports `Still`, the chart at the starting settings as SVG.
+
+The shell gets a ref for each element from `part(name)`, typed from the scene's list. TypeScript rejects a name that is not in the list. It does not reject the wrong element, such as a canvas ref on a `span`, because React types ref callbacks loosely. The stage checks each element's tag before it mounts the scene, and a wrong one fails the mount with the part's name.
+
+### Drawing
+
+- The scene draws one frame when it mounts, even off screen, so the figure is drawn when the reader scrolls to it. After that it draws only while the stage is in the viewport and the tab is visible. A wake from input, a theme change, or a resize while the stage is off screen waits until it is back.
+- A frame that returns `true` asks for the next one, which is how a demo trains or walks. Those frames also stop while the stage is off screen.
+- `stage.live` says whether the stage is in the viewport and the tab is visible, and it is right from the mount on. `onLive` calls a new listener with the current state at once, then on every change. A demo that works outside frames, such as one with a worker, starts and pauses that work in its listener.
+- Text outputs change with the value, not in the frame. The taxi scene writes the slider values, their `aria-valuetext`, and the loss from its `fareRule` listener. So the text matches the slider inside the input event, and it stays right while the stage is off screen.
+- Under reduced motion nothing starts on its own. The stage never stops a frame that asks for the next one, so each scene reads `stage.reducedMotion` and decides what to skip. Step buttons and sliders still work, and a long action, such as a walk, can jump to its end.
+
+### When a demo fails
+
 - Without JavaScript the figure box shows a still SVG of the demo's first frame, rendered only on the server, and the description shows below it. The caption and controls are hidden.
-- If the demo's code fails to load, the figure box keeps its height and shows the description. The caption and controls keep their space.
-- An abort signal owns teardown, so leaving the page releases every listener, observer, and frame, even halfway through a mount.
+- If the mount, a frame, or an `onLive` listener throws, the stage ends the scene and shows the scene's `Still` in the figure box, in the `still` phase. The error goes to the console. The caption and controls keep their space, and the description stays visually hidden.
+- A scene that can't run in this browser throws `Unsupported` from `src/lib/demos/stage.ts`. The reader sees the same still, and nothing is logged. `stage.canvas` throws it when the browser has no 2D canvas.
+- A 3D demo without WebGL either draws a 2D version or throws `Unsupported`, so the reader sees its still.
+- If the demo's code fails to load, the figure box keeps its height and shows the description, in the `fallback` phase. There is no still, because `Still` is part of the code that failed. The caption and controls keep their space.
+- A scene ends once, when the note unmounts or at its first failure. The stage then aborts `stage.signal`, which removes every listener added with it. It disconnects its observers, cancels the pending frame, and runs the steps given to `stage.defer`, last first. A canvas the scene asks for afterwards, such as when a slow mount finishes, is released at once.
 
 ### Layout
 
 - A demo widens from the 37rem prose to the 80ch column. The article of a note with a demo is a size container, and `.demo` is `100cqw` wide. On a phone the column is the prose width, so the demo is too. Notes without a demo are untouched.
+- `.demo` is a grid with one `minmax(0, 1fr)` column, so nothing inside a demo can widen the column. Without JavaScript a canvas renders as a plain box, and a minimum height on it becomes a minimum width through its aspect ratio. The fare chart's 220px would widen an auto column to 478px.
 - `.demo` sets Geist Mono 14px/1.72 and its own `bg`, so the part past the prose sits on a plate too.
 - The chrome inside a demo uses `div`, `span`, `label`, and `input`, because the `.prose` rules for `p` and `figure` would win over its classes.
 
@@ -352,7 +375,8 @@ A note can hold a demo that runs in the page, such as the taxi fare chart in par
 
 - Canvas colors come from the six tokens, read through a 1x1 canvas, and they follow a change of the system color scheme.
 - Canvas text is Geist Mono 11px in `faint`, written in lowercase in the code, because the root's `text-transform` does not reach a canvas.
-- Sliders have a 1px `faint` track and a 12px square `ink` thumb, with a `faint` label on the left and the value on the right. A thumb stays hidden until the scene sets its range and value.
+- A mark that grows with the reader's settings, such as a miss square, is clipped to the plot, the box above the axis and right of the value labels.
+- Sliders have a 1px `faint` track and a 12px square `ink` thumb, with a `faint` label on the left and the value on the right. A thumb stays hidden until the stage is `ready`.
 - The caption shows numbers in `ink` and words in `faint`, as in `loss 4.43`, with a `faint` note on the right.
 - Buttons use `.demo-button`, which looks like the skyline's stat buttons.
 
