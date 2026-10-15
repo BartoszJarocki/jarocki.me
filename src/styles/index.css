@@ -306,13 +306,17 @@
   }
 
   .prose {
-    max-width: 37rem;
+    max-width: calc(37rem + 2px);
+    margin-inline: -1px;
+    padding-inline: 1px;
     overflow-wrap: break-word;
     font-family: theme('fontFamily.sans');
     font-size: 16px;
     line-height: 1.75;
     color: var(--body);
-    /* a plate for the prose that reaches into the backdrop, including the faint list markers */
+    /* a plate for the prose that reaches into the backdrop, including the faint list markers. It
+       reaches 1px past the text, because the column can sit on a half pixel, and Chrome keeps
+       subpixel text above the backdrop only when the text lies inside its plate's whole pixels */
     background: var(--bg);
   }
   .prose p {
