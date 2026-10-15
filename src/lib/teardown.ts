@@ -19,3 +19,12 @@ export function teardown(): Teardown {
     },
   };
 }
+
+// Owners call this in effect cleanups, where a throw takes down the whole page, so it logs instead.
+export function release(scene: { destroy: () => void } | null) {
+  try {
+    scene?.destroy();
+  } catch (error) {
+    console.error(error);
+  }
+}
