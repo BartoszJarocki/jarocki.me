@@ -50,15 +50,14 @@ export function DemoStage<P>({
         near.disconnect();
         setPhase('loading');
         scene()
-          .then((module) => module.default.start(element, parts, unmount.signal))
-          .then(
-            () => setPhase('ready'),
-            (error) => {
-              if (unmount.signal.aborted) return;
-              if (error?.name !== 'ChunkLoadError') console.error(error);
-              setPhase('fallback');
-            },
-          );
+          .then((module) =>
+            module.default.start(element, parts, unmount.signal, () => setPhase('ready')),
+          )
+          .catch((error) => {
+            if (unmount.signal.aborted) return;
+            if (error?.name !== 'ChunkLoadError') console.error(error);
+            setPhase('fallback');
+          });
       },
       { rootMargin: '200px' },
     );

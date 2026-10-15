@@ -8,17 +8,28 @@ const tokenNames = ['bg', 'ink', 'body', 'faint', 'rule', 'wash'] as const;
 export type Rgb = readonly [number, number, number];
 export type Tokens = { readonly [N in (typeof tokenNames)[number]]: Rgb };
 
-/** Draws the stage and writes every output. Return true to get another frame while the stage is live. */
+/** Draws the stage. Return true to get another frame while the stage is live. */
 export type Frame = (now: number, live: boolean) => boolean | void;
 
+/** Throw it when the scene can't run in this browser. The demo shows its still and logs nothing. */
+export class Unsupported extends Error {
+  name = 'Unsupported';
+}
+
 export type Scene<P> = {
-  start(root: HTMLElement, parts: Partial<P>, signal: AbortSignal): Promise<void>;
+  /** Runs the scene until signal aborts, then resolves. Calls ready after the first frame. Rejects when the mount, a frame, or an onLive listener throws. */
+  start(
+    root: HTMLElement,
+    parts: Partial<P>,
+    signal: AbortSignal,
+    ready: () => void,
+  ): Promise<void>;
 };
 
 type FittedContext = CanvasRenderingContext2D & { width: number; height: number };
 
 export interface Stage {
-  /** Aborts when the demo unmounts or its mount fails. Pass it to every listener. */
+  /** Aborts when the scene ends. Pass it to every listener. */
   readonly signal: AbortSignal;
   /** Runs at teardown, last added first, or at once after teardown. */
   defer(step: () => void): void;
@@ -26,11 +37,13 @@ export interface Stage {
   wake(): void;
   /** In the viewport, and the tab is visible. */
   readonly live: boolean;
+  /** Calls the listener with the current state at once, then on every change. */
   onLive(listener: (live: boolean) => void): void;
+  /** The runtime never stops a frame that asks for more, so the scene reads this and decides. */
   readonly reducedMotion: boolean;
   /** The six color tokens as sRGB bytes, read again when the color scheme changes. */
   readonly tokens: Tokens;
-  /** The canvas's 2D context, its backing store fitted to its CSS box at up to 2x. */
+  /** The canvas's 2D context, its backing store fitted to its CSS box at up to 2x. Throws Unsupported without one. */
   canvas(element: HTMLCanvasElement): FittedContext;
   /** A canvas font in the page's Geist Mono, loaded before the first frame. */
   font(px: number): string;
@@ -39,9 +52,15 @@ export interface Stage {
 export const css = (color: Rgb, alpha?: number) =>
   `rgb(${color.join(' ')}${alpha === undefined ? '' : ` / ${alpha}`})`;
 
+function context2d(canvas: HTMLCanvasElement, settings?: CanvasRenderingContext2DSettings) {
+  const context = canvas.getContext('2d', settings);
+  if (!context) throw new Unsupported('This browser has no 2D canvas');
+  return context;
+}
+
 // A 1x1 canvas resolves the oklch tokens to the sRGB bytes the page paints.
 function tokenReader() {
-  const swatch = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+  const swatch = context2d(document.createElement('canvas'), { willReadFrequently: true });
   swatch.canvas.width = swatch.canvas.height = 1;
   return () => {
     const style = getComputedStyle(document.documentElement);
@@ -62,160 +81,173 @@ export function defineScene<T extends PartTags>(spec: {
   mount(stage: Stage, parts: PartsOf<T>): Frame | Promise<Frame>;
 }): Scene<PartsOf<T>> {
   return {
-    async start(root, collected, signal) {
-      if (signal.aborted) throw signal.reason;
-      for (const key in spec.parts) {
-        const tag = spec.parts[key];
-        if ((collected[key] as Element | undefined)?.localName !== tag) {
-          throw new Error(`The demo part ${key} is not a <${tag}>`);
-        }
-      }
-
-      const cleanup = teardown();
-      const own = new AbortController();
-      cleanup.add(() => own.abort());
-      let destroyed = false;
-      const destroy = () => {
-        if (destroyed) return;
-        destroyed = true;
-        release({ destroy: cleanup.run });
-      };
-      signal.addEventListener('abort', destroy, { once: true });
-      const on = { signal: own.signal };
-
-      try {
-        let frame: Frame | null = null;
-        let raf = 0;
-        let first = true;
-        let woken = false;
-        let running = false;
-        let seen = false;
-        let wasLive = false;
-        const isLive = () => seen && !document.hidden;
-        const liveListeners: ((live: boolean) => void)[] = [];
-        cleanup.add(() => cancelAnimationFrame(raf));
-
-        const schedule = () => {
-          if (raf || !frame || destroyed) return;
-          if (first || ((woken || running) && isLive())) raf = requestAnimationFrame(tick);
+    start: (root, collected, signal, ready) =>
+      new Promise((resolve, reject) => {
+        const cleanup = teardown();
+        const own = new AbortController();
+        const on = { signal: own.signal };
+        const end = (settle: () => void) => {
+          if (own.signal.aborted) return;
+          own.abort();
+          release({ destroy: cleanup.run });
+          settle();
         };
-        const tick = (now: number) => {
-          raf = 0;
-          const live = isLive();
-          if (!first && !live) return;
-          first = woken = false;
-          running = frame!(now, live) === true;
-          schedule();
-        };
-        const wake = () => {
-          woken = true;
-          schedule();
-        };
-        const liveChanged = () => {
-          const live = isLive();
-          if (live !== wasLive) {
-            wasLive = live;
-            for (const listener of liveListeners) listener(live);
+        const fail = (error: unknown) => end(() => reject(error));
+        const defer = (step: () => void) => (own.signal.aborted ? step() : cleanup.add(step));
+        signal.addEventListener('abort', () => end(() => resolve()), on);
+        if (signal.aborted) end(() => resolve());
+        else setUp().catch(fail);
+
+        async function setUp() {
+          for (const key in spec.parts) {
+            const tag = spec.parts[key];
+            if ((collected[key] as Element | undefined)?.localName !== tag) {
+              throw new Error(`The demo part ${key} is not a <${tag}>`);
+            }
           }
-          schedule();
-        };
 
-        const viewport = new IntersectionObserver((entries) => {
-          seen = entries[entries.length - 1].isIntersecting;
-          liveChanged();
-        });
-        viewport.observe(root);
-        cleanup.add(() => viewport.disconnect());
-        document.addEventListener('visibilitychange', liveChanged, on);
+          let frame: Frame | null = null;
+          let raf = 0;
+          let first = true;
+          let woken = false;
+          let running = false;
+          let seen = false;
+          let live = false;
+          const liveListeners: ((live: boolean) => void)[] = [];
+          cleanup.add(() => cancelAnimationFrame(raf));
 
-        const readTokens = tokenReader();
-        let tokens = readTokens();
-        matchMedia('(prefers-color-scheme: dark)').addEventListener(
-          'change',
-          () => {
-            tokens = readTokens();
-            wake();
-          },
-          on,
-        );
-        const motion = matchMedia('(prefers-reduced-motion: reduce)');
-        motion.addEventListener('change', wake, on);
+          const schedule = () => {
+            if (raf || !frame || own.signal.aborted) return;
+            if (first || ((woken || running) && live)) raf = requestAnimationFrame(tick);
+          };
+          const tick = (now: number) => {
+            raf = 0;
+            if (!first && !live) return;
+            const opening = first;
+            first = woken = false;
+            try {
+              running = frame!(now, live) === true;
+            } catch (error) {
+              return fail(error);
+            }
+            if (opening) ready();
+            schedule();
+          };
+          const wake = () => {
+            woken = true;
+            schedule();
+          };
+          const update = () => {
+            const next = seen && !document.hidden;
+            if (next !== live) {
+              live = next;
+              try {
+                for (const listener of liveListeners) listener(live);
+              } catch (error) {
+                return fail(error);
+              }
+            }
+            schedule();
+          };
 
-        const canvases = new Map<HTMLCanvasElement, FittedContext>();
-        const resizes = new ResizeObserver((entries) => {
-          let changed = false;
-          for (const { target, contentRect } of entries) {
-            const context = canvases.get(target as HTMLCanvasElement);
-            if (!context) continue;
-            if (context.width === contentRect.width && context.height === contentRect.height)
-              continue;
-            context.width = contentRect.width;
-            context.height = contentRect.height;
-            changed = true;
-          }
-          if (changed) wake();
-        });
-        cleanup.add(() => resizes.disconnect());
-        // A zoom changes the pixel ratio without resizing the CSS box, so no ResizeObserver fires.
-        const watchRatio = () =>
-          matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener(
+          let sighted = () => {};
+          const sighting = new Promise<void>((resolve) => (sighted = resolve));
+          const viewport = new IntersectionObserver((entries) => {
+            seen = entries[entries.length - 1].isIntersecting;
+            sighted();
+            update();
+          });
+          viewport.observe(root);
+          cleanup.add(() => viewport.disconnect());
+          document.addEventListener('visibilitychange', update, on);
+
+          const readTokens = tokenReader();
+          let tokens = readTokens();
+          matchMedia('(prefers-color-scheme: dark)').addEventListener(
             'change',
             () => {
-              watchRatio();
+              tokens = readTokens();
               wake();
             },
-            { once: true, signal: own.signal },
+            on,
           );
-        watchRatio();
+          const motion = matchMedia('(prefers-reduced-motion: reduce)');
+          motion.addEventListener('change', wake, on);
 
-        const family = getComputedStyle(root).fontFamily;
-
-        const stage: Stage = {
-          signal: own.signal,
-          defer: (step) => (destroyed ? step() : cleanup.add(step)),
-          wake,
-          get live() {
-            return isLive();
-          },
-          onLive(listener) {
-            liveListeners.push(listener);
-          },
-          get reducedMotion() {
-            return motion.matches;
-          },
-          get tokens() {
-            return tokens;
-          },
-          canvas(element) {
-            let context = canvases.get(element);
-            if (!context) {
-              const { width, height } = element.getBoundingClientRect();
-              context = Object.assign(element.getContext('2d')!, { width, height });
-              canvases.set(element, context);
-              resizes.observe(element);
+          const canvases = new Map<HTMLCanvasElement, FittedContext>();
+          const resizes = new ResizeObserver((entries) => {
+            let changed = false;
+            for (const { target, contentRect } of entries) {
+              const context = canvases.get(target as HTMLCanvasElement);
+              if (!context) continue;
+              if (context.width === contentRect.width && context.height === contentRect.height)
+                continue;
+              context.width = contentRect.width;
+              context.height = contentRect.height;
+              changed = true;
             }
-            const ratio = Math.min(devicePixelRatio, 2);
-            const width = Math.round(context.width * ratio);
-            const height = Math.round(context.height * ratio);
-            if (element.width !== width || element.height !== height) {
-              element.width = width;
-              element.height = height;
-            }
-            context.setTransform(ratio, 0, 0, ratio, 0, 0);
-            return context;
-          },
-          font: (px) => `${px}px ${family}`,
-        };
+            if (changed) wake();
+          });
+          // A zoom changes the pixel ratio without resizing the CSS box, so no ResizeObserver fires.
+          const watchRatio = () =>
+            matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener(
+              'change',
+              () => {
+                watchRatio();
+                wake();
+              },
+              { once: true, signal: own.signal },
+            );
+          watchRatio();
 
-        await document.fonts.load(stage.font(11));
-        if (signal.aborted) throw signal.reason;
-        frame = await spec.mount(stage, collected as PartsOf<T>);
-        if (signal.aborted) throw signal.reason;
-        schedule();
-      } catch (error) {
-        destroy();
-        throw error;
-      }
-    },
+          const family = getComputedStyle(root).fontFamily;
+
+          const stage: Stage = {
+            signal: own.signal,
+            defer,
+            wake,
+            get live() {
+              return live;
+            },
+            onLive(listener) {
+              liveListeners.push(listener);
+              listener(live);
+            },
+            get reducedMotion() {
+              return motion.matches;
+            },
+            get tokens() {
+              return tokens;
+            },
+            canvas(element) {
+              let context = canvases.get(element);
+              if (!context) {
+                const { width, height } = element.getBoundingClientRect();
+                context = Object.assign(context2d(element), { width, height });
+                canvases.set(element, context);
+                resizes.observe(element);
+                defer(() => resizes.unobserve(element));
+              }
+              const ratio = Math.min(devicePixelRatio, 2);
+              const width = Math.round(context.width * ratio);
+              const height = Math.round(context.height * ratio);
+              if (element.width !== width || element.height !== height) {
+                element.width = width;
+                element.height = height;
+              }
+              context.setTransform(ratio, 0, 0, ratio, 0, 0);
+              return context;
+            },
+            font: (px) => `${px}px ${family}`,
+          };
+
+          await Promise.all([document.fonts.load(stage.font(11)), sighting]);
+          own.signal.throwIfAborted();
+          const mounted = await spec.mount(stage, collected as PartsOf<T>);
+          own.signal.throwIfAborted();
+          frame = mounted;
+          schedule();
+        }
+      }),
   };
 }
