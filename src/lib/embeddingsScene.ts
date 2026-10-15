@@ -504,6 +504,7 @@ async function mountScene(
   let W = 0;
   let Hh = 0;
   let dist = 0;
+  let showWords = true;
   const tmp = new Color();
   const mixColor = (m: number) => tmp.copy(bg).lerp(ink, clamp(m, 0, 1));
 
@@ -572,6 +573,8 @@ async function mountScene(
       highlight(nb, 0.95 * fade * g, 3.2);
     }
     const p = toScreen(q);
+    box(p.x, p.y, 5, 0.9 * fade);
+    if (!showWords) return;
     const name = show(tokens[tok]);
     const rowH = 15;
     const colW = 7 * 4 + 8;
@@ -594,7 +597,6 @@ async function mountScene(
       labels.draw(fmt(n.s), x0, y, 0.5 * fade);
       names.draw(show(tokens[n.i]), x0 + colW, y, 0.8 * fade);
     });
-    box(p.x, p.y, 5, 0.9 * fade);
   };
 
   const drawAnalogy = (t: number) => {
@@ -635,6 +637,7 @@ async function mountScene(
     const sd = toScreen(pd);
     const sq = toScreen(pq);
     if (g3 >= 1) box(sq.x, sq.y, 3, 0.8 * fade * g4 + 0.4 * fade * (1 - g4));
+    if (!showWords) return;
     const tm = 0.75 * fade;
     placeLabel(show(tokens[a.ia]), sa, tm);
     placeLabel(show(tokens[a.ib]), sb, tm * g1);
@@ -691,6 +694,8 @@ async function mountScene(
     // A portrait stage rolls the camera so the band runs down the screen.
     const portrait = a < 1;
     camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
+    // On a phone the header covers much of a portrait band, and any word could drift behind it.
+    showWords = !portrait;
     const along = portrait ? tan : tan * a;
     const across = portrait ? tan * a : tan;
     const e = along / across;
@@ -768,7 +773,7 @@ async function mountScene(
     highlight(qv, 1, 5.5);
 
     drawAnalogy(t);
-    for (const [str, p, m] of trailLabels) placeLabel(str, p, m, -9, 0, true);
+    if (showWords) for (const [str, p, m] of trailLabels) placeLabel(str, p, m, -9, 0, true);
 
     lineGeo.setDrawRange(0, nl * 2);
     linePos.needsUpdate = true;
