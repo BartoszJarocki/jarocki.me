@@ -555,14 +555,7 @@ async function mountScene(
 
   const nb = new Vector3();
   const tip = new Vector3();
-  const drawNeighbors = (
-    tok: number,
-    q: Vector3,
-    fade: number,
-    grow: number,
-    names = labels,
-    head = heads,
-  ) => {
+  const drawNeighbors = (tok: number, q: Vector3, fade: number, grow: number, hover = false) => {
     const nn = neighbors(tok);
     for (let r = 0; r < nn.length; r++) {
       const g = smooth(r * 0.06, r * 0.06 + 0.4, grow);
@@ -575,6 +568,8 @@ async function mountScene(
     const p = toScreen(q);
     box(p.x, p.y, 5, 0.9 * fade);
     if (!showWords) return;
+    const names = hover ? hoverSet(tok) : labels;
+    const head = hover ? names : heads;
     const name = show(tokens[tok]);
     const rowH = 15;
     const colW = 7 * 4 + 8;
@@ -762,8 +757,7 @@ async function mountScene(
 
     const hover = hovered();
     if (hover >= 0) {
-      const set = hoverSet(hover);
-      drawNeighbors(hover, at(hover), 1, 1, set, set);
+      drawNeighbors(hover, at(hover), 1, 1, true);
     } else {
       const out = 1 - smooth(0, 0.35, ph);
       if (out > 0) drawNeighbors(prev, va.clone(), out, 1);
