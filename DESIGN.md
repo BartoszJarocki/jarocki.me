@@ -271,7 +271,7 @@ Every page draws a toy embedding space behind its top 460px. It shows one thing 
 
 ### Plates
 
-`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts behind it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity.
+`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts behind it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity. That holds only while the stage stays at or under about 42% opacity (42.3% in dark, 53.7% in light). Raising it needs plates under `ink` text too.
 
 So the tone decides. In the band, `ink` text needs no plate, and every piece of `body` or `faint` text sits on one. The `.plate` class gives an element a `bg` background 1ch wider on each side, with a negative margin, so nothing moves. These carry it:
 

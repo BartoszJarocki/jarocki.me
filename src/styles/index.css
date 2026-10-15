@@ -180,6 +180,7 @@
     right: 0;
     height: 460px;
     z-index: -1;
+    /* ink text keeps 4.5:1 over the stage only up to about 42%; above that it needs plates too */
     opacity: 0.4;
     pointer-events: none;
     overflow: hidden;
