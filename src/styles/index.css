@@ -414,6 +414,7 @@
     position: relative;
     display: grid;
     grid-template-areas: 'stage' 'caption' 'controls' 'description';
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
     margin: 32px 0 40px;
     font-family: theme('fontFamily.mono');
