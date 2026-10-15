@@ -39,7 +39,7 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
   - [ ] ai-04, ai-05, and ai-07 each need only ai-03. Their owners can build in parallel on ai-03's branch.
   - [ ] ai-06 after ai-04 and ai-05. ai-08 after ai-07. ai-09 after ai-06 and ai-08. ai-10 after ai-08, because it ports the GPT onto the parameter layout ai-08 settles.
   - [ ] ai-11 after ai-09 and ai-10. ai-12 after ai-11. ai-13 after ai-12. ai-14 after ai-13.
-- [ ] Hold the file boundaries. Each PR touches only the files its **Files** block lists, plus the test files its unit box names. Demo PRs, ai-04, ai-05, ai-07, ai-08, ai-10, ai-11, and ai-13, stay inside `src/components/demos/**`, `src/lib/ml/**`, `src/lib/demos/**`, `public/data/**`, `public/models/**`, and their own note in `src/notes/`, with one named exception. ai-10 adds `scripts/train.mjs` and edits `package.json`. Only ai-01, ai-02, ai-03, ai-06, and ai-09 touch `src/lib/notes.ts`, `src/components/NoteContent.tsx`, or `src/pages/notes/[slug].tsx`. ai-09 also edits part 1's note and `DESIGN.md`. ai-03, ai-06, ai-09, ai-12, and ai-14 add cases to `src/lib/notes.test.ts`.
+- [ ] Hold the file boundaries. Each PR touches only the files its **Files** block lists, plus the test files its unit box names. Demo PRs, ai-04, ai-05, ai-07, ai-08, ai-10, ai-11, and ai-13, stay inside `src/components/demos/**`, `src/lib/ml/**`, `src/lib/demos/**`, `public/data/**`, `public/models/**`, and their own note in `src/notes/`, with one named exception. ai-10 adds `scripts/train.mjs` and edits `package.json`. Only ai-01, ai-02, ai-03, ai-06, and ai-09 touch `src/lib/notes.ts`, `src/components/NoteContent.tsx`, or `src/pages/notes/[slug].tsx`. ai-09 also edits part 1's note, `DESIGN.md`, and `CLAUDE.md`. ai-01 edits `tsconfig.json`. ai-03, ai-06, ai-09, ai-12, and ai-14 add cases to `src/lib/notes.test.ts`.
 - [ ] Mask the series index in regression lanes. From ai-09 on, the `the ai series` section on every part changes by design as parts land, and a local build renders drafts. A regression lane that compares a series note at trunk and head masks the series navigation, that section and the footer's part links, then checks both separately against the parts that exist at head.
 - [ ] Hold the review gate. Every PR except ai-01 and ai-10 changes an interaction. They wait for the operator's review in chat with screenshots and a video before merge.
 
@@ -79,6 +79,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Create `src/notes/how-a-machine-learns.mdx`.
 - [ ] Edit `CLAUDE.md`.
 - [ ] Edit `package.json`.
+- [ ] Edit `tsconfig.json`, adding `allowImportingTsExtensions` so the test can import `./notes.ts`.
 
 **Build.**
 
@@ -93,7 +94,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 **Verify, unit.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
-- [ ] This PR adds `pnpm test` as `node --test src/lib` and `src/lib/notes.test.ts`. Every test in the series lives under `src/lib`, so this one command runs them all. A demo's testable logic lives in `src/lib/demos/` or `src/lib/ml/`, never in a component file. One case writes a draft and a published note to a temp directory and asserts `getNotes()` returns both slugs without `VERCEL_ENV` and only the published slug with `VERCEL_ENV=production`. Run `pnpm test`.
+- [ ] This PR adds `pnpm test` as `node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test 'src/lib/**/*.test.ts'` and `src/lib/notes.test.ts`. The glob is quoted so Node expands it, because Node 22 and 24 reject a folder there. Every test in the series lives under `src/lib`, so this one command runs them all. A demo's testable logic lives in `src/lib/demos/` or `src/lib/ml/`, never in a component file. One case writes a draft and a published note to a temp directory and asserts `getNotes()` returns both slugs without `VERCEL_ENV` and only the published slug with `VERCEL_ENV=production`. Run `pnpm test`.
 
 **Verify, live.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked. Ten lanes on `claude-sonnet-5-5` at the PR head, per the boot recipe.
 
@@ -134,6 +135,10 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Create `src/components/demos/TaxiFares.tsx`.
 - [ ] Create `src/lib/demos/taxiFares.ts`.
 - [ ] Create `src/lib/demos/taxiFares.test.ts`.
+- [ ] Create `src/lib/demos/taxiFaresScene.tsx`, the scene that loads near the viewport.
+- [ ] Create `src/lib/demos/stage.ts`, the lazy scene runtime every demo uses.
+- [ ] Create `src/lib/demos/stage.test.ts`.
+- [ ] Create `src/components/demos/index.ts`, the registry that later demo PRs add to.
 - [ ] Edit `src/components/NoteContent.tsx`.
 - [ ] Edit `src/styles/index.css`.
 - [ ] Edit `src/notes/how-a-machine-learns.mdx`.
@@ -162,7 +167,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Lane 3. 390px, dark. Save `phone-dark.png`. Pass when the probe reports a scroll width of 390 and both sliders work by touch.
 - [ ] Lane 4. Reduced motion. Save `reduced-motion.png`. Pass when nothing on the page animates without input.
 - [ ] Lane 5. JavaScript off. Save `no-js.png`. Pass when the shell shows its still figure and description at the same height as the live stage.
-- [ ] Lane 6. Layout shift. Load the note cold with the network throttled to Fast 3G. Save `cls.png`. Pass when cumulative layout shift is 0.
+- [ ] Lane 6. Layout shift. Load the note cold with the network throttled to Fast 3G. Save `cls.png`. Pass when the layout shift from the demo's mount onward is 0 and the whole load's shift equals trunk's. Trunk's font swap shifts every note by 0.0000327.
 - [ ] Lane 7. Keyboard only. Tab to each slider and move it with the arrow keys. Save `keyboard.png`. Pass when focus is visible on each control and the loss updates.
 - [ ] Lane 8. Lazy load and off screen. Record request times from a cold load, then scroll the demo into view, then out of view, and count canvas paints for five seconds. Save `offscreen.png`. Pass when the demo's chunk is first requested after the shell comes within 200px of the viewport, and the paint count is 0.
 - [ ] Lane 9. Client navigation. Go between the note and `/notes` five times. Save `navigation.png`. Pass when the console is clean and one stage is mounted at the end.
@@ -205,7 +210,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 **Build.**
 
 - [ ] Add a remark plugin to `getNoteContent` that replaces a fenced block whose meta is `include=src/lib/ml/value.ts#backward` with the lines between `// #region backward` and `// #endregion` in that file. A missing file or region fails the build with the note's name, like `rehypeNoteImages` does for images.
-- [ ] Set `allowImportingTsExtensions` and `erasableSyntaxOnly` in `tsconfig.json`, so `src/lib/ml` imports its own files as `./value.ts` and runs unchanged under `node --test` and later `scripts/train.mjs`.
+- [ ] Add `erasableSyntaxOnly` to `tsconfig.json`, beside the `allowImportingTsExtensions` that ai-01 set, so `src/lib/ml` imports its own files as `./value.ts` and runs unchanged under `node --test` and later `scripts/train.mjs`.
 - [ ] `Value` in `src/lib/ml/value.ts` holds `data`, `grad`, its inputs, and its local backward step, with `add`, `mul`, `pow`, `exp`, `log`, `tanh`, `relu`, and `backward`. `exp` and `log` are there for ai-05's sigmoid output and cross-entropy loss. Keep it under 80 lines, since the note shows all of it.
 - [ ] `FareReceipt` works out `loss = (w * x + b - y) ** 2` for one ride as an HTML table read like a receipt, one row per step. The rows are distance times price per km, plus the starting fee, minus what the rider paid, and the miss times itself. A nudge button adds one cent to the price per km and shows how the bottom row changes. A backward button fills a `slope` column from the bottom row up, one row at a time. The receipt's ride is a short one, because a one-cent nudge differs from the true slope by the distance squared times 0.01. Appendix A's preview used its 0.3 km ride.
 
@@ -568,11 +573,12 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Edit `src/lib/notes.ts`.
 - [ ] Edit `src/pages/notes/[slug].tsx`.
 - [ ] Edit `DESIGN.md`.
+- [ ] Edit `CLAUDE.md`.
 
 **Build.**
 
 - [ ] Write part 2's prose and glossary from the part 2 outline in `docs/ai-series/design.md`, by the same rules as part 1, then remove `draft: true`.
-- [ ] Notes gain optional `series` and `part` fields. The four part titles live in one list in `src/lib/notes.ts`. A note in a series shows an `IndexSection` labeled `the ai series` with one row per part, the current one marked with `aria-current`. A published part links to its note. A part not published yet shows its title with `coming soon` and no link.
+- [ ] Notes gain optional `series` and `part` fields. Add both to `fields` in `src/lib/notes.ts`, because ai-01 makes an unknown field fail the build, and update the sentence about `fields` in `CLAUDE.md`. The four part titles live in one list in `src/lib/notes.ts`. A note in a series shows an `IndexSection` labeled `the ai series` with one row per part, the current one marked with `aria-current`. A published part links to its note. A part not published yet shows its title with `coming soon` and no link.
 - [ ] A note in a series replaces the footer's `next:` link with `← part n` and `part n →` links to its neighbors, because `next:` points at the older note.
 - [ ] Add `series: ai` and `part: 1` to part 1.
 
