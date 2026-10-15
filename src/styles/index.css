@@ -211,6 +211,15 @@
     position: relative;
     z-index: 2;
   }
+  /* Chrome drops a clipped line's ellipsis when the text sits in a raised inline, so a clipping
+     cell rises in place of its plate */
+  :is(.index-clip, .index-trail):has(> .plate-inline) {
+    position: relative;
+    z-index: 2;
+  }
+  :is(.index-clip, .index-trail):has(> .plate-inline) > .plate-inline {
+    position: static;
+  }
   .backdrop > canvas {
     display: block;
     width: 100%;
