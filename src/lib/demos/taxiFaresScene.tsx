@@ -61,7 +61,7 @@ export function fareFigure(rule: FareRule, width: number, height: number, compac
     height,
     axis: { x: pad.l, y: Math.round(floor), width: plotWidth },
     labels,
-    clip: { x: pad.l, y: 0, width: plotWidth + pad.r, height: floor },
+    clip: { x: pad.l, y: pad.t, width: plotWidth, height: plotHeight },
     squareTone: compact ? 0.4 : 0.45,
     squares: rides.flatMap((ride) => {
       const miss = predict(rule, ride.km) - ride.paid;
@@ -73,8 +73,8 @@ export function fareFigure(rule: FareRule, width: number, height: number, compac
     line: {
       x1: x(0),
       y1: y(predict(rule, 0)),
-      x2: width,
-      y2: y(predict(rule, chart.km + pad.r / perKm)),
+      x2: x(chart.km),
+      y2: y(predict(rule, chart.km)),
       width: compact ? 1 : 1.5,
     },
     dot,
