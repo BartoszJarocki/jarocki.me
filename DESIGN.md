@@ -268,6 +268,7 @@ Every page draws a toy embedding space behind its top 460px. It shows one thing 
 - `mountEmbeddings` in `src/lib/embeddingsScene.ts` loads as an async chunk, like the skyline's scene, so three.js stays out of the first load. It builds the space, the neighbor lists, and the label atlases in slices of at most 16ms. At 4x CPU throttling its longest task is about 30ms, and the stage is ready about 1.3 seconds after navigation.
 - It draws at most 30 frames a second, and stops while the page is hidden or the band is out of view. Under reduced motion it draws one frame, at t = 6 seconds, and draws again only on a resize or a theme change.
 - If WebGL is unavailable or the chunk fails to load, the page has no backdrop.
+- Print hides it. Printing drops background graphics, so the plates would vanish and text would print over the cloud.
 
 ### Plates
 

@@ -206,6 +206,13 @@
       animation: fade-in 200ms;
     }
   }
+  /* printing drops background graphics, so the plates would vanish and text would print over the
+     cloud */
+  @media print {
+    .backdrop {
+      display: none;
+    }
+  }
 
   .skyline {
     position: relative;
