@@ -130,6 +130,7 @@ export function defineScene<T extends PartTags>(spec: {
             } catch (error) {
               return fail(error);
             }
+            if (own.signal.aborted) return;
             if (opening) ready();
             schedule();
           };
@@ -211,7 +212,11 @@ export function defineScene<T extends PartTags>(spec: {
             },
             onLive(listener) {
               liveListeners.push(listener);
-              listener(live);
+              try {
+                listener(live);
+              } catch (error) {
+                fail(error);
+              }
             },
             get reducedMotion() {
               return motion.matches;
