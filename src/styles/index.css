@@ -407,22 +407,19 @@
     color: var(--faint);
   }
 
-  /* a note with a demo measures its column, so a demo can widen from the prose to the column */
   article:has(.demo) {
     container-type: inline-size;
   }
-  /* a grid keeps the children's margins inside the demo's plate, and lets the fallback put the
-     description over the empty stage */
   .demo {
     position: relative;
     display: grid;
+    grid-template-areas: 'stage' 'caption' 'controls' 'description';
     width: 100%;
     margin: 32px 0 40px;
     font-family: theme('fontFamily.mono');
     font-size: 14px;
     line-height: 1.72;
     color: var(--ink);
-    /* plates the part that reaches past the prose's own plate */
     background: var(--bg);
   }
   /* a browser with container units but no :has would measure the viewport instead */
@@ -431,9 +428,8 @@
       width: 100cqw;
     }
   }
-  /* placed, so the fallback's description can share its cell without pushing it down a row */
   .demo-stage {
-    grid-area: 1 / 1;
+    grid-area: stage;
     position: relative;
   }
   .demo-stage > canvas {
@@ -447,6 +443,7 @@
     background: var(--bg);
   }
   .demo-caption {
+    grid-area: caption;
     display: flex;
     justify-content: space-between;
     column-gap: 3ch;
@@ -465,6 +462,7 @@
     color: var(--faint);
   }
   .demo-controls {
+    grid-area: controls;
     display: grid;
     gap: 4px;
     margin-top: 16px;
@@ -519,7 +517,6 @@
     border-radius: 0;
     background: var(--ink);
   }
-  /* the scene sets each range and value, so a thumb never shows at the browser's default middle */
   .demo:not([data-phase='ready']) input[type='range']::-webkit-slider-thumb {
     visibility: hidden;
   }
@@ -540,6 +537,7 @@
     text-underline-offset: 5px;
   }
   .demo-description {
+    grid-area: description;
     position: absolute;
     width: 1px;
     height: 1px;
@@ -550,12 +548,11 @@
   .demo-description > :last-child {
     margin-bottom: 0;
   }
-  /* the caption and controls keep their space, so the switch moves nothing below the demo */
   .demo[data-phase='fallback'] :is(.demo-caption, .demo-controls) {
     visibility: hidden;
   }
   .demo[data-phase='fallback'] .demo-description {
-    grid-area: 1 / 1;
+    grid-area: stage;
     align-self: center;
     position: relative;
     width: auto;

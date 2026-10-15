@@ -12,7 +12,6 @@ import {
 
 import type { Scene } from '../../lib/demos/stage';
 
-// Written as data-phase by the effect only. React renders 'shell' and never changes it.
 export type Phase = 'shell' | 'loading' | 'ready' | 'fallback';
 
 export type DemoProps = { label: string; children: ReactNode };
@@ -100,7 +99,6 @@ export function DemoStage<P>({
   );
 }
 
-// The value text is aria-hidden because the input carries the same value as aria-valuetext.
 export function Slider({
   label,
   input,

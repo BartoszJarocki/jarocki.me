@@ -1,10 +1,7 @@
 export type Ride = { km: number; paid: number };
 
-// The model's two knobs: the starting fee is the bias and the price per km is the weight.
 export type FareRule = { readonly fee: number; readonly price: number };
 
-// Made up: a fee near 5 and a price near 1.5 per km, plus traffic, so no line touches every ride.
-// Short rides keep the loss valley wide enough to walk down in tens of steps.
 export const rides: readonly Ride[] = [
   { km: 0.3, paid: 6.25 },
   { km: 0.5, paid: 5.35 },
@@ -41,8 +38,6 @@ export function leastSquares(): FareRule {
   return { fee: paid - price * km, price };
 }
 
-// The reader's fee and price, shared by every fare demo on the page for the session. A rule is
-// never changed in place, so a demo that kept the rule it last saw can tell another demo moved it.
 let rule = start;
 const listeners = new Set<() => void>();
 

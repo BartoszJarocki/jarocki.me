@@ -8,7 +8,7 @@ const tokenNames = ['bg', 'ink', 'body', 'faint', 'rule', 'wash'] as const;
 export type Rgb = readonly [number, number, number];
 export type Tokens = { readonly [N in (typeof tokenNames)[number]]: Rgb };
 
-// Returning true asks for another frame while the stage is live.
+/** Draws the stage and writes every output. Return true to get another frame while the stage is live. */
 export type Frame = (now: number, live: boolean) => boolean | void;
 
 export type Scene<P> = {
@@ -18,22 +18,28 @@ export type Scene<P> = {
 type FittedContext = CanvasRenderingContext2D & { width: number; height: number };
 
 export interface Stage {
+  /** Aborts when the demo unmounts or its mount fails. Pass it to every listener. */
   readonly signal: AbortSignal;
+  /** Runs at teardown, last added first, or at once after teardown. */
   defer(step: () => void): void;
+  /** Asks for one frame. The first frame draws at mount; later ones wait until the stage is live. */
   wake(): void;
+  /** In the viewport, and the tab is visible. */
   readonly live: boolean;
   onLive(listener: (live: boolean) => void): void;
   readonly reducedMotion: boolean;
+  /** The six color tokens as sRGB bytes, read again when the color scheme changes. */
   readonly tokens: Tokens;
+  /** The canvas's 2D context, its backing store fitted to its CSS box at up to 2x. */
   canvas(element: HTMLCanvasElement): FittedContext;
+  /** A canvas font in the page's Geist Mono, loaded before the first frame. */
   font(px: number): string;
 }
 
 export const css = (color: Rgb, alpha?: number) =>
   `rgb(${color.join(' ')}${alpha === undefined ? '' : ` / ${alpha}`})`;
 
-// The tokens are oklch, so a 1x1 canvas resolves them to the sRGB bytes the page paints. This
-// stays apart from colorTokens.ts, which would pull three into every demo.
+// A 1x1 canvas resolves the oklch tokens to the sRGB bytes the page paints.
 function tokenReader() {
   const swatch = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
   swatch.canvas.width = swatch.canvas.height = 1;
@@ -80,8 +86,6 @@ export function defineScene<T extends PartTags>(spec: {
       try {
         let frame: Frame | null = null;
         let raf = 0;
-        // The first frame paints even off screen, so a stage that mounted within the 200px margin
-        // is never blank when it scrolls in. Every later frame waits until the stage is live.
         let first = true;
         let woken = false;
         let running = false;

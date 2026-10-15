@@ -22,7 +22,6 @@ type Label = {
 
 export type FareFigure = ReturnType<typeof fareFigure>;
 
-// In CSS pixels. The live canvas and the no-JavaScript still both print this, so they can't drift.
 export function fareFigure(rule: FareRule, width: number, height: number, compact = false) {
   const pad = compact ? { l: 2, r: 2, t: 2, b: 2 } : { l: 36, r: 6, t: 12, b: 26 };
   const plotWidth = width - pad.l - pad.r;
@@ -154,7 +153,6 @@ export default defineScene({
     }
     fareRule.subscribe(stage.wake, stage.signal);
 
-    // Every output is written here, so the squares, the loss, and the values change on one frame.
     return () => {
       const rule = fareRule.get();
       for (const { key, input, text } of knobs) {
@@ -172,7 +170,6 @@ export default defineScene({
 const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
 const baselines = { middle: 'central', top: 'text-before-edge' } as const;
 
-// The figure at the start rule for readers without JavaScript. Only the server renders it.
 export function Still() {
   const { width, height, axis, labels, clip, squareTone, squares, line, dot, dots } = fareFigure(
     start,
@@ -195,7 +192,6 @@ export function Still() {
           </text>
         ))}
       </g>
-      {/* A nested svg clips like the canvas's clip rect, with no id for two stills to share. */}
       <svg
         x={clip.x}
         y={clip.y}
