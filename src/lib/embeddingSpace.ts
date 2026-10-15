@@ -1,7 +1,7 @@
-// A toy token embedding table: N tokens in D dims, unit length. Dims 0..2 are the ones the scene
-// draws, so the drawing is a linear projection and vector arithmetic stays exact on screen.
+// A toy token embedding table: N tokens in D dims, unit length. The scene draws dims 0 to DRAWN - 1,
+// so the drawing is a linear projection and vector arithmetic stays exact on screen.
 export const D = 32;
-const H0 = 3;
+export const DRAWN = 3;
 
 export type EmbeddingSpace = {
   tokens: string[];
@@ -209,15 +209,15 @@ function direction(rand: () => number, display: ArrayLike<number>, hiddenNorm: n
   const v = new Float32Array(D);
   v.set(display, 0);
   let n = 0;
-  for (let i = H0; i < D; i++) n += (v[i] = gauss(rand)) ** 2;
+  for (let i = DRAWN; i < D; i++) n += (v[i] = gauss(rand)) ** 2;
   n = Math.sqrt(n);
-  for (let i = H0; i < D; i++) v[i] *= hiddenNorm / n;
+  for (let i = DRAWN; i < D; i++) v[i] *= hiddenNorm / n;
   return v;
 }
 
 function noise(rand: () => number, sd: number, sh: number) {
   const v = new Float32Array(D);
-  for (let i = 0; i < D; i++) v[i] = gauss(rand) * (i < H0 ? sd : sh);
+  for (let i = 0; i < D; i++) v[i] = gauss(rand) * (i < DRAWN ? sd : sh);
   return v;
 }
 
@@ -256,11 +256,11 @@ export function* buildSpace(
   const centers = CLUSTERS.map((c) => {
     const v = direction(rand, c.at, 1);
     let dot = 0;
-    for (let i = H0; i < D; i++) dot += v[i] * rare[i];
+    for (let i = DRAWN; i < D; i++) dot += v[i] * rare[i];
     let n = 0;
-    for (let i = H0; i < D; i++) n += (v[i] -= dot * rare[i]) ** 2;
+    for (let i = DRAWN; i < D; i++) n += (v[i] -= dot * rare[i]) ** 2;
     const k = Math.sqrt(1 - Math.hypot(...c.at) ** 2) / Math.sqrt(n);
-    for (let i = H0; i < D; i++) v[i] *= k;
+    for (let i = DRAWN; i < D; i++) v[i] *= k;
     return v;
   });
   const noSpace = direction(rand, [0.0, 0.03, 0.0], 0.34);
@@ -323,11 +323,11 @@ export function* buildSpace(
     const th100 = (2 * Math.PI * n) / 100;
     v[1] += 0.035 * Math.cos(th10);
     v[2] += 0.035 * Math.sin(th10);
-    v[H0 + 0] += 0.32 * Math.cos(th10);
-    v[H0 + 1] += 0.32 * Math.sin(th10);
-    v[H0 + 2] += 0.22 * Math.cos(th100);
-    v[H0 + 3] += 0.22 * Math.sin(th100);
-    v[H0 + 4] += 0.4 * (n >= 1900 && n <= 2100 ? 1 : 0);
+    v[DRAWN + 0] += 0.32 * Math.cos(th10);
+    v[DRAWN + 1] += 0.32 * Math.sin(th10);
+    v[DRAWN + 2] += 0.22 * Math.cos(th100);
+    v[DRAWN + 3] += 0.22 * Math.sin(th100);
+    v[DRAWN + 4] += 0.4 * (n >= 1900 && n <= 2100 ? 1 : 0);
     put(' ' + n, v, num);
     if (n < 100 && rand() < 0.5) put(String(n), add([v], [noSpace]), num);
   }

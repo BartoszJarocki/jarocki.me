@@ -26,6 +26,7 @@ import {
   ANALOGIES,
   CORPUS,
   D,
+  DRAWN,
   Neighbor,
   analogy,
   buildSpace,
@@ -211,9 +212,10 @@ export async function mountEmbeddings(
   const { N, tokens, vec } = space;
   const capitalized = tokens.map((t) => t !== t.toLowerCase());
 
-  const P = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) for (let d = 0; d < 3; d++) P[i * 3 + d] = vec[i * D + d] * SCALE[d];
-  const at = (i: number, out = new Vector3()) => out.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]);
+  const P = new Float32Array(N * DRAWN);
+  for (let i = 0; i < N; i++)
+    for (let d = 0; d < DRAWN; d++) P[i * DRAWN + d] = vec[i * D + d] * SCALE[d];
+  const at = (i: number, out = new Vector3()) => out.fromArray(P, i * DRAWN);
 
   const seq = words.map((w) => space.index.get(w)!);
   const nnMemo = new Map<number, Neighbor[]>();
@@ -306,7 +308,7 @@ export async function mountEmbeddings(
     baseMix[i] = isDust ? 0.34 : 0.62;
     baseSize[i] = isDust ? 1.4 : 2.1;
   }
-  cloudGeo.setAttribute('position', new BufferAttribute(P, 3));
+  cloudGeo.setAttribute('position', new BufferAttribute(P, DRAWN));
   cloudGeo.setAttribute('aMix', new BufferAttribute(baseMix, 1));
   cloudGeo.setAttribute('aSize', new BufferAttribute(baseSize, 1));
   const cloudMat = pointMat(0.62);
@@ -639,9 +641,9 @@ export async function mountEmbeddings(
     let bd = 14 * 14;
     for (let i = 0; i < N; i++) {
       if (space.cluster[i] === dust || capitalized[i]) continue;
-      const x = P[i * 3];
-      const y = P[i * 3 + 1];
-      const z = P[i * 3 + 2];
+      const x = P[i * DRAWN];
+      const y = P[i * DRAWN + 1];
+      const z = P[i * DRAWN + 2];
       const cw = e[3] * x + e[7] * y + e[11] * z + e[15];
       const sx = ((e[0] * x + e[4] * y + e[8] * z + e[12]) / cw) * 0.5 * W + W / 2 - px;
       const sy = Hh / 2 - ((e[1] * x + e[5] * y + e[9] * z + e[13]) / cw) * 0.5 * Hh - py;
