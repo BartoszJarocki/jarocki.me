@@ -1,7 +1,6 @@
 import { Name } from '../data/bio';
-import { GitHubUser, XUser } from '../data/links';
 
-const keepCase = [Name, GitHubUser, XUser].filter(Boolean);
+const keepCase = [Name].filter(Boolean);
 
 export function caseRuns(text: string) {
   const spans: [number, number][] = [];
