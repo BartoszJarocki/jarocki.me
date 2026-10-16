@@ -104,6 +104,7 @@ test('the run instructions in the note write ten names from all of names.txt', (
   fs.rmSync(folder, { recursive: true });
   assert.equal(program, 'node');
   assert.equal(run.stderr, '');
+  assert.equal(run.status, 0);
   assert.deepEqual(run.stdout.trim().split('\n'), [
     'm',
     'kyuginazelaia',
