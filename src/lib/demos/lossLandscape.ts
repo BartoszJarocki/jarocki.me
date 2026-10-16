@@ -5,6 +5,7 @@ import {
   meanSquaredError,
   predict,
   rides,
+  show,
 } from './taxiFares.ts';
 
 const flatSlope = 0.01;
@@ -112,11 +113,11 @@ export function step(walk: Walk, rate: number): Walk {
 }
 
 export const rounded = (rule: FareRule) => ({
-  fee: rule.fee.toFixed(2),
-  price: rule.price.toFixed(2),
+  fee: show(rule.fee),
+  price: show(rule.price),
 });
 
 export function fareFromRounded(rule: FareRule, km: number) {
   const { fee, price } = rounded(rule);
-  return (Number(fee) + km * Number(price)).toFixed(2);
+  return show(Number(fee) + km * Number(price));
 }

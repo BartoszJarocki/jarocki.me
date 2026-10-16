@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { nudge, receipt, show } from './fareReceipt.ts';
+import { nudge, receipt } from './fareReceipt.ts';
 import type { Line } from './receiptLines.ts';
+import { show } from './taxiFares.ts';
 
 const close = (actual: number, expected: number) =>
   assert.ok(Math.abs(actual - expected) <= 1e-9, `${actual} is not ${expected}`);
@@ -47,8 +48,4 @@ test('the nudge is very close to the slope at every setting, and never equal', (
       assert.notEqual(ratio, slope);
     }
   }
-});
-
-test('show prints a tiny negative as zero', () => {
-  assert.equal(show(-0.001), '0.00');
 });

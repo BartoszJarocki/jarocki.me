@@ -20,7 +20,14 @@ export const fareBox = {
   price: { min: -2, max: 5, step: 0.01 },
 } as const;
 
-export const money = (dollars: number) => `$${dollars.toFixed(2)}`;
+// toFixed prints a tiny negative as -0.00.
+export const show = (value: number, digits = 2) =>
+  (Math.abs(value) < 0.5 * 10 ** -digits ? 0 : value).toFixed(digits);
+
+export function money(dollars: number) {
+  const amount = show(dollars);
+  return amount.startsWith('-') ? `-$${amount.slice(1)}` : `$${amount}`;
+}
 
 export const predict = (rule: FareRule, km: number) => rule.fee + rule.price * km;
 

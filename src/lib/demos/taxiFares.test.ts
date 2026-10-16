@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { fareRule, leastSquares, meanSquaredError, money, start } from './taxiFares.ts';
+import { fareRule, leastSquares, meanSquaredError, money, show, start } from './taxiFares.ts';
 
 const close = (actual: number, expected: number) =>
   assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} is not ${expected}`);
@@ -56,6 +56,10 @@ test('fareRule does not call a subscription after its signal aborts', () => {
 test('the start rule loses 4.43 and its fee reads $2.00', () => {
   assert.equal(meanSquaredError(start).toFixed(2), '4.43');
   assert.equal(money(start.fee), '$2.00');
+});
+
+test('show prints a tiny negative as zero', () => {
+  assert.equal(show(-0.001), '0.00');
 });
 
 test('money puts the minus before the dollar sign, and a price that rounds to zero reads $0.00', () => {
