@@ -1,11 +1,4 @@
-import {
-  type FareRule,
-  fareBox,
-  leastSquares,
-  meanSquaredError,
-  predict,
-  rides,
-} from './taxiFares.ts';
+import { type FareRule, leastSquares, meanSquaredError, predict, rides } from './taxiFares.ts';
 
 const flatSlope = 0.01;
 
@@ -59,12 +52,19 @@ export const contour = (loss: number) => ({
 
 export const rateLimit = 1 / valley.steep;
 
+/**
+ * The settings the valley draws. Past a fee of about $7.70 the valley floor runs below $0 a km, so the
+ * prices go down to -$2. A step at crawl or good from any spot on this map lands on it again.
+ */
+export const mapBox = {
+  fee: { min: 0, max: 10 },
+  price: { min: -2, max: 5 },
+} as const;
+
 const squeeze = (loss: number) => Math.log1p(loss / 0.6);
 const peak = Math.max(
-  ...[fareBox.fee.min, fareBox.fee.max].flatMap((fee) =>
-    [fareBox.price.min, fareBox.price.max].map((price) =>
-      squeeze(meanSquaredError({ fee, price })),
-    ),
+  ...[mapBox.fee.min, mapBox.fee.max].flatMap((fee) =>
+    [mapBox.price.min, mapBox.price.max].map((price) => squeeze(meanSquaredError({ fee, price }))),
   ),
 );
 
@@ -79,10 +79,10 @@ export const isFlat = (rule: FareRule) => {
 };
 
 export const onMap = ({ fee, price }: FareRule) =>
-  fee >= fareBox.fee.min &&
-  fee <= fareBox.fee.max &&
-  price >= fareBox.price.min &&
-  price <= fareBox.price.max;
+  fee >= mapBox.fee.min &&
+  fee <= mapBox.fee.max &&
+  price >= mapBox.price.min &&
+  price <= mapBox.price.max;
 
 /** `up` and `down` say what the last step did to the loss. `off` means the next step leaves the map. */
 export type Walk = {

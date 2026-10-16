@@ -52,9 +52,9 @@ test('a contour is the ellipse where the loss equals its level', () => {
 });
 
 test('lift is 1 at the highest corner of the map, and lossAtLift undoes it', () => {
-  assert.equal(lift({ fee: 10, price: 5 }), 1);
-  assert.equal(lift({ fee: 0, price: 0 }).toFixed(4), '0.8848');
-  assert.ok(Math.abs(lossAtLift(1) - 94.3025) < 1e-9);
+  assert.equal(lift({ fee: 0, price: -2 }), 1);
+  assert.equal(lift({ fee: 10, price: 5 }).toFixed(4), '0.9863');
+  assert.ok(Math.abs(lossAtLift(1) - 101.2025) < 1e-9);
 });
 
 test('every step at too big from the start raises the loss, until the next one leaves the map', () => {

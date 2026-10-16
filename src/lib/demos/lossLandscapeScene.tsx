@@ -28,13 +28,15 @@ import {
   ended,
   lift,
   lossAtLift,
+  mapBox,
+  onMap,
   rates,
   step,
   valley,
   walkFrom,
 } from './lossLandscape';
 import { type PartsOf, type Rgb, type Stage, type Tokens, css, defineScene } from './stage';
-import { type FareRule, fareBox, fareRule, meanSquaredError, start } from './taxiFares';
+import { type FareRule, fareRule, meanSquaredError, start } from './taxiFares';
 import { drawFares, fareFigure } from './taxiFaresScene';
 
 const parts = {
@@ -73,8 +75,13 @@ const remarks: Record<Walk['status'], string | null> = {
   off: 'The next step leaves the map',
 };
 
+type Range = { readonly min: number; readonly max: number };
+const share = (value: number, { min, max }: Range) => (value - min) / (max - min);
+const along = ({ min, max }: Range, t: number) => min + t * (max - min);
+const clamp = (value: number, { min, max }: Range) => Math.max(min, Math.min(max, value));
+
 const cellOf = ({ fee, price }: FareRule) =>
-  [fee / fareBox.fee.max, price / fareBox.price.max].map((t) =>
+  [share(fee, mapBox.fee), share(price, mapBox.price)].map((t) =>
     Math.max(0, Math.min(cells - 1, Math.floor(t * cells))),
   );
 
@@ -253,11 +260,11 @@ const clampView = ({ yaw, pitch }: View): View => ({
   pitch: Math.max(8, Math.min(89, pitch)),
 });
 
-const toX = (fee: number) => (fee / fareBox.fee.max - 0.5) * cells;
-const toZ = (price: number) => (0.5 - price / fareBox.price.max) * cells;
+const toX = (fee: number) => (share(fee, mapBox.fee) - 0.5) * cells;
+const toZ = (price: number) => (0.5 - share(price, mapBox.price)) * cells;
 const ruleAt = (i: number, j: number): FareRule => ({
-  fee: (i / fine) * fareBox.fee.max,
-  price: (j / fine) * fareBox.price.max,
+  fee: along(mapBox.fee, i / fine),
+  price: along(mapBox.price, j / fine),
 });
 const point = (rule: FareRule): [number, number, number] => [
   toX(rule.fee),
@@ -265,28 +272,21 @@ const point = (rule: FareRule): [number, number, number] => [
   toZ(rule.price),
 ];
 
+const dollars = (amount: number) => `${amount < 0 ? '-' : ''}$${Math.abs(amount)}`;
+const front = mapBox.price.min;
 const axes = [
-  { text: '$0', at: { fee: 0, price: 0 }, offEdge: { fee: -0.9, price: -0.5 } },
-  {
-    text: `$${fareBox.fee.max}`,
-    at: { fee: fareBox.fee.max, price: 0 },
-    offEdge: { fee: 0.4, price: -0.6 },
-  },
-  {
-    text: `$${fareBox.price.max}`,
-    at: { fee: 0, price: fareBox.price.max },
-    offEdge: { fee: -0.9, price: 0.3 },
-  },
-  {
-    text: 'Starting fee',
-    at: { fee: fareBox.fee.max / 2, price: 0 },
-    offEdge: { fee: 0, price: -0.8 },
-  },
-  {
-    text: 'Price per km',
-    at: { fee: 0, price: fareBox.price.max / 2 },
-    offEdge: { fee: -2.2, price: 0 },
-  },
+  ...[mapBox.fee.min, mapBox.fee.max].map((fee) => ({
+    text: dollars(fee),
+    at: { fee, price: front },
+    offEdge: { fee: 0, price: -1.1 },
+  })),
+  { text: 'Starting fee', at: { fee: 5, price: front }, offEdge: { fee: 0, price: -1.1 } },
+  ...[mapBox.price.min, mapBox.price.max].map((price) => ({
+    text: dollars(price),
+    at: { fee: 0, price },
+    offEdge: { fee: -1.1, price: 0 },
+  })),
+  { text: 'Price per km', at: { fee: 0, price: 1.5 }, offEdge: { fee: -2.6, price: 0 } },
 ];
 
 const vertexShader = `
@@ -617,14 +617,8 @@ async function valley3d(
       const [hit] = raycaster.intersectObject(occluder, false);
       if (hit) {
         place({
-          fee: Math.max(
-            0,
-            Math.min(fareBox.fee.max, (hit.point.x / cells + 0.5) * fareBox.fee.max),
-          ),
-          price: Math.max(
-            0,
-            Math.min(fareBox.price.max, (0.5 - hit.point.z / cells) * fareBox.price.max),
-          ),
+          fee: clamp(along(mapBox.fee, hit.point.x / cells + 0.5), mapBox.fee),
+          price: clamp(along(mapBox.price, 0.5 - hit.point.z / cells), mapBox.price),
         });
       }
     }
@@ -755,30 +749,25 @@ type ContourFigure = ReturnType<typeof contourFigure>;
 function contourFigure(width: number, height: number) {
   const pad = { l: 36, r: 6, t: 26, b: 26 };
   const plot = { x: pad.l, y: pad.t, width: width - pad.l - pad.r, height: height - pad.t - pad.b };
-  const x = (fee: number) => plot.x + (fee / fareBox.fee.max) * plot.width;
-  const y = (price: number) => plot.y + plot.height - (price / fareBox.price.max) * plot.height;
-  const floor = y(0);
+  const x = (fee: number) => plot.x + share(fee, mapBox.fee) * plot.width;
+  const y = (price: number) => plot.y + plot.height - share(price, mapBox.price) * plot.height;
+  const floor = plot.y + plot.height;
   const labels: Label[] = [
     { text: 'price per km', x: 0, y: 8, align: 'left', baseline: 'middle' },
-    { text: '$0', x: pad.l - 8, y: y(0), align: 'right', baseline: 'middle' },
-    {
-      text: `$${fareBox.price.max}`,
-      x: pad.l - 8,
-      y: y(fareBox.price.max),
-      align: 'right',
-      baseline: 'middle',
-    },
+    ...[mapBox.price.min, 0, mapBox.price.max].map(
+      (price): Label => ({
+        text: dollars(price),
+        x: pad.l - 8,
+        y: y(price),
+        align: 'right',
+        baseline: 'middle',
+      }),
+    ),
     { text: 'starting fee', x: x(0), y: floor + 8, align: 'left', baseline: 'top' },
+    { text: dollars(5), x: x(5), y: floor + 8, align: 'center', baseline: 'top' },
     {
-      text: `$${fareBox.fee.max / 2}`,
-      x: x(fareBox.fee.max / 2),
-      y: floor + 8,
-      align: 'center',
-      baseline: 'top',
-    },
-    {
-      text: `$${fareBox.fee.max}`,
-      x: x(fareBox.fee.max),
+      text: dollars(mapBox.fee.max),
+      x: x(mapBox.fee.max),
       y: floor + 8,
       align: 'right',
       baseline: 'top',
@@ -794,12 +783,16 @@ function contourFigure(width: number, height: number) {
     axis: { x: plot.x, y: Math.round(floor), width: plot.width },
     labels,
     rings,
-    pixelsPerUnit: { x: plot.width / fareBox.fee.max, y: plot.height / fareBox.price.max },
+    pixelsPerUnit: {
+      x: plot.width / (mapBox.fee.max - mapBox.fee.min),
+      y: plot.height / (mapBox.price.max - mapBox.price.min),
+    },
     pick(px: number, py: number): FareRule | null {
-      const fee = ((px - plot.x) / plot.width) * fareBox.fee.max;
-      const price = ((plot.y + plot.height - py) / plot.height) * fareBox.price.max;
-      if (fee < 0 || fee > fareBox.fee.max || price < 0 || price > fareBox.price.max) return null;
-      return { fee, price };
+      const at = {
+        fee: along(mapBox.fee, (px - plot.x) / plot.width),
+        price: along(mapBox.price, (floor - py) / plot.height),
+      };
+      return onMap(at) ? at : null;
     },
   };
 }
@@ -842,20 +835,20 @@ function valley2d(stage: Stage, p: Parts, place: (at: FareRule) => void): Valley
       ctx.lineWidth = 1;
       if (fog) {
         const [i, j] = cellOf(at);
-        const cellFee = fareBox.fee.max / cells;
-        const cellPrice = fareBox.price.max / cells;
-        const left = x((i - fogReach) * cellFee);
-        const right = x((i + fogReach + 1) * cellFee);
-        const top = y((j + fogReach + 1) * cellPrice);
-        const bottom = y((j - fogReach) * cellPrice);
+        const feeAt = (k: number) => x(along(mapBox.fee, k / cells));
+        const priceAt = (k: number) => y(along(mapBox.price, k / cells));
+        const left = feeAt(i - fogReach);
+        const right = feeAt(i + fogReach + 1);
+        const top = priceAt(j + fogReach + 1);
+        const bottom = priceAt(j - fogReach);
         ctx.beginPath();
         ctx.rect(left, top, right - left, bottom - top);
         ctx.clip();
         ctx.strokeStyle = css(tokens.rule);
         ctx.beginPath();
         for (let k = -fogReach; k <= fogReach + 1; k++) {
-          const across = Math.round(x((i + k) * cellFee)) + 0.5;
-          const up = Math.round(y((j + k) * cellPrice)) + 0.5;
+          const across = Math.round(feeAt(i + k)) + 0.5;
+          const up = Math.round(priceAt(j + k)) + 0.5;
           ctx.moveTo(across, top);
           ctx.lineTo(across, bottom);
           ctx.moveTo(left, up);
