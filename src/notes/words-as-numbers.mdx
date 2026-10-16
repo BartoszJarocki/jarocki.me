@@ -85,7 +85,7 @@ Run `node names.mts`, and it prints ten new names, like the sample button does. 
 
 ## Learning instead of counting
 
-Counting works when the model reads one letter. It gets hard as soon as the model has to look further back, as later sections show. A network like the one in part 1 can learn the same guess instead, and it can grow from there.
+Counting works when the model reads one letter. It gets hard as soon as the model has to look further back, as the next section shows. A network like the one in part 1 can learn the same guess instead, and it can grow from there.
 
 For the letter it just read, the network gives every possible next letter a score. A score can be any number, big or small, positive or negative. Those raw scores are the **logits**.
 
@@ -93,7 +93,7 @@ A score is not a chance yet. Chances can't be negative, and they have to add up 
 
 To learn, the network needs a loss, like the squares in part 1. Here the loss is **cross-entropy**. It measures how surprised the model was by the letter that really came next. Giving that letter a 50% chance is a small surprise, 0.69. Giving it a 1% chance is a big one, 4.6. The counting model's 2.45 is this same surprise, averaged over every letter in the names. Training lowers the average surprise.
 
-The network in the demo is as small as a network gets. It is a table of 27 rows of 27 scores, one row for each letter it might read, and every score starts at 0. Each step, it reads 4,096 letter pairs picked at random from the names. It works out its average surprise and the slope of every score, then moves the scores a little downhill with adam, the trick from part 1's playground. Press train.
+The network in the demo is small. It is a table of 27 rows of 27 scores, one row for each letter it might read, and every score starts at 0. Each step, it reads 4,096 letter pairs picked at random from the names. It works out its average surprise and the slope of every score, then moves the scores a little downhill with adam, the trick from part 1's playground. Press train.
 
 <LearnToCount label="The one-letter network's loss while it trains, next to the counting model's loss">
 
@@ -130,7 +130,7 @@ A 3D map of the 26 letters and the dot, each drawn at the three numbers the thre
 
 </LetterSpace>
 
-At the start every letter sits in a small heap in the middle, because every number starts close to 0. After about 300 steps the loss passes the counting model's 2.45, and after about 4,000 it drops below 2.3. The vowels find each other. The five of them end up closer to one another than to most other letters, and y sits next to i. The letter q, which is rare and nearly always comes before u, ends up far from everything, so the map draws it at its edge.
+At the start every letter sits in a small heap in the middle, because every number starts close to 0. After about 300 steps the loss passes the counting model's 2.45, and after about 4,000 it drops below 2.3. The vowels find each other. The five of them end up closer to one another than to most other letters, and y sits next to i. The letter q, which is rare and comes before u three times out of four, ends up far from everything, so the map draws it at its edge.
 
 The cloud at the top of every page on this site is a hand-built toy of the same idea, where nothing is trained. This demo trains one for real.
 
