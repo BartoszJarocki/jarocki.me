@@ -680,6 +680,8 @@ async function valley3d(
     on,
   );
 
+  await nextTask();
+  stage.signal.throwIfAborted();
   paint(stage.tokens);
   resize();
   placeCamera();
