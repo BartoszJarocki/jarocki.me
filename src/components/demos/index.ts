@@ -1,4 +1,4 @@
-import { type ComponentType, Suspense, createElement, lazy } from 'react';
+import { type ComponentType, type ReactNode, Suspense, createElement, lazy } from 'react';
 
 import type { DemoProps } from './DemoStage';
 import type { FareProps } from './Fare';
@@ -46,3 +46,14 @@ export const Fare = (props: FareProps) =>
   createElement(Suspense, null, createElement(LiveFare, props));
 
 export const ResidualStream = demo(() => import('./ResidualStream'));
+
+export function ResidualSection({ children }: { children: ReactNode }) {
+  return createElement(
+    'div',
+    {
+      className:
+        '[content-visibility:auto] [contain-intrinsic-block-size:auto_4009px] max-sm:[contain-intrinsic-block-size:auto_5883px] print:[content-visibility:visible]',
+    },
+    children,
+  );
+}

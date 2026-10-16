@@ -74,7 +74,7 @@ For readers who know JavaScript, here is the attention the tiny model runs. `loo
 
 ## Keeping what was already there
 
-<div className="[content-visibility:auto] [contain-intrinsic-block-size:auto_4009px] max-sm:[contain-intrinsic-block-size:auto_5883px] print:[content-visibility:visible]">
+<ResidualSection>
 
 Each letter carries its list of numbers through the model, like a notebook. Attention reads the notebooks and works out something to add to each one. A small network like part 1's then reads each updated notebook and works out another addition. Attention can mix information between letters. The small network works on each letter separately, with the same learned knobs at every position.
 
@@ -126,4 +126,4 @@ Attention lets a letter choose what to read inside the available context. The sm
 <Term name="transformer block">Attention and a small network, each reading a leveled copy and adding a change to the notebook</Term>
 </Glossary>
 
-</div>
+</ResidualSection>
