@@ -471,11 +471,17 @@ export default defineScene({
   },
 });
 
-function trainedDays() {
+const still = (() => {
   const { model } = network(firstNetworkSeed);
   model.parameters().forEach((knob, i) => (knob.data = stillKnobs[i]));
-  return picture(model);
-}
+  const pic = picture(model);
+  const data = points('days');
+  return {
+    wide: fieldFigure(pic, data, 'days', 418),
+    narrow: fieldFigure(pic, data, 'days', 320),
+    knobs: knobFigure(pic.firstLayer, 'days', null),
+  };
+})();
 
 const ink = (share: number) =>
   `color-mix(in srgb, var(--ink) ${+(share * 100).toFixed(2)}%, var(--bg))`;
@@ -485,22 +491,14 @@ const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
 const square = (x: number, y: number, side: number) => `M${x} ${y}h${side}v${side}h${-side}z`;
 
 export function Still() {
-  const pic = trainedDays();
-  const data = points('days');
-  const knobs = knobFigure(pic.firstLayer, 'days', null);
+  const { knobs } = still;
   return (
     <div className="demo-still">
       <PlaygroundLayout
         field={
           <>
-            <FieldSvg
-              field={fieldFigure(pic, data, 'days', 418)}
-              className="[@container(max-width:380px)]:hidden"
-            />
-            <FieldSvg
-              field={fieldFigure(pic, data, 'days', 320)}
-              className="hidden [@container(max-width:380px)]:block"
-            />
+            <FieldSvg field={still.wide} className="[@container(max-width:380px)]:hidden" />
+            <FieldSvg field={still.narrow} className="hidden [@container(max-width:380px)]:block" />
           </>
         }
         hinton={
