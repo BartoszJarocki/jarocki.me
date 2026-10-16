@@ -10,7 +10,25 @@ This is the first of four notes on how a model like ChatGPT works. ChatGPT write
 
 ## Guess the fare
 
-The fare chart goes here, with eight taxi rides and two sliders that set the guess.
+A taxi ride costs a starting fee plus a price for every kilometer. If the fee is 3 dollars and a kilometer costs 2, a 5 kilometer ride costs 3 + 5 × 2 = 13 dollars.
+
+Now turn it around. You have eight old rides from another city. You know how far each one went and what you paid, but nobody tells you the fee or the price. Can you find a fee and a price that guess these fares well?
+
+The chart has your eight rides. The line is your guess. Move the two sliders until the line runs close to every ride. Each square shows how far off the guess is for one ride, so a bad guess has big squares. No line touches every ride, because some of them sat in traffic. The number under the chart, next to the word loss, is the average area of the squares. Smaller is better.
+
+That is all learning means here. There is a rule with a few knobs, and the machine looks for the knob settings that make its guesses close to what really happened.
+
+<TaxiFares label="Eight taxi rides and the fare line your two settings make">
+
+Eight made-up taxi rides, distance across and fare up. The line is the fare your starting fee and price per km give for every distance. Each ride has an outlined square whose side is how far the line misses it, so a closer guess has smaller squares.
+
+</TaxiFares>
+
+The rule you just tuned is a **model**. It takes a distance and gives back a fare. The two sliders are its **parameters**, the knobs you turn to make it fit. The price per km is called a **weight**, because it scales the input. A longer ride gets more of it. The starting fee is called a **bias**, because it moves every guess up or down by the same amount. The fare the line gives for one ride is a **prediction**.
+
+That average area is the **loss**, one number for how far all the guesses are from what the riders really paid. The machine's whole job is to make it small. However you set the sliders, it never gets below 0.33, because no line touches every ride.
+
+It uses squares for two reasons. A miss of 4 then counts four times as much as a miss of 2, so big misses matter most. And an area is never negative, so a guess that is too high can't cancel one that is too low.
 
 ## Downhill in fog
 

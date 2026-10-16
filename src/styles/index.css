@@ -406,4 +406,187 @@
     font-size: 13px;
     color: var(--faint);
   }
+
+  article:has(.demo) {
+    container-type: inline-size;
+  }
+  .demo {
+    position: relative;
+    display: grid;
+    grid-template-areas: 'stage' 'caption' 'controls' 'description';
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    margin: 32px 0 40px;
+    font-family: theme('fontFamily.mono');
+    font-size: 14px;
+    line-height: 1.72;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  /* a browser with container units but no :has would measure the viewport instead */
+  @supports selector(:has(*)) {
+    .demo {
+      width: 100cqw;
+    }
+  }
+  .demo-stage {
+    grid-area: stage;
+    position: relative;
+  }
+  .demo-stage > canvas {
+    width: 100%;
+  }
+  .demo-still {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+  }
+  .demo[data-phase='ready'] .demo-still {
+    display: none;
+  }
+  .demo-caption {
+    grid-area: caption;
+    display: flex;
+    justify-content: space-between;
+    column-gap: 3ch;
+    min-height: 1.72em;
+    margin-top: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  .demo-caption > :first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .demo-caption > :last-child {
+    flex-shrink: 0;
+    color: var(--faint);
+  }
+  .demo-controls {
+    grid-area: controls;
+    display: grid;
+    gap: 4px;
+    margin-top: 16px;
+  }
+  .demo-caption:empty,
+  .demo-controls:empty {
+    display: none;
+  }
+  .demo-slider {
+    display: grid;
+    grid-template-columns: 13ch minmax(0, 1fr) 6ch;
+    column-gap: 2ch;
+    align-items: center;
+  }
+  .demo-slider > label {
+    color: var(--faint);
+  }
+  .demo-value {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .demo input[type='range'] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+  .demo input[type='range']::-webkit-slider-runnable-track {
+    height: 1px;
+    background: var(--faint);
+  }
+  .demo input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    margin-top: -5.5px;
+    border: 0;
+    border-radius: 0;
+    background: var(--ink);
+  }
+  .demo input[type='range']::-moz-range-track {
+    height: 1px;
+    background: var(--faint);
+  }
+  .demo input[type='range']::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: 0;
+    border-radius: 0;
+    background: var(--ink);
+  }
+  .demo:not([data-phase='ready']) input[type='range']::-webkit-slider-thumb {
+    visibility: hidden;
+  }
+  .demo:not([data-phase='ready']) input[type='range']::-moz-range-thumb {
+    visibility: hidden;
+  }
+  .demo-button {
+    color: var(--faint);
+    transition: color 150ms;
+  }
+  .demo-button:hover,
+  .demo-button[aria-pressed='true'] {
+    color: var(--ink);
+  }
+  .demo-button[aria-pressed='true'] {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+  .demo-description {
+    grid-area: description;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .demo-description > :last-child {
+    margin-bottom: 0;
+  }
+  .demo:is([data-phase='still'], [data-phase='fallback']) :is(.demo-caption, .demo-controls) {
+    visibility: hidden;
+  }
+  .demo[data-phase='fallback']:not(:has(.demo-still)) .demo-description {
+    grid-area: stage;
+    align-self: center;
+    position: relative;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    padding: 0 2ch;
+    color: var(--body);
+  }
+  @media (scripting: none) {
+    .demo-caption,
+    .demo-controls {
+      display: none;
+    }
+    .demo-description {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+      white-space: normal;
+      margin-top: 10px;
+      color: var(--body);
+    }
+  }
+  @media (max-width: 640px) {
+    .demo-slider {
+      grid-template-columns: 12ch minmax(0, 1fr) 6ch;
+      column-gap: 1.5ch;
+    }
+  }
 }
