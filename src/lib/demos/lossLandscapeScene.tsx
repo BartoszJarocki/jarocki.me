@@ -238,6 +238,8 @@ const tall = 10;
 const deg = Math.PI / 180;
 const nextTask = () => new Promise((resolve) => setTimeout(resolve));
 const trailCap = 4096;
+const idleReleaseMs = 30_000;
+const restoreGraceMs = 5000;
 type View = { yaw: number; pitch: number };
 const rest: View = { yaw: 30, pitch: 38 };
 const arrows: Record<string, View> = {
@@ -645,16 +647,37 @@ async function valley3d(
     on,
   );
 
-  // A page can hold only a few WebGL contexts, so a valley out of sight for half a minute gives its
-  // context back, and asks for it again when it returns.
+  // A page can hold only a few WebGL contexts.
   let idle = 0;
+  let restoreDeadline = 0;
+  const failUnlessRestored = () => {
+    clearTimeout(restoreDeadline);
+    restoreDeadline = window.setTimeout(
+      () => stage.fail(new Error('The valley lost its WebGL context')),
+      restoreGraceMs,
+    );
+  };
   stage.onLive((live) => {
     clearTimeout(idle);
-    if (live && gl.isContextLost()) renderer.forceContextRestore();
-    else if (!live) idle = window.setTimeout(() => renderer.forceContextLoss(), 30_000);
+    clearTimeout(restoreDeadline);
+    if (live && gl.isContextLost()) {
+      renderer.forceContextRestore();
+      failUnlessRestored();
+    } else if (!live) idle = window.setTimeout(() => renderer.forceContextLoss(), idleReleaseMs);
   });
-  stage.defer(() => clearTimeout(idle));
-  p.valley.addEventListener('webglcontextrestored', () => stage.wake(), on);
+  stage.defer(() => {
+    clearTimeout(idle);
+    clearTimeout(restoreDeadline);
+  });
+  p.valley.addEventListener('webglcontextlost', () => stage.live && failUnlessRestored(), on);
+  p.valley.addEventListener(
+    'webglcontextrestored',
+    () => {
+      clearTimeout(restoreDeadline);
+      stage.wake();
+    },
+    on,
+  );
 
   paint(stage.tokens);
   resize();
