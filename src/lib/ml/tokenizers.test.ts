@@ -20,6 +20,24 @@ test('trainMenus glues the pair that sits side by side most often first', () => 
   });
 });
 
+test('trainMenus keeps gluing until no pair sits side by side twice', () => {
+  assert.deepEqual(trainMenus('banana banana bandana', 10).merges, [
+    ['a', 'n'],
+    ['b', 'an'],
+    ['an', 'a'],
+    ['ban', 'ana'],
+  ]);
+});
+
+test('a character outside the basic plane stays one piece', () => {
+  assert.deepEqual(trainMenus('𐐷𐐷 𐐷𐐷', 1), {
+    letters: ['𐐷'],
+    words: ['𐐷𐐷'],
+    merges: [['𐐷', '𐐷']],
+  });
+  assert.equal(shown(cutThreeWays('a😀b 𐐷', trainMenus('ab 𐐷𐐷', 0)).letters), 'a ?😀 b 𐐷');
+});
+
 test('cutThreeWays marks the pieces each menu does not have', () => {
   const cut = cutThreeWays('The bat!', trainMenus('The cat sat on the mat.', 2));
   assert.equal(shown(cut.letters), 't h e ?b a t ?!');

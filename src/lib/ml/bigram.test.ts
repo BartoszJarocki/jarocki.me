@@ -55,3 +55,18 @@ test('sampleName at temperature 1 with seed 1 writes the same names every time',
     ['m', 'kyuginazelaia', 'k', 'ira', 'akerbendmanaryarahadaon'],
   );
 });
+
+test('sampleName loads the die by its temperature, so the same rolls write other names', () => {
+  const five = (temperature: number) => {
+    const random = seeded(1);
+    return Array.from({ length: 5 }, () => sampleName(counts, temperature, random));
+  };
+  assert.deepEqual(five(0.1), ['a', 'an', 'a', 'a', 'ka']);
+  assert.deepEqual(five(2), [
+    'n',
+    'lyydlomzilajabi',
+    'joha',
+    'jksednisariszasaheebrlaf',
+    'ntezolepwynwty',
+  ]);
+});
