@@ -67,9 +67,9 @@ Nobody told the heads what to look for. Training found it. In this sentence, the
 
 The heads of the first block read close by. Averaged over the sentence after its first letter, each head puts about 80% to 85% of its weight on the letter itself and the two before it. So the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average over the same positions.
 
-For readers who know JavaScript, here is the attention the tiny model runs. `lookups` holds each letter's query, key, and value side by side, and each head reads its own 8 of each letter's 32 numbers. For each letter `t` and each head, it scores every letter from 0 to `t` with a dot product, turns the scores into weights with softmax, and adds up the values. The loop stops at `t`, and that is the causal mask. It also divides each score by `Math.sqrt(size)`, about 2.83 here, so that longer lists do not make the scores too big for softmax.
+For readers who know JavaScript, here is a short version of one attention head. Each query, key, and value has two numbers. For each position `t`, it scores the keys from 0 to `t`, turns those scores into weights with softmax, and mixes the values. `slice(0, t + 1)` keeps it from reading ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. Press Run to see the last position's weights and mix, or Edit to try other vectors.
 
-```ts include=src/lib/ml/gpt.ts#attention
+```js run=src/notes/snippets/paying-attention/attention.js
 ```
 
 ## Keeping what was already there
@@ -94,14 +94,12 @@ Three token notebooks travel through one block. Attention reads leveled copies, 
 
 The notebook metaphor is only about keeping and updating numbers. There are no written facts inside these columns. Training decides what the numbers are useful for, through the same loss and backward walk as in part 1.
 
-For readers who know JavaScript, here is the block the tiny model runs. `level` produces each leveled copy. The two calls to `add` are the two residual connections. `attention.write` mixes the heads' results into one change for each notebook. `network.hidden`, `gelu`, and `network.write` form the small network. `gelu` is its activation function, a smooth way to reduce negative inputs and pass positive ones through.
+Here is a short version of a whole block, with two numbers per notebook and one head. `level` makes each leveled copy. Attention uses that copy as its query, half of it as its key, and a quarter as its value. These are fixed example knobs. The tiny model learns separate tables for all three jobs.
 
-The three sets of query, key, and value knobs sit side by side in `attention.lookup.weights`, a 32 by 96 array. Each letter's 32 input numbers produce 96 output numbers, the first 32 for queries, the next 32 for keys, and the last 32 for values. The layer also adds a learned bias to each output. This is one combined calculation of the three lookups, not a shared set of numbers for all three jobs.
+`middle` adds attention's change to the original notebooks. The small network reads a leveled copy of that result, scales it, applies `gelu`, and scales again. `gelu` is an activation function, a smooth way to reduce negative inputs and pass positive ones through. `out` adds the network's change. Press Run to see the last notebook after each addition. The demo's wider block learns all these knobs and keeps the intermediate numbers for training.
 
-```ts include=src/lib/ml/gpt.ts#block
+```js run=src/notes/snippets/paying-attention/block.js
 ```
-
-Both code blocks are pieces of the full model, not standalone programs. The block also returns the intermediate numbers so the backward walk can use them during training.
 
 ## From notebooks to the next letter
 

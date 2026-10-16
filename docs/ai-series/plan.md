@@ -215,7 +215,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 **Build.**
 
-- [ ] Add a remark plugin to `getNoteContent` that replaces a fenced block whose meta is `include=src/lib/ml/value.ts#backward` with the lines between `// #region backward` and `// #endregion` in that file. A missing file or region fails the build with the note's name, like `rehypeNoteImages` does for images.
+- [x] Superseded by runnable snippets. `getNoteContent` fills an empty `js run=src/notes/snippets/<note>/<name>.js` fence from a short script and highlights it at build time. Missing files and invalid fences fail with the note's name.
 - [ ] Add `erasableSyntaxOnly` to `tsconfig.json`, beside the `allowImportingTsExtensions` that ai-01 set, so `src/lib/ml` imports its own files as `./value.ts` and runs unchanged under `node --test` and later `scripts/train.mjs`.
 - [ ] `Value` in `src/lib/ml/value.ts` holds `data`, `grad`, its inputs, and its local backward step, with `add`, `mul`, `pow`, `exp`, `log`, `tanh`, `relu`, and `backward`. `exp` and `log` are there for ai-05's sigmoid output and cross-entropy loss. Keep it under 80 lines, since the note shows all of it.
 - [ ] `FareReceipt` works out `loss = (w * x + b - y) ** 2` for one ride as an HTML table read like a receipt, one row per step. The rows are distance times price per km, plus the starting fee, minus what the rider paid, and the miss times itself. A nudge button adds one cent to the price per km and shows how the bottom row changes. A backward button fills a `slope` column from the bottom row up, one row at a time. The receipt's ride is a short one, because a one-cent nudge differs from the true slope by the distance squared times 0.01. Appendix A's preview used its 0.3 km ride.

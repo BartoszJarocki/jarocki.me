@@ -57,32 +57,27 @@ You can change how often the die picks an unlikely letter without changing any c
 
 The number under the grid is the counting model's loss on all 32,033 names, 2.45. A later section explains how it is measured. For now, smaller is better, and 2.45 is the number to beat.
 
-For readers who know JavaScript, here is the code the demo runs. It is TypeScript, like the code in part 1. The tokenizer gives each letter its place in `symbols`, so the dot is 0 and z is 26. Anything else, such as a capital letter or a space, stops it with an error.
+For readers who know JavaScript, these are short versions of the demos. Each block has its own data and runs on its own. Press Run to see the result, or Edit to change it.
 
-```ts include=src/lib/ml/tokenizers.ts#tokenizer
+First, cut a sentence three ways. This version starts with two already learned merges, `t` with `h`, then `th` with `e`. `merge` joins matching neighbors in order. The demo learns a longer merge list from this note; this small list makes the cuts easy to follow.
+
+```js run=src/notes/snippets/words-as-numbers/tokenizer.js
 ```
 
-`countPairs` keeps all 729 counts in one long array, row after row, so the count for a pair sits at its row times 27 plus its column.
+For names, `symbols` gives each letter its number, with dot at 0 and z at 26. `countPairs` keeps a row of counts for every letter. It adds a start and end dot to each name, then counts each neighboring pair. Try adding a name to the list.
 
-```ts include=src/lib/ml/bigram.ts#counts
+```js run=src/notes/snippets/words-as-numbers/counts.js
 ```
 
-`chances` loads the die for one row at a temperature, and `sampleName` rolls it until the end dot comes up.
+`chances` loads the die for one row at a temperature, and `sampleName` rolls it until the end dot comes up. These counts come from just one name. The rolls are written out so Run gives the same result each time. Change one to a number from 0 up to, but not including, 1 to try a different roll.
 
-```ts include=src/lib/ml/bigram.ts#sample
+```js run=src/notes/snippets/words-as-numbers/sampling.js
 ```
 
-To run them, save the three blocks in order as `names.mts`, and save [names.txt](/data/names.txt), the 32,033 names the demo counts, next to it. Then add these lines at the end of `names.mts`.
+Now put counting and writing together. This block counts three names and writes ten new ones, using the counts as the shares at temperature 1. It cycles through a short list of rolls so you can repeat the run. The demo uses all 32,033 names and draws fresh rolls.
 
-```ts
-import fs from 'node:fs';
-
-const names = fs.readFileSync('names.txt', 'utf8').split('\n');
-const counts = countPairs(names);
-for (let i = 0; i < 10; i++) console.log(sampleName(counts, 1));
+```js run=src/notes/snippets/words-as-numbers/names.js
 ```
-
-Run `node names.mts`, and it prints ten new names, like the sample button does. That needs Node 22.18 or later.
 
 ## Learning instead of counting
 
@@ -104,17 +99,17 @@ A chart of the one-letter network's loss over 1,762 training steps, with the cou
 
 At the start every score is 0, so every letter gets the same chance, 1 in 27, and the surprise is 3.30. The loss falls fast, then flattens just above the counting model's 2.45. It can't go much lower. A model that sees only one letter knows no more than the counts do, and its trained rows give nearly the same chances as the counting model's. In five trial runs, the slowest took 881 steps to come within 0.02 of 2.45, so training stops at twice that, 1,762 steps.
 
-Here is the code. `softmax` turns scores into chances. It first takes the biggest score away from every score, which gives the same chances and keeps `Math.exp` from overflowing. `crossEntropy` measures the surprise, and `surpriseSlopes` gives the slope of the surprise for each score. That slope is just the letter's chance, less 1 for the letter that really came next.
+Here are short versions you can run. `softmax` turns scores into chances. It first takes the biggest score away from every score, which gives the same chances and keeps `Math.exp` from overflowing. `crossEntropy` measures the surprise, and `surpriseSlopes` gives the slope of the surprise for each score. That slope is just the letter's chance, less 1 for the letter that really came next.
 
-```ts include=src/lib/ml/letters.ts#softmax
+```js run=src/notes/snippets/words-as-numbers/softmax.js
 ```
 
-```ts include=src/lib/ml/letters.ts#crossEntropy
+```js run=src/notes/snippets/words-as-numbers/cross-entropy.js
 ```
 
-The one-letter model keeps its scores in `p.tensors.scores`. Its `data` holds the numbers and its `grad` holds their slopes, like part 1's `Value`, but for a whole table at once.
+The one-letter model keeps a row of scores for every letter. `oneLetterLoss` reads the pairs in one name, measures their average surprise, and adds up the slopes in `grad`. This short version takes ordinary downhill steps so you can see the update directly. The demo trains on batches of names and uses adam.
 
-```ts include=src/lib/ml/letters.ts#oneLetter
+```js run=src/notes/snippets/words-as-numbers/one-letter.js
 ```
 
 ## Letters on a map
@@ -135,9 +130,9 @@ At the start every letter sits in a small heap in the middle, because every numb
 
 The cloud at the top of every page on this site is a hand-built toy of the same idea, where nothing is trained. This demo trains one for real.
 
-Here is the three-letter model. `threeLetterScores` reads the three places and works out the 27 scores. `threeLetterLoss` then walks back from the scores to every number, the way part 1's backward walk goes back up the receipt. On the way it passes back through tanh, whose slope is 1 minus its output squared.
+Here is a short forward pass through the three-letter model. `threeLetterScores` looks up the last three letters' lists, joins their nine numbers, and passes them through two layers. This version has two hidden neurons and fixed knobs, so it prints scores before any training. The demo has 32 hidden neurons and learns the knobs, including the letter lists, by walking backward from the loss.
 
-```ts include=src/lib/ml/letters.ts#threeLetter
+```js run=src/notes/snippets/words-as-numbers/three-letter.js
 ```
 
 ## Beyond three letters

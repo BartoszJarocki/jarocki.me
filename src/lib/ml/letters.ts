@@ -8,7 +8,6 @@ const size = symbols.length;
 export type OneLetter = Params<ReturnType<typeof oneLetterKnobs>>;
 export type ThreeLetter = Params<ReturnType<typeof threeLetterKnobs>>;
 
-// #region softmax
 export function softmax(scores: Floats, chances: Float64Array) {
   let biggest = -Infinity;
   for (let i = 0; i < scores.length; i++) biggest = Math.max(biggest, scores[i]);
@@ -19,9 +18,7 @@ export function softmax(scores: Floats, chances: Float64Array) {
   }
   for (let i = 0; i < scores.length; i++) chances[i] /= total;
 }
-// #endregion
 
-// #region crossEntropy
 export function crossEntropy(chances: Float64Array, next: number) {
   return -Math.log(chances[next]);
 }
@@ -29,7 +26,6 @@ export function crossEntropy(chances: Float64Array, next: number) {
 export function surpriseSlopes(chances: Float64Array, next: number, slopes: Float64Array) {
   for (let i = 0; i < chances.length; i++) slopes[i] = chances[i] - (i === next ? 1 : 0);
 }
-// #endregion
 
 export type Examples = {
   readonly context: number;
@@ -67,7 +63,6 @@ export function examples(names: readonly string[], context: number): Examples {
   };
 }
 
-// #region oneLetter
 export const oneLetterKnobs = () => ({ scores: zeros([size, size]) });
 
 export function oneLetterLoss(p: OneLetter, batch: Examples) {
@@ -86,9 +81,7 @@ export function oneLetterLoss(p: OneLetter, batch: Examples) {
   }
   return total * share;
 }
-// #endregion
 
-// #region threeLetter
 export const threeLetterKnobs = ({ hidden }: { hidden: number }) => ({
   places: random([size, 3], 0.1),
   hiddenWeights: random([9, hidden], 1 / 3),
@@ -166,7 +159,6 @@ export function threeLetterLoss(p: ThreeLetter, batch: Examples) {
   }
   return total * share;
 }
-// #endregion
 
 function pick(all: Examples, batch: Examples, roll: () => number) {
   const { context } = all;

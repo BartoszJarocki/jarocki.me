@@ -1,6 +1,5 @@
 import { Value } from './value.ts';
 
-// #region mlp
 export class Neuron {
   weights: Value[];
   bias = new Value(0);
@@ -50,9 +49,7 @@ export class MLP {
     return this.layers.flatMap((layer) => layer.neurons.flatMap((n) => [...n.weights, n.bias]));
   }
 }
-// #endregion
 
-// #region train
 export type Point = { x: number; y: number; label: 0 | 1 };
 
 export const sigmoid = (s: number) => 1 / (1 + Math.exp(-s));
@@ -84,4 +81,3 @@ export function trainStep(model: MLP, points: Point[], step: () => void) {
   step();
   return loss.data;
 }
-// #endregion

@@ -92,116 +92,84 @@ test('getNotes rejects a misspelled draft field even in production', (t) => {
   }
 });
 
-const source = [
-  'import { other } from "./other";',
-  '// #region backward',
-  'export class Value {',
-  '  html = "<b>&</b>";',
-  '',
-  "  quote = 'it';",
-  '}',
-  '// #endregion',
-  '// #region empty',
-  '',
-  '// #endregion',
-  '// #region repeated',
-  '// #endregion',
-  '// #region repeated',
-  '// #endregion',
-  '// #region outer',
-  '  // #region inner',
-  '// #endregion',
-  '// #region open',
-  'export const open = 1;',
-].join('\n');
+const source = 'const html = "<b>&</b>";\nconsole.log(html);\n';
 
 function compileNote(t: TestContext, markdown: string) {
   const note = path.join(notesDir, 'x.mdx');
-  const lib = path.join(root, 'src/lib');
-  fs.mkdirSync(path.join(lib, 'ml'), { recursive: true });
-  fs.writeFileSync(path.join(lib, 'ml/value.ts'), source);
+  const snippets = path.join(notesDir, 'snippets/x');
+  fs.mkdirSync(snippets, { recursive: true });
+  fs.writeFileSync(path.join(snippets, 'example.js'), source);
+  fs.writeFileSync(path.join(snippets, 'empty.js'), '');
   const frontmatter = 'title: x\ndescription: x\npublishedAt: 2024-01-01\ntags: [test]\n';
   fs.writeFileSync(note, `---\n${frontmatter}---\n\n${markdown}\n`);
   t.after(() => {
     fs.rmSync(note, { force: true });
-    fs.rmSync(lib, { recursive: true, force: true });
+    fs.rmSync(snippets, { recursive: true, force: true });
   });
   return getNoteContent('x');
 }
 
-const fence = (meta: string, body = '') => `\`\`\`ts ${meta}\n${body}\`\`\``;
+const fence = (meta: string, body = '') => `\`\`\`js ${meta}\n${body}\`\`\``;
 
-test('getNoteContent fails when an included region is missing', async (t) => {
-  await assert.rejects(compileNote(t, fence('include=src/lib/ml/value.ts#nope')), {
-    message: 'src/notes/x.mdx: src/lib/ml/value.ts has no region nope',
+test('runnable fences carry the file source and highlight with CSS variables', async (t) => {
+  const compiled = await compileNote(t, fence('run=src/notes/snippets/x/example.js'));
+  let raw: unknown;
+  let snippet: unknown;
+  const html = renderToStaticMarkup(
+    createElement(MDXRemote, {
+      ...compiled,
+      components: {
+        pre: (props) => {
+          raw = Reflect.get(props, 'data-source');
+          snippet = Reflect.get(props, 'data-snippet');
+          return createElement('pre', props);
+        },
+      },
+    }),
+  );
+  assert.equal(raw, source.trimEnd());
+  assert.equal(snippet, 'src/notes/snippets/x/example.js');
+  assert.match(html, /color:var\(--shiki-token-keyword\)/);
+  assert.match(html, /color:var\(--shiki-token-function\)/);
+  assert.match(html, /color:var\(--shiki-token-punctuation\)/);
+  assert.match(html, /&lt;b&gt;&amp;&lt;\/b&gt;/);
+});
+
+test('plain fences are highlighted without runnable source', async (t) => {
+  const compiled = await compileNote(t, fence('', 'const answer = 42;\n'));
+  const html = renderToStaticMarkup(createElement(MDXRemote, compiled));
+  assert.match(html, /color:var\(--shiki-token-keyword\)/);
+  assert.doesNotMatch(html, /data-source|data-snippet/);
+});
+
+test('runnable fences reject missing files, bodies, and invalid paths or metadata', async (t) => {
+  await assert.rejects(compileNote(t, fence('run=src/notes/snippets/x/missing.js')), {
+    message: 'src/notes/x.mdx: src/notes/snippets/x/missing.js does not exist',
   });
-});
-
-async function codeText(t: TestContext, markdown: string) {
-  const html = renderToStaticMarkup(createElement(MDXRemote, await compileNote(t, markdown)));
-  const [, code = ''] = /<code[^>]*>([^<]*)<\/code>/.exec(html) ?? [];
-  const entities: Record<string, string> = {
-    '&lt;': '<',
-    '&gt;': '>',
-    '&amp;': '&',
-    '&quot;': '"',
-    '&#x27;': "'",
-  };
-  return code.replace(/&(lt|gt|amp|quot|#x27);/g, (entity) => entities[entity]);
-}
-
-const region = 'export class Value {\n  html = "<b>&</b>";\n\n  quote = \'it\';\n}\n';
-
-test('an included block shows the lines of its region as they are in the file', async (t) => {
-  assert.equal(await codeText(t, fence('include=src/lib/ml/value.ts#backward')), region);
-});
-
-test('an include takes any language, and a plain fence may mention includes', async (t) => {
-  assert.equal(await codeText(t, '```c++ include=src/lib/ml/value.ts#backward\n```'), region);
-  assert.equal(await codeText(t, '```ts title="includes.ts"\nconst x = 1;\n```'), 'const x = 1;\n');
-});
-
-test('getNoteContent names what is wrong with an include', async (t) => {
-  const cases: [string, string][] = [
-    [fence('include=src/lib/ml/gone.ts#backward'), 'src/lib/ml/gone.ts does not exist'],
-    [fence('include=package.json#x'), 'package.json must be a file in src/'],
-    [fence('include=../x.ts#x'), '../x.ts must be a file in src/'],
-    [
-      fence('include=src/lib/ml/value.ts#repeated'),
-      'src/lib/ml/value.ts has region repeated twice',
-    ],
-    [
-      fence('include=src/lib/ml/value.ts#outer'),
-      'src/lib/ml/value.ts starts a region inside region outer',
-    ],
-    [fence('include=src/lib/ml/value.ts#open'), 'src/lib/ml/value.ts never ends region open'],
-    [
-      fence('include=src/lib/ml/value.ts#backward', 'copy\n'),
-      'the include=src/lib/ml/value.ts#backward block must be empty, because the build fills it',
-    ],
-  ];
-  for (const [markdown, message] of cases) {
-    await assert.rejects(compileNote(t, markdown), { message: `src/notes/x.mdx: ${message}` });
-  }
-});
-
-test('getNoteContent rejects a fence that mentions include in any other form', async (t) => {
-  const fences = [
-    'include=src/lib/ml/value.ts#backward',
-    'ts title="value.ts" include=src/lib/ml/value.ts#backward',
-    'ts Include=src/lib/ml/value.ts#backward',
-    'ts include=src/lib/ml/value.ts',
-  ];
-  for (const info of fences) {
+  await assert.rejects(compileNote(t, fence('run=src/notes/snippets/x/example.js', 'copy\n')), {
+    message:
+      'src/notes/x.mdx: the run=src/notes/snippets/x/example.js block must be empty, because the build fills it',
+  });
+  for (const info of [
+    'run=src/notes/snippets/x/example.js',
+    'ts run=src/notes/snippets/x/example.js',
+    'js title=x run=src/notes/snippets/x/example.js',
+    'js Run=src/notes/snippets/x/example.js',
+    'js run=src/notes/snippets/../../lib/x.js',
+    'js run=package.json',
+  ]) {
     await assert.rejects(compileNote(t, `\`\`\`${info}\n\`\`\``), {
-      message: `src/notes/x.mdx: \`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
+      message: `src/notes/x.mdx: \`\`\`${info} needs js run=src/notes/snippets/<note>/<name>.js`,
     });
   }
 });
 
 test('getNoteContent rejects a code block that is empty after the build fills it', async (t) => {
-  const blocks = [fence('include=src/lib/ml/value.ts#empty'), '```ts\n```', '```\n\n```'];
-  for (const markdown of blocks) {
+  for (const markdown of [
+    fence('run=src/notes/snippets/x/empty.js'),
+    '\`\`\`js\n\`\`\`',
+    '\`\`\`\n\n\`\`\`',
+  ]) {
     await assert.rejects(compileNote(t, markdown), {
       message: 'src/notes/x.mdx: the code block at line 8 is empty',
     });
@@ -309,8 +277,8 @@ test("part 3's glossary contains its twelve terms and the note is published", ()
     'transformer block',
   ]);
   assert.doesNotMatch(note.split('---')[1], /draft: true/);
-  for (const region of ['attention', 'block']) {
-    assert.ok(note.includes('include=src/lib/ml/gpt.ts#' + region));
+  for (const name of ['attention', 'block']) {
+    assert.ok(note.includes(`run=src/notes/snippets/paying-attention/${name}.js`));
   }
 });
 

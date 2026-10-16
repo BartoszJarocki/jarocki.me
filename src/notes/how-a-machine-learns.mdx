@@ -71,11 +71,11 @@ Nudging works, but a real model has millions of knobs, and nudging each one in t
 
 The bottom line is the miss times itself. If the miss is 3, this ride's loss is 9. Make the miss 3.01 and the loss is 9.0601, about 0.06 more, which is 2 × 3 × 0.01. So the loss moves about two times the miss for each unit the miss moves, and the miss gets a slope of two times the miss. The guessed fare moves the miss one for one, so it gets the same slope, and so does the starting fee. The price per km moves its line only 0.3 times as much, because the ride was 0.3 km, so its slope is 0.3 times that. Press backward to watch it. The slope it gets for the price per km is almost exactly what the nudge gave, and the starting fee got its slope in the same walk. This walk backwards is **backpropagation**. Do it for all eight rides, average the slopes, and you have the gradient from the valley.
 
-For readers who know JavaScript, here is `Value`, the class the receipt above runs on. A `Value` keeps its number in `data`, its slope in `grad`, and the values it was made from. Each of those comes paired with how much this value moves when that one moves by one. `backward` walks from the bottom line up, and each value passes its slope back to the values it was made from, times those numbers. It works for any calculation built from these methods, not only this receipt. A value used twice adds up the slopes from each use. The bottom line uses the miss twice, as miss times miss. Each use passes back the miss, so the miss gets two times the miss.
+For readers who know JavaScript, here is a short version of the receipt's backward walk. `value` makes a plain object with a number in `data`, its slope in `grad`, and the values it was made from. Each input comes paired with how much the result moves when that input moves by one. `backward` visits the inputs before the result, then walks that order in reverse. Each value passes its slope back, times the number on that connection. A value used twice adds up both slopes. The loss uses the miss twice, so the miss gets two times the miss.
 
-The code is TypeScript, which is JavaScript with the type of each value written after a colon. To run it, save it as `value.mts`, add a few lines at the end that use it, and run `node value.mts`. That needs Node 22.18 or later.
+Press Run to see one ride's loss and the slopes for the fee and price. Edit lets you change the numbers and run it again. Each block runs on its own in your browser, with nothing to install.
 
-```ts include=src/lib/ml/value.ts#backward
+```js run=src/notes/snippets/how-a-machine-learns/value.js
 ```
 
 ## When a straight line isn't enough
@@ -98,14 +98,14 @@ Press train and watch the shape form. This network has two layers of eight neuro
 
 The shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. Each neuron in the first layer gets a row of three squares, one for each input and one for its bias. A filled square is a positive number and a hollow one is a negative number. A bigger square is a number farther from zero. The layers after it decide what those numbers do to the answer. Point at a row to draw that neuron's fence.
 
-For readers who know JavaScript, here is the network the playground trains, built on `Value`. A `Neuron` adds up each input times its weight, plus its bias, and squashes the sum with `tanh`. A `Layer` is a list of neurons that all read the same inputs, and an `MLP` is layers in a row. The last layer skips the squash and hands back a raw score.
+Here is a short version of the network's forward pass, with two neurons in the first layer and one in the last. `neuron` adds each input times its weight, plus a bias. The first layer squashes its sums with `tanh`. The last layer leaves a raw score, which we turn into a yes chance. Press Run to see both numbers.
 
-```ts include=src/lib/ml/mlp.ts#mlp
+```js run=src/notes/snippets/how-a-machine-learns/network.js
 ```
 
-Here is the training loop. `crossEntropy` is the yes or no score that part 2 explains. It turns the raw score into a chance with `sigmoid` and measures how far that chance is from the real answer, worked out so that a very sure guess never overflows. `adam` uses averages of current and earlier slopes, and their squares, to choose each knob's update. `trainStep` scores all 100 points, averages their losses, walks back with `backward`, and turns every knob once. The playground calls it repeatedly while it trains.
+For a short training loop, return to the eight taxi rides. `measure` works out their average squared miss and the slope for each knob. These are the same slopes that the backward walk finds, written directly for this one rule. `step` moves both knobs downhill. Press Run to see the loss fall over 100 steps, or edit the learning rate, `0.1`, to try a different step size.
 
-```ts include=src/lib/ml/mlp.ts#train
+```js run=src/notes/snippets/how-a-machine-learns/training.js
 ```
 
 ## The whole loop

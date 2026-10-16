@@ -74,8 +74,8 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
   try {
     return await serialize(readNote(file).content, {
       mdxOptions: {
-        remarkPlugins: [[remarkIncludeRegions, fail]],
-        rehypePlugins: [[rehypeNoteImages, fail]],
+        remarkPlugins: [[remarkSnippets, fail]],
+        rehypePlugins: [[rehypeNoteImages, fail], rehypeNoteCode],
       },
     });
   } catch (error) {
@@ -164,6 +164,7 @@ type HastNode = {
   tagName?: string;
   properties?: Record<string, unknown>;
   children?: HastNode[];
+  value?: string;
 };
 
 // Markdown puts an image in a paragraph. A paragraph that holds only an image becomes a figure, so
@@ -198,21 +199,24 @@ type MdastNode = {
   value?: string;
   position?: { start: { line: number } };
   children?: MdastNode[];
+  data?: { hProperties: Record<string, string> };
 };
 
-function remarkIncludeRegions(fail: Fail) {
+function remarkSnippets(fail: Fail) {
   return (tree: MdastNode) => {
     const walk = (node: MdastNode) => {
       if (node.type === 'code') {
         const info = [node.lang, node.meta].filter(Boolean).join(' ');
-        if (/include\s*=/i.test(info)) {
-          const [, file, name] =
-            /^[^\s=]+ include=(\S+)#([\w-]+)$/.exec(info) ??
-            fail(
-              `\`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
-            );
+        if (/run\s*=/i.test(info)) {
+          const [, file] =
+            /^js run=(src\/notes\/snippets\/[\w-]+\/[\w-]+\.js)$/.exec(info) ??
+            fail(`\`\`\`${info} needs js run=src/notes/snippets/<note>/<name>.js`);
           if (node.value) fail(`the ${node.meta} block must be empty, because the build fills it`);
-          node.value = readRegion(file, name, fail);
+          const source = path.join(process.cwd(), file);
+          if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile())
+            fail(`${file} does not exist`);
+          node.value = fs.readFileSync(source, 'utf8').trimEnd();
+          node.data = { hProperties: { 'data-snippet': file } };
         }
         if (!node.value?.trim())
           fail(`the code block at line ${node.position?.start.line} is empty`);
@@ -223,24 +227,53 @@ function remarkIncludeRegions(fail: Fail) {
   };
 }
 
-function readRegion(file: string, name: string, fail: Fail) {
-  const src = path.join(process.cwd(), 'src');
-  const source = path.resolve(process.cwd(), file);
-  if (!source.startsWith(src + path.sep)) fail(`${file} must be a file in src/`);
-  if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile()) fail(`${file} does not exist`);
-
-  const lines = fs.readFileSync(source, 'utf8').split('\n');
-  const markers = lines.map((line) => line.trim());
-  const start = markers.indexOf(`// #region ${name}`);
-  if (start === -1) fail(`${file} has no region ${name}`);
-  if (markers.lastIndexOf(`// #region ${name}`) !== start) fail(`${file} has region ${name} twice`);
-
-  const region: string[] = [];
-  for (const line of lines.slice(start + 1)) {
-    const marker = line.trim();
-    if (marker === '// #endregion') return region.join('\n');
-    if (marker.startsWith('// #region ')) fail(`${file} starts a region inside region ${name}`);
-    region.push(line);
-  }
-  return fail(`${file} never ends region ${name}`);
+function rehypeNoteCode() {
+  return async (tree: HastNode) => {
+    const { codeToHast, createCssVariablesTheme } = await import('shiki');
+    const theme = createCssVariablesTheme({ fontStyle: false });
+    theme.tokenColors?.push(
+      {
+        scope: [
+          'variable',
+          'entity.name',
+          'entity.other.attribute-name',
+          'support.function',
+          'support.type',
+        ],
+        settings: { foreground: 'var(--shiki-token-function)' },
+      },
+      {
+        scope: ['punctuation', 'keyword.operator'],
+        settings: { foreground: 'var(--shiki-token-punctuation)' },
+      },
+    );
+    const walk = async (node: HastNode): Promise<void> => {
+      const code = node.tagName === 'pre' ? node.children?.[0] : undefined;
+      if (code?.tagName === 'code') {
+        const source = code.children?.map((child) => child.value ?? '').join('') ?? '';
+        const classes = code.properties?.className;
+        const language = Array.isArray(classes)
+          ? classes.find(
+              (name: unknown) => typeof name === 'string' && name.startsWith('language-'),
+            )
+          : undefined;
+        const highlighted = await codeToHast(source.trimEnd(), {
+          lang: typeof language === 'string' ? language.slice(9) : 'text',
+          theme,
+        });
+        const pre = highlighted.children[0];
+        if (pre?.type === 'element') {
+          const snippet = code.properties?.['data-snippet'];
+          if (typeof snippet === 'string') {
+            pre.properties['data-snippet'] = snippet;
+            pre.properties['data-source'] = source.trimEnd();
+          }
+          Object.assign(node, pre);
+        }
+        return;
+      }
+      for (const child of node.children ?? []) await walk(child);
+    };
+    await walk(tree);
+  };
 }

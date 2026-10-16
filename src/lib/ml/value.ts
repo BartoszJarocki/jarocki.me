@@ -1,4 +1,3 @@
-// #region backward
 export class Value {
   data: number;
   grad = 0;
@@ -68,4 +67,3 @@ export class Value {
     }
   }
 }
-// #endregion
