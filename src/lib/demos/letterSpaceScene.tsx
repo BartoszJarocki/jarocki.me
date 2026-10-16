@@ -182,7 +182,7 @@ export function letterSpace({
 
       const progress = (update: Progress) => {
         running = update.running && !update.done;
-        p.loss.textContent = update.average === null ? '' : update.average.toFixed(2);
+        p.loss.textContent = update.average === null ? 'not measured' : update.average.toFixed(2);
         p.step.textContent = update.step.toLocaleString('en-US');
         p.map.dataset.step = String(update.step);
         p.map.dataset.steps = String(update.timing.steps);

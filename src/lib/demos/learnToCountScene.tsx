@@ -122,7 +122,7 @@ export default defineScene({
         while (losses.length < start) losses.push(NaN);
         losses.push(...newLosses);
         finished = done;
-        p.loss.textContent = average === null ? '' : average.toFixed(2);
+        p.loss.textContent = average === null ? 'not measured' : average.toFixed(2);
         p.step.textContent = step.toLocaleString('en-US');
         Object.assign(p.chart.dataset, {
           step,
