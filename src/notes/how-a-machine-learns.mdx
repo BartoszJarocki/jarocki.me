@@ -101,6 +101,10 @@ Here is the training loop. `crossEntropy` is the yes or no score that part 2 exp
 ```ts include=src/lib/ml/mlp.ts#train
 ```
 
+## The whole loop
+
+Every demo here showed one part of the same loop. A rule with knobs makes its guesses. The loss says how far off they are, as one number. Backpropagation finds the slope for every knob, and a small step against those slopes makes the loss a little smaller. Training repeats that until the loss stops shrinking. The fare rule had 2 knobs, and the playground's network has 105. ChatGPT learned with the same loop and far more knobs, from text instead of fares, and part 2 starts there.
+
 <Glossary>
 <Term name="model">A rule with knobs that turns an input into a guess, like the fare rule</Term>
 <Term name="parameter">One of the model's knobs, like the starting fee or the price per km</Term>
