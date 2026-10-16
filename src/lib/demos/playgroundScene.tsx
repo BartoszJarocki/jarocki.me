@@ -1,0 +1,613 @@
+import { PlaygroundLayout } from '../../components/demos/Playground';
+import { type Point, trainStep } from '../ml/mlp.ts';
+import {
+  type DatasetName,
+  type Picture,
+  datasets,
+  firstNetworkSeed,
+  grid,
+  network,
+  picture,
+  points,
+  reach,
+  reducedMotionSteps,
+  score,
+  stillKnobs,
+} from './playground';
+import { type Rgb, type Tokens, css, defineScene } from './stage';
+
+const strip = 18;
+const tones = 48;
+const toneOf = (level: number) => 0.03 + (0.21 * level) / (tones - 1);
+const knobCell = 36;
+const knobHead = 20;
+const batchMs = 8;
+const warmupSteps = 40;
+const warmupPoints = 10;
+
+const sides = [
+  [0, 0, 1, 0],
+  [1, 0, 1, 1],
+  [1, 1, 0, 1],
+  [0, 1, 0, 0],
+] as const;
+
+type Label = { text: string; x: number; y: number; align: 'left' | 'center' | 'right' };
+
+function fieldFigure(pic: Picture, data: Point[], name: DatasetName, width: number, ratio = 1) {
+  const size = width - strip;
+  const cell = size / grid;
+  const edge = (i: number) => Math.round(i * cell * ratio) / ratio;
+  const { chanceAt } = pic;
+  const level = (i: number, j: number) => {
+    const mean =
+      (chanceAt(i, j) + chanceAt(i + 1, j) + chanceAt(i, j + 1) + chanceAt(i + 1, j + 1)) / 4;
+    return Math.min(tones - 1, Math.round(mean * (tones - 1)));
+  };
+
+  const shades = Array.from(
+    { length: tones },
+    (): { x: number; y: number; width: number; height: number }[] => [],
+  );
+  for (let j = 0; j < grid; j++) {
+    for (let i = 0; i < grid; ) {
+      const shade = level(i, j);
+      let end = i + 1;
+      while (end < grid && level(end, j) === shade) end++;
+      const top = edge(j);
+      shades[shade].push({
+        x: strip + edge(i),
+        y: top,
+        width: edge(end) - edge(i),
+        height: edge(j + 1) - top,
+      });
+      i = end;
+    }
+  }
+
+  const contour: [number, number, number, number][] = [];
+  const crossings: number[] = [];
+  for (let j = 0; j < grid; j++) {
+    for (let i = 0; i < grid; i++) {
+      crossings.length = 0;
+      for (const [fromI, fromJ, toI, toJ] of sides) {
+        const a = chanceAt(i + fromI, j + fromJ) - 0.5;
+        const b = chanceAt(i + toI, j + toJ) - 0.5;
+        if (a > 0 === b > 0) continue;
+        const t = a / (a - b);
+        crossings.push(
+          strip + (i + fromI + (toI - fromI) * t) * cell,
+          (j + fromJ + (toJ - fromJ) * t) * cell,
+        );
+      }
+      for (let q = 0; q + 3 < crossings.length; q += 4) {
+        contour.push([crossings[q], crossings[q + 1], crossings[q + 2], crossings[q + 3]]);
+      }
+    }
+  }
+
+  const x = (v: number) => strip + ((v + reach) / (2 * reach)) * size;
+  const y = (v: number) => ((reach - v) / (2 * reach)) * size;
+  const dot = cell >= 10 ? 7 : 6;
+  const axes = datasets[name].axes;
+  const middle = strip / 2;
+
+  return {
+    width,
+    plot: { x: strip, y: 0, size },
+    shades,
+    gaps: cell >= 6 ? Array.from({ length: grid }, (_, i) => edge(i + 1) - 1) : [],
+    contour,
+    dot,
+    points: data.map((point) => ({
+      x: Math.round(x(point.x) - dot / 2),
+      y: Math.round(y(point.y) - dot / 2),
+      filled: point.label === 1,
+    })),
+    across: [
+      { text: axes.x[0], x: strip, y: size + middle, align: 'left' },
+      { text: axes.x[1], x: strip + size / 2, y: size + middle, align: 'center' },
+      { text: axes.x[2], x: width, y: size + middle, align: 'right' },
+    ] satisfies Label[],
+    up: [
+      { text: axes.y[0], x: middle, y: size, align: 'left' },
+      { text: axes.y[1], x: middle, y: size / 2, align: 'center' },
+      { text: axes.y[2], x: middle, y: 0, align: 'right' },
+    ] satisfies Label[],
+    fence([wx, wy, bias]: Picture['firstLayer'][number]) {
+      return Math.abs(wy) > Math.abs(wx)
+        ? [x(-reach), y((-bias + wx * reach) / wy), x(reach), y((-bias - wx * reach) / wy)]
+        : [x((-bias - wy * reach) / wx), y(reach), x((-bias + wy * reach) / wx), y(-reach)];
+    },
+  };
+}
+
+function knobFigure(firstLayer: Picture['firstLayer'], name: DatasetName, row: number | null) {
+  const labels = [...datasets[name].inputs, 'bias'].map((text, c) => ({
+    text,
+    x: c * knobCell + knobCell / 2,
+    y: knobHead / 2,
+  }));
+  const cells = firstLayer.flatMap((knobs, r) =>
+    knobs.map((value, c) => {
+      const x = c * knobCell;
+      const y = knobHead + r * knobCell;
+      const raw = Math.round(Math.min(1, Math.abs(value) / 3) * (knobCell - 8));
+      const side = Math.max(3, raw);
+      const offset = Math.round((knobCell - 2 - side) / 2);
+      return {
+        x,
+        y,
+        size: knobCell - 2,
+        picked: r === row,
+        square: raw < 1 ? null : { x: x + offset, y: y + offset, side, filled: value > 0 },
+      };
+    }),
+  );
+  return { width: 3 * knobCell, height: knobHead + firstLayer.length * knobCell, labels, cells };
+}
+
+const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
+  from[0] + (to[0] - from[0]) * t,
+  from[1] + (to[1] - from[1]) * t,
+  from[2] + (to[2] - from[2]) * t,
+];
+
+function paintField(
+  ctx: CanvasRenderingContext2D,
+  field: ReturnType<typeof fieldFigure>,
+  fence: Picture['firstLayer'][number] | null,
+  tokens: Tokens,
+  font: string,
+) {
+  const { width, plot, dot } = field;
+  ctx.fillStyle = css(tokens.bg);
+  ctx.fillRect(0, 0, width, width);
+  field.shades.forEach((rects, level) => {
+    ctx.fillStyle = css(mix(tokens.bg, tokens.ink, toneOf(level)));
+    for (const rect of rects) ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+  });
+  ctx.fillStyle = css(tokens.bg);
+  for (const gap of field.gaps) {
+    ctx.fillRect(plot.x + gap, plot.y, 1, plot.size);
+    ctx.fillRect(plot.x, plot.y + gap, plot.size, 1);
+  }
+  ctx.strokeStyle = css(mix(tokens.bg, tokens.ink, 0.5));
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (const [x1, y1, x2, y2] of field.contour) {
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+  }
+  ctx.stroke();
+  if (fence) {
+    const [x1, y1, x2, y2] = field.fence(fence);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(plot.x, plot.y, plot.size, plot.size);
+    ctx.clip();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = css(tokens.ink);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.restore();
+  }
+  ctx.fillStyle = css(tokens.ink);
+  for (const point of field.points) ctx.fillRect(point.x, point.y, dot, dot);
+  ctx.fillStyle = css(tokens.bg);
+  for (const point of field.points) {
+    if (!point.filled) ctx.fillRect(point.x + 1, point.y + 1, dot - 2, dot - 2);
+  }
+  ctx.font = font;
+  ctx.fillStyle = css(tokens.faint);
+  ctx.textBaseline = 'middle';
+  for (const label of field.across) {
+    ctx.textAlign = label.align;
+    ctx.fillText(label.text, label.x, label.y);
+  }
+  for (const label of field.up) {
+    ctx.save();
+    ctx.translate(label.x, label.y);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = label.align;
+    ctx.fillText(label.text, 0, 0);
+    ctx.restore();
+  }
+}
+
+function paintKnobs(
+  ctx: CanvasRenderingContext2D,
+  knobs: ReturnType<typeof knobFigure>,
+  tokens: Tokens,
+  font: string,
+) {
+  ctx.fillStyle = css(tokens.bg);
+  ctx.fillRect(0, 0, knobs.width, knobs.height);
+  ctx.font = font;
+  ctx.fillStyle = css(tokens.faint);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (const label of knobs.labels) ctx.fillText(label.text, label.x, label.y);
+  for (const cell of knobs.cells) {
+    const tone = css(cell.picked ? tokens.rule : tokens.wash);
+    ctx.fillStyle = tone;
+    ctx.fillRect(cell.x, cell.y, cell.size, cell.size);
+    const square = cell.square;
+    if (!square) continue;
+    ctx.fillStyle = css(tokens.ink);
+    ctx.fillRect(square.x, square.y, square.side, square.side);
+    if (square.filled) continue;
+    ctx.fillStyle = tone;
+    ctx.fillRect(square.x + 1, square.y + 1, square.side - 2, square.side - 2);
+  }
+}
+
+type Run = 'paused' | 'running' | { until: number };
+
+const put = (element: HTMLElement, text: string) => {
+  if (element.textContent !== text) element.textContent = text;
+};
+// The first toLocaleString loads the locale's number data, 29 ms at 4x CPU throttling.
+const counted = (n: number) => String(n).replace(/\B(?=(\d{3})+$)/g, ',');
+const press = (button: HTMLButtonElement, pressed: boolean) =>
+  button.setAttribute('aria-pressed', String(pressed));
+
+const names = Object.keys(datasets) as DatasetName[];
+
+export default defineScene({
+  parts: {
+    field: 'canvas',
+    hinton: 'canvas',
+    steps: 'span',
+    stepWord: 'span',
+    loss: 'span',
+    accuracy: 'span',
+    name: 'span',
+    train: 'button',
+    pause: 'button',
+    step: 'button',
+    reset: 'button',
+    days: 'button',
+    switches: 'button',
+    groups: 'button',
+    spiral: 'button',
+  },
+  mount(stage, p) {
+    let seed = firstNetworkSeed;
+    let name: DatasetName = 'days';
+    let data = points(name);
+    let net = network(seed++);
+    let steps = 0;
+    let shown = score(net.model, data);
+    let run: Run = 'paused';
+    let pic = picture(net.model);
+    let pictured = true;
+    let row: number | null = null;
+
+    const write = () => {
+      put(p.steps, counted(steps));
+      put(p.stepWord, steps === 1 ? 'step' : 'steps');
+      put(p.loss, shown.loss.toFixed(3));
+      put(p.accuracy, `${Math.round(shown.accuracy * 100)}%`);
+      put(p.name, name);
+      put(p.train, stage.reducedMotion ? `Train ${reducedMotionSteps} steps` : 'Train');
+      press(p.train, run !== 'paused');
+      press(p.pause, run === 'paused');
+      for (const each of names) press(p[each], each === name);
+    };
+    const trainOnce = () => {
+      trainStep(net.model, data, net.step);
+      steps++;
+      pictured = false;
+    };
+    const start = (next: DatasetName) => {
+      name = next;
+      data = points(next);
+      net = network(seed++);
+      steps = 0;
+      pictured = false;
+      shown = score(net.model, data);
+      run = 'paused';
+      write();
+      stage.wake();
+    };
+    const pick = (next: number | null) => {
+      if (next === row) return;
+      row = next;
+      stage.wake();
+    };
+    const rowAt = (clientY: number) => {
+      const r = Math.floor((clientY - p.hinton.getBoundingClientRect().top - knobHead) / knobCell);
+      return r >= 0 && r < pic.firstLayer.length ? r : null;
+    };
+
+    const on = { signal: stage.signal };
+    p.train.addEventListener(
+      'click',
+      () => {
+        run = stage.reducedMotion ? { until: steps + reducedMotionSteps } : 'running';
+        write();
+        stage.wake();
+      },
+      on,
+    );
+    p.pause.addEventListener(
+      'click',
+      () => {
+        run = 'paused';
+        write();
+        stage.wake();
+      },
+      on,
+    );
+    p.step.addEventListener(
+      'click',
+      () => {
+        run = 'paused';
+        trainOnce();
+        shown = score(net.model, data);
+        write();
+        stage.wake();
+      },
+      on,
+    );
+    p.reset.addEventListener('click', () => start(name), on);
+    for (const each of names) p[each].addEventListener('click', () => start(each), on);
+
+    p.hinton.addEventListener('pointermove', (event) => pick(rowAt(event.clientY)), on);
+    p.hinton.addEventListener('pointerdown', (event) => pick(rowAt(event.clientY)), on);
+    p.hinton.addEventListener(
+      'pointerleave',
+      (event) => event.pointerType === 'mouse' && pick(null),
+      on,
+    );
+    p.hinton.addEventListener('blur', () => pick(null), on);
+    p.hinton.addEventListener(
+      'keydown',
+      (event) => {
+        const last = pic.firstLayer.length - 1;
+        const next =
+          event.key === 'ArrowDown'
+            ? Math.min(last, (row ?? -1) + 1)
+            : event.key === 'ArrowUp'
+              ? Math.max(0, (row ?? last + 1) - 1)
+              : event.key === 'Escape'
+                ? null
+                : row;
+        if (next === row) return;
+        event.preventDefault();
+        pick(next);
+      },
+      on,
+    );
+
+    const hook = {
+      get model() {
+        return net.model;
+      },
+      get state() {
+        return { name, steps, run, row, ...shown };
+      },
+      redraw: () => {
+        pictured = false;
+        stage.wake();
+      },
+    };
+    Object.assign(window, { __playground: hook });
+    stage.defer(() => {
+      if (Reflect.get(window, '__playground') === hook)
+        Reflect.deleteProperty(window, '__playground');
+    });
+
+    let queued = 0;
+    let warming = 0;
+    stage.defer(() => {
+      clearTimeout(queued);
+      clearTimeout(warming);
+    });
+    const ownTask = (work: () => void) =>
+      window.setTimeout(() => {
+        try {
+          work();
+        } catch (error) {
+          stage.fail(error);
+        }
+      });
+
+    const trainSteps = () => {
+      queued = 0;
+      if (run === 'running') {
+        trainOnce();
+      } else if (run !== 'paused') {
+        const begin = performance.now();
+        do trainOnce();
+        while (steps < run.until && performance.now() - begin < batchMs);
+        if (steps >= run.until) run = 'paused';
+      }
+    };
+
+    // The first trainStep runs backward's loop before V8 optimizes it, a task of up to 75 ms at
+    // 4x CPU throttling.
+    const spare = network(0);
+    const few = data.slice(0, warmupPoints);
+    const warm = (left: number) => {
+      trainStep(spare.model, few, spare.step);
+      if (left > 1) warming = ownTask(() => warm(left - 1));
+    };
+    warming = ownTask(() => warm(warmupSteps));
+
+    write();
+
+    return () => {
+      if (run === 'running' && stage.reducedMotion) run = 'paused';
+      if (run !== 'paused') queued ||= ownTask(trainSteps);
+      shown = score(net.model, data);
+      if (!pictured && typeof run === 'string') {
+        pic = picture(net.model);
+        pictured = true;
+      }
+      write();
+
+      const ratio = Math.min(devicePixelRatio, 2);
+      const field = stage.canvas(p.field);
+      paintField(
+        field,
+        fieldFigure(pic, data, name, field.width, ratio),
+        row === null ? null : pic.firstLayer[row],
+        stage.tokens,
+        stage.font(11),
+      );
+      paintKnobs(
+        stage.canvas(p.hinton),
+        knobFigure(pic.firstLayer, name, row),
+        stage.tokens,
+        stage.font(11),
+      );
+      return run !== 'paused';
+    };
+  },
+});
+
+const still = (() => {
+  const { model } = network(firstNetworkSeed);
+  model.parameters().forEach((knob, i) => (knob.data = stillKnobs[i]));
+  const pic = picture(model);
+  const data = points('days');
+  return {
+    wide: fieldFigure(pic, data, 'days', 418),
+    narrow: fieldFigure(pic, data, 'days', 320),
+    knobs: knobFigure(pic.firstLayer, 'days', null),
+  };
+})();
+
+const ink = (share: number) =>
+  `color-mix(in srgb, var(--ink) ${+(share * 100).toFixed(2)}%, var(--bg))`;
+const rounded = (v: number) => +v.toFixed(1);
+const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
+
+const square = (x: number, y: number, side: number) => `M${x} ${y}h${side}v${side}h${-side}z`;
+
+export function Still() {
+  const { knobs } = still;
+  return (
+    <div className="demo-still">
+      <PlaygroundLayout
+        field={
+          <>
+            <FieldSvg field={still.wide} className="[@container(max-width:380px)]:hidden" />
+            <FieldSvg field={still.narrow} className="hidden [@container(max-width:380px)]:block" />
+          </>
+        }
+        hinton={
+          <svg
+            viewBox={`0 0 ${knobs.width} ${knobs.height}`}
+            className="h-[308px] w-[108px]"
+            aria-hidden="true"
+          >
+            <g className="fill-faint" fontSize={11}>
+              {knobs.labels.map((label) => (
+                <text
+                  key={label.text}
+                  x={label.x}
+                  y={label.y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                >
+                  {label.text}
+                </text>
+              ))}
+            </g>
+            <path
+              className="fill-wash"
+              d={knobs.cells.map((cell) => square(cell.x, cell.y, cell.size)).join('')}
+            />
+            <path
+              className="fill-ink"
+              d={knobs.cells
+                .flatMap(({ square: s }) => (s?.filled ? [square(s.x, s.y, s.side)] : []))
+                .join('')}
+            />
+            <path
+              className="fill-wash stroke-ink"
+              strokeWidth={1}
+              d={knobs.cells
+                .flatMap(({ square: s }) =>
+                  s && !s.filled ? [square(s.x + 0.5, s.y + 0.5, s.side - 1)] : [],
+                )
+                .join('')}
+            />
+          </svg>
+        }
+      />
+    </div>
+  );
+}
+
+function FieldSvg({
+  field,
+  className,
+}: {
+  field: ReturnType<typeof fieldFigure>;
+  className: string;
+}) {
+  const { plot, dot } = field;
+  const shades = field.shades.map((rects) =>
+    rects.map((r) => `M${r.x} ${r.y}h${r.width}v${r.height}h${-r.width}z`).join(''),
+  );
+  const gaps = field.gaps
+    .map(
+      (gap) =>
+        `M${plot.x + gap} ${plot.y}h1v${plot.size}h-1zM${plot.x} ${plot.y + gap}h${plot.size}v1h${-plot.size}z`,
+    )
+    .join('');
+  const contour = field.contour
+    .map(([x1, y1, x2, y2]) => `M${rounded(x1)} ${rounded(y1)}L${rounded(x2)} ${rounded(y2)}`)
+    .join('');
+  const filled = field.points.filter((point) => point.filled);
+  const hollow = field.points.filter((point) => !point.filled);
+  return (
+    <svg
+      viewBox={`0 0 ${field.width} ${field.width}`}
+      className={`aspect-square w-full ${className}`}
+      aria-hidden="true"
+    >
+      {shades.map(
+        (d, level) => d && <path key={level} d={d} style={{ fill: ink(toneOf(level)) }} />,
+      )}
+      <path className="fill-bg" d={gaps} />
+      <path d={contour} fill="none" strokeWidth={1} style={{ stroke: ink(0.5) }} />
+      <path className="fill-ink" d={filled.map((p) => square(p.x, p.y, dot)).join('')} />
+      <path
+        className="fill-bg stroke-ink"
+        strokeWidth={1}
+        d={hollow.map((p) => square(p.x + 0.5, p.y + 0.5, dot - 1)).join('')}
+      />
+      <g className="fill-faint" fontSize={11}>
+        {field.across.map((label) => (
+          <text
+            key={label.text}
+            x={label.x}
+            y={label.y}
+            textAnchor={anchors[label.align]}
+            dominantBaseline="central"
+          >
+            {label.text}
+          </text>
+        ))}
+        {field.up.map((label) => (
+          <text
+            key={label.text}
+            transform={`translate(${label.x} ${label.y}) rotate(-90)`}
+            textAnchor={anchors[label.align]}
+            dominantBaseline="central"
+          >
+            {label.text}
+          </text>
+        ))}
+      </g>
+    </svg>
+  );
+}

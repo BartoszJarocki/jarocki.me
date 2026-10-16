@@ -22,6 +22,7 @@ function demo(load: () => Promise<{ default: ComponentType<DemoProps> }>) {
 export const TaxiFares = demo(() => import('./TaxiFares'));
 export const FareReceipt = demo(() => import('./FareReceipt'));
 export const LossLandscape = demo(() => import('./LossLandscape'));
+export const Playground = demo(() => import('./Playground'));
 
 // React keeps the server's children of an element with dangerouslySetInnerHTML when it hydrates, so a
 // failed chunk leaves the server's numbers in place.
