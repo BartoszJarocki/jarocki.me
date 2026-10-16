@@ -151,7 +151,7 @@ test('a frame that throws rejects start and releases every observer, listener, a
   await browser.render();
   assert.deepEqual(
     { frames, held: browser.held() },
-    { frames: 1, held: { observing: 2, listeners: 4, frames: 0 } },
+    { frames: 1, held: { observing: 3, listeners: 4, frames: 0 } },
   );
 
   stage.wake();

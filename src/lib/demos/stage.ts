@@ -17,7 +17,7 @@ export class Unsupported extends Error {
 }
 
 export type Scene<P> = {
-  /** Runs the scene until signal aborts, then resolves. Calls ready after the first frame. Rejects when the mount, a frame, ready, or an onLive listener throws, or the scene calls fail. */
+  /** Runs the scene until signal aborts, then resolves. Calls ready after the first frame. Rejects when the mount, a frame, ready, or an onLive listener throws, when React removes or replaces a part, or when the scene calls fail. */
   start(
     root: HTMLElement,
     parts: Partial<P>,
@@ -108,6 +108,15 @@ export function defineScene<T extends PartTags>(spec: {
             }
           }
           const parts = { ...collected } as PartsOf<T>;
+          const replaced = new MutationObserver(() => {
+            for (const key in spec.parts) {
+              if (!parts[key].isConnected) {
+                return fail(new Error(`The demo part ${key} was removed or replaced`));
+              }
+            }
+          });
+          replaced.observe(root, { childList: true, subtree: true });
+          cleanup.add(() => replaced.disconnect());
 
           let frame: Frame | null = null;
           let raf = 0;
