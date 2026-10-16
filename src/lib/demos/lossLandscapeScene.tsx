@@ -58,11 +58,10 @@ const parts = {
 type Parts = PartsOf<typeof parts>;
 
 type ValleyMap = {
-  /** Draws the map with the cube at `at`. Returns true while the view still moves on its own. */
-  draw(at: FareRule, trail: readonly FareRule[], fog: boolean): boolean;
+  draw(at: FareRule, trail: readonly FareRule[], fog: boolean): { turning: boolean };
+  resetView?(): void;
 };
 
-/** The map is a grid of cells, and the fog leaves the cube's cell and two more on every side. */
 const cells = 24;
 const fogReach = 2;
 
@@ -89,25 +88,26 @@ const wireTone = 0.42;
 
 export default defineScene({
   parts,
-  async mount(stage, attached) {
-    // React detaches the parts before the scene ends, and the teardown still needs them.
-    const p = { ...attached };
+  async mount(stage, p) {
     let rate: Rate = 'good';
     let fog = false;
     let walking = false;
     let walk = walkFrom(fareRule.get());
     let trail = [walk.at];
     let glide = { from: walk.at, start: 0, ms: 0 };
+    let shown = walk.at;
+    let map: ValleyMap | undefined;
 
     const restart = (at: FareRule) => {
       walk = walkFrom(at);
       trail = [at];
       walking = false;
       glide = { from: at, start: 0, ms: 0 };
+      shown = at;
     };
     const take = (next: Walk, now: number, ms: number) => {
       if (next.at !== walk.at) {
-        glide = { from: walk.at, start: now, ms };
+        glide = { from: shown, start: now, ms };
         trail.push(next.at);
       }
       walk = next;
@@ -174,13 +174,13 @@ export default defineScene({
     click(p.walk, () => {
       if (walking) walking = false;
       else if (stage.reducedMotion) jumpToEnd();
-      else if (!ended(walk)) {
-        walking = true;
-        glide = { ...glide, ms: 0 };
-      }
+      else walking = !ended(walk);
     });
     click(p.fog, () => (fog = !fog));
-    click(p.reset, () => goTo(start));
+    click(p.reset, () => {
+      goTo(start);
+      map?.resetView?.();
+    });
     for (const [name, button] of Object.entries(rateButtons)) {
       click(button, () => {
         rate = name as Rate;
@@ -203,7 +203,8 @@ export default defineScene({
       premultipliedAlpha: true,
       preserveDrawingBuffer: false,
     });
-    const map = gl ? await valley3d(stage, p, gl, goTo) : valley2d(stage, p, goTo);
+    const ready = gl ? await valley3d(stage, p, gl, goTo) : valley2d(stage, p, goTo);
+    map = ready;
 
     return (now) => {
       if (walking && now - glide.start >= glide.ms) advance(now);
@@ -213,8 +214,9 @@ export default defineScene({
         fee: glide.from.fee + (walk.at.fee - glide.from.fee) * eased,
         price: glide.from.price + (walk.at.price - glide.from.price) * eased,
       };
+      shown = at;
       p.view.dataset.cell = cellOf(at).join(',');
-      const turning = map.draw(at, fog ? [] : trail, fog);
+      const { turning } = ready.draw(at, fog ? [] : trail, fog);
       const inset = stage.canvas(p.inset);
       drawFares(
         inset,
@@ -227,11 +229,11 @@ export default defineScene({
   },
 });
 
-// ---------- the valley in 3D
-
 const fine = 48;
 const tall = 10;
 const deg = Math.PI / 180;
+const nextTask = () => new Promise((resolve) => setTimeout(resolve));
+const trailCap = 4096;
 type View = { yaw: number; pitch: number };
 const rest: View = { yaw: 30, pitch: 38 };
 const arrows: Record<string, View> = {
@@ -257,28 +259,27 @@ const point = (rule: FareRule): [number, number, number] => [
   toZ(rule.price),
 ];
 
-// Each label sits just outside the edge it names, so its plate never covers the surface or the cube.
 const axes = [
-  { text: '$0', at: { fee: 0, price: 0 }, out: { fee: -0.9, price: -0.5 } },
+  { text: '$0', at: { fee: 0, price: 0 }, offEdge: { fee: -0.9, price: -0.5 } },
   {
     text: `$${fareBox.fee.max}`,
     at: { fee: fareBox.fee.max, price: 0 },
-    out: { fee: 0.4, price: -0.6 },
+    offEdge: { fee: 0.4, price: -0.6 },
   },
   {
     text: `$${fareBox.price.max}`,
     at: { fee: 0, price: fareBox.price.max },
-    out: { fee: -0.9, price: 0.3 },
+    offEdge: { fee: -0.9, price: 0.3 },
   },
   {
     text: 'Starting fee',
     at: { fee: fareBox.fee.max / 2, price: 0 },
-    out: { fee: 0, price: -0.8 },
+    offEdge: { fee: 0, price: -0.8 },
   },
   {
     text: 'Price per km',
     at: { fee: 0, price: fareBox.price.max / 2 },
-    out: { fee: -2.2, price: 0 },
+    offEdge: { fee: -2.2, price: 0 },
   },
 ];
 
@@ -300,7 +301,6 @@ const fragmentShader = `
     gl_FragColor = vec4(uColor, 1.0);
   }`;
 
-// A fixed tone per face instead of lights, as in the skyline.
 const cubeVertexShader = `
   varying vec3 vN;
   void main() {
@@ -333,9 +333,7 @@ async function valley3d(
   renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
 
-  // Creating the context and building the scene each take a while on a slow CPU, so they run in
-  // separate tasks.
-  await new Promise((resolve) => setTimeout(resolve));
+  await nextTask();
   stage.signal.throwIfAborted();
 
   const owned = <T extends { dispose(): void }>(thing: T) => {
@@ -371,18 +369,17 @@ async function valley3d(
       const a = j * (fine + 1) + i;
       faces.push(a, a + 1, a + fine + 1, a + 1, a + fine + 2, a + fine + 1);
     }
-  const surfaceGeometry = owned(new BufferGeometry());
-  surfaceGeometry.setAttribute('position', new BufferAttribute(positions, 3));
-  surfaceGeometry.setAttribute('cell', new BufferAttribute(gridCells, 2));
-  surfaceGeometry.setIndex(faces);
-  // The surface is painted in bg and pushed back a little, so it hides the lines behind it.
-  const surfaceMaterial = fogged({
+  const occluderGeometry = owned(new BufferGeometry());
+  occluderGeometry.setAttribute('position', new BufferAttribute(positions, 3));
+  occluderGeometry.setAttribute('cell', new BufferAttribute(gridCells, 2));
+  occluderGeometry.setIndex(faces);
+  const occluderMaterial = fogged({
     side: DoubleSide,
     polygonOffset: true,
     polygonOffsetFactor: 1,
     polygonOffsetUnits: 1,
   });
-  const surface = new Mesh(surfaceGeometry, surfaceMaterial);
+  const occluder = new Mesh(occluderGeometry, occluderMaterial);
 
   const linePositions: number[] = [];
   const lineCells: number[] = [];
@@ -397,7 +394,7 @@ async function valley3d(
   wireGeometry.setAttribute('position', new Float32BufferAttribute(linePositions, 3));
   wireGeometry.setAttribute('cell', new Float32BufferAttribute(lineCells, 2));
   const wireMaterial = fogged();
-  scene.add(surface, new LineSegments(wireGeometry, wireMaterial));
+  scene.add(occluder, new LineSegments(wireGeometry, wireMaterial));
 
   const cubeGeometry = owned(new BoxGeometry(1, 1, 1));
   cubeGeometry.translate(0, 0.5, 0);
@@ -411,7 +408,7 @@ async function valley3d(
   const cube = new Mesh(cubeGeometry, cubeMaterial);
   cube.renderOrder = 2;
 
-  let trailPoints = new BufferAttribute(new Float32Array(64 * 3), 3);
+  const trailPoints = new BufferAttribute(new Float32Array(trailCap * 3), 3);
   const trailGeometry = owned(new BufferGeometry());
   trailGeometry.setAttribute('position', trailPoints);
   const trailMaterial = owned(new LineBasicMaterial({ depthTest: false }));
@@ -425,14 +422,17 @@ async function valley3d(
   overlay.setAttribute('aria-hidden', 'true');
   p.view.append(overlay);
   stage.defer(() => overlay.remove());
-  const labels = axes.map(({ text, at, out }) => {
+  const labels = axes.map(({ text, at, offEdge }) => {
     const element = document.createElement('span');
     element.className =
       'absolute left-0 top-0 whitespace-nowrap bg-bg px-[1ch] text-[11px] leading-4 text-faint';
     element.textContent = text;
     overlay.append(element);
     const [, y] = point(at);
-    return { element, at: new Vector3(toX(at.fee + out.fee), y, toZ(at.price + out.price)) };
+    return {
+      element,
+      at: new Vector3(toX(at.fee + offEdge.fee), y, toZ(at.price + offEdge.price)),
+    };
   });
 
   const center = new Vector3(0, tall * 0.3, 0);
@@ -461,8 +461,6 @@ async function valley3d(
     camera.updateMatrixWorld();
   }
 
-  // Fits the valley and its labels, and never draws it larger than in the rest view, so turning it
-  // can shrink it but never zooms in.
   function fit() {
     let minX = Infinity;
     let maxX = -Infinity;
@@ -525,8 +523,7 @@ async function valley3d(
     return [((projected.x + 1) / 2) * width, ((1 - projected.y) / 2) * height];
   };
 
-  // For checks: the screen box that holds everything the fog leaves, in CSS pixels.
-  function writeWindow(i: number, j: number, cubeAt: [number, number, number]) {
+  function exposeFogWindow(i: number, j: number, cubeAt: [number, number, number]) {
     const box = [Infinity, Infinity, -Infinity, -Infinity];
     const grow = (at: Vector3) => {
       const [x, y] = project(at);
@@ -558,7 +555,7 @@ async function valley3d(
 
   function paint(tokens: Tokens) {
     const set = (color: Color, rgb: Rgb) => color.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255);
-    set(surfaceMaterial.uniforms.uColor.value, tokens.bg);
+    set(occluderMaterial.uniforms.uColor.value, tokens.bg);
     set(wireMaterial.uniforms.uColor.value, mix(tokens.bg, tokens.ink, wireTone));
     set(cubeMaterial.uniforms.uInk.value, tokens.ink);
     set(cubeMaterial.uniforms.uBg.value, tokens.bg);
@@ -576,6 +573,7 @@ async function valley3d(
   p.view.addEventListener(
     'pointerdown',
     (event) => {
+      if (event.button !== 0) return;
       drag = {
         x: event.clientX,
         y: event.clientY,
@@ -610,7 +608,7 @@ async function valley3d(
         -((event.clientY - rect.top) / rect.height) * 2 + 1,
       );
       raycaster.setFromCamera(pointer, camera);
-      const [hit] = raycaster.intersectObject(surface, false);
+      const [hit] = raycaster.intersectObject(occluder, false);
       if (hit) {
         place({
           fee: Math.max(
@@ -629,16 +627,14 @@ async function valley3d(
   };
   p.view.addEventListener('pointerup', release, on);
   p.view.addEventListener('pointercancel', release, on);
-  stage.defer(() => delete p.view.dataset.dragging);
-  p.view.addEventListener('dblclick', () => turnTo(rest), on);
   p.view.addEventListener(
     'keydown',
     (event) => {
       const turn = arrows[event.key];
       if (!turn) return;
       const next = clampView({ yaw: target.yaw + turn.yaw, pitch: target.pitch + turn.pitch });
-      // At a limit the key keeps its default, so the page scrolls instead of nothing happening.
-      if (next.yaw === target.yaw && next.pitch === target.pitch) return;
+      const atLimit = next.yaw === target.yaw && next.pitch === target.pitch;
+      if (atLimit) return;
       event.preventDefault();
       turnTo(next);
     },
@@ -654,7 +650,6 @@ async function valley3d(
     else if (!live) idle = window.setTimeout(() => renderer.forceContextLoss(), 30_000);
   });
   stage.defer(() => clearTimeout(idle));
-  // three rebuilds its state when the context comes back, but only a draw repaints.
   p.valley.addEventListener('webglcontextrestored', () => stage.wake(), on);
 
   paint(stage.tokens);
@@ -666,7 +661,7 @@ async function valley3d(
   if (renderer.extensions.has('KHR_parallel_shader_compile')) {
     await renderer.compileAsync(scene, camera);
   } else {
-    await new Promise((resolve) => setTimeout(resolve));
+    await nextTask();
     stage.signal.throwIfAborted();
     renderer.compile(scene, camera);
   }
@@ -680,7 +675,7 @@ async function valley3d(
         Math.min(devicePixelRatio, 2) !== ratio
       )
         resize();
-      if (!width || !height) return false;
+      if (!width || !height) return { turning: false };
       const turning = ease();
       paint(stage.tokens);
 
@@ -695,16 +690,13 @@ async function valley3d(
       );
       fogUniforms.uFog.value = fog ? 1 : 0;
 
-      if (trailPoints.count < trail.length) {
-        trailPoints = new BufferAttribute(new Float32Array(trail.length * 6), 3);
-        trailGeometry.setAttribute('position', trailPoints);
-      }
-      trail.forEach((rule, k) => {
+      const recent = trail.slice(-trailCap);
+      recent.forEach((rule, k) => {
         const [x, y, z] = point(rule);
         trailPoints.setXYZ(k, x, y + 0.06, z);
       });
       trailPoints.needsUpdate = true;
-      trailGeometry.setDrawRange(0, trail.length);
+      trailGeometry.setDrawRange(0, recent.length);
 
       placeCamera();
       fit();
@@ -713,14 +705,15 @@ async function valley3d(
         const [x, y] = project(label.at);
         label.element.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -50%)`;
       }
-      if (fog) writeWindow(i, j, cubeAt);
+      if (fog) exposeFogWindow(i, j, cubeAt);
       else delete p.view.dataset.window;
-      return turning;
+      return { turning };
     },
+    resetView: () => turnTo(rest),
   };
 }
 
-// ---------- the valley seen from above, for browsers without WebGL and for the still
+const ringLifts = Array.from({ length: 9 }, (_, k) => (k + 1) / 10);
 
 type Label = {
   text: string;
@@ -730,9 +723,9 @@ type Label = {
   baseline: 'middle' | 'top';
 };
 
-export type ContourFigure = ReturnType<typeof contourFigure>;
+type ContourFigure = ReturnType<typeof contourFigure>;
 
-export function contourFigure(width: number, height: number) {
+function contourFigure(width: number, height: number) {
   const pad = { l: 36, r: 6, t: 26, b: 26 };
   const plot = { x: pad.l, y: pad.t, width: width - pad.l - pad.r, height: height - pad.t - pad.b };
   const x = (fee: number) => plot.x + (fee / fareBox.fee.max) * plot.width;
@@ -764,8 +757,7 @@ export function contourFigure(width: number, height: number) {
       baseline: 'top',
     },
   ];
-  // Rings where the squeezed height is a tenth, two tenths, and so on, as the wireframe spaces them.
-  const rings = Array.from({ length: 9 }, (_, k) => contour(lossAtLift((k + 1) / 10)));
+  const rings = ringLifts.map((t) => contour(lossAtLift(t)));
   return {
     width,
     height,
@@ -775,8 +767,7 @@ export function contourFigure(width: number, height: number) {
     axis: { x: plot.x, y: Math.round(floor), width: plot.width },
     labels,
     rings,
-    /** Data units to pixels, for drawing the rings in fee and price. */
-    scale: { x: plot.width / fareBox.fee.max, y: plot.height / fareBox.price.max },
+    pixelsPerUnit: { x: plot.width / fareBox.fee.max, y: plot.height / fareBox.price.max },
     pick(px: number, py: number): FareRule | null {
       const fee = ((px - plot.x) / plot.width) * fareBox.fee.max;
       const price = ((plot.y + plot.height - py) / plot.height) * fareBox.price.max;
@@ -858,7 +849,7 @@ function valley2d(stage: Stage, p: Parts, place: (at: FareRule) => void): Valley
       ctx.restore();
       ctx.fillStyle = css(tokens.ink);
       ctx.fillRect(Math.round(x(at.fee)) - 4, Math.round(y(at.price)) - 4, 8, 8);
-      return false;
+      return { turning: false };
     },
   };
 }
@@ -870,7 +861,7 @@ function traceRing(
 ) {
   ctx.save();
   ctx.translate(figure.x(valley.bottom.fee), figure.y(valley.bottom.price));
-  ctx.scale(figure.scale.x, -figure.scale.y);
+  ctx.scale(figure.pixelsPerUnit.x, -figure.pixelsPerUnit.y);
   ctx.beginPath();
   ctx.ellipse(0, 0, ring.across, ring.along, valley.angle, 0, Math.PI * 2);
   ctx.restore();
@@ -882,7 +873,7 @@ const baselines = { middle: 'central', top: 'text-before-edge' } as const;
 
 export function Still() {
   const figure = contourFigure(471, 360);
-  const { width, height, plot, axis, labels, rings, scale } = figure;
+  const { width, height, plot, axis, labels, rings, pixelsPerUnit } = figure;
   const cube = { x: figure.x(start.fee), y: figure.y(start.price) };
   const degrees = (valley.angle * 180) / Math.PI;
   return (
@@ -916,7 +907,7 @@ export function Still() {
         <g
           fill="none"
           style={{ stroke: `color-mix(in srgb, var(--ink) ${wireTone * 100}%, var(--bg))` }}
-          transform={`translate(${figure.x(valley.bottom.fee)} ${figure.y(valley.bottom.price)}) scale(${scale.x} ${-scale.y}) rotate(${degrees})`}
+          transform={`translate(${figure.x(valley.bottom.fee)} ${figure.y(valley.bottom.price)}) scale(${pixelsPerUnit.x} ${-pixelsPerUnit.y}) rotate(${degrees})`}
         >
           {rings.map((ring) => (
             <ellipse
