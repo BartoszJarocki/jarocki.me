@@ -231,19 +231,28 @@ function rehypeNoteCode() {
   return async (tree: HastNode) => {
     const { codeToHast, createCssVariablesTheme } = await import('shiki');
     const theme = createCssVariablesTheme({ fontStyle: false });
+    const scopes =
+      theme.tokenColors?.flatMap(({ scope }) =>
+        typeof scope === 'string' ? [scope] : (scope ?? []),
+      ) ?? [];
     theme.tokenColors?.push(
       {
         scope: [
           'variable',
           'entity.name',
-          'entity.other.attribute-name',
-          'support.function',
-          'support.type',
+          'support',
+          ...scopes.filter((scope) =>
+            /^(variable\.|entity\.name|support\.|meta\.property-name)/.test(scope),
+          ),
         ],
         settings: { foreground: 'var(--shiki-token-function)' },
       },
       {
-        scope: ['punctuation', 'keyword.operator'],
+        scope: [
+          'punctuation',
+          'keyword.operator',
+          ...scopes.filter((scope) => /^(punctuation\.|keyword\.operator\.)/.test(scope)),
+        ],
         settings: { foreground: 'var(--shiki-token-punctuation)' },
       },
     );

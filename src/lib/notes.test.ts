@@ -132,6 +132,7 @@ test('runnable fences carry the file source and highlight with CSS variables', a
   assert.match(html, /color:var\(--shiki-token-keyword\)/);
   assert.match(html, /color:var\(--shiki-token-function\)/);
   assert.match(html, /color:var\(--shiki-token-punctuation\)/);
+  assert.match(html, /color:var\(--shiki-token-function\)">html<\/span>/);
   assert.match(html, /&lt;b&gt;&amp;&lt;\/b&gt;/);
 });
 

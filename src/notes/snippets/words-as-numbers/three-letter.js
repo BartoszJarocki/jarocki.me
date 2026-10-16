@@ -9,7 +9,7 @@ function threeLetterScores(before, knobs) {
 // Three numbers per letter, two hidden neurons, and 27 possible next letters.
 const knobs = {
   places: Array.from({ length: 27 }, (_, i) => [i / 27, 0.1, -i / 27]),
-  hiddenWeights: Array.from({ length: 9 }, () => [0.2, -0.1]),
+  hiddenWeights: Array.from({ length: 9 }, (_, i) => [(i + 1) / 10, -0.1]),
   hiddenBias: [0, 0.1],
   scoreWeights: [Array(27).fill(0.3), Array.from({ length: 27 }, (_, i) => i / 27)],
   scoreBias: Array(27).fill(0),

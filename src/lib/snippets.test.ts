@@ -51,8 +51,8 @@ const outputs: Record<string, string[]> = {
     'Step 20 loss: 1.094005',
   ],
   'words-as-numbers/three-letter.js': [
-    'After ann, score for a: 0.020567',
-    'After ann, score for end: 0.017978',
+    'After ann, score for a: -0.016829',
+    'After ann, score for end: -0.019417',
   ],
   'paying-attention/attention.js': [
     'Last weights: 0.401112, 0.401112, 0.197776',
@@ -289,6 +289,10 @@ test('snippet agreement: words-as-numbers/one-letter.js', () => {
 });
 
 test('snippet agreement: words-as-numbers/three-letter.js', () => {
+  assert.notDeepEqual(
+    evaluate('words-as-numbers/three-letter.js', 'threeLetterScores([1, 14, 14], knobs)'),
+    evaluate('words-as-numbers/three-letter.js', 'threeLetterScores([2, 14, 14], knobs)'),
+  );
   const p = createParams({
     model: 'threeLetter',
     config: { hidden: 2 },
