@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
-  chanceOfYes,
   firstNetworkSeed,
+  grid,
   network,
   normal,
+  picture,
   points,
+  reach,
   score,
   seeded,
   stillKnobs,
@@ -70,17 +72,20 @@ test('the still shows days after its training steps from the first seed', () => 
   close(loss, 0.027, 0.001);
 });
 
-test('the field reads the same answer as the network, before and after training', () => {
+test('the field shows the answer of the network at every spot, before and after training', () => {
   const net = network(5);
-  const spots = [-1.15, -0.4, 0, 0.7, 1.15].flatMap((x) => [-1.15, -0.2, 0.9].map((y) => [x, y]));
+  const spacing = (2 * reach) / grid;
   const same = () => {
-    const chance = chanceOfYes(net.model);
-    for (const [x, y] of spots) {
-      assert.equal(chance(x, y), sigmoid(net.model.call([x, y]).data));
+    const field = picture(net.model);
+    for (let row = 0; row <= grid; row++) {
+      for (let column = 0; column <= grid; column++) {
+        const answer = net.model.call([-reach + column * spacing, reach - row * spacing]);
+        assert.equal(field.chanceAt(column, row), sigmoid(answer.data));
+      }
     }
   };
   same();
-  train(net, points('spiral'), 50);
+  train(net, points('spiral'), 150);
   same();
 });
 
