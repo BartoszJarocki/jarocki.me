@@ -33,19 +33,14 @@ const sides = [
 
 type Label = { text: string; x: number; y: number; align: 'left' | 'center' | 'right' };
 
-export function fieldFigure(
-  pic: Picture,
-  data: Point[],
-  name: DatasetName,
-  width: number,
-  ratio = 1,
-) {
+function fieldFigure(pic: Picture, data: Point[], name: DatasetName, width: number, ratio = 1) {
   const size = width - strip;
   const cell = size / grid;
   const edge = (i: number) => Math.round(i * cell * ratio) / ratio;
-  const answer = (i: number, j: number) => pic.answers[j * (grid + 1) + i];
+  const { chanceAt } = pic;
   const level = (i: number, j: number) => {
-    const mean = (answer(i, j) + answer(i + 1, j) + answer(i, j + 1) + answer(i + 1, j + 1)) / 4;
+    const mean =
+      (chanceAt(i, j) + chanceAt(i + 1, j) + chanceAt(i, j + 1) + chanceAt(i + 1, j + 1)) / 4;
     return Math.min(tones - 1, Math.round(mean * (tones - 1)));
   };
 
@@ -73,8 +68,8 @@ export function fieldFigure(
     for (let i = 0; i < grid; i++) {
       crossings.length = 0;
       for (const [fromI, fromJ, toI, toJ] of sides) {
-        const a = answer(i + fromI, j + fromJ) - 0.5;
-        const b = answer(i + toI, j + toJ) - 0.5;
+        const a = chanceAt(i + fromI, j + fromJ) - 0.5;
+        const b = chanceAt(i + toI, j + toJ) - 0.5;
         if (a > 0 === b > 0) continue;
         const t = a / (a - b);
         crossings.push(
@@ -116,7 +111,7 @@ export function fieldFigure(
       { text: axes.y[1], x: middle, y: size / 2, align: 'center' },
       { text: axes.y[2], x: middle, y: 0, align: 'right' },
     ] satisfies Label[],
-    fence([wx, wy, bias]: readonly [number, number, number]) {
+    fence([wx, wy, bias]: Picture['firstLayer'][number]) {
       return Math.abs(wy) > Math.abs(wx)
         ? [x(-reach), y((-bias + wx * reach) / wy), x(reach), y((-bias - wx * reach) / wy)]
         : [x((-bias - wy * reach) / wx), y(reach), x((-bias + wy * reach) / wx), y(-reach)];
@@ -124,13 +119,13 @@ export function fieldFigure(
   };
 }
 
-export function knobFigure(first: Picture['first'], name: DatasetName, row: number | null) {
+function knobFigure(firstLayer: Picture['firstLayer'], name: DatasetName, row: number | null) {
   const labels = [...datasets[name].inputs, 'bias'].map((text, c) => ({
     text,
     x: c * knobCell + knobCell / 2,
     y: knobHead / 2,
   }));
-  const cells = first.flatMap((knobs, r) =>
+  const cells = firstLayer.flatMap((knobs, r) =>
     knobs.map((value, c) => {
       const x = c * knobCell;
       const y = knobHead + r * knobCell;
@@ -146,7 +141,7 @@ export function knobFigure(first: Picture['first'], name: DatasetName, row: numb
       };
     }),
   );
-  return { width: 3 * knobCell, height: knobHead + first.length * knobCell, labels, cells };
+  return { width: 3 * knobCell, height: knobHead + firstLayer.length * knobCell, labels, cells };
 }
 
 const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
@@ -158,7 +153,7 @@ const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
 function paintField(
   ctx: CanvasRenderingContext2D,
   field: ReturnType<typeof fieldFigure>,
-  fence: readonly [number, number, number] | null,
+  fence: Picture['firstLayer'][number] | null,
   tokens: Tokens,
   font: string,
 ) {
@@ -321,7 +316,7 @@ export default defineScene({
     };
     const rowAt = (clientY: number) => {
       const r = Math.floor((clientY - p.hinton.getBoundingClientRect().top - knobHead) / knobCell);
-      return r >= 0 && r < pic.first.length ? r : null;
+      return r >= 0 && r < pic.firstLayer.length ? r : null;
     };
 
     const on = { signal: stage.signal };
@@ -368,7 +363,7 @@ export default defineScene({
     p.hinton.addEventListener(
       'keydown',
       (event) => {
-        const last = pic.first.length - 1;
+        const last = pic.firstLayer.length - 1;
         const next =
           event.key === 'ArrowDown'
             ? Math.min(last, (row ?? -1) + 1)
@@ -420,13 +415,13 @@ export default defineScene({
       paintField(
         field,
         fieldFigure(pic, data, name, field.width, ratio),
-        row === null ? null : pic.first[row],
+        row === null ? null : pic.firstLayer[row],
         stage.tokens,
         stage.font(11),
       );
       paintKnobs(
         stage.canvas(p.hinton),
-        knobFigure(pic.first, name, row),
+        knobFigure(pic.firstLayer, name, row),
         stage.tokens,
         stage.font(11),
       );
@@ -455,7 +450,7 @@ const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
 export function Still() {
   const { pic, data } = trainedDays();
   const field = fieldFigure(pic, data, 'days', 418);
-  const knobs = knobFigure(pic.first, 'days', null);
+  const knobs = knobFigure(pic.firstLayer, 'days', null);
   const { plot, dot } = field;
   const shades = new Map<number, string>();
   for (const run of field.runs) {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { network, normal, points, predictor, score, seeded, train } from '../demos/playground.ts';
+import { chanceOfYes, network, normal, points, score, seeded, train } from '../demos/playground.ts';
 import { MLP, adam, crossEntropy, sigmoid } from './mlp.ts';
 import { Value } from './value.ts';
 
@@ -45,13 +45,13 @@ test('switches gets its loss under 0.05 in 86 steps from seed 3', () => {
 
 test('the field reads the same answer as the network', () => {
   const { model } = network(5);
-  const predict = predictor(model);
+  const chance = chanceOfYes(model);
   for (const [x, y] of [
     [0, 0],
     [-1.15, 0.4],
     [0.7, -0.9],
   ]) {
-    assert.equal(predict(x, y), sigmoid(model.call([x, y]).data));
+    assert.equal(chance(x, y), sigmoid(model.call([x, y]).data));
   }
 });
 

@@ -105,8 +105,7 @@ export function network(seed: number) {
 
 export type Network = ReturnType<typeof network>;
 
-/** The same sums as MLP.call on plain numbers, so the field can ask about 1,681 spots a frame. */
-export function predictor(model: MLP) {
+export function chanceOfYes(model: MLP) {
   const layers = model.layers.map((layer) =>
     layer.neurons.map((neuron) => ({
       weights: Float64Array.from(neuron.weights, (w) => w.data),
@@ -114,7 +113,7 @@ export function predictor(model: MLP) {
       squash: neuron.squash,
     })),
   );
-  const widest = Math.max(...sizes);
+  const widest = Math.max(2, ...layers.map((layer) => layer.length));
   let values = new Float64Array(widest);
   let next = new Float64Array(widest);
   return (x: number, y: number) => {
@@ -134,11 +133,11 @@ export function predictor(model: MLP) {
 }
 
 export function score(model: MLP, data: Point[]) {
-  const predict = predictor(model);
+  const chance = chanceOfYes(model);
   let loss = 0;
   let right = 0;
   for (const point of data) {
-    const p = Math.min(Math.max(predict(point.x, point.y), 1e-7), 1 - 1e-7);
+    const p = Math.min(Math.max(chance(point.x, point.y), 1e-7), 1 - 1e-7);
     loss -= Math.log(point.label ? p : 1 - p);
     if (p > 0.5 === (point.label === 1)) right++;
   }
@@ -152,23 +151,24 @@ export function train(net: Network, data: Point[], steps: number) {
 export const grid = 40;
 export const reach = 1.15;
 
-/** What the playground draws of a network: its answer at every grid corner, and the first layer's knobs. */
 export type Picture = {
-  answers: Float64Array;
-  first: (readonly [number, number, number])[];
+  chanceAt: (column: number, row: number) => number;
+  firstLayer: (readonly [weightX: number, weightY: number, bias: number])[];
 };
 
 export function picture(model: MLP): Picture {
-  const predict = predictor(model);
-  const answers = new Float64Array((grid + 1) ** 2);
+  const chance = chanceOfYes(model);
+  const corners = new Float64Array((grid + 1) ** 2);
   const spacing = (2 * reach) / grid;
-  for (let j = 0; j <= grid; j++) {
-    for (let i = 0; i <= grid; i++) {
-      answers[j * (grid + 1) + i] = predict(-reach + i * spacing, reach - j * spacing);
+  for (let row = 0; row <= grid; row++) {
+    for (let column = 0; column <= grid; column++) {
+      corners[row * (grid + 1) + column] = chance(-reach + column * spacing, reach - row * spacing);
     }
   }
-  const first = model.layers[0].neurons.map(
-    ({ weights, bias }) => [weights[0].data, weights[1].data, bias.data] as const,
-  );
-  return { answers, first };
+  return {
+    chanceAt: (column, row) => corners[row * (grid + 1) + column],
+    firstLayer: model.layers[0].neurons.map(
+      ({ weights, bias }) => [weights[0].data, weights[1].data, bias.data] as const,
+    ),
+  };
 }
