@@ -110,6 +110,25 @@ test("the still's map has the vowels near one another, y next to i, and q far fr
   assert.ok(fromMiddle('q') > 3 * radii[13], `q at ${fromMiddle('q')}, median ${radii[13]}`);
 });
 
+test('a slope check fails a slope or a loss that is not a number', () => {
+  const params = createParams({
+    model: 'oneLetter',
+    config: {},
+    knobs: oneLetterKnobs,
+    roll: seeded(3),
+    float: Float64Array,
+  });
+  const batch = examples(['ab'], 1);
+  const broken = checkSlopes(params, () => {
+    const loss = oneLetterLoss(params, batch);
+    params.grad[2] = NaN;
+    return loss;
+  });
+  assert.equal(broken.failures.length, 1);
+  assert.match(broken.failures[0], /^scores\[2\] analytic NaN numeric 0\.01234\d+$/);
+  assert.equal(checkSlopes(params, () => NaN).failures.length, params.data.length);
+});
+
 test('examples pad each name with dots and end on the dot', () => {
   const pairs = examples(['ava'], 3);
   assert.equal(pairs.count, 4);
@@ -139,30 +158,41 @@ test('a checkpoint loads back into the same numbers', () => {
 test('a checkpoint with one changed byte in its layout fails and names the field', () => {
   const params = startRun(threeLetter, text).model.params;
   const file = save(params);
-  const change = (from: string, to: string) => ({ ...file, json: file.json.replace(from, to) });
-  assert.throws(
-    () => load(params, change('"offset": 81', '"offset": 82')),
-    (error) =>
-      error instanceof CheckpointError &&
-      error.message.startsWith('The checkpoint\'s layout differs at tensors[1] (hiddenWeights).offset,'),
+  const fails = (json: string, message: string) =>
+    assert.throws(
+      () => load(params, { ...file, json }),
+      (error) => error instanceof CheckpointError && error.message === `The checkpoint's layout differs at ${message}`,
+    );
+  fails(
+    file.json.replace('"offset": 81', '"offset": 82'),
+    'tensors[1] (hiddenWeights).offset, where the file has "{\\"name\\": \\"hiddenWeights\\", \\"offset\\": 82, \\"shape\\": [9, 32]}," and the code expects "{\\"name\\": \\"hiddenWeights\\", \\"offset\\": 81, \\"shape\\": [9, 32]},"',
   );
-  assert.throws(
-    () => load(params, change('"hidden": 32', '"hidden": 31')),
-    /layout differs at config\.hidden, where the file has "config": \{"hidden": 31\}/,
+  fails(
+    file.json.replace('"hidden": 32', '"hidden": 31'),
+    'config.hidden, where the file has "\\"config\\": {\\"hidden\\": 31}," and the code expects "\\"config\\": {\\"hidden\\": 32},"',
   );
-  assert.throws(() => load(params, change('"size"', '"sizf"')), /layout differs at size,/);
-  assert.throws(
-    () => load(params, { ...file, json: file.json.slice(0, 40) }),
-    /layout differs at model, /,
+  fails(
+    file.json.replace('"size"', '"sizf"'),
+    'size, where the file has "\\"sizf\\": 1292," and the code expects "\\"size\\": 1292,"',
   );
+  fails(file.json.replace('{\n', '{\r\n'), 'the opening brace, where the file has "{\\r" and the code expects "{"');
+  fails(file.json + '\n', 'the closing brace, where the file goes on after it');
+  fails(file.json.slice(0, -1), 'the closing brace, where the file has no line break after it');
+  fails(file.json.split('\n').slice(0, 3).join('\n'), 'config, where the file ends');
 });
 
-test('a checkpoint with too few bytes fails with both counts', () => {
+test('a checkpoint with too few bytes or a number that is not finite fails', () => {
   const params = startRun(threeLetter, text).model.params;
   const file = save(params);
   assert.throws(
     () => load(params, { ...file, bytes: file.bytes.slice(0, 5000) }),
     /^CheckpointError: The checkpoint has 5000 bytes, and the layout needs 5168, 1292 numbers of 4 bytes$/,
+  );
+  const broken = new Float32Array(file.bytes.slice(0));
+  broken[81 + 7] = NaN;
+  assert.throws(
+    () => load(params, { ...file, bytes: broken.buffer }),
+    /^CheckpointError: The checkpoint's number hiddenWeights\[7\] is NaN$/,
   );
 });
 

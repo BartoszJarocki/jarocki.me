@@ -163,7 +163,7 @@ export function checkSlopes(
       const relative = absolute / Math.max(Math.abs(numeric), Math.abs(analytic[i]), 1e-300);
       worstAbsolute = Math.max(worstAbsolute, absolute);
       worstRelative = Math.max(worstRelative, absolute === 0 ? 0 : relative);
-      if (absolute >= 1e-6 && relative >= 1e-3) {
+      if (!(absolute < 1e-6 || relative < 1e-3)) {
         failures.push(`${name}[${i - offset}] analytic ${analytic[i]} numeric ${numeric}`);
       }
     }
@@ -209,15 +209,22 @@ function describe(layout: Layout) {
 function differs(actual: string, expected: ReturnType<typeof describe>) {
   const have = actual.split('\n');
   const want = expected.text.split('\n');
-  const line = want.findIndex((text, i) => have[i] !== text);
-  if (line >= expected.fields.length) return 'the file goes on after the closing brace';
+  const line = Array.from({ length: Math.max(have.length, want.length) }, (_, i) => i).find(
+    (i) => have[i] !== want[i],
+  )!;
+  if (line >= expected.fields.length) {
+    return have.length > want.length
+      ? 'the closing brace, where the file goes on after it'
+      : 'the closing brace, where the file has no line break after it';
+  }
   let field = expected.fields[line];
-  if (line >= have.length) return `the file ends before ${field}`;
+  if (line >= have.length) return `${field}, where the file ends`;
   let column = 0;
   while (have[line][column] === want[line][column]) column++;
   const key = [...want[line].matchAll(/"(\w+)":/g)].filter((match) => match.index <= column).pop();
   if (key && key[1] !== field) field += `.${key[1]}`;
-  return `${field}, where the file has ${have[line].trim()} and the code expects ${want[line].trim()}`;
+  const quote = (text: string) => JSON.stringify(text.trimStart());
+  return `${field}, where the file has ${quote(have[line])} and the code expects ${quote(want[line])}`;
 }
 
 /** The checkpoint of these numbers. The JSON depends only on the layout. */

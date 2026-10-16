@@ -126,7 +126,6 @@ export const snapshotEvery = 250;
 type Session = {
   readonly model: ModelKind;
   readonly kind: Kind;
-  readonly text: Promise<string>;
   run: Run | null;
   want: boolean;
   losses: number[];
@@ -154,6 +153,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
         if (!response.ok) throw new Error(`${path} answered ${response.status}`);
         return response.text();
       });
+      text.catch(() => texts.delete(path));
       texts.set(path, text);
     }
     return text;
@@ -205,7 +205,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
   };
 
   const fresh = async (s: Session) => {
-    s.run = startRun(s.kind, await s.text);
+    s.run = startRun(s.kind, await read(s.kind.data));
     s.losses = [];
     s.recent = [];
     s.timing = { steps: 0, ms: 0 };
@@ -260,6 +260,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
 
   const fail = (s: Session, error: unknown) => {
     s.want = false;
+    s.run = null;
     io.post({ type: 'error', model: s.model, message: error instanceof Error ? error.message : String(error) }, []);
   };
 
@@ -293,7 +294,6 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
       s = {
         model,
         kind,
-        text: read(kind.data),
         run: null,
         want: false,
         losses: [],
@@ -303,7 +303,6 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
         lastSnapshot: 0,
         queue: Promise.resolve(),
       };
-      s.text.catch(() => {});
       sessions.set(model, s);
     }
     const session = s;

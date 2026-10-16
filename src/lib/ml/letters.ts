@@ -195,7 +195,7 @@ function writeNames(
   const scores = new Float64Array(size);
   const chances = new Float64Array(size);
   const names: string[] = [];
-  while (names.length < 10) {
+  for (let tries = 0; names.length < 10 && tries < 100; tries++) {
     const before = new Uint8Array(context);
     let name = '';
     while (name.length < 30) {
@@ -209,7 +209,7 @@ function writeNames(
       before.copyWithin(0, 1);
       before[context - 1] = next;
     }
-    names.push(name);
+    if (name) names.push(name);
   }
   return names.join(' ');
 }
