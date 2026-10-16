@@ -1,4 +1,3 @@
-// Written by src/lib/demos/writeData.ts. Run it again after editing the note.
 import type { Cuts } from '../ml/tokenizers.ts';
 
 export const sentence = "Your keyboard guessed the unbelievable ending.";

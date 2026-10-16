@@ -5,8 +5,8 @@ export const size = symbols.length;
 
 export function countPairs(names: string[]) {
   const counts = new Uint32Array(size * size).fill(1);
-  // A name has at least one letter, so the end dot never comes right after the start dot.
-  counts[0] = 0;
+  const dot = symbols.indexOf('.');
+  counts[dot * size + dot] = 0;
   for (const name of names) {
     const ids = encode(name);
     for (let i = 1; i < ids.length; i++) {

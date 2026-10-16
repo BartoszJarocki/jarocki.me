@@ -15,15 +15,13 @@ const menus = trainMenus(prose, 200);
 const sentence = 'Your keyboard guessed the unbelievable ending.';
 fs.writeFileSync(
   'src/lib/demos/tokenizerMenus.ts',
-  `// Written by src/lib/demos/writeData.ts from ${note}. Run it again after editing the note.\n` +
-    `import type { Menus } from '../ml/tokenizers.ts';\n\n` +
+  `import type { Menus } from '../ml/tokenizers.ts';\n\n` +
     `export const menus: Menus = ${JSON.stringify(menus)};\n`,
 );
 
 fs.writeFileSync(
   'src/lib/demos/tokenizerExample.ts',
-  `// Written by src/lib/demos/writeData.ts. Run it again after editing the note.\n` +
-    `import type { Cuts } from '../ml/tokenizers.ts';\n\n` +
+  `import type { Cuts } from '../ml/tokenizers.ts';\n\n` +
     `export const sentence = ${JSON.stringify(sentence)};\n\n` +
     `export const example: Cuts = ${JSON.stringify(cutThreeWays(sentence, menus))};\n`,
 );
@@ -34,6 +32,5 @@ const rows = Array.from({ length: size }, (_, row) =>
 );
 fs.writeFileSync(
   'src/lib/demos/nameCounts.ts',
-  `// Written by src/lib/demos/writeData.ts from countPairs on public/data/names.txt.\n` +
-    `export const nameCounts = [\n${rows.map((row) => `  ${row},`).join('\n')}\n];\n`,
+  `export const nameCounts = [\n${rows.map((row) => `  ${row},`).join('\n')}\n];\n`,
 );
