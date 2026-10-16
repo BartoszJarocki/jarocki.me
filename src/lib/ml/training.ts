@@ -70,6 +70,7 @@ export type Evaluation = Exam & {
 
 export type Progress = {
   readonly step: number;
+  readonly replaced: boolean;
   readonly newLosses: Float32Array<ArrayBuffer>;
   readonly stepTimes: Float32Array<ArrayBuffer>;
   readonly evaluation: Evaluation | null;
@@ -164,7 +165,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
 
   const done = (s: Session) => s.run !== null && s.run.steps >= s.kind.until;
 
-  const postProgress = (s: Session) => {
+  const postProgress = (s: Session, replaced = false) => {
     const run = s.run!;
     const newLosses = Float32Array.from(s.losses);
     const stepTimes = Float32Array.from(s.stepTimes);
@@ -176,6 +177,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
         type: 'progress',
         model: s.model,
         step: run.steps,
+        replaced,
         newLosses,
         stepTimes,
         evaluation: s.evaluation,
@@ -206,9 +208,9 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
     );
   };
 
-  const report = (s: Session) => {
+  const report = (s: Session, replaced = false) => {
     postSnapshot(s);
-    postProgress(s);
+    postProgress(s, replaced);
   };
 
   const evaluate = (s: Session) => {
@@ -304,9 +306,11 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
         }
         return report(s);
       case 'pause':
-      case 'reset':
         s.want = false;
         return report(s);
+      case 'reset':
+        s.want = false;
+        return report(s, true);
       case 'snapshot':
         return report(s);
       case 'sample': {
@@ -354,7 +358,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
         s.recent = [];
         s.timing = { steps: 0, ms: 0 };
         evaluate(s);
-        return report(s);
+        return report(s, true);
       }
       default:
         throw new Error(`Unknown message ${message satisfies never}`);

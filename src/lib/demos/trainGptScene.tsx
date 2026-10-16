@@ -40,7 +40,7 @@ export default defineScene({
       p.load.disabled = loading;
     };
     trainer = await openTrainer(stage, 'gpt', {
-      progress({ step, evaluation, running, done: finished, timing }) {
+      progress({ step, replaced, evaluation, running, done: finished, timing }) {
         done = finished;
         p.step.textContent = step.toLocaleString('en-US');
         p.status.textContent = loading
@@ -56,8 +56,8 @@ export default defineScene({
           trainingMs: timing.ms,
           trainingSteps: timing.steps,
         });
-        if (evaluation && (history.at(-1)?.step !== evaluation.step || step === 0)) {
-          if (step === 0 || evaluation.step === gpt.until) history = [];
+        if (replaced) history = [];
+        if (evaluation && history.at(-1)?.step !== evaluation.step) {
           history.push(evaluation);
           p.practice.textContent = evaluation.training.toFixed(3);
           p.exam.textContent = evaluation.validation.toFixed(3);

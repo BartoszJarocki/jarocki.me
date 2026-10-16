@@ -155,3 +155,36 @@ test('GPT sampling rejects zero temperature and checkpoint loading checks symbol
   const error = posted.findLast((m) => m.type === 'error');
   assert.equal(error?.message, 'Checkpoint symbols do not match the model');
 });
+
+test('GPT completion keeps the model while load and reset report replacements', async () => {
+  const { trainingHandler } = await import('./training.ts');
+  const posted: import('./training.ts').Out[] = [];
+  const read = async (path: string) => new Response(fs.readFileSync(`public${path}`));
+  const receive = trainingHandler({ post: (message) => posted.push(message), read });
+  const checkpoint = await readCheckpoint(read);
+  const progress = () => {
+    const message = posted.findLast((m) => m.type === 'progress');
+    assert.ok(message);
+    return { step: message.step, done: message.done, replaced: message.replaced };
+  };
+  const replacement = {
+    type: 'load',
+    model: 'gpt',
+    checkpoint,
+    symbols: shakespeare.symbols,
+    step: 11_999,
+  } as const;
+  await receive(replacement);
+  assert.deepEqual(progress(), { step: 11_999, done: false, replaced: true });
+  await receive({ type: 'start', model: 'gpt' });
+  assert.deepEqual(progress(), { step: 12_000, done: true, replaced: false });
+  assert.equal(posted.findLast((m) => m.type === 'progress')?.evaluation?.step, 12_000);
+  await receive({ type: 'pause', model: 'gpt' });
+  assert.deepEqual(progress(), { step: 12_000, done: true, replaced: false });
+  await receive({ ...replacement, step: 12_000 });
+  assert.deepEqual(progress(), { step: 12_000, done: true, replaced: true });
+  await receive({ type: 'snapshot', model: 'gpt' });
+  assert.deepEqual(progress(), { step: 12_000, done: true, replaced: false });
+  await receive({ type: 'reset', model: 'gpt' });
+  assert.deepEqual(progress(), { step: 0, done: false, replaced: true });
+});
