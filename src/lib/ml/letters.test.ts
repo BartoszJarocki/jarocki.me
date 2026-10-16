@@ -17,15 +17,7 @@ import {
   threeLetterKnobs,
   threeLetterLoss,
 } from './letters.ts';
-import {
-  CheckpointError,
-  adamw,
-  checkSlopes,
-  createParams,
-  load,
-  save,
-  zeros,
-} from './params.ts';
+import { CheckpointError, adamw, checkSlopes, createParams, load, save, zeros } from './params.ts';
 import { type Out, averageOver, startRun, trainingHandler } from './training.ts';
 
 const text = fs.readFileSync('public/data/names.txt', 'utf8');
