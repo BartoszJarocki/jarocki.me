@@ -81,7 +81,7 @@ test('sampleName loads the die by its temperature, so the same rolls write other
   ]);
 });
 
-test('the run instructions in the note print ten names', () => {
+test('the run instructions in the note write ten names from all of names.txt', () => {
   const region = (file: string, name: string) =>
     fs.readFileSync(file, 'utf8').split(`// #region ${name}\n`)[1].split('// #endregion')[0];
   const note = fs.readFileSync('src/notes/words-as-numbers.mdx', 'utf8');
@@ -92,10 +92,19 @@ test('the run instructions in the note print ten names', () => {
   );
   const printed = execFileSync(process.execPath, ['--input-type=module-typescript'], {
     cwd: 'public/data',
-    input: blocks.join('\n'),
+    input: [`Math.random = (${seeded})(1);`, ...blocks].join('\n'),
     stdio: ['pipe', 'pipe', 'ignore'],
   });
-  const lines = printed.toString().trim().split('\n');
-  assert.equal(lines.length, 10);
-  for (const line of lines) assert.match(line, /^[a-z]+$/);
+  assert.deepEqual(printed.toString().trim().split('\n'), [
+    'm',
+    'kyuginazelaia',
+    'k',
+    'ira',
+    'akerbendmanaryarahadaon',
+    'd',
+    'lueynaheyslynta',
+    'scontodiy',
+    'zai',
+    'idili',
+  ]);
 });
