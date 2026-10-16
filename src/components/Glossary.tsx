@@ -2,8 +2,7 @@ import type { ReactNode } from 'react';
 
 import { IndexList, IndexRow, IndexSection } from './Index';
 
-const unprose =
-  'font-mono text-[14px] leading-[1.72] [&_h2]:-mx-[1ch] [&_h2]:my-0 [&_h2]:text-[length:inherit] [&_h2]:font-normal [&_h2]:leading-[inherit] [&_h2]:tracking-normal [&_h2]:text-faint [&_li]:m-0 [&_li]:p-0 [&_ul]:m-0 [&_ul]:list-none [&_ul]:p-0';
+const unprose = 'not-prose font-mono text-[14px] leading-[1.72]';
 
 export function Glossary({ children }: { children: ReactNode }) {
   return (

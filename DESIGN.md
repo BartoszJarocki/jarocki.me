@@ -446,3 +446,12 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
 - Don't lower the contrast of `faint`.
 - Don't leave `faint` or `body` text in the band without a plate.
+
+
+## Series navigation and glossaries
+
+A series note lists all four titles under `the ai series`, using the index rows. The current part has `aria-current="page"`. Unpublished parts show `coming soon` without a link, including in previews. The list of titles lives in `src/lib/notes.ts`.
+
+A series footer keeps `all notes` and replaces `next:` with links to the published adjacent parts, labeled `← part n` and `part n →`. Notes outside a series keep their existing footer.
+
+A glossary uses index rows in Geist Mono. Its `not-prose` wrapper excludes its descendants from prose element rules, so the index components keep their normal heading and list styles.
