@@ -1,5 +1,5 @@
 import { pieceClass, unknownNote } from '../../components/demos/Tokenizers';
-import { type Piece, cutThreeWays, cuts } from '../ml/tokenizers';
+import { type Piece, cutThreeWays, cuts, pieceWord } from '../ml/tokenizers';
 import { defineScene } from './stage';
 import { menus } from './tokenizerMenus';
 
@@ -23,7 +23,9 @@ export default defineScene({
       const cut = cutThreeWays(p.sentence.value, menus);
       for (const name of cuts) {
         const row = p[name];
-        row.querySelector('[data-count]')!.textContent = String(cut[name].pieces.length);
+        const count = cut[name].pieces.length;
+        row.querySelector('[data-count]')!.textContent = String(count);
+        row.querySelector('[data-word]')!.textContent = pieceWord(count);
         row.querySelector('[data-menu]')!.textContent = String(cut[name].menu);
         row.querySelector('[data-pieces]')!.replaceChildren(...cut[name].pieces.map(chip));
       }

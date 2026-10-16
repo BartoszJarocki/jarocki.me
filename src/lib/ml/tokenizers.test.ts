@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { menus } from '../demos/tokenizerMenus.ts';
-import { cutThreeWays, trainMenus } from './tokenizers.ts';
+import { cutThreeWays, cuts, pieceWord, trainMenus } from './tokenizers.ts';
 
 const shown = (cut: { pieces: { text: string; known: boolean }[] }) =>
   cut.pieces.map(({ text, known }) => (known ? text : `?${text}`)).join(' ');
@@ -55,4 +55,13 @@ test('cutThreeWays keeps Polish letters whole, however they were typed', () => {
       'z a ?ż ?ó ?ł ?ć g ?ę ?ś l ?ą j a ?ź ?ń',
     );
   }
+});
+
+test('a row reads 1 piece, but 0 pieces and 2 pieces', () => {
+  const cut = cutThreeWays('ending', menus);
+  assert.deepEqual(
+    cuts.map((name) => `${cut[name].pieces.length} ${pieceWord(cut[name].pieces.length)}`),
+    ['6 pieces', '1 piece', '2 pieces'],
+  );
+  assert.equal(pieceWord(0), 'pieces');
 });

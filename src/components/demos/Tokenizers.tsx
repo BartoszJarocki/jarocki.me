@@ -1,5 +1,5 @@
 import { example, sentence } from '../../lib/demos/tokenizerExample';
-import type { Cut, Piece } from '../../lib/ml/tokenizers';
+import { type Cut, type Piece, pieceWord } from '../../lib/ml/tokenizers';
 import { type DemoProps, DemoStage } from './DemoStage';
 
 const scene = () => import('../../lib/demos/tokenizersScene');
@@ -28,7 +28,7 @@ function CutRow({ name, cut, row }: { name: string; cut: Cut; row: (el: HTMLDivE
           <span data-count className="text-ink">
             {cut.pieces.length}
           </span>{' '}
-          pieces · menu{' '}
+          <span data-word>{pieceWord(cut.pieces.length)}</span> · menu{' '}
           <span data-menu className="text-ink">
             {cut.menu}
           </span>

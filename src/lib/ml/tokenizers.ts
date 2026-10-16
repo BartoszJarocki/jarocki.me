@@ -18,6 +18,7 @@ export type Piece = { text: string; known: boolean };
 export type Cut = { menu: number; pieces: Piece[] };
 export const cuts = ['letters', 'words', 'pieces'] as const;
 export type Cuts = Record<(typeof cuts)[number], Cut>;
+export const pieceWord = (count: number) => (count === 1 ? 'piece' : 'pieces');
 
 const word = /\p{L}+|\p{N}+|[^\s\p{L}\p{N}]/gu;
 const onlyLetters = /^\p{L}+$/u;
