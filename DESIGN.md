@@ -331,10 +331,11 @@ A note can hold a demo that runs in the page, such as the taxi fare chart in par
 
 ### The stage
 
-- A note writes the demo on its own line, with blank lines around it, as `<TaxiFares label="…">description</TaxiFares>`. `label` is the figure's accessible name, and the markdown inside is the description of what the figure shows. A build fails when either is missing. MDX passes only string props.
+- A note writes the demo on its own line, with blank lines around it, as `<TaxiFares label="…">description</TaxiFares>`. `label` is the figure's accessible name, and the markdown inside is the description of what the figure shows. A build fails when either is missing. MDX passes a quoted attribute as a string and a bare one as `true`. next-mdx-remote drops an attribute written as an expression, such as `size={3}`.
 - `src/components/demos/index.ts` lists every demo, and `NoteContent` spreads it into the MDX components. A new demo adds one line there.
-- `DemoStage` renders the whole shell on the server: the figure box, a mono caption row, a controls row, and the description. Nothing moves when the demo starts, on a cold load or after client-side navigation.
+- `DemoStage` renders the whole shell on the server: the figure box with the demo's still in it, a mono caption row, a controls row, and the description. Nothing moves when the demo starts, on a cold load or after client-side navigation.
 - The stage starts the `import()` of the demo's code when the shell comes within 200px of the viewport. The code is its own chunk, so a note's first load carries only the shells.
+- The still stays in the figure box until the scene draws its first frame. The server renders it into a slot that the client never hydrates, so no re-render can remove it, and a slow, blocked, or failed load still shows the figure. When the code arrives, the stage swaps in the module's `Still`. After client-side navigation there is no server still, so the box stays empty until the code arrives.
 - `data-phase` on the root reads `shell`, then `loading` once the import starts, then `ready` once the scene has drawn its first frame. A failure ends in `still` or `fallback`. See When a demo fails.
 
 ### A demo's files
@@ -343,9 +344,11 @@ A note can hold a demo that runs in the page, such as the taxi fare chart in par
 
 - `src/components/demos/TaxiFares.tsx` is the shell. It holds the markup and the words around the chart: the caption's `loss` and `eight made-up rides`, and the slider labels.
 - `src/lib/demos/taxiFares.ts` holds the data and the math: the rides, the starting rule, the slider ranges, the loss, the least-squares fit, and `fareRule`, the reader's settings, which other demos read and write.
-- `src/lib/demos/taxiFaresScene.tsx` is the scene. It names the elements it needs and their tags with `defineScene`, draws the chart and its axis labels, and exports `Still`, the chart at the starting settings as SVG.
+- `src/lib/demos/taxiFaresScene.tsx` is the scene. It names the elements it needs and their tags with `defineScene`, draws the chart and its axis labels, and exports `Still`, the chart at the starting settings.
 
-The shell gets a ref for each element from `part(name)`, typed from the scene's list. TypeScript rejects a name that is not in the list. It does not reject the wrong element, such as a canvas ref on a `span`, because React types ref callbacks loosely. The stage checks each element's tag before it mounts the scene, and a wrong one fails the mount with the part's name.
+A still can be SVG or the demo's own HTML, such as a table. Its root takes the `demo-still` class, which lays it over the figure box and hides it once the stage is `ready`. The taxi still draws the chart twice, at 672 by 309 and at 320 by 220. A container query shows the small one while the box is at most 478px wide, where the canvas's 220px minimum height overrides its 672/309 shape. So the still's labels stay close to 11px on a phone.
+
+The shell gets a ref for each element from `part(name)`, typed from the scene's list. TypeScript rejects a name that is not in the list. It does not reject the wrong element, such as a canvas ref on a `span`, because React types ref callbacks loosely. The stage checks each element's tag before it mounts the scene, and a wrong one fails the mount with the part's name. The scene gets a copy of the parts made at that check, so React clearing a ref never reaches a frame or a late callback. `DemoStage` runs the stage from a layout effect, so when the note unmounts, the scene ends before React detaches its parts.
 
 ### Drawing
 
@@ -357,11 +360,12 @@ The shell gets a ref for each element from `part(name)`, typed from the scene's 
 
 ### When a demo fails
 
-- Without JavaScript the figure box shows a still SVG of the demo's first frame, rendered only on the server, and the description shows below it. The caption and controls are hidden.
-- If the mount, a frame, or an `onLive` listener throws, the stage ends the scene and shows the scene's `Still` in the figure box, in the `still` phase. The error goes to the console. The caption and controls keep their space, and the description stays visually hidden.
+- Without JavaScript the figure box shows the still, and the description shows below it. The caption and controls are hidden.
+- If the mount, a frame, `ready`, or an `onLive` listener throws, the stage ends the scene and shows the still, in the `still` phase. For a failure outside those, such as a worker's `error` or `messageerror` event, the scene calls `stage.fail(error)`, with the same result. The error goes to the console. The caption and controls are hidden but keep their space, and the description stays visually hidden.
 - A scene that can't run in this browser throws `Unsupported` from `src/lib/demos/stage.ts`. The reader sees the same still, and nothing is logged. `stage.canvas` throws it when the browser has no 2D canvas.
-- A 3D demo without WebGL either draws a 2D version or throws `Unsupported`, so the reader sees its still.
-- If the demo's code fails to load, the figure box keeps its height and shows the description, in the `fallback` phase. There is no still, because `Still` is part of the code that failed. The caption and controls keep their space.
+- A 3D demo without WebGL draws a 2D version on the same canvas, so the reader can still use its controls. `Unsupported` and the `still` phase would hide them.
+- To check for WebGL, call `getContext('webgl2')` on the canvas before you create three's `WebGLRenderer`, and pass the context to the renderer. Without WebGL the call returns `null` and logs nothing, and the canvas can still take a 2D context. A `WebGLRenderer` created without WebGL logs three console errors before it throws.
+- If the demo's code fails to load, the stage shows the `fallback` phase, and the caption and controls are hidden but keep their space. On a cold load the server's still stays in the figure box. After client-side navigation there is no still, because `Still` is part of the code that failed, so the description shows in the figure box instead.
 - A scene ends once, when the note unmounts or at its first failure. The stage then aborts `stage.signal`, which removes every listener added with it. It disconnects its observers, cancels the pending frame, and runs the steps given to `stage.defer`, last first. A canvas the scene asks for afterwards, such as when a slow mount finishes, is released at once.
 
 ### Layout
