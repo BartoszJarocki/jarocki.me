@@ -3,7 +3,11 @@ export const symbols = '.abcdefghijklmnopqrstuvwxyz';
 
 export function encode(name: string) {
   const ids = [0];
-  for (const letter of name) ids.push(symbols.indexOf(letter));
+  for (const letter of name) {
+    const id = symbols.indexOf(letter);
+    if (id < 1) throw new Error(`${JSON.stringify(letter)} is not a letter from a to z`);
+    ids.push(id);
+  }
   ids.push(0);
   return ids;
 }

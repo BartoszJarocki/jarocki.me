@@ -14,6 +14,20 @@ test('encode puts the dot around a name and gives each letter its place in the m
   assert.deepEqual(encode('ava'), [0, 1, 22, 1, 0]);
 });
 
+test('encode stops on anything that is not a letter from a to z', () => {
+  assert.throws(() => countPairs(['Emma']), { message: '"E" is not a letter from a to z' });
+  assert.throws(() => countPairs(['eMma']), { message: '"M" is not a letter from a to z' });
+  assert.throws(() => encode('a.b'), { message: '"." is not a letter from a to z' });
+  assert.throws(() => encode('zoë'), { message: '"ë" is not a letter from a to z' });
+  assert.throws(() => encode('emma\r'), { message: '"\\r" is not a letter from a to z' });
+});
+
+test('a blank line is not a name, so it adds no pair', () => {
+  assert.deepEqual(countPairs(['emma', '', 'ava', '']), countPairs(['emma', 'ava']));
+  assert.equal(countPairs(['emma', ''])[0], 0);
+  assert.equal(averageLoss(counts, ['emma', '']), 2.5143220839510083);
+});
+
 test('countPairs counts every pair in names.txt on top of a starting one', () => {
   assert.equal(names.length, 32033);
   assert.equal(at('.e'), 1532);

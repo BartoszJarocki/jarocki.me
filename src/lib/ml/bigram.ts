@@ -8,6 +8,7 @@ export function countPairs(names: string[]) {
   const dot = symbols.indexOf('.');
   counts[dot * size + dot] = 0;
   for (const name of names) {
+    if (name === '') continue;
     const ids = encode(name);
     for (let i = 1; i < ids.length; i++) {
       counts[ids[i - 1] * size + ids[i]] += 1;
@@ -49,6 +50,7 @@ export function averageLoss(counts: Uint32Array, names: string[]) {
   let total = 0;
   let pairs = 0;
   for (const name of names) {
+    if (name === '') continue;
     const ids = encode(name);
     for (let i = 1; i < ids.length; i++) {
       total += surprise[ids[i - 1]][ids[i]];
