@@ -641,7 +641,7 @@
   .demo-receipt [data-line='miss'] th > span {
     min-width: 4ch;
   }
-  .demo:not([data-phase='ready']) .demo-receipt-live {
+  .demo:not([data-phase='ready']) :is(.demo-receipt-live, .demo-readout) {
     visibility: hidden;
   }
   .demo-receipt.demo-still {
