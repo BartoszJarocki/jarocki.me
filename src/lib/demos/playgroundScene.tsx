@@ -248,6 +248,8 @@ type Run = 'paused' | 'running' | { until: number };
 const put = (element: HTMLElement, text: string) => {
   if (element.textContent !== text) element.textContent = text;
 };
+// The first toLocaleString loads the locale's number data, 29 ms at 4x CPU throttling.
+const counted = (n: number) => String(n).replace(/\B(?=(\d{3})+$)/g, ',');
 const press = (button: HTMLButtonElement, pressed: boolean) =>
   button.setAttribute('aria-pressed', String(pressed));
 
@@ -283,7 +285,7 @@ export default defineScene({
     let row: number | null = null;
 
     const write = () => {
-      put(p.steps, steps.toLocaleString('en-US'));
+      put(p.steps, counted(steps));
       put(p.stepWord, steps === 1 ? 'step' : 'steps');
       put(p.loss, shown.loss.toFixed(3));
       put(p.accuracy, `${Math.round(shown.accuracy * 100)}%`);
