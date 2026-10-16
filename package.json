@@ -10,6 +10,7 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css}\" \"*.{js,mjs}\" \"scripts/*.mjs\"",
     "icons": "node scripts/icons.mjs",
     "subset-fonts": "node scripts/fonts.mjs subset",
+    "train": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/train.mjs",
     "typecheck": "tsc",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test 'src/lib/**/*.test.ts'"
   },
