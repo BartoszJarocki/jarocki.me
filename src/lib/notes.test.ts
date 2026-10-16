@@ -92,7 +92,7 @@ test('getNotes rejects a misspelled draft field even in production', (t) => {
   }
 });
 
-const source = 'const html = "<b>&</b>";\nconsole.log(html);\n';
+const source = 'const html = "<b>&</b>";\nconsole.log(html);\nconst object = { name: 1 };\n';
 
 function compileNote(t: TestContext, markdown: string) {
   const note = path.join(notesDir, 'x.mdx');
@@ -133,6 +133,8 @@ test('runnable fences carry the file source and highlight with CSS variables', a
   assert.match(html, /color:var\(--shiki-token-function\)/);
   assert.match(html, /color:var\(--shiki-token-punctuation\)/);
   assert.match(html, /color:var\(--shiki-token-function\)">html<\/span>/);
+  assert.match(html, /color:var\(--shiki-token-function\)"> ?name<\/span>/);
+  assert.match(html, /color:var\(--shiki-token-punctuation\)">\(<\/span>/);
   assert.match(html, /&lt;b&gt;&amp;&lt;\/b&gt;/);
 });
 

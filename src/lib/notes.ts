@@ -241,6 +241,7 @@ function rehypeNoteCode() {
           'variable',
           'entity.name',
           'support',
+          'meta.object-literal.key',
           ...scopes.filter((scope) =>
             /^(variable\.|entity\.name|support\.|meta\.property-name)/.test(scope),
           ),
@@ -250,6 +251,7 @@ function rehypeNoteCode() {
       {
         scope: [
           'punctuation',
+          'meta.brace',
           'keyword.operator',
           ...scopes.filter((scope) => /^(punctuation\.|keyword\.operator\.)/.test(scope)),
         ],
