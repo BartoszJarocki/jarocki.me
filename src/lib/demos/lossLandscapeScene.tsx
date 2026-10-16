@@ -282,17 +282,29 @@ const point = (rule: FareRule): [number, number, number] => [
 const front = fareBox.price.min;
 const axes = [
   ...[fareBox.fee.min, fareBox.fee.max].map((fee) => ({
-    text: money(fee, 0),
+    text: `${money(fee, 0)} fee`,
     at: { fee, price: front },
     offEdge: { fee: 0, price: -1.1 },
+    offset: fee === fareBox.fee.min ? [32, 7] : [0, 0],
   })),
-  { text: 'Starting fee', at: { fee: 5, price: front }, offEdge: { fee: 0, price: -1.1 } },
-  ...[fareBox.price.min, fareBox.price.max].map((price) => ({
-    text: money(price, 0),
+  {
+    text: 'Starting fee',
+    at: { fee: 5, price: front },
+    offEdge: { fee: 0, price: -1.1 },
+    offset: [0, 10],
+  },
+  ...[fareBox.price.min, 0, fareBox.price.max].map((price) => ({
+    text: `${money(price, 0)}/km`,
     at: { fee: 0, price },
     offEdge: { fee: -1.1, price: 0 },
+    offset: price === fareBox.price.max ? [0, 0] : [-12, price === 0 ? -3 : 0],
   })),
-  { text: 'Price per km', at: { fee: 0, price: 1.5 }, offEdge: { fee: -2.6, price: 0 } },
+  {
+    text: 'Price per km',
+    at: { fee: 0, price: fareBox.price.max },
+    offEdge: { fee: -1.1, price: 0 },
+    offset: [-15, -25],
+  },
 ];
 
 const vertexShader = `
@@ -433,7 +445,7 @@ async function valley3d(
   overlay.setAttribute('aria-hidden', 'true');
   p.view.append(overlay);
   stage.defer(() => overlay.remove());
-  const labels = axes.map(({ text, at, offEdge }) => {
+  const labels = axes.map(({ text, at, offEdge, offset }) => {
     const element = document.createElement('span');
     element.className =
       'absolute left-0 top-0 whitespace-nowrap bg-bg px-[1ch] text-[11px] leading-4 text-faint';
@@ -442,6 +454,7 @@ async function valley3d(
     const [, y] = point(at);
     return {
       element,
+      offset,
       at: new Vector3(toX(at.fee + offEdge.fee), y, toZ(at.price + offEdge.price)),
     };
   });
@@ -746,7 +759,7 @@ async function valley3d(
       renderer.render(scene, camera);
       for (const label of labels) {
         const [x, y] = project(label.at);
-        label.element.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -50%)`;
+        label.element.style.transform = `translate(${Math.round(x + label.offset[0])}px, ${Math.round(y + label.offset[1])}px) translate(-50%, -50%)`;
       }
       if (fog) exposeFogWindow(i, j, cubeAt);
       else delete p.view.dataset.window;
