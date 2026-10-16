@@ -22,7 +22,7 @@ export default function ResidualStream({ label, children }: DemoProps) {
   const rows = [
     { y: 40, label: 'notebooks in', writes: 0 },
     { y: 330, label: 'after attention adds', writes: 2 },
-    { y: 620, label: 'after the network adds', writes: 4 },
+    { y: 620, label: 'notebooks now', writes: step >= 4 ? 4 : step >= 2 ? 2 : 0 },
   ];
   return (
     <div className="demo" role="figure" aria-label={label} aria-describedby={id}>
