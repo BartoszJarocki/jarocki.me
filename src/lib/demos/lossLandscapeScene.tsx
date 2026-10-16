@@ -219,7 +219,7 @@ export default defineScene({
     for (const [name, button] of Object.entries(rateButtons)) {
       click(button, () => {
         rate = name as Rate;
-        if (ended(walk)) goTo(trail[0]);
+        goTo(trail[0]);
       });
     }
 
