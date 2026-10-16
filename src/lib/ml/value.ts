@@ -26,7 +26,8 @@ export class Value {
   }
 
   pow(n: number) {
-    return new Value(this.data ** n, [[this, n * this.data ** (n - 1)]]);
+    const slope = n === 0 ? 0 : n * this.data ** (n - 1);
+    return new Value(this.data ** n, [[this, slope]]);
   }
 
   exp() {
