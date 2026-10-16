@@ -1,4 +1,11 @@
-import { type FareRule, fareBox, meanSquaredError, predict, rides } from './taxiFares.ts';
+import {
+  type FareRule,
+  fareBox,
+  leastSquares,
+  meanSquaredError,
+  predict,
+  rides,
+} from './taxiFares.ts';
 
 /** A walk stops where the two knobs' slopes together are under this. */
 export const flat = 0.01;
@@ -22,15 +29,46 @@ export function descend(rule: FareRule, rate: number): FareRule {
   return { fee: rule.fee - rate * slope.fee, price: rule.price - rate * slope.price };
 }
 
-// The loss curves by 2 * [[1, mean km], [mean km, mean km²]]. A step above 2 over its larger
-// eigenvalue overshoots along that direction by more than it gains, so the loss grows.
-export const rateLimit = (() => {
-  const km = rides.reduce((sum, ride) => sum + ride.km, 0) / rides.length;
-  const km2 = rides.reduce((sum, ride) => sum + ride.km ** 2, 0) / rides.length;
-  const trace = 2 + 2 * km2;
-  const det = 4 * (km2 - km ** 2);
-  return 4 / (trace + Math.sqrt(trace ** 2 - 4 * det));
-})();
+const km = rides.reduce((sum, ride) => sum + ride.km, 0) / rides.length;
+const km2 = rides.reduce((sum, ride) => sum + ride.km ** 2, 0) / rides.length;
+const spread = Math.hypot(1 - km2, 2 * km);
+
+// Away from the bottom by d = (fee, price), the loss grows by d · [[1, km], [km, km²]] · d, with
+// km and km² as means over the rides. So every contour is an ellipse around the bottom, its axes
+// along that matrix's two eigenvectors, and steep and shallow are the eigenvalues.
+export const valley = {
+  bottom: leastSquares(),
+  floor: meanSquaredError(leastSquares()),
+  steep: (1 + km2 + spread) / 2,
+  shallow: (1 + km2 - spread) / 2,
+  /** The steep axis's angle from the fee axis, in radians. */
+  angle: Math.atan2((1 + km2 + spread) / 2 - 1, km),
+};
+
+/** The contour where the loss equals `loss`, as its half widths across and along the valley. */
+export const contour = (loss: number) => ({
+  across: Math.sqrt((loss - valley.floor) / valley.steep),
+  along: Math.sqrt((loss - valley.floor) / valley.shallow),
+});
+
+// A step moves the loss along the steep axis by a factor of 1 - 2 * rate * steep each time, so
+// above 1 / steep that factor is under -1 and the overshoot grows.
+export const rateLimit = 1 / valley.steep;
+
+const squeeze = (loss: number) => Math.log1p(loss / 0.6);
+const peak = Math.max(
+  ...[fareBox.fee.min, fareBox.fee.max].flatMap((fee) =>
+    [fareBox.price.min, fareBox.price.max].map((price) =>
+      squeeze(meanSquaredError({ fee, price })),
+    ),
+  ),
+);
+
+/** The loss squeezed to 0 for a perfect fit and 1 at the map's highest corner, so the valley fits. */
+export const lift = (rule: FareRule) => squeeze(meanSquaredError(rule)) / peak;
+
+/** The loss whose lift is `t`. */
+export const lossAtLift = (t: number) => 0.6 * Math.expm1(t * peak);
 
 export const isFlat = (rule: FareRule) => {
   const slope = gradient(rule);

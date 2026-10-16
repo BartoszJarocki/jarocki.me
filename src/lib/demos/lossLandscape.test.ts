@@ -3,10 +3,14 @@ import { test } from 'node:test';
 
 import {
   type Walk,
+  contour,
   descend,
+  lift,
+  lossAtLift,
   rateLimit,
   rates,
   step,
+  valley,
   walkFrom,
   walkToEnd,
 } from './lossLandscape.ts';
@@ -22,6 +26,23 @@ test('steps at the good rate reach 1% of the least-squares loss after 46 steps',
 
 test('the rate limit computed from the rides is 0.3302', () => {
   assert.ok(Math.abs(rateLimit - 0.3302252247324041) < 1e-12, `${rateLimit}`);
+});
+
+test('a contour is the ellipse where the loss equals its level', () => {
+  const { across, along } = contour(2);
+  const { bottom, angle } = valley;
+  const ends = [
+    { fee: bottom.fee + across * Math.cos(angle), price: bottom.price + across * Math.sin(angle) },
+    { fee: bottom.fee - along * Math.sin(angle), price: bottom.price + along * Math.cos(angle) },
+  ];
+  for (const end of ends) assert.ok(Math.abs(meanSquaredError(end) - 2) < 1e-9);
+  assert.deepEqual([across.toFixed(4), along.toFixed(4)], ['0.7431', '3.1665']);
+});
+
+test('lift is 1 at the highest corner of the map, and lossAtLift undoes it', () => {
+  assert.equal(lift({ fee: 10, price: 5 }), 1);
+  assert.equal(lift({ fee: 0, price: 0 }).toFixed(4), '0.8848');
+  assert.ok(Math.abs(lossAtLift(1) - 94.3025) < 1e-9);
 });
 
 test('every step at too big from the start raises the loss, until the next one leaves the map', () => {
