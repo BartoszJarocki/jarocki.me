@@ -3,7 +3,6 @@ title: "Paying attention"
 description: "How a word works out which earlier words matter to it"
 publishedAt: 2026-10-16
 tags: ["ai"]
-draft: true
 series: ai
 part: 3
 ---
@@ -12,7 +11,7 @@ Read this sentence. "The bag didn't fit in the car because it was too small." Wh
 
 You did that without thinking. When you reached "small", you looked back at the earlier words and picked the one that fit. A model has to do the same, and the way it does it is called attention.
 
-Part 2's best model saw three letters back. Here the word that matters is far behind. Between "car" and "small" sit 20 other letters and spaces. The model needs a longer window and a way to choose what matters inside it. Attention makes that choice, but it cannot read beyond the model's window.
+Part 2's best model saw three letters back. Here the word that matters is far behind. Between "car" and "small" sit 20 other letters and spaces. The model needs a larger window and a way to choose which pieces inside it matter. Attention makes that choice. It still cannot read beyond its context window.
 
 The model in this series is too small to solve that sentence. It learned from Shakespeare's plays, one letter at a time. So the sentence explains why attention exists, and the demos show what the tiny model really looks at.
 
@@ -20,7 +19,7 @@ The model in this series is too small to solve that sentence. It learned from Sh
 
 Think of a library search. You type what you are looking for. That is the **query**. Each book has a label on its spine, its **key**, and what is inside, its **value**. A normal search hands back the one book whose label matches best.
 
-Attention reads a little of every book, and more of the ones whose labels match better. To score a match, multiply two lists of numbers pair by pair and add the results. For the lists 2, 1 and 3, 0 that is 2 × 3 + 1 × 0 = 6. That calculation is the **dot product**. Draw each list as an arrow, and the total is bigger when the arrows point the same way. Longer arrows count more.
+Attention reads a little of every book, and more of the ones whose labels match better. To score a match, multiply two lists of numbers pair by pair and add the results. This calculation is the **dot product**. For the lists 2, 1 and 3, 0 that is 2 × 3 + 1 × 0 = 6. Draw each list as an arrow, and the total is bigger when the arrows point the same way. Longer arrows count more.
 
 Part 2's softmax turns the match scores into shares that add up to 100%. Those shares are the **attention weights**. Then the word adds up the values, each scaled by its weight, and that mix is what it takes away.
 
@@ -32,7 +31,7 @@ Four earlier words of the sentence, bag, fit, car, and because, drawn as arrows 
 
 </SoftLookup>
 
-Drag the query's tip onto a word's arrow tip and that word's bar passes 90%. Point it between two words and they share. Pull it in toward the middle and the shares even out, because every score shrinks toward 0. At the very middle each word gets 25%.
+Move the query toward a word's arrow and watch its share change. Both the direction and the length of each arrow affect the match. Point it between two words and they share. Pull it in toward the middle and the shares even out, because every score shrinks toward 0. At the very middle each word gets 25%.
 
 These arrows are made up, with two numbers each so they fit on a flat chart. In a real model, each word's query, key, and value come from its own list of numbers through three sets of learned knobs, the same knobs at every position. The tiny model starts each letter as a list of 32 numbers. Its code stores the three sets of knobs side by side in one table.
 
@@ -72,3 +71,55 @@ For readers who know JavaScript, here is the attention the tiny model runs. `loo
 
 ```ts include=src/lib/ml/gpt.ts#attention
 ```
+
+## Keeping what was already there
+
+Each letter carries its list of numbers through the model, like a notebook. Attention reads the notebooks and works out something to add to each one. A small network like part 1's then reads each updated notebook and works out another addition. Attention can mix information between letters. The small network works on each letter separately, with the same learned knobs at every position.
+
+The model adds each change to the numbers already there. If a notebook holds 2 and a part proposes -0.5, the result is 1.5. A change can strengthen or weaken what was there. The old numbers keep a straight path through each addition. This path is called a **residual connection**. It does not guarantee that the old information survives unchanged. Later additions can cancel it.
+
+Before either part reads a notebook, it takes a copy whose numbers have been brought to a steadier size. Think of a TV's automatic volume control keeping a loud channel and a quiet channel at similar levels. For each letter separately, the model subtracts the average of its numbers and adjusts their spread. Learned knobs can then scale and shift the copy. This is **layer normalization**. It changes the copy that a part reads, while the original notebook stays on the straight path.
+
+Attention, the small network, the two leveled copies, and the two additions together form a **transformer block**. The same pattern repeats in each block. The tiny model has two of them.
+
+Press step below to follow one block. The diagram uses three tokens and three made-up numbers per token so every addition is visible. These are teaching numbers, not values from the trained model. Each column is one token's notebook. The first addition comes from attention. The second comes from the small network. The numbers are shown throughout, and the darker outline marks the current step.
+
+<ResidualStream label="Two additions inside one transformer block">
+
+Three token notebooks travel through one block. Attention reads leveled copies, then adds its changes to the original notebooks. The small network reads leveled copies of those updated notebooks, then adds its own changes. For the first token, 1, 2, 3 becomes 1.5, 1.5, 4 after attention and 0.5, 2, 4 after the small network. The straight path carries the old numbers into each addition.
+
+</ResidualStream>
+
+The notebook metaphor is only about keeping and updating numbers. There are no written facts inside these columns. Training decides what the numbers are useful for, through the same loss and backward walk as in part 1.
+
+For readers who know JavaScript, here is the block the tiny model runs. `level` produces each leveled copy. The two calls to `add` are the two residual connections. `attention.write` mixes the heads' results into one change for each notebook. `network.hidden`, `gelu`, and `network.write` form the small network. `gelu` is its activation function, a smooth way to reduce negative inputs and pass positive ones through.
+
+The three sets of query, key, and value knobs sit side by side in `attention.lookup.weights`, a 32 by 96 array. Each letter's 32 input numbers produce 96 output numbers, the first 32 for queries, the next 32 for keys, and the last 32 for values. The layer also adds a learned bias to each output. This is one combined calculation of the three lookups, not a shared set of numbers for all three jobs.
+
+```ts include=src/lib/ml/gpt.ts#block
+```
+
+Both code blocks are pieces of the full model, not standalone programs. The block also returns the intermediate numbers so the backward walk can use them during training.
+
+## From notebooks to the next letter
+
+The first notebooks start with each letter's embedding plus its position embedding. Each block reads those notebooks and adds its changes twice. Later blocks therefore read numbers that already include information from earlier letters.
+
+After the last block, the model levels one more copy and turns it into a score for every possible next letter. Part 2's softmax turns those scores into chances. To write, the model picks a letter from the last position's chances, adds it to the text, and repeats. That use of the trained model does not change its knobs.
+
+Attention lets a letter choose what to read inside the available context. The small networks process what it found. Training adjusts all their knobs together to make the next-letter guesses less surprising. Part 4 puts those pieces to work on Shakespeare's plays and lets you train the tiny model in your browser.
+
+<Glossary>
+<Term name="query">What a token is looking for, like the words you type into a library search</Term>
+<Term name="key">What a token offers to match against, like a label on a book's spine</Term>
+<Term name="value">The numbers a token hands over, like the contents of a matching book</Term>
+<Term name="dot product">A match score made by multiplying two lists pair by pair and adding the results</Term>
+<Term name="attention weights">The shares of the values a token reads, adding up to 100%</Term>
+<Term name="causal mask">The rule that a token can read itself and earlier tokens, never later ones</Term>
+<Term name="position embedding">A learned list added to a token's numbers to mark its place, like a seat number</Term>
+<Term name="head">One reader with its own queries, keys, and values, making one mix</Term>
+<Term name="multi-head attention">Several heads reading at once, each able to look for different things</Term>
+<Term name="residual connection">Adding a change to the notebook's old numbers, which keep a straight path through</Term>
+<Term name="layer normalization">Making a leveled copy of each notebook for attention or the small network to read</Term>
+<Term name="transformer block">Attention and a small network, each reading a leveled copy and adding a change to the notebook</Term>
+</Glossary>

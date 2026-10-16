@@ -281,3 +281,26 @@ test('series membership requires a supported series and an in-range integer part
     assert.throws(() => getNotes(), /src\/notes\/bad-series.mdx: frontmatter needs/);
   }
 });
+
+test("part 3's glossary contains its twelve terms and the note is published", () => {
+  const note = fs.readFileSync(new URL('../notes/paying-attention.mdx', import.meta.url), 'utf8');
+  const terms = [...note.matchAll(/<Term name="([^"]+)">/g)].map(([, name]) => name);
+  assert.deepEqual(terms, [
+    'query',
+    'key',
+    'value',
+    'dot product',
+    'attention weights',
+    'causal mask',
+    'position embedding',
+    'head',
+    'multi-head attention',
+    'residual connection',
+    'layer normalization',
+    'transformer block',
+  ]);
+  assert.doesNotMatch(note.split('---')[1], /draft: true/);
+  for (const region of ['attention', 'block']) {
+    assert.ok(note.includes('include=src/lib/ml/gpt.ts#' + region));
+  }
+});

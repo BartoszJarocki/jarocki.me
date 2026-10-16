@@ -44,3 +44,5 @@ const LiveFare = lazy<ComponentType<FareProps>>(() =>
 );
 export const Fare = (props: FareProps) =>
   createElement(Suspense, null, createElement(LiveFare, props));
+
+export const ResidualStream = demo(() => import('./ResidualStream'));
