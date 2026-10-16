@@ -46,8 +46,8 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - Any other frontmatter field fails the build with an error that names it, so a misspelled `draft` can't publish a draft. To add a field, add it to `fields` in `src/lib/notes.ts`
 - A note's images live in `public/images/notes/<slug>/`, and the note references them as `![alt](/images/notes/<slug>/1.jpg)`
 - The build reads each image's width and height from the file, so a missing image fails the build
-- A code block that shows code from the repo is written empty, with an `include` meta, as ```` ```ts include=src/lib/ml/value.ts#backward ````. The build fills it with the lines between `// #region backward` and `// #endregion` in that file, as they are. The file must be in `src/`. Regions don't nest, and a name appears once in a file. A missing file or region, a region that never ends, or text inside the block fails the build
-- Every error about a note's body reads `src/notes/<file>: <problem>`. The plugins in `getNoteContent` fail through `fail`, because next-mdx-remote rewraps anything a plugin throws
+- A code block that shows code from the repo is written empty, with an `include` meta, as ```` ```ts include=src/lib/ml/value.ts#backward ````. The build fills it with the lines between `// #region backward` and `// #endregion` in that file, as they are. The file must be in `src/`. Regions don't nest, and a name appears once in a file. A missing file or region, a region that never ends, or text inside the block fails the build. So does a fence that mentions `include` in any other form, such as one without a language or with `title=` before `include=`, and any code block that is still empty after the build fills it
+- Every error about a note's body reads `src/notes/<file>: <problem>`, and a line number in it counts from the top of the file. The plugins in `getNoteContent` fail through `fail`, because next-mdx-remote rewraps anything a plugin throws. Any other error from the MDX compiler, such as a syntax error, gets the same prefix
 
 ### Styling:
 - `DESIGN.md` describes the design system: tokens, type roles, the index row, and contrast numbers

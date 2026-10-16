@@ -43,7 +43,7 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
     });
   } catch (error) {
     // next-mdx-remote rewraps what a plugin throws, which would bury the plugin's message.
-    throw problem ?? error;
+    throw problem ?? new Error(`src/notes/${file}: ${(error as Error).message}`);
   }
 }
 
@@ -66,7 +66,9 @@ function readNote(file: string) {
   if (typeof data !== 'object' || Array.isArray(data)) {
     throw new Error(`src/notes/${file}: frontmatter needs fields as key: value`);
   }
-  return { data: data as Record<string, unknown>, content: source.slice(block.length) };
+  // Blank lines in place of the frontmatter keep the line numbers in MDX's errors the file's own.
+  const content = '\n'.repeat(block.split('\n').length - 1) + source.slice(block.length);
+  return { data: data as Record<string, unknown>, content };
 }
 
 function parseNote(file: string, data: Record<string, unknown>): Note {
@@ -139,21 +141,29 @@ function rehypeNoteImages(fail: Fail) {
 
 type MdastNode = {
   type: string;
+  lang?: string | null;
   meta?: string | null;
   value?: string;
+  position?: { start: { line: number } };
   children?: MdastNode[];
 };
 
 function remarkIncludeRegions(fail: Fail) {
   return (tree: MdastNode) => {
     const walk = (node: MdastNode) => {
-      const { meta } = node;
-      if (node.type === 'code' && meta?.startsWith('include=')) {
-        const [, file, name] =
-          /^include=(\S+)#([\w-]+)$/.exec(meta) ??
-          fail(`${meta} needs a file and a region, as include=src/lib/ml/value.ts#backward`);
-        if (node.value) fail(`the ${meta} block must be empty, because the build fills it`);
-        node.value = readRegion(file, name, fail);
+      if (node.type === 'code') {
+        const info = [node.lang, node.meta].filter(Boolean).join(' ');
+        if (/include/i.test(info)) {
+          const [, file, name] =
+            /^\w+ include=(\S+)#([\w-]+)$/.exec(info) ??
+            fail(
+              `\`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
+            );
+          if (node.value) fail(`the ${node.meta} block must be empty, because the build fills it`);
+          node.value = readRegion(file, name, fail);
+        }
+        if (!node.value?.trim())
+          fail(`the code block at line ${node.position?.start.line} is empty`);
       }
       node.children?.forEach(walk);
     };
