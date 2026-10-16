@@ -417,9 +417,11 @@ async function mountScene(
       },
       flush() {
         geo.setDrawRange(0, n * 6);
-        pos.needsUpdate = true;
-        uv.needsUpdate = true;
-        mx.needsUpdate = true;
+        if (n > 0) {
+          pos.needsUpdate = true;
+          uv.needsUpdate = true;
+          mx.needsUpdate = true;
+        }
         n = 0;
       },
     };
@@ -504,6 +506,7 @@ async function mountScene(
   let W = 0;
   let Hh = 0;
   let dist = 0;
+  let showWords = true;
   const tmp = new Color();
   const mixColor = (m: number) => tmp.copy(bg).lerp(ink, clamp(m, 0, 1));
 
@@ -554,14 +557,7 @@ async function mountScene(
 
   const nb = new Vector3();
   const tip = new Vector3();
-  const drawNeighbors = (
-    tok: number,
-    q: Vector3,
-    fade: number,
-    grow: number,
-    names = labels,
-    head = heads,
-  ) => {
+  const drawNeighbors = (tok: number, q: Vector3, fade: number, grow: number, hover = false) => {
     const nn = neighbors(tok);
     for (let r = 0; r < nn.length; r++) {
       const g = smooth(r * 0.06, r * 0.06 + 0.4, grow);
@@ -572,6 +568,10 @@ async function mountScene(
       highlight(nb, 0.95 * fade * g, 3.2);
     }
     const p = toScreen(q);
+    box(p.x, p.y, 5, 0.9 * fade);
+    if (!showWords) return;
+    const names = hover ? hoverSet(tok) : labels;
+    const head = hover ? names : heads;
     const name = show(tokens[tok]);
     const rowH = 15;
     const colW = 7 * 4 + 8;
@@ -594,7 +594,6 @@ async function mountScene(
       labels.draw(fmt(n.s), x0, y, 0.5 * fade);
       names.draw(show(tokens[n.i]), x0 + colW, y, 0.8 * fade);
     });
-    box(p.x, p.y, 5, 0.9 * fade);
   };
 
   const drawAnalogy = (t: number) => {
@@ -635,6 +634,7 @@ async function mountScene(
     const sd = toScreen(pd);
     const sq = toScreen(pq);
     if (g3 >= 1) box(sq.x, sq.y, 3, 0.8 * fade * g4 + 0.4 * fade * (1 - g4));
+    if (!showWords) return;
     const tm = 0.75 * fade;
     placeLabel(show(tokens[a.ia]), sa, tm);
     placeLabel(show(tokens[a.ib]), sb, tm * g1);
@@ -691,6 +691,8 @@ async function mountScene(
     // A portrait stage rolls the camera so the band runs down the screen.
     const portrait = a < 1;
     camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
+    // On a phone the header covers much of a portrait band, and any word could drift behind it.
+    showWords = !portrait;
     const along = portrait ? tan : tan * a;
     const across = portrait ? tan * a : tan;
     const e = along / across;
@@ -757,8 +759,7 @@ async function mountScene(
 
     const hover = hovered();
     if (hover >= 0) {
-      const set = hoverSet(hover);
-      drawNeighbors(hover, at(hover), 1, 1, set, set);
+      drawNeighbors(hover, at(hover), 1, 1, true);
     } else {
       const out = 1 - smooth(0, 0.35, ph);
       if (out > 0) drawNeighbors(prev, va.clone(), out, 1);
@@ -768,7 +769,7 @@ async function mountScene(
     highlight(qv, 1, 5.5);
 
     drawAnalogy(t);
-    for (const [str, p, m] of trailLabels) placeLabel(str, p, m, -9, 0, true);
+    if (showWords) for (const [str, p, m] of trailLabels) placeLabel(str, p, m, -9, 0, true);
 
     lineGeo.setDrawRange(0, nl * 2);
     linePos.needsUpdate = true;
