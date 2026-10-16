@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { test } from 'node:test';
 
@@ -83,4 +84,22 @@ test('sampleName loads the die by its temperature, so the same rolls write other
     'jksednisariszasaheebrlaf',
     'ntezolepwynwty',
   ]);
+});
+
+test('the run instructions in the note print ten names', () => {
+  const region = (file: string, name: string) =>
+    fs.readFileSync(file, 'utf8').split(`// #region ${name}\n`)[1].split('// #endregion')[0];
+  const note = fs.readFileSync('src/notes/words-as-numbers.mdx', 'utf8');
+  const blocks = Array.from(
+    note.matchAll(/^```ts(?: include=(\S+)#(\S+))?\n([\s\S]*?)^```$/gm),
+    ([, file, name, code]) => (file ? region(file, name) : code),
+  );
+  const printed = execFileSync(process.execPath, ['--input-type=module-typescript'], {
+    cwd: 'public/data',
+    input: blocks.join('\n'),
+    stdio: ['pipe', 'pipe', 'ignore'],
+  });
+  const lines = printed.toString().trim().split('\n');
+  assert.equal(lines.length, 10);
+  for (const line of lines) assert.match(line, /^[a-z]+$/);
 });
