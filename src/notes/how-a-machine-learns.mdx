@@ -48,7 +48,7 @@ Press step a few times. Each step turns both knobs a little, in the direction wh
 
 The step size matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
 
-Press walk, and once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. Right now the line has a starting fee of <Fare show="fee" /> dollars and a price per km of <Fare show="price" />, so for 1.6 km it says <Fare show="fee" /> + 1.6 × <Fare show="price" />, which is about <Fare km="1.6" /> dollars. Using a trained model to answer a new question like this is **inference**.
+Press walk, and once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. Right now the line has a starting fee of <Fare show="fee" /> dollars and a price per km of <Fare show="price" />, so for 1.6 km it says <Fare show="fee" /> + 1.6 × <Fare show="price" factor />, which is about <Fare km="1.6" /> dollars. Using a trained model to answer a new question like this is **inference**.
 
 ## Which way is downhill?
 

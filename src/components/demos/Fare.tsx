@@ -1,9 +1,8 @@
 import { useSyncExternalStore } from 'react';
 
-import { fareFromRounded, rounded } from '../../lib/demos/lossLandscape';
-import { fareRule, start } from '../../lib/demos/taxiFares';
+import { factor, fareRule, predict, show, start } from '../../lib/demos/taxiFares';
 
-export type FareProps = { show: 'fee' | 'price' } | { km: string };
+export type FareProps = { show: 'fee' | 'price'; factor?: boolean } | { km: string };
 
 const subscribe = (listener: () => void) => {
   const done = new AbortController();
@@ -18,7 +17,9 @@ export default function Fare(props: FareProps) {
   const rule = useSyncExternalStore(subscribe, fareRule.get, served);
   return (
     <span>
-      {'km' in props ? fareFromRounded(rule, Number(props.km)) : rounded(rule)[props.show]}
+      {'km' in props
+        ? show(predict(rule, Number(props.km)))
+        : (props.factor ? factor : show)(rule[props.show])}
     </span>
   );
 }

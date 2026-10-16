@@ -40,6 +40,7 @@ import {
   fareRule,
   inCents,
   meanSquaredError,
+  money,
   sameRule,
   start,
 } from './taxiFares';
@@ -278,17 +279,16 @@ const point = (rule: FareRule): [number, number, number] => [
   toZ(rule.price),
 ];
 
-const dollars = (amount: number) => `${amount < 0 ? '-' : ''}$${Math.abs(amount)}`;
 const front = fareBox.price.min;
 const axes = [
   ...[fareBox.fee.min, fareBox.fee.max].map((fee) => ({
-    text: dollars(fee),
+    text: money(fee, 0),
     at: { fee, price: front },
     offEdge: { fee: 0, price: -1.1 },
   })),
   { text: 'Starting fee', at: { fee: 5, price: front }, offEdge: { fee: 0, price: -1.1 } },
   ...[fareBox.price.min, fareBox.price.max].map((price) => ({
-    text: dollars(price),
+    text: money(price, 0),
     at: { fee: 0, price },
     offEdge: { fee: -1.1, price: 0 },
   })),
@@ -778,7 +778,7 @@ function contourFigure(width: number, height: number) {
     { text: 'price per km', x: 0, y: 8, align: 'left', baseline: 'middle' },
     ...[fareBox.price.min, 0, fareBox.price.max].map(
       (price): Label => ({
-        text: dollars(price),
+        text: money(price, 0),
         x: pad.l - 8,
         y: y(price),
         align: 'right',
@@ -786,9 +786,9 @@ function contourFigure(width: number, height: number) {
       }),
     ),
     { text: 'starting fee', x: x(0), y: floor + 8, align: 'left', baseline: 'top' },
-    { text: dollars(5), x: x(5), y: floor + 8, align: 'center', baseline: 'top' },
+    { text: money(5, 0), x: x(5), y: floor + 8, align: 'center', baseline: 'top' },
     {
-      text: dollars(fareBox.fee.max),
+      text: money(fareBox.fee.max, 0),
       x: x(fareBox.fee.max),
       y: floor + 8,
       align: 'right',
