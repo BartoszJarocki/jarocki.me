@@ -1,0 +1,14 @@
+---
+title: "Paying attention"
+description: "How a word works out which earlier words matter to it"
+publishedAt: 2026-10-16
+tags: ["ai"]
+draft: true
+---
+
+Read this sentence. "The bag didn't fit in the car because it was too small." What was too small? The car. Now change one word. "The bag didn't fit in the car because it was too big." Now the bag was too big.
+
+You did that without thinking. When you reached "small", you looked back at the earlier words and picked the one that fit. A model has to do the same, and the way it does it is called attention.
+
+```ts include=src/lib/ml/gpt.ts#attention
+```
