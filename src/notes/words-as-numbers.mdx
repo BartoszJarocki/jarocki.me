@@ -1,0 +1,80 @@
+---
+title: "Words as numbers"
+description: "How a computer reads and writes text when all it can do is arithmetic"
+publishedAt: 2026-10-16
+tags: ["ai"]
+draft: true
+---
+
+Your phone's keyboard guesses your next word. It has seen a lot of text, and it knows which words tend to follow which. ChatGPT does the same thing at a much bigger size. It guesses what comes next, writes it down, and guesses again.
+
+We'll build the smallest version of that guess. It reads one letter and guesses the next one, and it learns from 32,000 first names.
+
+First, a problem. A computer can only do arithmetic, and a letter is not a number. So we give each letter a number, the way a takeaway menu numbers its dishes.
+
+## Cutting text into pieces
+
+At a takeaway you can order a 12 and a 31 without spelling out the dishes. Text works the same way. Cut the text into pieces, give each piece its number from a menu, and the computer works with the numbers.
+
+Each piece is a **token**. The whole menu is the **vocabulary**, and the thing that does the cutting is a **tokenizer**.
+
+There is more than one way to cut. Below, one sentence is cut three ways. Each row says how many items its menu has and how many pieces the sentence became. Every menu was learned from the text of this note, so a word this note never uses is not on the words menu. Type your own sentence to try it.
+
+<Tokenizers label="One sentence cut into letters, into words, and into pieces of words">
+
+One sentence cut three ways, into letters, into whole words, and into pieces of words. Each row shows how many items its menu holds and how many pieces the sentence becomes. A piece that is not on its menu is marked.
+
+</Tokenizers>
+
+Letters make a tiny menu but long orders. Whole words make short orders, but the menu is too big to print, and a new word is not on it at all. Pieces of words sit in between. The pieces menu starts as the letters. Then it finds the two pieces that sit side by side most often in this note, glues them into one new piece, and adds it to the menu. It does that 200 times. A word that is not on the menu still comes out as a few pieces that are. ChatGPT cuts text into pieces like these, from a much bigger menu.
+
+This note uses letters, because 27 tokens fit on one screen. They are the 26 letters and a dot that marks where a name starts and ends.
+
+## The counting model
+
+Now the guess itself. Guessing what comes next is **next-token prediction**, and the simplest way to do it is to count.
+
+Go through 32,033 names and count which letter follows which. In "emma", the dot is followed by e, e by m, m by m, m by a, and a by the dot. After "q" comes "u" 206 times out of 272, about three times out of four.
+
+The grid has every count. Each row is a letter and each column is the letter after it, so each square is one pair, as big as its count. The dot row says which letters start names, and the dot column says which letters end them.
+
+<CountingModel label="How often each letter follows each other letter in 32,033 names">
+
+A grid of 27 rows and 27 columns, one for each letter and one for the dot that starts and ends a name. Each square is as big as the number of times its column's letter follows its row's letter in 32,033 first names. Type a letter to see the chance of each letter after it. Sample writes ten new names from the counts.
+
+</CountingModel>
+
+Type a letter and its row lights up. Beside the grid, each next letter gets its share of the row, its count divided by the row's total. That share is the letter's **probability**, the model's chance that this letter comes next. The shares in a row add up to 100%.
+
+Every count starts at one, even for a pair that no name has, so every letter keeps a small chance. The one pair left at zero is the dot right after the starting dot, because a name has at least one letter.
+
+To write a name, the model rolls a loaded die. Each letter gets sides in proportion to its share in the current row. Roll, write the letter down, move to that letter's row, and roll again until the end dot comes up. That is **sampling**. Press sample to write ten names.
+
+The **temperature** control loads the die. Turned down, the letters the model already likes get even more sides, and the names come out samey. Turned up, the choices spread out toward the same number of sides each, and the names get strange.
+
+The number under the grid is the counting model's loss on all 32,033 names, 2.45. A later section explains how it is measured. For now, smaller is better, and 2.45 is the number to beat.
+
+For readers who know JavaScript, here is the code the demo runs. It is TypeScript, like the code in part 1. The tokenizer gives each letter its place in `symbols`, so the dot is 0 and z is 26.
+
+```ts include=src/lib/ml/tokenizers.ts#tokenizer
+```
+
+`countPairs` keeps all 729 counts in one long array, row after row, so the count for a pair sits at its row times 27 plus its column.
+
+```ts include=src/lib/ml/bigram.ts#counts
+```
+
+`chances` loads the die for one row at a temperature, and `sampleName` rolls it until the end dot comes up.
+
+```ts include=src/lib/ml/bigram.ts#sample
+```
+
+To run them, paste the three blocks in order into `node --input-type=module-typescript`, then add `console.log(sampleName(countPairs(['emma', 'olivia', 'ava']), 1))`.
+
+## Learning instead of counting
+
+The one-letter network goes here. It learns the same guess the counts make.
+
+## Letters on a map
+
+The letter map goes here, with three learned numbers for every letter.

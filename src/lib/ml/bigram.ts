@@ -1,8 +1,8 @@
 import { encode, symbols } from './tokenizers.ts';
 
+// #region counts
 export const size = symbols.length;
 
-// #region counts
 export function countPairs(names: string[]) {
   const counts = new Uint32Array(size * size).fill(1);
   // A name has at least one letter, so the end dot never comes right after the start dot.
