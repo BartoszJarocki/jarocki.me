@@ -73,9 +73,9 @@
     color: var(--ink);
   }
 
-  /* the backdrop must never pass behind faint or body text, which drop under 4.5:1 over it. A plate
-     on text that wraps inline, like a lede's, is .plate-inline, whose 3px of block padding covers
-     the lines' half-leading. */
+  /* the backdrop must never draw over faint or body text, which drop under 4.5:1 where the cloud
+     crosses them, so a plate rises above it. A plate on text that wraps inline, like a lede's, is
+     .plate-inline, whose 3px of block padding covers the lines' half-leading. */
   .plate,
   .plate-inline {
     margin-inline: -1ch;
@@ -179,7 +179,11 @@
     left: 0;
     right: 0;
     height: 460px;
-    z-index: -1;
+    /* the stage paints above the page text, so Chrome keeps that text in its opaque root layer,
+       with subpixel antialiasing. darken (lighten in dark) leaves bg as if the stage sat behind,
+       because the scene draws only mixes of bg and ink. Anything opaque in the band rises above. */
+    z-index: 1;
+    mix-blend-mode: darken;
     /* ink text keeps 4.5:1 over the stage only up to about 42%; above that it needs plates too */
     opacity: 0.4;
     pointer-events: none;
@@ -188,10 +192,35 @@
        src/lib/embeddingsScene.ts) */
     -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
     mask-image: linear-gradient(to bottom, #000 55%, transparent);
-    /* Chrome paints all page text into a layer above the canvas and drops subpixel antialiasing
-       there. While the stage is scrolled out of view, skipping its paint removes that layer, so
-       text below the band gets subpixel antialiasing back. */
-    content-visibility: auto;
+  }
+  @media (prefers-color-scheme: dark) {
+    .backdrop {
+      mix-blend-mode: lighten;
+    }
+  }
+  .plate,
+  .plate-inline,
+  a.index-row:hover,
+  a.index-row:focus-visible,
+  .skyline,
+  .prose {
+    position: relative;
+    z-index: 2;
+  }
+  /* the home lede's raised plate, later in the DOM, would paint over the lower edge of a focused
+     link's ring on the line above, so the link rises past it */
+  .text-link:focus-visible {
+    position: relative;
+    z-index: 3;
+  }
+  /* Chrome drops a clipped line's ellipsis when the text sits in a raised inline, so a clipping
+     cell rises in place of its plate */
+  :is(.index-clip, .index-trail):has(> .plate-inline) {
+    position: relative;
+    z-index: 2;
+  }
+  :is(.index-clip, .index-trail):has(> .plate-inline) > .plate-inline {
+    position: static;
   }
   .backdrop > canvas {
     display: block;
@@ -207,8 +236,8 @@
     }
   }
   /* printing drops background graphics, so the plates would vanish and text would print over the
-     cloud */
-  @media print {
+     cloud. Forced colors give each line of text a backplate, which the stage would paint over */
+  @media print, (forced-colors: active) {
     .backdrop {
       display: none;
     }
@@ -288,13 +317,17 @@
   }
 
   .prose {
-    max-width: 37rem;
+    max-width: calc(37rem + 2px);
+    margin-inline: -1px;
+    padding-inline: 1px;
     overflow-wrap: break-word;
     font-family: theme('fontFamily.sans');
     font-size: 16px;
     line-height: 1.75;
     color: var(--body);
-    /* a plate for the prose that reaches into the backdrop, including the faint list markers */
+    /* a plate for the prose that reaches into the backdrop, including the faint list markers. It
+       reaches 1px past the text, because the column can sit on a half pixel, and Chrome keeps
+       subpixel text above the backdrop only when the text lies inside its plate's whole pixels */
     background: var(--bg);
   }
   .prose p {

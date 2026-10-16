@@ -28,7 +28,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - `src/pages/_app.tsx` - App wrapper that loads Geist Mono and Geist Pixel Square, sets the base text style, and renders `DefaultSeo`, the one place for site-wide SEO defaults: the title template, Open Graph site name and locale, and the X card
 - `src/pages/_document.tsx` - The HTML shell. It also preloads the fonts a dynamic route declares, because Next misses them
 - `src/components/PageShell.tsx` - Per-page SEO tags, page layout, and the header nav on every page. It sets the canonical URL and Open Graph tags, `noindex` on error pages, and a `BlogPosting` JSON-LD when a note passes `article`
-- `src/components/EmbeddingsBackdrop.tsx` - The backdrop behind the top 460px of every page. `_app.tsx` mounts it once, so it keeps running across client-side navigation. Faint and body text it can reach sits on a plate (see `DESIGN.md`)
+- `src/components/EmbeddingsBackdrop.tsx` - The backdrop over the top 460px of every page. It paints above the page text with a blend, so the text keeps subpixel antialiasing. `_app.tsx` mounts it once, so it keeps running across client-side navigation. Faint and body text it can reach sits on a plate that rises above it (see `DESIGN.md`)
 - `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
 - `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote
@@ -57,7 +57,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 ## Key Features
 
 - **Notes** - MDX files in `src/notes/`, each with tags shown on the note and in the notes list
-- **Backdrop** - `src/lib/embeddingsScene.ts` draws a toy embedding space with three.js behind the top of every page, from the table in `src/lib/embeddingSpace.ts`. Text it can pass behind sits on a `.plate` (see `DESIGN.md`)
+- **Backdrop** - `src/lib/embeddingsScene.ts` draws a toy embedding space with three.js over the top of every page, blended above the page text, from the table in `src/lib/embeddingSpace.ts`. Faint and body text it can reach sits on a raised `.plate` (see `DESIGN.md`)
 - **Share Images** - `src/pages/api/og.tsx` draws each page's Open Graph image with `next/og` on Node, in the light tokens and Geist (see `DESIGN.md`)
 - **SEO Optimization** - NextSEO integration with sitemap generation
 - **Analytics** - Vercel Analytics integration
