@@ -67,6 +67,7 @@ export default function Note({
                     lead={
                       <span aria-current={item.part === part ? 'page' : undefined}>
                         part {item.part}
+                        {item.part === part && <span className="sr-only">, current part</span>}
                       </span>
                     }
                     main={item.title}
