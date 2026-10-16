@@ -6,6 +6,12 @@ The program enforces one rule. The code a note shows is the code that runs its d
 
 PRs in order are ai-01 to ai-14. Notes stay drafts until the PR that finishes them, so every PR can land on its own.
 
+## Current operator protocol, 2026-10-16
+
+The root runbook at `/home/bjarocki/.cache/ai-series/codex/root.md` governs execution and overrides historical lane wording below. Nothing merges automatically. Root alone rebases branches and changes PR bases. Up to four workers may run; timed performance samples hold `codex/build-perf.lock` exclusively. Owners may build on unverified parents. A verification round uses one checker for gates, Node 22 and 26 tests, live lanes and performance, plus one beginner and correctness auditor. Heavy new code may need a third worker. A fix receives a narrow follow-up. Correct beginner answers pass. Wording preferences, readable label placement and tiny rounding differences are notes, not blockers. Root self-review replaces independent trail review.
+
+For every main-thread task budget below, use rule 12. At 4x CPU, attribute the complete tasks containing the demo's own JavaScript, including their style, layout and paint. The median longest own task over at least five runs must stay under 50 ms. Native tasks without demo JavaScript are notes under this test. Separately, run at least five interleaved head and exact-parent cold loads of the same page at 4x. The head's median longest page task may exceed the parent's by at most 10 ms or 10%, whichever is larger. Declare the sample count before measuring, record uptime beside each sample, and rerun samples above load 10. Never extend a batch after seeing results. These rules replace literal worst-task and not-above guards throughout this plan.
+
 ## How to read this
 
 One box is one unit of work. Every box names the evidence that checks it. A nested box is a sub-step of the box above it. Check a box only when its evidence exists, a file, a log line, a screenshot, a test run, or a SHA. The body is a how-to. The appendices explain and record.
@@ -50,7 +56,7 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
 - [ ] Run `pnpm lint`, `pnpm typecheck`, and `pnpm test` once before the PR-facing push. Push with hooks on.
 - [ ] Reread the diff and cut AI slop before each commit, since `/deslop` is not installed here. Run `/no-comments` before review.
 - [ ] Triage every Bugbot and security-reviewer comment per `~/.claude/skills/poteto-mode/references/bugbot-triage.md`.
-- [ ] Treat the perf budgets as provisional. The 50 ms longest task, the 0.1 kB and 1 kB First Load JS growth, and the 200 ms build-time and largest contentful paint margins were chosen, not measured on built notes. Unless a box says otherwise, a longest-task rule uses the worst run, a step-time rule uses the median step, and a largest contentful paint rule compares the medians of the cold loads. The PR records the measured value beside every bound. A bound that a correct build misses goes to the operator, not into a code change.
+- [ ] Treat the perf budgets as provisional. The 50 ms longest task, the 0.1 kB and 1 kB First Load JS growth, and the 200 ms build-time and largest contentful paint margins were chosen, not measured on built notes. Longest-task checks use the current operator protocol above. A step-time rule uses the median step, and a largest contentful paint rule compares the medians of the cold loads. The PR records the measured value beside every bound. A bound that a correct build misses goes to the operator, not into a code change.
 - [ ] Rebase onto current trunk before the code-ready report and babysit. Keep that merge base in fix rounds. Rebase again only at merge prep, on a `git merge-tree` conflict with trunk, or on a CI failure that comes from a change on trunk.
 
 ### Verdict and merge, for every PR
@@ -232,7 +238,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Lane 5. JavaScript off. Save `no-js.png`. Pass when the receipt shows its forward values from the server render.
 - [ ] Lane 6. Edit the region in `value.ts` and rebuild. Save `include-follows.png`. Pass when the note's block shows the edit.
 - [ ] Lane 7. Keyboard only. Save `keyboard.png`. Pass when both buttons work from the keyboard and focus is visible.
-- [ ] Lane 8. Copy the included block from the page. Save `copy.png`. Pass when pasting it into `node --input-type=module-typescript` with `value.ts`'s imports defines `Value`.
+- [ ] Lane 8. Copy the included block from the page. Save `copy.png`. Pass when saving it as `value.mts` and running `node value.mts` defines `Value` on Node 22.18 or later, including in PowerShell. The note gives that command beside the block.
 - [ ] Lane 9. Client navigation five times. Save `navigation.png`. Pass when the console is clean.
 - [ ] Lane 10. Screen reader names. Save `a11y.png`. Pass when the receipt reads as a table with a header row, and every row's value and slope are in the accessibility tree.
 
@@ -639,10 +645,10 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 **Build.**
 
-- [ ] Port `docs/ai-series/prototype/tinygpt/src/gpt.js`, with only its four-row matmul, into `src/lib/ml/gpt.ts` on the parameter layout ai-08 settled. Keep each function short enough to include in a note by region. Mark regions for `attention`, `block`, `forward`, `backward`, and `adamw`.
+- [ ] Port `docs/ai-series/prototype/tinygpt/src/gpt.js`, with only its four-row matmul, into `src/lib/ml/gpt.ts` on the parameter layout ai-08 settled. Keep each function short enough to include in a note by region. Mark regions for `attention`, `block`, `forward`, and `backward`. Reuse `src/lib/ml/params.ts#adamw` instead of defining another optimizer. The GPT passes beta2 0.99 and weight decay 0.01.
 - [ ] `src/lib/ml/corpus.ts` lowercases the corpus, builds the vocabulary, and splits 90% for training and 10% for validation.
 - [ ] Define the evaluation fixture in `gpt.ts`, the prototype's, and use it for every logged loss, the reload test, and the step gates in ai-13. The validation loss is the mean over 8 batches of 16 by 64 drawn from the validation split with seed 99. The training loss printed beside it is the same over 8 training batches with seed 98. A sample is 200 characters at temperature 0.8, started from a newline, with sampler seed 7. The word share lowercases a sample, splits it on whitespace, strips every character outside `a` to `z` and `'`, and counts the words found in the corpus's word set, as `prototype/tinygpt/src/words.js` does.
-- [ ] `scripts/train.mjs` imports `gpt.ts` directly, trains Appendix A's config for a fixed 12,000 steps with seed 1, and writes the checkpoint. At 92.6 ms a step that is about 19 minutes (inferred), and the script prints how long it took. A fixed step count, not a time limit, makes the checkpoint depend only on the seed. Add `pnpm train` to `package.json`.
+- [ ] `scripts/train.mjs` imports `gpt.ts` directly, trains Appendix A's config for a fixed 12,000 steps with seed 1, and writes the checkpoint. The measured run took 25 minutes 54 seconds at load 5 to 8. Allow about 20 to 30 minutes depending on the machine; the script prints how long it took. A fixed step count, not a time limit, makes the checkpoint depend only on the seed. Add `pnpm train` to `package.json`.
 - [ ] Commit tiny shakespeare from karpathy/char-rnn at a pinned commit as `public/data/shakespeare.txt`, and the checkpoint.
 
 **You see.**
@@ -705,7 +711,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 **You see.**
 
-- [ ] Dragging the query onto a key's direction pushes that key's bar above 0.9. In `Heads`, at least one head puts most of its weight on the previous character.
+- [ ] Dragging the query onto a key's direction pushes that key's bar above 0.9. In `Heads`, at least one head puts its largest weight on the previous character at most positions. Block 0 head 1 does so at 39 of 53 positions.
 
 **Verify, unit.** Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.
 
@@ -809,13 +815,13 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 **Files.**
 
-- [ ] Edit `src/lib/ml/train.worker.ts`.
+- [ ] Edit `src/lib/ml/train.worker.ts`, `src/lib/ml/training.ts`, and `src/lib/demos/trainer.ts`.
 - [ ] Create `src/components/demos/TrainGpt.tsx`.
 - [ ] Create `src/notes/a-tiny-gpt.mdx`.
 
 **Build.**
 
-- [ ] The worker gains a `gpt` model kind next to `letters`, with the same messages.
+- [ ] Register `gpt` in `src/lib/ml/training.ts`. Extend the protocol with validation loss, checkpoint loading, complete weight exports and correlated sample requests. Report per-step timing, not cumulative progress timing.
 - [ ] `TrainGpt` shows train, pause, and load the trained one, all three from the start, so a reader on a slow device never has to wait. The loss curve is a 1px `ink` line labeled `practice`, with the validation loss in `faint` labeled `exam`. Its x-axis counts steps, not seconds, so a slow device draws the same curve, only later. Every few seconds a sample from the current weights appears under the curve, newest first, at most five.
 - [ ] Create part 4 as a draft, with `series: ai` and `part: 4`.
 
@@ -1026,7 +1032,7 @@ The part 1 sketch was rebuilt around the taxi fare and the comfortable days, wit
 ### Choices this evidence settles
 
 - Part 4 trains lowercase tiny shakespeare live at `d = 32`, 2 layers, 4 heads, context 64, and batch 16. That is 30,055 parameters, and the checkpoint is 120,220 bytes of float32 weights plus its layout JSON (computed).
-- `pnpm train` trains the same config for a fixed 12,000 steps, about 19 minutes at 93 ms a step (inferred). Its validation loss must beat 1.93, the 300-second number.
+- `pnpm train` trains the same config for a fixed 12,000 steps, about 20 to 30 minutes depending on the machine (25 minutes 54 seconds measured). Its validation loss must beat 1.93, the 300-second number.
 - Part 3's triangle and heads read the same checkpoint, so one file serves both notes.
 - Part 4's curve counts steps, not seconds, and load the trained one is on screen from the start. A slow device then draws the same curve, only later, and its reader never has to wait.
 - Pan Tadeusz is not the live demo. It can ship as a second pre-trained checkpoint if the author wants it.
