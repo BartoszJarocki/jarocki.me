@@ -284,6 +284,7 @@ export default defineScene({
     let shown = score(net.model, data);
     let run: Run = 'paused';
     let pic = picture(net.model);
+    let pictured = true;
     let row: number | null = null;
 
     const write = () => {
@@ -300,12 +301,14 @@ export default defineScene({
     const trainOnce = () => {
       trainStep(net.model, data, net.step);
       steps++;
+      pictured = false;
     };
     const start = (next: DatasetName) => {
       name = next;
       data = points(next);
       net = network(seed++);
       steps = 0;
+      pictured = false;
       shown = score(net.model, data);
       run = 'paused';
       write();
@@ -388,7 +391,10 @@ export default defineScene({
       get state() {
         return { name, steps, run, row, ...shown };
       },
-      redraw: () => stage.wake(),
+      redraw: () => {
+        pictured = false;
+        stage.wake();
+      },
     };
     Object.assign(window, { __playground: hook });
     stage.defer(() => {
@@ -439,7 +445,10 @@ export default defineScene({
       if (run === 'running' && stage.reducedMotion) run = 'paused';
       if (run !== 'paused') queued ||= ownTask(trainSteps);
       shown = score(net.model, data);
-      if (typeof run === 'string') pic = picture(net.model);
+      if (!pictured && typeof run === 'string') {
+        pic = picture(net.model);
+        pictured = true;
+      }
       write();
 
       const ratio = Math.min(devicePixelRatio, 2);
