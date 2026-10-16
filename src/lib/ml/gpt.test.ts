@@ -4,8 +4,8 @@ import { test } from 'node:test';
 
 import { seeded } from './bigram.ts';
 import { encode, readCorpus, wordShare } from './corpus.ts';
-import { createTransformer, forward, gpt, practice, shakespeare } from './gpt.ts';
-import { checkSlopes, save } from './params.ts';
+import { createTransformer, forward, gpt, practice, readCheckpoint, shakespeare } from './gpt.ts';
+import { checkSlopes, load, save } from './params.ts';
 import { startRun } from './training.ts';
 
 const text = fs.readFileSync('public/data/shakespeare.txt', 'utf8');
@@ -81,4 +81,13 @@ test("the word share counts a sample's words that the corpus has", () => {
   const corpus = readCorpus(text);
   assert.equal(wordShare(corpus, "To be, or NOT to bee: o'er thou'rt 3 zqxv!"), 7 / 9);
   assert.equal(wordShare(corpus, '3 ! :'), 0);
+});
+
+test('the committed checkpoint gives the validation loss pnpm train printed last', async () => {
+  const model = gpt.create(text);
+  load(
+    model.params,
+    await readCheckpoint(async (path) => new Response(fs.readFileSync(`public${path}`))),
+  );
+  assert.equal(model.exam().validation.toFixed(3), '1.791');
 });
