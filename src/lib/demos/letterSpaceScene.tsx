@@ -163,10 +163,16 @@ export function letterSpace({
         start: -Infinity,
       };
       let running = false;
+      let done = false;
       let trainer: Trainer | undefined;
 
       const writeTrain = () => {
-        p.train.textContent = trainer?.training && running ? 'Pause' : 'Train';
+        p.train.textContent =
+          trainer?.training && running
+            ? 'Pause'
+            : done && model === 'gpt'
+              ? 'Train again'
+              : 'Train';
       };
 
       const writeNearest = (places: ArrayLike<number>, symbols: string) => {
@@ -187,6 +193,7 @@ export function letterSpace({
 
       const progress = (update: Progress) => {
         running = update.running && !update.done;
+        done = update.done;
         p.loss.textContent = update.average === null ? 'not measured' : update.average.toFixed(2);
         p.step.textContent = update.step.toLocaleString('en-US');
         p.map.dataset.step = String(update.step);
@@ -246,6 +253,7 @@ export function letterSpace({
           if (trainer.training && running) {
             trainer.pause();
           } else {
+            if (done && model === 'gpt') trainer.reset();
             trainer.train();
             running = trainer.training;
           }

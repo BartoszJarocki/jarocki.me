@@ -24,6 +24,7 @@ export default defineScene({
     practice: 'span',
     exam: 'span',
     status: 'span',
+    announcement: 'span',
     train: 'button',
     pause: 'button',
     load: 'button',
@@ -33,6 +34,18 @@ export default defineScene({
     let trainer: Trainer | null = null;
     let done = false;
     let loading = false;
+    let announcedAt = -Infinity;
+    let announcement = '';
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const announce = () => {
+      timer = null;
+      if (p.announcement.textContent === announcement) return;
+      p.announcement.textContent = announcement;
+      announcedAt = performance.now();
+    };
+    stage.defer(() => {
+      if (timer !== null) clearTimeout(timer);
+    });
     const label = () => {
       p.train.textContent = done ? 'Train again' : 'Train';
       p.train.disabled = loading;
@@ -81,6 +94,14 @@ export default defineScene({
                 return entry;
               }),
           );
+        }
+        announcement = `Step ${step.toLocaleString('en-US')}. ${p.status.textContent}.`;
+        if (evaluation)
+          announcement += ` Practice loss ${evaluation.training.toFixed(3)}. Exam loss ${evaluation.validation.toFixed(3)}.`;
+        if (timer === null) {
+          const wait = Math.max(0, 5000 - (performance.now() - announcedAt));
+          if (wait === 0) announce();
+          else timer = setTimeout(announce, wait);
         }
         label();
         stage.wake();

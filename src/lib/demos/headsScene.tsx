@@ -100,24 +100,20 @@ export function headsScene(reader = false) {
           stage.wake();
         },
       });
-      items.forEach((item, t) => item.setAttribute('aria-label', letterName(t)));
+      items.forEach((item, t) => {
+        item.setAttribute('aria-label', letterName(t));
+        Object.assign(item.style, {
+          top: '0px',
+          height: '100%',
+          left: `${(t * 100) / n}%`,
+          width: `${100 / n}%`,
+        });
+      });
       describe();
 
-      let placedFor = 0;
       return () => {
         const ctx = stage.canvas(p.arcs);
         const figure = headsFigure(ctx.width, ctx.width < 479);
-        if (placedFor !== ctx.width) {
-          placedFor = ctx.width;
-          items.forEach((item, i) =>
-            Object.assign(item.style, {
-              top: '0px',
-              height: `${ctx.height}px`,
-              left: `${i * figure.pitch}px`,
-              width: `${figure.pitch}px`,
-            }),
-          );
-        }
         const { bg, ink, faint } = stage.tokens;
         ctx.fillStyle = css(bg);
         ctx.fillRect(0, 0, ctx.width, ctx.height);

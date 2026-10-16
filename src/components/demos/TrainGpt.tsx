@@ -32,6 +32,13 @@ export default function TrainGpt(props: DemoProps) {
               Exam <span ref={part('exam')} className="text-ink" />
             </span>
             <span ref={part('status')}>Ready to train</span>
+            <span
+              ref={part('announcement')}
+              className="sr-only"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            />
           </div>
         ),
         controls: (
