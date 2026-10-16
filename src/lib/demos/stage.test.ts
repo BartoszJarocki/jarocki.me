@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { getEventListeners } from 'node:events';
-import { test } from 'node:test';
+import { test as nodeTest } from 'node:test';
 
 import { type Frame, type Stage, defineScene } from './stage.ts';
 
@@ -119,6 +119,8 @@ const sceneOf = (
   mount: (stage: Stage, parts: { chart: HTMLCanvasElement }) => Frame | Promise<Frame>,
 ) => defineScene({ parts: { chart: 'canvas' }, mount });
 const ignore = () => {};
+// A cleanup that never settles start would otherwise hang pnpm test instead of failing it.
+const test = (name: string, body: () => Promise<void>) => nodeTest(name, { timeout: 2000 }, body);
 
 test('a frame that throws rejects start and releases every observer, listener, and frame', async () => {
   const browser = fakeBrowser();
