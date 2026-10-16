@@ -304,3 +304,21 @@ test("part 3's glossary contains its twelve terms and the note is published", ()
     assert.ok(note.includes('include=src/lib/ml/gpt.ts#' + region));
   }
 });
+
+test("part 4's glossary contains its ten terms and the note is published", () => {
+  const note = fs.readFileSync(new URL('../notes/a-tiny-gpt.mdx', import.meta.url), 'utf8');
+  const terms = [...note.matchAll(/<Term name="([^"]+)">/g)].map(([, name]) => name);
+  assert.deepEqual(terms, [
+    'batch',
+    'step',
+    'training loss',
+    'validation loss',
+    'overfitting',
+    'checkpoint',
+    'parameter count',
+    'scale',
+    'pretraining',
+    'fine-tuning',
+  ]);
+  assert.doesNotMatch(note.split('---')[1], /draft: true/);
+});

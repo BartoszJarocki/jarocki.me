@@ -1,12 +1,13 @@
 import { type DemoProps, DemoStage } from './DemoStage';
 
 const scene = () => import('../../lib/demos/headsScene');
+const readerScene = () => import('../../lib/demos/readerHeadsScene');
 
-export default function Heads(props: DemoProps) {
+export default function Heads({ reader = false, ...props }: DemoProps & { reader?: boolean }) {
   return (
     <DemoStage
       {...props}
-      scene={scene}
+      scene={reader ? readerScene : scene}
       render={(part) => ({
         body: (
           <div className="relative">

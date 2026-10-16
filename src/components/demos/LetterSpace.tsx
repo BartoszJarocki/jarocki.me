@@ -2,12 +2,16 @@ import { symbols } from '../../lib/ml/tokenizers';
 import { type DemoProps, DemoStage } from './DemoStage';
 
 const scene = () => import('../../lib/demos/letterSpaceScene');
+const readerScene = () => import('../../lib/demos/gptLetterSpaceScene');
 
-export default function LetterSpace(props: DemoProps) {
+export default function LetterSpace({
+  reader = false,
+  ...props
+}: DemoProps & { reader?: boolean }) {
   return (
     <DemoStage
       {...props}
-      scene={scene}
+      scene={reader ? readerScene : scene}
       render={(part) => ({
         body: (
           <>
@@ -15,7 +19,11 @@ export default function LetterSpace(props: DemoProps) {
               ref={part('map')}
               tabIndex={0}
               role="img"
-              aria-label="Map of every letter at its three learned numbers. Drag it or use the arrow keys to turn it."
+              aria-label={
+                reader
+                  ? 'Map of all 39 symbols. Their 32 learned numbers are squeezed into three PCA directions. Drag or use the arrow keys to turn it.'
+                  : 'Map of every letter at its three learned numbers. Drag it or use the arrow keys to turn it.'
+              }
               className="aspect-[672/420] min-h-[300px] w-full cursor-grab touch-pan-y select-none active:cursor-grabbing"
             />
             <div className="sr-only">
@@ -40,7 +48,9 @@ export default function LetterSpace(props: DemoProps) {
               <span className="text-faint"> · step</span>&nbsp;
               <span ref={part('step')} />
             </span>
-            <span className="[@container(max-width:478px)]:hidden">3 numbers per letter</span>
+            <span className="[@container(max-width:478px)]:hidden">
+              {reader ? '32 numbers in 3 directions' : '3 numbers per letter'}
+            </span>
           </>
         ),
         controls: (
@@ -71,7 +81,9 @@ export default function LetterSpace(props: DemoProps) {
               aria-live="polite"
               className="mt-[8px] flex min-h-[48px] flex-wrap content-start gap-x-[2ch] text-faint [overflow-wrap:anywhere]"
             >
-              Press sample to write ten names
+              {reader
+                ? 'Press sample to write with your current model'
+                : 'Press sample to write ten names'}
             </div>
           </>
         ),

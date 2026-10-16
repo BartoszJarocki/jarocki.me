@@ -3,7 +3,6 @@ title: A tiny GPT, trained in your browser
 description: Put the pieces together and watch a small language model learn from Shakespeare.
 publishedAt: '2026-10-16'
 tags: ['ai', 'learning']
-draft: true
 series: ai
 part: 4
 ---
@@ -45,3 +44,68 @@ A game lets you load a save file instead of playing from the beginning. A saved 
 The file contains the learned numbers. It does not contain Shakespeare, a list of replies, or the trainer's memory of past slopes. Loading it pauses training and replaces the current model. Train again starts a fresh model so you can watch it learn from noise.
 
 The training and writing happen in a background worker in this tab. Training pauses when the demo leaves the screen or you switch tabs. Leaving the page discards your live run. Nothing you train here is uploaded.
+
+## Look inside the model
+
+The letter map from part 2 and the attention arcs from part 3 give us two views of the learned numbers. The map shows the numbers assigned to each symbol before it reads a sentence. The arcs depend on the sentence as well as those numbers.
+
+This model reads all 39 symbols in the lowercase text, including spaces, line breaks, and punctuation. Each symbol has 32 learned numbers. A screen cannot show all those directions at once. We squeeze the 32 numbers into three directions that preserve as much of their spread as possible. This method is called principal component analysis, or PCA.
+
+The picture loses information. Two symbols can look close here while their full lists differ. The axes are mixtures of the original numbers, not named properties such as vowel or meaning. The directions can change as the model learns, so a turning cloud does not by itself show progress. The exam line is the better check.
+
+Train or load the saved model above, then scroll down. These views use the current model in your tab. Training pauses while its controls are off screen. You can also train, reset, or sample from the map. Reset returns the shared model to its starting numbers. Without JavaScript, both pictures show the recorded saved model instead.
+
+<LetterSpace reader label="Your model's 39 symbols in three PCA directions">All 39 symbols from lowercase Shakespeare are shown. Each symbol's 32 learned numbers are squeezed into three PCA directions. The recorded picture uses the saved model. A middle dot marks a space and an arrow marks a line break.</LetterSpace>
+
+The attention heads answer a different question. At this point in this sentence, which earlier letters does each head read? A dark arc means a larger share. It does not prove that the model understands the sentence, or that a head always has one job. The tiny model still cannot reliably solve the bag-and-car example from part 3.
+
+<Heads reader label="Attention from your current model">Eight heads read the sentence about the bag and the car. Select a letter to see what each head reads from that position. These arcs use your current model's complete weights. Without JavaScript, the arcs show the saved model's last letter.</Heads>
+
+## How small is tiny?
+
+Count every learned number in the model and you get its parameter count. These are the knobs training can turn, including the embeddings and the numbers inside each block. More knobs give a model room to learn more patterns, but it also needs enough examples to learn useful settings.
+
+The table compares our saved model with the largest models in the GPT-2 and GPT-3 papers. A training token here means a next-token target processed during a training step. Reading the same passage again counts again. It is not the number of different words in the reading list.
+
+<div className="overflow-x-auto" tabIndex="0" role="region" aria-label="Model sizes and training text">
+<table>
+<caption>Learned numbers and text used for training</caption>
+<thead><tr><th scope="col">Model</th><th scope="col">Parameters</th><th scope="col">Training tokens</th></tr></thead>
+<tbody>
+<tr><th scope="row">Our saved model</th><td><a href="/models/shakespeare.json">30,055</a></td><td><a href="https://github.com/BartoszJarocki/jarocki.me/blob/503d79067107c5f5ac1c02c71bf66627c9c5a29a/src/lib/ml/gpt.ts#L569-L605">12,288,000 character targets</a></td></tr>
+<tr><th scope="row">GPT-2, largest</th><td><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf#page=4">1,542 million, as reported in table 2</a></td><td><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf#page=3">Not reported. The paper gives 40 GB of text</a></td></tr>
+<tr><th scope="row">GPT-3, largest</th><td><a href="https://arxiv.org/pdf/2005.14165#page=8">175 billion</a></td><td><a href="https://arxiv.org/pdf/2005.14165#page=8">300 billion</a></td></tr>
+</tbody>
+</table>
+</div>
+
+Our total is 12,000 steps times 16 passages times 64 next-letter guesses. It excludes the checks and generated samples, which do not update the knobs. A shorter run in your tab has processed fewer targets. The saved weights use four bytes per parameter, so 30,055 times 4 gives the 120,220 bytes mentioned above.
+
+GPT-2's 40 GB is the size of its collected text, not a count of training tokens. The paper does not give the total number of tokens processed during training, so the table leaves it unknown. GPT-3 does report that total. Its reading list contains about 499 billion tokens, obtained by adding the dataset sizes in [table 2.2](https://arxiv.org/pdf/2005.14165#page=9). It trains on 300 billion draws from that mixture, repeating some sources more often than others. Dataset size and training tokens are different quantities.
+
+Our tokens are single characters. GPT-2 and GPT-3 use pieces of words, so their token counts do not measure the same amount of text per token. The comparison shows the difference in size, not a fair contest of their losses. Increasing the model and its training together is what people mean here by scale.
+
+## What we left out
+
+Training on a large reading list to predict the next piece of text gives a model that can continue text. That first broad training is pretraining. Our Shakespeare run is a small example of it. It learns the shape of plays, not how to hold a helpful conversation.
+
+You can then take an existing model and train its knobs further on a more focused set of examples. That is fine-tuning. One route to an assistant trains on example conversations, then uses people's rankings of different replies to guide more training. The [InstructGPT paper](https://arxiv.org/abs/2203.02155) describes this route. It is a concrete example of what separates a text continuation model from a system that tries to follow instructions.
+
+An assistant such as ChatGPT has far more knobs and learns from far more text than this demo. Training on conversations and feedback also changes which replies it tends to choose. None of those steps makes an answer true. A model can learn to produce a convincing mistake. The papers in the table describe published models, not the undisclosed size or training budget of today's ChatGPT.
+
+We also left out the engineering that makes large models practical. They split work across specialized hardware. They reuse calculations while writing. Their tokenizers handle more languages and symbols than this small alphabet. Choosing and checking the training text takes work too. A model can repeat errors and prejudices from what it reads.
+
+Those omissions matter, but you have now run the learning loop itself. A passage supplies the next-letter answers. The model turns its current knobs into guesses, measures its surprise, and works backward to find slopes. Training adjusts the knobs and tries again. Writing uses the resulting guesses without adjusting them. The phone keyboard from part 2 now has a reading list, a longer context, and attention. You can inspect the numbers it learned in your own tab.
+
+<Glossary>
+<Term name="batch">A handful of practice passages whose next-letter guesses are scored together</Term>
+<Term name="step">One turn of guessing, averaging surprise, finding slopes, and adjusting the knobs</Term>
+<Term name="training loss">The model's average surprise on its practice text</Term>
+<Term name="validation loss">The model's average surprise on exam text that never trains its knobs</Term>
+<Term name="overfitting">Learning practice-text details that do not carry over, so the practice and exam lines pull apart</Term>
+<Term name="checkpoint">A save file of learned knob settings, ready to load without repeating training</Term>
+<Term name="parameter count">The number of learned knobs, including embeddings and the numbers inside each block</Term>
+<Term name="scale">The size of the model and how much training it receives</Term>
+<Term name="pretraining">The broad first training that teaches a model to continue text</Term>
+<Term name="fine-tuning">Further training of an existing model on a more focused set of examples</Term>
+</Glossary>
