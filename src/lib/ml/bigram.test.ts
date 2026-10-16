@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
 import { averageLoss, chances, countPairs, sampleName, seeded, size } from './bigram.ts';
@@ -91,12 +93,18 @@ test('the run instructions in the note write ten names from all of names.txt', (
     section.matchAll(/^```ts(?: include=(\S+)#(\S+))?\n([\s\S]*?)^```$/gm),
     ([, file, name, code]) => (file ? region(file, name) : code),
   );
-  const printed = execFileSync(process.execPath, ['--input-type=module-typescript'], {
-    cwd: 'public/data',
-    input: [`Math.random = (${seeded})(1);`, ...blocks].join('\n'),
-    stdio: ['pipe', 'pipe', 'ignore'],
-  });
-  assert.deepEqual(printed.toString().trim().split('\n'), [
+  const [program, ...args] = section.match(/^Run `([^`]*)`/m)![1].split(' ');
+  const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'names-'));
+  fs.writeFileSync(
+    path.join(folder, 'names.ts'),
+    [`Math.random = (${seeded})(1);`, ...blocks].join('\n'),
+  );
+  fs.copyFileSync('public/data/names.txt', path.join(folder, 'names.txt'));
+  const run = spawnSync(process.execPath, args, { cwd: folder, encoding: 'utf8' });
+  fs.rmSync(folder, { recursive: true });
+  assert.equal(program, 'node');
+  assert.equal(run.stderr, '');
+  assert.deepEqual(run.stdout.trim().split('\n'), [
     'm',
     'kyuginazelaia',
     'k',
