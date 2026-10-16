@@ -13,6 +13,7 @@
   --faint: oklch(54% 0.005 70);
   --rule: oklch(91% 0.004 80);
   --wash: oklch(95.6% 0.004 85);
+  --value: oklch(50% 0.1 60);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +24,7 @@
     --faint: oklch(60% 0.004 80);
     --rule: oklch(27% 0.004 70);
     --wash: oklch(20% 0.004 70);
+    --value: oklch(80% 0.09 70);
   }
 }
 
@@ -381,6 +383,13 @@
   }
   .cf {
     color: var(--faint);
+  }
+  .cn {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .cv {
+    color: var(--value);
   }
   .prose pre:not(:where(.not-prose, .not-prose *)) {
     margin: 0 -20px 1.4em;

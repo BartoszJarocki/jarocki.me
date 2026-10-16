@@ -53,9 +53,9 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 
 ### Styling:
 - `DESIGN.md` describes the design system: tokens, type roles, the index row, and contrast numbers
-- Six color tokens (`bg`, `ink`, `body`, `faint`, `rule`, `wash`) defined in `src/styles/index.css` and mapped to Tailwind colors. There is no accent color
+- Seven color tokens (`bg`, `ink`, `body`, `faint`, `rule`, `wash`, `value`) defined in `src/styles/index.css`. The first six map to Tailwind colors. `value` is the only accent, used for numbers and strings in code blocks
 - Dark mode follows the system through `prefers-color-scheme`, so components use no `dark:` variants
-- Note prose is styled by the `.prose` rules in `src/styles/index.css`. `getNoteContent` highlights code at build time with Shiki's `createCssVariablesTheme`. The compiler maps theme variables to `ci`, `cb`, and `cf`, then joins adjacent tokens with the same tone. CSS maps those classes to `ink` for keywords and names, `body` for other code, and `faint` for comments and punctuation. No highlighter ships to the browser. `node scripts/measure-note-data.mjs .next/server/pages/notes --check` measures every built note using Next's page-data calculation and requires each to stay below 112 kB, leaving room under the 128 kB warning threshold. Ordinary fences have highlighting without controls; runnable fences use the existing `demo-button` style
+- Note prose is styled by the `.prose` rules in `src/styles/index.css`. `getNoteContent` highlights code at build time with Shiki's `createCssVariablesTheme`. The compiler maps theme variables to `ci`, `cn`, `cb`, `cv`, and `cf`, then joins adjacent tokens with the same tone. CSS maps those classes to `ink` for names, `ink` at weight 500 for function names, `body` for keywords, `value` for numbers and strings, and `faint` for comments and punctuation. No highlighter ships to the browser. `node scripts/measure-note-data.mjs .next/server/pages/notes --check` measures every built note using Next's page-data calculation and requires each to stay below 112 kB, leaving room under the 128 kB warning threshold. Ordinary fences have highlighting without controls; runnable fences use the existing `demo-button` style
 
 ## Environment Variables Required
 
