@@ -18,7 +18,7 @@ export default function TrainGpt(props: DemoProps) {
           </div>
         ),
         caption: (
-          <div className="flex flex-wrap gap-x-[2ch]">
+          <div className="flex w-full flex-wrap gap-x-[2ch]">
             <span>
               Step{' '}
               <span ref={part('step')} className="text-ink">

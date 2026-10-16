@@ -135,3 +135,23 @@ test('the GPT worker pauses, loads the checkpoint, and copies full weights with 
     false,
   );
 });
+
+test('GPT sampling rejects zero temperature and checkpoint loading checks symbol identity', async () => {
+  const model = gpt.create(text);
+  assert.throws(() => model.write({ temperature: 0 }), /above zero/);
+  const { trainingHandler } = await import('./training.ts');
+  const posted: import('./training.ts').Out[] = [];
+  const read = async (path: string) => new Response(fs.readFileSync(`public${path}`));
+  const receive = trainingHandler({ post: (message) => posted.push(message), read });
+  const checkpoint = await readCheckpoint(read);
+  await receive({
+    type: 'load',
+    model: 'gpt',
+    checkpoint,
+    symbols: [...shakespeare.symbols].reverse().join(''),
+    step: 12_000,
+  });
+  assert.equal(posted.at(-1)?.type, 'error');
+  const error = posted.findLast((m) => m.type === 'error');
+  assert.equal(error?.message, 'Checkpoint symbols do not match the model');
+});

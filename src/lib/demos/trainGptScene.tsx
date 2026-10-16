@@ -48,7 +48,7 @@ export default defineScene({
           : running
             ? 'Training'
             : done
-              ? 'Trained model loaded'
+              ? 'Training complete'
               : 'Paused';
         Object.assign(p.chart.dataset, {
           step,
