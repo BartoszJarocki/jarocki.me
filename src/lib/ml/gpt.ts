@@ -515,7 +515,10 @@ export const fixture = {
 } as const;
 
 /** Writes `length` symbols after a newline. Each call starts its roll again, so the same knobs write the same text. */
-export function write(net: Transformer, settings: Partial<typeof fixture.sample> = {}) {
+export function write(
+  net: Transformer,
+  settings: { length?: number; temperature?: number; seed?: number } = {},
+) {
   const { length, temperature, seed } = { ...fixture.sample, ...settings };
   const { symbols, context } = net.config;
   const roll = seeded(seed);
