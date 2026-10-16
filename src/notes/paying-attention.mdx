@@ -12,7 +12,7 @@ Read this sentence. "The bag didn't fit in the car because it was too small." Wh
 
 You did that without thinking. When you reached "small", you looked back at the earlier words and picked the one that fit. A model has to do the same, and the way it does it is called attention.
 
-Part 2's best model saw three letters back. Here the word that matters is far behind. Between "car" and "small" sit 20 other letters and spaces. A fixed window that is big enough for this sentence is too small for a longer one, so the model needs a way to look back as far as it has to.
+Part 2's best model saw three letters back. Here the word that matters is far behind. Between "car" and "small" sit 20 other letters and spaces. The model needs a longer window and a way to choose what matters inside it. Attention makes that choice, but it cannot read beyond the model's window.
 
 The model in this series is too small to solve that sentence. It learned from Shakespeare's plays, one letter at a time. So the sentence explains why attention exists, and the demos show what the tiny model really looks at.
 
@@ -20,7 +20,7 @@ The model in this series is too small to solve that sentence. It learned from Sh
 
 Think of a library search. You type what you are looking for. That is the **query**. Each book has a label on its spine, its **key**, and what is inside, its **value**. A normal search hands back the one book whose label matches best.
 
-Attention reads a little of every book, and more of the ones whose labels match better. How well a label matches is the **dot product**. Multiply two lists of numbers pair by pair and add the results. For the lists 2, 1 and 3, 0 that is 2 × 3 + 1 × 0 = 6. Draw each list as an arrow, and the total is bigger when the arrows point the same way. Longer arrows count more.
+Attention reads a little of every book, and more of the ones whose labels match better. To score a match, multiply two lists of numbers pair by pair and add the results. For the lists 2, 1 and 3, 0 that is 2 × 3 + 1 × 0 = 6. That calculation is the **dot product**. Draw each list as an arrow, and the total is bigger when the arrows point the same way. Longer arrows count more.
 
 Part 2's softmax turns the match scores into shares that add up to 100%. Those shares are the **attention weights**. Then the word adds up the values, each scaled by its weight, and that mix is what it takes away.
 
@@ -32,9 +32,9 @@ Four earlier words of the sentence, bag, fit, car, and because, drawn as arrows 
 
 </SoftLookup>
 
-Point the query along a word's arrow and that word's bar passes 90%. Point it between two words and they share. Pull it in toward the middle and the shares even out, because every score shrinks toward 0. At the very middle each word gets 25%.
+Drag the query's tip onto a word's arrow tip and that word's bar passes 90%. Point it between two words and they share. Pull it in toward the middle and the shares even out, because every score shrinks toward 0. At the very middle each word gets 25%.
 
-These arrows are made up, with two numbers each so they fit on a flat chart. In a real model, each word's query, key, and value come from its own list of numbers through three sets of learned knobs, the same knobs at every position. The tiny model starts each letter as a list of 32 numbers.
+These arrows are made up, with two numbers each so they fit on a flat chart. In a real model, each word's query, key, and value come from its own list of numbers through three sets of learned knobs, the same knobs at every position. The tiny model starts each letter as a list of 32 numbers. Its code stores the three sets of knobs side by side in one table.
 
 ## No peeking
 
@@ -54,7 +54,7 @@ Attention on its own does not know which letter came first. Shuffle the earlier 
 
 ## Several readers at once
 
-One attention makes one mix of what it reads. A model runs several side by side, each with its own knobs for queries, keys, and values, so each can learn to look for something different. Each one is a **head**, and together they are **multi-head attention**. The tiny model has eight heads, four in each of its two blocks. The last section of this note explains what a block is.
+One attention makes one mix of what it reads. A model runs several side by side, each with its own knobs for queries, keys, and values, so each can learn to look for something different. Each one is a **head**, and together they are **multi-head attention**. The tiny model repeats attention followed by a small network twice. Each repeat is a block, with four heads, so the model has eight heads in all.
 
 The demo loads the tiny model, trained ahead of time with part 4's trainer. Point at a letter, or focus the demo and use the left and right arrow keys, to see where each head looks from it. Each arc runs from the letter back to a letter it reads, and the darker the arc, the more it reads.
 
@@ -66,7 +66,7 @@ Eight strips, one for each head of the trained model, each with the 54 letters a
 
 Nobody told the heads what to look for. Training found it. In this sentence, the second head of the first block reads the letter just before more than any other at 39 of the 53 letters that have one. The fourth head of the second block looks for the start of the word. At 20 of the 29 letters that come after the first letter of their word, it reads the space before that word most.
 
-The heads of the first block read close by. Each one puts 80% to 85% of its weight on the letter itself and the two before it, so the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average.
+The heads of the first block read close by. Averaged over the sentence after its first letter, each head puts about 80% to 85% of its weight on the letter itself and the two before it. So the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average over the same positions.
 
 For readers who know JavaScript, here is the attention the tiny model runs. `lookups` holds each letter's query, key, and value side by side, and each head reads its own 8 of each letter's 32 numbers. For each letter `t` and each head, it scores every letter from 0 to `t` with a dot product, turns the scores into weights with softmax, and adds up the values. The loop stops at `t`, and that is the causal mask. It also divides each score by `Math.sqrt(size)`, about 2.83 here, so that longer lists do not make the scores too big for softmax.
 
