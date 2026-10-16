@@ -236,8 +236,8 @@
     }
   }
   /* printing drops background graphics, so the plates would vanish and text would print over the
-     cloud */
-  @media print {
+     cloud. Forced colors give each line of text a backplate, which the stage would paint over */
+  @media print, (forced-colors: active) {
     .backdrop {
       display: none;
     }
