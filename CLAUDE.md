@@ -74,7 +74,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - TypeScript throughout with strict configuration
 - Component files use PascalCase (e.g., `Avatar.tsx`)
 - Utility functions in `src/lib/`
-- Code under `src/lib/` that a test imports uses only TypeScript that Node can strip (`erasableSyntaxOnly`) and imports its own files with the `.ts` extension, so `pnpm test` runs it as is. An included region runs when pasted into `node --input-type=module-typescript`
+- Code under `src/lib/` that a test imports uses only TypeScript that Node can strip (`erasableSyntaxOnly`) and imports its own files with the `.ts` extension, so `pnpm test` runs it as is. For the same reason, an included region runs under `node --input-type=module-typescript` once the names it uses from other files are defined. `Value`'s region uses none, and part 1 gives that command next to it
 - Tailwind classes for styling, no CSS modules
 - Geist fonts: `font-mono` (Geist Mono) for chrome, `font-sans` (Geist) for note prose and titles, `font-pixel` (Geist Pixel Square) for the name and clock. Each face loads with `localFont` from a subset in `src/fonts`, never from `geist/font` (see `DESIGN.md`). Geist loads only on note pages, from `src/pages/notes/[slug].tsx`. Elsewhere `font-sans` is the system sans font
 - Pages use getStaticProps/getStaticPaths for SSG where applicable
