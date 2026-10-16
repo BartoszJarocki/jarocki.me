@@ -15,8 +15,8 @@ import {
   stillSteps,
   train,
 } from '../demos/playground.ts';
-import { MLP, adam, crossEntropy, sigmoid } from './mlp.ts';
-import { Value } from './value.ts';
+import { adam, crossEntropy, forward, mlp, parameters, sigmoid } from './mlp.ts';
+import { backward, value } from './value.ts';
 
 const close = (actual: number, expected: number, within: number) =>
   assert.ok(
@@ -25,8 +25,8 @@ const close = (actual: number, expected: number, within: number) =>
   );
 
 test('a 2-8-8-1 network has 105 knobs', () => {
-  const model = new MLP([2, 8, 8, 1], normal(seeded(3)));
-  assert.equal(model.parameters().length, 105);
+  const model = mlp([2, 8, 8, 1], normal(seeded(3)));
+  assert.equal(parameters(model).length, 105);
 });
 
 test('the same seed gives the same first weights', () => {
@@ -60,7 +60,7 @@ test('the still shows days after its training steps from the first seed', () => 
   const net = network(firstNetworkSeed);
   const data = points('days');
   train(net, data, stillSteps);
-  const knobs = net.model.parameters().map((knob) => knob.data);
+  const knobs = parameters(net.model).map((knob) => knob.data);
   // Node 22 rounds ** in the last bit differently from Node 24, and adam's bias correction uses it.
   assert.ok(
     knobs.length === stillKnobs.length &&
@@ -79,7 +79,7 @@ test('the field shows the answer of the network at every spot, before and after 
     const field = picture(net.model);
     for (let row = 0; row <= grid; row++) {
       for (let column = 0; column <= grid; column++) {
-        const answer = net.model.call([-reach + column * spacing, reach - row * spacing]);
+        const answer = forward(net.model, [-reach + column * spacing, reach - row * spacing]);
         assert.equal(field.chanceAt(column, row), sigmoid(answer.data));
       }
     }
@@ -90,24 +90,24 @@ test('the field shows the answer of the network at every spot, before and after 
 });
 
 test('cross-entropy gives a fifty-fifty guess a loss of log 2 and a slope of the miss', () => {
-  const score = new Value(0);
+  const score = value(0);
   const loss = crossEntropy(score, 1);
-  loss.backward();
+  backward(loss);
   assert.equal(loss.data, Math.LN2);
   assert.equal(score.grad, -0.5);
 });
 
 test('cross-entropy stays finite for a very sure wrong guess', () => {
-  const score = new Value(1000);
+  const score = value(1000);
   const loss = crossEntropy(score, 0);
-  loss.backward();
+  backward(loss);
   assert.equal(loss.data, 1000);
   assert.equal(score.grad, 1);
 });
 
 test('the first adam step moves each knob by the learning rate, against its slope', () => {
-  const up = new Value(1);
-  const down = new Value(1);
+  const up = value(1);
+  const down = value(1);
   const step = adam([up, down]);
   up.grad = -0.5;
   down.grad = 2;

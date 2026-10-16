@@ -103,7 +103,6 @@ export type Adam = {
   readonly beta2?: number;
 };
 
-// #region adamw
 export function adamw(params: Params, settings: Adam) {
   const { rate, decay = 0, beta1 = 0.9, beta2 = 0.999 } = settings;
   const { data, grad } = params;
@@ -121,7 +120,6 @@ export function adamw(params: Params, settings: Adam) {
     }
   };
 }
-// #endregion
 
 export type SlopeCheck = {
   readonly failures: readonly string[];

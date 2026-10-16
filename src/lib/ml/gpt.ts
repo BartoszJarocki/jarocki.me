@@ -322,7 +322,6 @@ export type Tape = {
   readonly scores: Floats;
 };
 
-// #region attention
 function attend(lookups: Floats, { length, width, heads }: Sizes) {
   const size = width / heads;
   const scale = 1 / Math.sqrt(size);
@@ -358,7 +357,6 @@ function attend(lookups: Floats, { length, width, heads }: Sizes) {
   }
   return { found, weights };
 }
-// #endregion
 
 function attendBack(foundSlopes: Floats, lookups: Floats, weights: Floats, sizes: Sizes) {
   const { length, width, heads } = sizes;
@@ -398,7 +396,6 @@ function attendBack(foundSlopes: Floats, lookups: Floats, weights: Floats, sizes
   return slopes;
 }
 
-// #region block
 function block(knobs: BlockKnobs, notebooks: Floats, sizes: Sizes): BlockTape {
   const { attention, network } = knobs;
   const first = level(notebooks, attention.level);
@@ -411,10 +408,8 @@ function block(knobs: BlockKnobs, notebooks: Floats, sizes: Sizes): BlockTape {
   const out = add(middle, multiply(fired, network.write));
   return { notebooks, first, lookups, weights, found, middle, second, hidden, fired, out };
 }
-// #endregion
 
 /** Runs rows of `length` tokens through the network, each row on its own. */
-// #region forward
 export function forward(net: Transformer, tokens: Int32Array, length = tokens.length): Tape {
   const { context, width, heads } = net.config;
   if (length > context || tokens.length % length !== 0) {
@@ -454,9 +449,7 @@ function surprise(scores: Floats, targets: Int32Array) {
   }
   return { chances, loss: total / targets.length };
 }
-// #endregion
 
-// #region backward
 function backward(net: Transformer, tape: Tape, targets: Int32Array, chances: Floats) {
   const { tokens, sizes } = tape;
   const { length, width } = sizes;
@@ -498,7 +491,6 @@ export function practice(net: Transformer, { tokens, targets, length }: Batch) {
   backward(net, tape, targets, chances);
   return loss;
 }
-// #endregion
 
 /**
  * The evaluation fixture. A loss is the mean over `batches` batches of `rows` rows of `length`

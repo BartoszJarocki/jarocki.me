@@ -72,7 +72,7 @@ components:
     padding: "0 1ch"
   code-block:
     backgroundColor: "{colors.wash-light}"
-    textColor: "{colors.ink-light}"
+    textColor: "{colors.body-light}"
     padding: "16px 20px"
 ---
 
@@ -318,7 +318,8 @@ Sampled for 60 seconds on every page (home, notes, each note, work, about, 404, 
 - The title follows 14px below. The prose starts 44px below the title and is at most 37rem wide.
 - Paragraphs have a 1.15em bottom margin. Bold text is `ink` at weight 500. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
 - An image alone in a paragraph renders as a figure as wide as the prose, with a 1.4em bottom margin.
-- Code blocks are plain `ink` on `wash`, with no syntax highlighting. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. They scroll horizontally instead of wrapping. Inside a list item a code block has a 0.6em top margin, so it does not touch the line above.
+- Code blocks use quiet highlighting on `wash`. Shiki's CSS variables theme runs at build time. Keywords and names use `ink`, other code uses `body`, and comments and punctuation use `faint`. The compiler maps the theme variables to three short classes, `ci`, `cb`, and `cf`, which CSS maps to the site tokens. It stores adjacent tokens of one tone as a single text run. No highlighter ships to the browser. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. Code keeps its indentation and never wraps. Long lines scroll inside the block at every screen size, while the page stays within the viewport. Inside a list item a code block has a 0.6em top margin, so it does not touch the line above.
+- Runnable blocks load a short plain JavaScript file through a `js run=src/notes/snippets/<note>/<name>.js` fence. A controls row below the code uses the existing demo button style for Run, Edit, and Reset when changed. Labels keep natural case in source and inherit the site's lowercase styling. Edit swaps the code for a textarea with the same font, size, padding, and horizontal scrolling. Both views read the same stored text runs, so the page data carries no second copy of the source. Snippets have at most 55 lines and 60 columns per line. A fresh worker runs the current source, captures output and errors below the controls, and stops after five seconds or 200 output lines. The output keeps its case and announces changes politely. Reset restores the original highlighted code. Plain fences have no controls
 - Links in prose are `ink` with a 1px `faint` underline offset by 0.28em. The underline turns `ink` on hover. Ledes use the same style through `.text-link`.
 - Blockquotes have a 1px `rule` left border, `body` text, and no italics.
 - The footer sits 72px below the prose: `← all notes` on the left and `next: {title} →` for the next older note on the right. A no-break space ties the `→` to the title's last word, so a long title never leaves the arrow alone on a line.

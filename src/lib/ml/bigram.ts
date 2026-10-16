@@ -1,6 +1,5 @@
 import { encode, symbols } from './tokenizers.ts';
 
-// #region counts
 export const size = symbols.length;
 
 export function countPairs(names: string[]) {
@@ -16,9 +15,7 @@ export function countPairs(names: string[]) {
   }
   return counts;
 }
-// #endregion
 
-// #region sample
 export function chances(counts: Uint32Array, row: number, temperature = 1) {
   const sides = Array.from(counts.subarray(row * size, (row + 1) * size), (count) =>
     Math.pow(count, 1 / temperature),
@@ -43,7 +40,6 @@ export function sampleName(counts: Uint32Array, temperature: number, random = Ma
     row = next;
   }
 }
-// #endregion
 
 export function averageLoss(counts: Uint32Array, names: string[]) {
   const surprise = Array.from(symbols, (_, row) => chances(counts, row).map((p) => -Math.log(p)));

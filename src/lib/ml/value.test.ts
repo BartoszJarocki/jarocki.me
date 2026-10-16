@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { Value } from './value.ts';
+import { type Value, add, backward, exp, log, multiply, pow, relu, tanh, value } from './value.ts';
 
 const close = (actual: number, expected: number, within: number) =>
   assert.ok(
@@ -10,11 +10,11 @@ const close = (actual: number, expected: number, within: number) =>
   );
 
 test('backward through d = a * b + c gives each input its slope', () => {
-  const a = new Value(2);
-  const b = new Value(-3);
-  const c = new Value(10);
-  const d = a.mul(b).add(c);
-  d.backward();
+  const a = value(2);
+  const b = value(-3);
+  const c = value(10);
+  const d = add(multiply(a, b), c);
+  backward(d);
   assert.equal(d.data, 4);
   assert.equal(a.grad, -3);
   assert.equal(b.grad, 2);
@@ -22,58 +22,58 @@ test('backward through d = a * b + c gives each input its slope', () => {
 });
 
 test('tanh at 0.8814 has a slope of about 0.49998', () => {
-  const x = new Value(0.8814);
-  x.tanh().backward();
+  const x = value(0.8814);
+  backward(tanh(x));
   close(x.grad, 0.49998, 1e-4);
 });
 
 test('a value used twice collects the slopes from both uses', () => {
-  const a = new Value(3);
-  a.mul(a).add(a).backward();
+  const a = value(3);
+  backward(add(multiply(a, a), a));
   assert.equal(a.grad, 7);
 });
 
 test('every operation gives its value and passes back its own slope', () => {
   const cases: [number, (x: Value) => Value, number, number][] = [
-    [2, (x) => x.add(3), 5, 1],
-    [2, (x) => x.mul(3), 6, 3],
-    [2, (x) => x.pow(3), 8, 12],
-    [2, (x) => x.exp(), 7.38905609893065, 7.38905609893065],
-    [2, (x) => x.log(), 0.6931471805599453, 0.5],
-    [1, (x) => x.tanh(), 0.7615941559557649, 0.41997434161402614],
-    [1.5, (x) => x.relu(), 1.5, 1],
-    [-1.5, (x) => x.relu(), 0, 0],
+    [2, (x) => add(x, 3), 5, 1],
+    [2, (x) => multiply(x, 3), 6, 3],
+    [2, (x) => pow(x, 3), 8, 12],
+    [2, (x) => exp(x), 7.38905609893065, 7.38905609893065],
+    [2, (x) => log(x), 0.6931471805599453, 0.5],
+    [1, (x) => tanh(x), 0.7615941559557649, 0.41997434161402614],
+    [1.5, (x) => relu(x), 1.5, 1],
+    [-1.5, (x) => relu(x), 0, 0],
   ];
-  for (const [at, f, value, slope] of cases) {
-    const x = new Value(at);
+  for (const [at, f, expected, slope] of cases) {
+    const x = value(at);
     const y = f(x);
-    y.backward();
-    close(y.data, value, 1e-9);
+    backward(y);
+    close(y.data, expected, 1e-9);
     close(x.grad, slope, 1e-9);
   }
 });
 
 test('pow(0) at 0 is 1 with a slope of 0', () => {
-  const x = new Value(0);
-  const y = x.pow(0);
-  y.backward();
+  const x = value(0);
+  const y = pow(x, 0);
+  backward(y);
   assert.equal(y.data, 1);
   assert.equal(x.grad, 0);
 });
 
 test('backward twice on the same graph gives the same slopes', () => {
-  const a = new Value(2);
-  const b = new Value(-3);
-  const d = a.mul(b).add(a);
-  d.backward();
-  d.backward();
+  const a = value(2);
+  const b = value(-3);
+  const d = add(multiply(a, b), a);
+  backward(d);
+  backward(d);
   assert.equal(a.grad, -2);
   assert.equal(b.grad, 2);
 });
 
-test('an operation made with the constructor passes back the slope it was given', () => {
-  const s = new Value(0.5);
-  const loss = new Value(1, [[s, 0.25]]).mul(2);
-  loss.backward();
+test('an operation made with the factory passes back the slope it was given', () => {
+  const s = value(0.5);
+  const loss = multiply(value(1, [[s, 0.25]]), 2);
+  backward(loss);
   assert.equal(s.grad, 0.5);
 });

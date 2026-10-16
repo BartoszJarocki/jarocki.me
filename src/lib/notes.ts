@@ -3,6 +3,9 @@ import { imageSize } from 'image-size';
 import yaml from 'js-yaml';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import path from 'path';
+import type { BundledLanguage } from 'shiki';
+
+import type { CodeToken } from './codeTokens.ts';
 
 const series = {
   ai: [
@@ -74,8 +77,8 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
   try {
     return await serialize(readNote(file).content, {
       mdxOptions: {
-        remarkPlugins: [[remarkIncludeRegions, fail]],
-        rehypePlugins: [[rehypeNoteImages, fail]],
+        remarkPlugins: [[remarkSnippets, fail]],
+        rehypePlugins: [[rehypeNoteImages, fail], rehypeNoteCode],
       },
     });
   } catch (error) {
@@ -164,6 +167,7 @@ type HastNode = {
   tagName?: string;
   properties?: Record<string, unknown>;
   children?: HastNode[];
+  value?: string;
 };
 
 // Markdown puts an image in a paragraph. A paragraph that holds only an image becomes a figure, so
@@ -198,21 +202,24 @@ type MdastNode = {
   value?: string;
   position?: { start: { line: number } };
   children?: MdastNode[];
+  data?: { hProperties: Record<string, string> };
 };
 
-function remarkIncludeRegions(fail: Fail) {
+function remarkSnippets(fail: Fail) {
   return (tree: MdastNode) => {
     const walk = (node: MdastNode) => {
       if (node.type === 'code') {
         const info = [node.lang, node.meta].filter(Boolean).join(' ');
-        if (/include\s*=/i.test(info)) {
-          const [, file, name] =
-            /^[^\s=]+ include=(\S+)#([\w-]+)$/.exec(info) ??
-            fail(
-              `\`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
-            );
+        if (/run\s*=/i.test(info)) {
+          const [, file] =
+            /^js run=(src\/notes\/snippets\/[\w-]+\/[\w-]+\.js)$/.exec(info) ??
+            fail(`\`\`\`${info} needs js run=src/notes/snippets/<note>/<name>.js`);
           if (node.value) fail(`the ${node.meta} block must be empty, because the build fills it`);
-          node.value = readRegion(file, name, fail);
+          const source = path.join(process.cwd(), file);
+          if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile())
+            fail(`${file} does not exist`);
+          node.value = fs.readFileSync(source, 'utf8').trimEnd();
+          node.data = { hProperties: { 'data-snippet': file } };
         }
         if (!node.value?.trim())
           fail(`the code block at line ${node.position?.start.line} is empty`);
@@ -223,24 +230,80 @@ function remarkIncludeRegions(fail: Fail) {
   };
 }
 
-function readRegion(file: string, name: string, fail: Fail) {
-  const src = path.join(process.cwd(), 'src');
-  const source = path.resolve(process.cwd(), file);
-  if (!source.startsWith(src + path.sep)) fail(`${file} must be a file in src/`);
-  if (!fs.statSync(source, { throwIfNoEntry: false })?.isFile()) fail(`${file} does not exist`);
-
-  const lines = fs.readFileSync(source, 'utf8').split('\n');
-  const markers = lines.map((line) => line.trim());
-  const start = markers.indexOf(`// #region ${name}`);
-  if (start === -1) fail(`${file} has no region ${name}`);
-  if (markers.lastIndexOf(`// #region ${name}`) !== start) fail(`${file} has region ${name} twice`);
-
-  const region: string[] = [];
-  for (const line of lines.slice(start + 1)) {
-    const marker = line.trim();
-    if (marker === '// #endregion') return region.join('\n');
-    if (marker.startsWith('// #region ')) fail(`${file} starts a region inside region ${name}`);
-    region.push(line);
-  }
-  return fail(`${file} never ends region ${name}`);
+function rehypeNoteCode() {
+  return async (tree: HastNode) => {
+    const { bundledLanguages, codeToTokens, createCssVariablesTheme } = await import('shiki');
+    const isLanguage = (name: string): name is BundledLanguage =>
+      Object.hasOwn(bundledLanguages, name);
+    const theme = createCssVariablesTheme({ fontStyle: false });
+    const scopes =
+      theme.tokenColors?.flatMap(({ scope }) =>
+        typeof scope === 'string' ? [scope] : (scope ?? []),
+      ) ?? [];
+    theme.tokenColors?.push(
+      {
+        scope: [
+          'variable',
+          'entity.name',
+          'support',
+          'meta.object-literal.key',
+          ...scopes.filter((scope) =>
+            /^(variable\.|entity\.name|support\.|meta\.property-name)/.test(scope),
+          ),
+        ],
+        settings: { foreground: 'var(--shiki-token-function)' },
+      },
+      {
+        scope: [
+          'punctuation',
+          'meta.brace',
+          'keyword.operator',
+          ...scopes.filter((scope) => /^(punctuation\.|keyword\.operator\.)/.test(scope)),
+        ],
+        settings: { foreground: 'var(--shiki-token-punctuation)' },
+      },
+    );
+    const walk = async (node: HastNode): Promise<void> => {
+      const code = node.tagName === 'pre' ? node.children?.[0] : undefined;
+      if (code?.tagName === 'code') {
+        const source = code.children?.map((child) => child.value ?? '').join('') ?? '';
+        const classes = code.properties?.className;
+        const language = Array.isArray(classes)
+          ? classes.find(
+              (name: unknown) => typeof name === 'string' && name.startsWith('language-'),
+            )
+          : undefined;
+        const lang = typeof language === 'string' ? language.slice(9) : 'text';
+        if (lang !== 'text' && lang !== 'ansi' && !isLanguage(lang)) {
+          throw new Error(`Unknown code language: ${lang}`);
+        }
+        const highlighted = await codeToTokens(source.trimEnd(), {
+          lang,
+          theme,
+        });
+        const tokens: CodeToken[] = [];
+        function append(tone: CodeToken[0], text: string) {
+          const previous = tokens.at(-1);
+          if (previous?.[0] === tone) previous[1] += text;
+          else tokens.push([tone, text]);
+        }
+        for (const [index, line] of highlighted.tokens.entries()) {
+          if (index > 0) append('cb', '\n');
+          for (const token of line) {
+            let tone: CodeToken[0] = 'cb';
+            if (/keyword|function|parameter/.test(token.color ?? '')) tone = 'ci';
+            if (/comment|punctuation/.test(token.color ?? '')) tone = 'cf';
+            append(tone, token.content);
+          }
+        }
+        const snippet = code.properties?.['data-snippet'];
+        node.properties = { 'data-code': JSON.stringify(tokens) };
+        if (typeof snippet === 'string') node.properties['data-snippet'] = snippet;
+        node.children = [];
+        return;
+      }
+      for (const child of node.children ?? []) await walk(child);
+    };
+    await walk(tree);
+  };
 }

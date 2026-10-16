@@ -373,10 +373,21 @@
     font-size: 13.5px;
     color: var(--ink);
   }
+  .ci {
+    color: var(--ink);
+  }
+  .cb {
+    color: var(--body);
+  }
+  .cf {
+    color: var(--faint);
+  }
   .prose pre:not(:where(.not-prose, .not-prose *)) {
     margin: 0 -20px 1.4em;
     padding: 16px 20px;
     overflow-x: auto;
+    white-space: pre;
+    overflow-wrap: normal;
     font-size: 13px;
     line-height: 1.7;
     color: var(--ink);
@@ -386,7 +397,47 @@
     margin-top: 0.6em;
   }
   .prose pre code:not(:where(.not-prose, .not-prose *)) {
+    color: inherit;
     font-size: inherit;
+  }
+  .snippet {
+    margin: 0 -20px 1.4em;
+    background: var(--wash);
+  }
+  .prose .snippet pre {
+    margin: 0;
+  }
+  .snippet-editor {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    resize: vertical;
+    font-family: theme('fontFamily.mono');
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--body);
+    background: var(--wash);
+    text-transform: none;
+    tab-size: 2;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+  }
+  .snippet-controls {
+    display: flex;
+    gap: 2ch;
+    padding: 8px 20px 12px;
+    font-family: theme('fontFamily.mono');
+    font-size: 13px;
+  }
+  .snippet-controls button:disabled {
+    cursor: wait;
+  }
+  .prose .snippet-output {
+    border-top: 1px solid var(--rule);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: var(--body);
   }
   .prose blockquote:not(:where(.not-prose, .not-prose *)) {
     margin: 0 0 1.15em;

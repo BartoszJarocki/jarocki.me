@@ -1,5 +1,5 @@
 import { PlaygroundLayout } from '../../components/demos/Playground';
-import { type Point, trainStep } from '../ml/mlp.ts';
+import { type Point, parameters, trainStep } from '../ml/mlp.ts';
 import {
   type DatasetName,
   type Picture,
@@ -473,7 +473,7 @@ export default defineScene({
 
 const still = (() => {
   const { model } = network(firstNetworkSeed);
-  model.parameters().forEach((knob, i) => (knob.data = stillKnobs[i]));
+  parameters(model).forEach((knob, i) => (knob.data = stillKnobs[i]));
   const pic = picture(model);
   const data = points('days');
   return {

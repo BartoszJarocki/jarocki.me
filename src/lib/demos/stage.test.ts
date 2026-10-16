@@ -9,6 +9,12 @@ import { TaxiFares } from '../../components/demos/index.ts';
 import { type Frame, type Stage, defineScene } from './stage.ts';
 
 type Entry = { isIntersecting: boolean };
+type Observer = {
+  kind: 'intersection' | 'mutation' | 'resize';
+  callback: (entries: Entry[]) => void;
+  targets: Set<object>;
+  due: boolean;
+};
 
 function fakeBrowser() {
   const frames = new Map<number, (now: number) => void>();
@@ -31,38 +37,35 @@ function fakeBrowser() {
   let onScreen = true;
   let nextFrame = 1;
 
-  class Observer {
-    callback: (entries: Entry[]) => void;
-    targets = new Set<object>();
-    due = false;
-    constructor(callback: (entries: Entry[]) => void) {
-      this.callback = callback;
-      observers.add(this);
-    }
-    observe(target: object) {
-      this.targets.add(target);
-    }
-    unobserve(target: object) {
-      this.targets.delete(target);
-    }
-    disconnect() {
-      this.targets.clear();
-    }
+  function observer(kind: Observer['kind'], callback: Observer['callback']) {
+    const state: Observer = { kind, callback, targets: new Set(), due: false };
+    observers.add(state);
+    return {
+      observe(target: object) {
+        state.targets.add(target);
+        if (kind === 'intersection') state.due = true;
+      },
+      unobserve(target: object) {
+        state.targets.delete(target);
+      },
+      disconnect() {
+        state.targets.clear();
+      },
+    };
   }
-  class IntersectionObserver extends Observer {
-    observe(target: object) {
-      super.observe(target);
-      this.due = true;
-    }
-  }
-  class MutationObserver extends Observer {}
 
   Object.assign(globalThis, {
     document: doc,
     devicePixelRatio: 1,
-    IntersectionObserver,
-    MutationObserver,
-    ResizeObserver: Observer,
+    IntersectionObserver: function (callback: Observer['callback']) {
+      return observer('intersection', callback);
+    },
+    MutationObserver: function (callback: Observer['callback']) {
+      return observer('mutation', callback);
+    },
+    ResizeObserver: function (callback: Observer['callback']) {
+      return observer('resize', callback);
+    },
     getComputedStyle: () => ({ fontFamily: 'Geist Mono', getPropertyValue: () => '#000' }),
     matchMedia: () => {
       const query = Object.assign(new EventTarget(), { matches: false });
@@ -101,11 +104,11 @@ function fakeBrowser() {
     },
     scroll(to: 'on' | 'off') {
       onScreen = to === 'on';
-      for (const observer of observers) observer.due = observer instanceof IntersectionObserver;
+      for (const observer of observers) observer.due = observer.kind === 'intersection';
     },
     detach(element: object) {
       Object.assign(element, { isConnected: false });
-      for (const observer of observers) observer.due = observer instanceof MutationObserver;
+      for (const observer of observers) observer.due = observer.kind === 'mutation';
     },
     held: () => ({
       observing: [...observers].reduce((sum, observer) => sum + observer.targets.size, 0),

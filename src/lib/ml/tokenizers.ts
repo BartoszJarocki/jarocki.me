@@ -1,4 +1,3 @@
-// #region tokenizer
 export const symbols = '.abcdefghijklmnopqrstuvwxyz';
 
 export function encode(name: string) {
@@ -11,7 +10,6 @@ export function encode(name: string) {
   ids.push(0);
   return ids;
 }
-// #endregion
 
 export type Menus = { letters: string[]; words: string[]; merges: [string, string][] };
 export type Piece = { text: string; known: boolean };
