@@ -42,7 +42,11 @@ export default function LossLandscape(props: DemoProps) {
               Loss <span ref={part('loss')} className="text-ink" /> ·{' '}
               <span ref={part('steps')} className="text-ink" /> <span ref={part('unit')} />
             </span>
-            <span ref={part('status')} aria-live="polite" className="min-h-[1.72em]" />
+            <span
+              ref={part('status')}
+              aria-live="polite"
+              className="min-h-[1.72em] whitespace-normal"
+            />
           </span>
         ),
         controls: (

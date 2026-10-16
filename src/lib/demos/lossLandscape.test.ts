@@ -90,7 +90,9 @@ test('a walk stops on flat ground after 69 steps at good, 195 at zigzag, and 467
   for (const walk of ends) assert.ok(meanSquaredError(walk.at) < best * 1.001);
 });
 
-test('the good walk ends at a fee of 5.21 and a price of 1.48', () => {
+test('the good walk ends at a fee of 5.21 and a price of 1.48, which ask 7.58 for 1.6 km', () => {
   const { at } = walkToEnd(walkFrom(start), rates.good);
-  assert.deepEqual([at.fee.toFixed(2), at.price.toFixed(2)], ['5.21', '1.48']);
+  const [fee, price] = [at.fee.toFixed(2), at.price.toFixed(2)];
+  assert.deepEqual([fee, price], ['5.21', '1.48']);
+  assert.equal((Number(fee) + 1.6 * Number(price)).toFixed(2), '7.58');
 });

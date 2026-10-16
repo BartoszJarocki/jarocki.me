@@ -137,11 +137,17 @@ export default defineScene({
       button.setAttribute('aria-pressed', String(on));
     const rateButtons = { crawl: p.crawl, good: p.good, zigzag: p.zigzag, tooBig: p.tooBig };
 
+    function remark() {
+      const grew = meanSquaredError(walk.at) > meanSquaredError(trail[0]);
+      if (walk.status === 'off' && grew) return 'The loss grew, and the next step leaves the map';
+      return remarks[walk.status] ?? `Step size ${rates[rate].toFixed(3)}`;
+    }
+
     function show() {
       put(p.loss, meanSquaredError(walk.at).toFixed(2));
       put(p.steps, walk.steps.toLocaleString('en-US'));
       put(p.unit, walk.steps === 1 ? 'step' : 'steps');
-      put(p.status, remarks[walk.status] ?? `Step size ${rates[rate].toFixed(3)}`);
+      put(p.status, remark());
       press(p.walk, walking);
       press(p.fog, fog);
       for (const [name, button] of Object.entries(rateButtons)) press(button, name === rate);
