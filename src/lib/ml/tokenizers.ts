@@ -15,7 +15,7 @@ export type Cut = { menu: number; pieces: Piece[] };
 export const cuts = ['letters', 'words', 'pieces'] as const;
 export type Cuts = Record<(typeof cuts)[number], Cut>;
 
-const word = new RegExp("\\p{L}+(?:'\\p{L}+)*|\\p{N}+|[^\\s\\p{L}\\p{N}]", 'gu');
+const word = /\p{L}+(?:'\p{L}+)*|\p{N}+|[^\s\p{L}\p{N}]/gu;
 
 export const wordsOf = (text: string) => text.normalize('NFC').toLowerCase().match(word) ?? [];
 

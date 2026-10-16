@@ -18,7 +18,7 @@ At a takeaway you can order a 12 and a 31 without spelling out the dishes. Text 
 
 Each piece is a **token**. The whole menu is the **vocabulary**, and the thing that does the cutting is a **tokenizer**.
 
-There is more than one way to cut. Below, one sentence is cut three ways. Each row says how many items its menu has and how many pieces the sentence became. Every menu was learned from the text of this note, so a word this note never uses is not on the words menu. Type your own sentence to try it.
+There is more than one way to cut. The demo below cuts one sentence three ways. Each row says how many items its menu has and how many pieces the sentence became. Every menu was learned from the text of this note, so a word this note never uses is not on the words menu. Type your own sentence to try it.
 
 <Tokenizers label="One sentence cut into letters, into words, and into pieces of words">
 
@@ -44,9 +44,9 @@ A grid of 27 rows and 27 columns, one for each letter and one for the dot that s
 
 </CountingModel>
 
-Type a letter and its row lights up. Beside the grid, each next letter gets its share of the row, its count divided by the row's total. That share is the letter's **probability**, the model's chance that this letter comes next. The shares in a row add up to 100%.
+Type a letter and its row lights up, and a list shows each next letter's share of the row, its count divided by the row's total. That share is the letter's **probability**, the model's chance that this letter comes next. The shares in a row add up to 100%.
 
-Every count starts at one, even for a pair that no name has, so every letter keeps a small chance. The one pair left at zero is the dot right after the starting dot, because a name has at least one letter.
+Every count starts at one, even for a pair that no name has, so every letter keeps a small chance. That is why u gets 69.2% after q, not the 76% that 206 out of 272 would give. The 26 other choices share the rest. The one pair that stays at zero is the end dot right after the start dot, because a name has at least one letter.
 
 To write a name, the model rolls a loaded die. Each letter gets sides in proportion to its share in the current row. Roll, write the letter down, move to that letter's row, and roll again until the end dot comes up. That is **sampling**. Press sample to write ten names.
 

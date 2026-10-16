@@ -1,9 +1,9 @@
 import { pieceClass, unknownNote } from '../../components/demos/Tokenizers';
-import { cutThreeWays, cuts } from '../ml/tokenizers';
+import { type Piece, cutThreeWays, cuts } from '../ml/tokenizers';
 import { defineScene } from './stage';
 import { menus } from './tokenizerMenus';
 
-function chip({ text, known }: { text: string; known: boolean }) {
+function chip({ text, known }: Piece) {
   const element = document.createElement('span');
   element.className = pieceClass(known);
   element.textContent = text;
