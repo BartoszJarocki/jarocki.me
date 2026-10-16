@@ -21,7 +21,7 @@ type Props = {
 };
 
 export default function Note({
-  note: { title, description, publishedAt, tags },
+  note: { title, description, publishedAt, tags, draft },
   noteContent,
   older,
 }: Props) {
@@ -31,6 +31,7 @@ export default function Note({
       seoDescription={description}
       article={{ publishedTime: publishedAt, tags }}
       current="notes"
+      noindex={draft}
     >
       <article className={`${GeistSans.variable} mt-[72px]`}>
         <header>
