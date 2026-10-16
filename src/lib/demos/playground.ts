@@ -105,26 +105,40 @@ export function network(seed: number) {
 
 export type Network = ReturnType<typeof network>;
 
-/** The same sum as MLP.call, on plain numbers, so the field can ask for thousands of spots a frame. */
-export function predict(model: MLP, x: number, y: number) {
-  let values = [x, y];
-  for (const layer of model.layers) {
-    values = layer.neurons.map((neuron) => {
-      const sum = neuron.weights.reduce(
-        (total, w, i) => total + w.data * values[i],
-        neuron.bias.data,
-      );
-      return neuron.squash ? Math.tanh(sum) : sum;
-    });
-  }
-  return sigmoid(values[0]);
+/** The same sums as MLP.call on plain numbers, so the field can ask about 1,681 spots a frame. */
+export function predictor(model: MLP) {
+  const layers = model.layers.map((layer) =>
+    layer.neurons.map((neuron) => ({
+      weights: Float64Array.from(neuron.weights, (w) => w.data),
+      bias: neuron.bias.data,
+      squash: neuron.squash,
+    })),
+  );
+  const widest = Math.max(...sizes);
+  let values = new Float64Array(widest);
+  let next = new Float64Array(widest);
+  return (x: number, y: number) => {
+    values[0] = x;
+    values[1] = y;
+    for (const layer of layers) {
+      for (let o = 0; o < layer.length; o++) {
+        const { weights, bias, squash } = layer[o];
+        let sum = bias;
+        for (let i = 0; i < weights.length; i++) sum += weights[i] * values[i];
+        next[o] = squash ? Math.tanh(sum) : sum;
+      }
+      [values, next] = [next, values];
+    }
+    return sigmoid(values[0]);
+  };
 }
 
 export function score(model: MLP, data: Point[]) {
+  const predict = predictor(model);
   let loss = 0;
   let right = 0;
   for (const point of data) {
-    const p = Math.min(Math.max(predict(model, point.x, point.y), 1e-7), 1 - 1e-7);
+    const p = Math.min(Math.max(predict(point.x, point.y), 1e-7), 1 - 1e-7);
     loss -= Math.log(point.label ? p : 1 - p);
     if (p > 0.5 === (point.label === 1)) right++;
   }
@@ -145,11 +159,12 @@ export type Picture = {
 };
 
 export function picture(model: MLP): Picture {
+  const predict = predictor(model);
   const answers = new Float64Array((grid + 1) ** 2);
   const spacing = (2 * reach) / grid;
   for (let j = 0; j <= grid; j++) {
     for (let i = 0; i <= grid; i++) {
-      answers[j * (grid + 1) + i] = predict(model, -reach + i * spacing, reach - j * spacing);
+      answers[j * (grid + 1) + i] = predict(-reach + i * spacing, reach - j * spacing);
     }
   }
   const first = model.layers[0].neurons.map(

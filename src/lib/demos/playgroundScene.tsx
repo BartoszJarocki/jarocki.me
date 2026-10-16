@@ -24,6 +24,13 @@ const knobHead = 20;
 const batchMs = 8;
 const stillSteps = 150;
 
+const sides = [
+  [0, 0, 1, 0],
+  [1, 0, 1, 1],
+  [1, 1, 0, 1],
+  [0, 1, 0, 0],
+] as const;
+
 type Label = { text: string; x: number; y: number; align: 'left' | 'center' | 'right' };
 
 export function fieldFigure(
@@ -61,25 +68,22 @@ export function fieldFigure(
   }
 
   const contour: [number, number, number, number][] = [];
+  const crossings: number[] = [];
   for (let j = 0; j < grid; j++) {
     for (let i = 0; i < grid; i++) {
-      const corners = [
-        [i, j],
-        [i + 1, j],
-        [i + 1, j + 1],
-        [i, j + 1],
-      ];
-      const crossings: [number, number][] = [];
-      corners.forEach(([ci, cj], e) => {
-        const [ni, nj] = corners[(e + 1) % 4];
-        const a = answer(ci, cj) - 0.5;
-        const b = answer(ni, nj) - 0.5;
-        if (a > 0 === b > 0) return;
+      crossings.length = 0;
+      for (const [fromI, fromJ, toI, toJ] of sides) {
+        const a = answer(i + fromI, j + fromJ) - 0.5;
+        const b = answer(i + toI, j + toJ) - 0.5;
+        if (a > 0 === b > 0) continue;
         const t = a / (a - b);
-        crossings.push([strip + (ci + (ni - ci) * t) * cell, (cj + (nj - cj) * t) * cell]);
-      });
-      for (let q = 0; q + 1 < crossings.length; q += 2) {
-        contour.push([...crossings[q], ...crossings[q + 1]]);
+        crossings.push(
+          strip + (i + fromI + (toI - fromI) * t) * cell,
+          (j + fromJ + (toJ - fromJ) * t) * cell,
+        );
+      }
+      for (let q = 0; q + 3 < crossings.length; q += 4) {
+        contour.push([crossings[q], crossings[q + 1], crossings[q + 2], crossings[q + 3]]);
       }
     }
   }
@@ -196,12 +200,11 @@ function paintField(
     ctx.stroke();
     ctx.restore();
   }
+  ctx.fillStyle = css(tokens.ink);
+  for (const point of field.points) ctx.fillRect(point.x, point.y, dot, dot);
+  ctx.fillStyle = css(tokens.bg);
   for (const point of field.points) {
-    ctx.fillStyle = css(tokens.ink);
-    ctx.fillRect(point.x, point.y, dot, dot);
-    if (point.filled) continue;
-    ctx.fillStyle = css(tokens.bg);
-    ctx.fillRect(point.x + 1, point.y + 1, dot - 2, dot - 2);
+    if (!point.filled) ctx.fillRect(point.x + 1, point.y + 1, dot - 2, dot - 2);
   }
   ctx.font = font;
   ctx.fillStyle = css(tokens.faint);
@@ -386,7 +389,7 @@ export default defineScene({
         return net.model;
       },
       get state() {
-        return { name, steps, run, ...shown };
+        return { name, steps, run, row, ...shown };
       },
       redraw: () => stage.wake(),
     };
