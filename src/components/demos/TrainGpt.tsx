@@ -13,7 +13,7 @@ export default function TrainGpt(props: DemoProps) {
             <canvas ref={part('chart')} className="h-[220px] w-full" />
             <div
               ref={part('samples')}
-              className="h-[280px] overflow-auto whitespace-pre-wrap px-2 text-[12px] text-body"
+              className="h-[280px] overflow-auto whitespace-pre-wrap text-[12px] text-body"
             />
           </div>
         ),
