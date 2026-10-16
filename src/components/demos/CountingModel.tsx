@@ -23,16 +23,18 @@ export default function CountingModel(props: DemoProps) {
                 className="mt-[6px] grid grid-flow-col grid-cols-3 grid-rows-9 gap-x-[2ch]"
               />
               <div ref={part('announce')} aria-live="polite" className="sr-only" />
-              <table className="sr-only">
-                <caption>The 20 most common pairs in the names</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Pair</th>
-                    <th scope="col">Count</th>
-                  </tr>
-                </thead>
-                <tbody ref={part('pairs')} />
-              </table>
+              <div className="sr-only">
+                <table>
+                  <caption>The 20 most common pairs in the names</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Pair</th>
+                      <th scope="col">Count</th>
+                    </tr>
+                  </thead>
+                  <tbody ref={part('pairs')} />
+                </table>
+              </div>
             </div>
           </div>
         ),
@@ -66,9 +68,9 @@ export default function CountingModel(props: DemoProps) {
               <label htmlFor={temperatureId}>Temperature</label>
               <div>
                 <input ref={part('temperature')} id={temperatureId} type="range" />
-                <div aria-hidden="true" className="flex justify-between text-faint">
+                <div aria-hidden="true" className="flex flex-wrap gap-x-[1ch] text-faint">
                   <span>Samey</span>
-                  <span>Strange</span>
+                  <span className="ml-auto">Strange</span>
                 </div>
               </div>
               <span ref={part('temperatureText')} aria-hidden="true" className="demo-value" />
@@ -76,7 +78,7 @@ export default function CountingModel(props: DemoProps) {
             <div
               ref={part('names')}
               aria-live="polite"
-              className="mt-[8px] flex min-h-[48px] flex-wrap content-start gap-x-[2ch] text-faint"
+              className="mt-[8px] flex min-h-[48px] flex-wrap content-start gap-x-[2ch] text-faint [overflow-wrap:anywhere]"
             >
               Press sample to write ten names
             </div>

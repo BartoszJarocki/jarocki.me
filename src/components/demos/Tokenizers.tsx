@@ -34,7 +34,7 @@ function CutRow({ name, cut, row }: { name: string; cut: Cut; row: (el: HTMLDivE
           </span>
         </span>
       </div>
-      <div data-pieces className="mt-[4px] flex flex-wrap gap-[4px]">
+      <div data-pieces className="mt-[4px] flex flex-wrap gap-[4px] [overflow-wrap:anywhere]">
         {cut.pieces.map((piece, index) => (
           <PieceChip key={index} {...piece} />
         ))}
