@@ -57,3 +57,8 @@ test('the start rule loses 4.43 and its fee reads $2.00', () => {
   assert.equal(meanSquaredError(start).toFixed(2), '4.43');
   assert.equal(money(start.fee), '$2.00');
 });
+
+test('money puts the minus before the dollar sign, and a price that rounds to zero reads $0.00', () => {
+  assert.equal(money(-0.953125), '-$0.95');
+  assert.equal(money(-0.0014), '$0.00');
+});
