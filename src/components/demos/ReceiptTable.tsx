@@ -35,7 +35,7 @@ export function ReceiptTable({
     </tbody>
   );
   return (
-    <table className={printed ? 'demo-receipt' : 'demo-receipt demo-receipt-live'}>
+    <table className={printed ? 'demo-receipt demo-still' : 'demo-receipt demo-receipt-live'}>
       <caption>One ride, the receipt at your current settings</caption>
       <thead>
         <tr>

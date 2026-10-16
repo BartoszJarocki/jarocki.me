@@ -644,8 +644,8 @@
   .demo:not([data-phase='ready']) .demo-receipt-live {
     visibility: hidden;
   }
-  .demo[data-phase='still'] .demo-receipt-live {
-    display: none;
+  .demo-receipt.demo-still {
+    height: auto;
   }
   .demo-readout {
     display: grid;
@@ -667,10 +667,5 @@
   .demo-actions {
     display: flex;
     column-gap: 3ch;
-  }
-  @media (scripting: none) {
-    .demo-receipt-live {
-      display: none;
-    }
   }
 }
