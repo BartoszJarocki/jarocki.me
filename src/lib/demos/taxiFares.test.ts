@@ -79,11 +79,19 @@ test('the start rule loses 4.43 and its fee reads $2.00', () => {
   assert.equal(money(start.fee), '$2.00');
 });
 
-test('show prints a tiny negative as zero', () => {
+test('show prints a negative with a minus sign, and a tiny negative as zero', () => {
+  assert.equal(show(-3.5), '−3.50');
   assert.equal(show(-0.001), '0.00');
 });
 
-test('money puts the minus before the dollar sign, and a price that rounds to zero reads $0.00', () => {
-  assert.equal(money(-0.953125), '-$0.95');
+test('money puts a minus sign before the dollar sign, and a price that rounds to zero reads $0.00', () => {
+  assert.equal(money(-0.953125), '−$0.95');
   assert.equal(money(-0.0014), '$0.00');
+});
+
+test('money with no cents prints whole dollars, as the valley map labels its axes', () => {
+  assert.deepEqual(
+    [-2, 0, 5, 10].map((dollars) => money(dollars, 0)),
+    ['−$2', '$0', '$5', '$10'],
+  );
 });

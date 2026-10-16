@@ -6,17 +6,24 @@ import {
   contour,
   descend,
   ended,
-  fareFromRounded,
   lift,
   lossAtLift,
   rateLimit,
   rates,
-  rounded,
   step,
   valley,
   walkFrom,
 } from './lossLandscape.ts';
-import { type FareRule, leastSquares, meanSquaredError, start } from './taxiFares.ts';
+import {
+  type FareRule,
+  factor,
+  fareRule,
+  leastSquares,
+  meanSquaredError,
+  predict,
+  show,
+  start,
+} from './taxiFares.ts';
 
 const best = meanSquaredError(leastSquares());
 
@@ -129,17 +136,21 @@ test('zigzag lands across the valley floor on each of its first 20 steps from th
   assert.equal(Math.abs(across(walk.at)).toFixed(2), '0.46');
 });
 
-const ask = (rule: FareRule) => [rounded(rule), fareFromRounded(rule, 1.6)];
+function sentence(at: FareRule) {
+  fareRule.set(at);
+  const rule = fareRule.get();
+  return [show(rule.fee), show(rule.price), factor(rule.price), show(predict(rule, 1.6))];
+}
 
-test('the 1.6 km fare adds up the fee and price rounded to cents', () => {
+test('the 1.6 km sentence adds up the fee and price the sliders show', () => {
   const { at } = walkToEnd(walkFrom(start), rates.good);
-  assert.deepEqual(ask(start), [{ fee: '2.00', price: '2.50' }, '6.00']);
-  assert.deepEqual(ask(at), [{ fee: '5.21', price: '1.48' }, '7.58']);
-  assert.deepEqual(ask({ fee: 5.214, price: 1.484 }), [{ fee: '5.21', price: '1.48' }, '7.58']);
+  assert.deepEqual(sentence(start), ['2.00', '2.50', '2.50', '6.00']);
+  assert.deepEqual(sentence(at), ['5.21', '1.48', '1.48', '7.58']);
+  assert.deepEqual(sentence({ fee: 5.214, price: 1.484 }), ['5.21', '1.48', '1.48', '7.58']);
 });
 
-test('below $0 a km the 1.6 km fare keeps the minus, and a number that rounds to zero shows 0.00', () => {
-  assert.deepEqual(ask({ fee: 4.629, price: -0.953 }), [{ fee: '4.63', price: '-0.95' }, '3.11']);
-  assert.deepEqual(ask({ fee: 5.688, price: -0.0014 }), [{ fee: '5.69', price: '0.00' }, '5.69']);
-  assert.deepEqual(ask({ fee: 0.3, price: -0.19 }), [{ fee: '0.30', price: '-0.19' }, '0.00']);
+test('below $0 a km the sentence reads 4.63 + 1.6 × (−0.95), and a price that rounds to zero shows 0.00', () => {
+  assert.deepEqual(sentence({ fee: 4.629, price: -0.953 }), ['4.63', '−0.95', '(−0.95)', '3.11']);
+  assert.deepEqual(sentence({ fee: 5.688, price: -0.0014 }), ['5.69', '0.00', '0.00', '5.69']);
+  assert.deepEqual(sentence({ fee: 0.3, price: -0.19 }), ['0.30', '−0.19', '(−0.19)', '0.00']);
 });
