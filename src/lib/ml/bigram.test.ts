@@ -84,7 +84,7 @@ test('sampleName loads the die by its temperature, so the same rolls write other
   ]);
 });
 
-test('the run instructions in the note write ten names from all of names.txt', () => {
+test('the run instructions in the note write ten names from all of names.txt', async (t) => {
   const region = (file: string, name: string) =>
     fs.readFileSync(file, 'utf8').split(`// #region ${name}\n`)[1].split('// #endregion')[0];
   const note = fs.readFileSync('src/notes/words-as-numbers.mdx', 'utf8');
@@ -94,27 +94,32 @@ test('the run instructions in the note write ten names from all of names.txt', (
     ([, file, name, code]) => (file ? region(file, name) : code),
   );
   const [program, ...args] = section.match(/^Run `([^`]*)`/m)![1].split(' ');
-  const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'names-'));
-  fs.writeFileSync(
-    path.join(folder, 'names.ts'),
-    [`Math.random = (${seeded})(1);`, ...blocks].join('\n'),
-  );
-  fs.copyFileSync('public/data/names.txt', path.join(folder, 'names.txt'));
-  const run = spawnSync(process.execPath, args, { cwd: folder, encoding: 'utf8' });
-  fs.rmSync(folder, { recursive: true });
   assert.equal(program, 'node');
-  assert.equal(run.stderr, '');
-  assert.equal(run.status, 0);
-  assert.deepEqual(run.stdout.trim().split('\n'), [
-    'm',
-    'kyuginazelaia',
-    'k',
-    'ira',
-    'akerbendmanaryarahadaon',
-    'd',
-    'lueynaheyslynta',
-    'scontodiy',
-    'zai',
-    'idili',
-  ]);
+  for (const packageJson of [undefined, '{}', '{ "type": "commonjs" }']) {
+    await t.test(`package.json ${packageJson ?? 'missing'}`, () => {
+      const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'names-'));
+      fs.writeFileSync(
+        path.join(folder, 'names.mts'),
+        [`Math.random = (${seeded})(1);`, ...blocks].join('\n'),
+      );
+      fs.copyFileSync('public/data/names.txt', path.join(folder, 'names.txt'));
+      if (packageJson) fs.writeFileSync(path.join(folder, 'package.json'), packageJson);
+      const run = spawnSync(process.execPath, args, { cwd: folder, encoding: 'utf8' });
+      fs.rmSync(folder, { recursive: true });
+      assert.equal(run.stderr, '');
+      assert.equal(run.status, 0);
+      assert.deepEqual(run.stdout.trim().split('\n'), [
+        'm',
+        'kyuginazelaia',
+        'k',
+        'ira',
+        'akerbendmanaryarahadaon',
+        'd',
+        'lueynaheyslynta',
+        'scontodiy',
+        'zai',
+        'idili',
+      ]);
+    });
+  }
 });

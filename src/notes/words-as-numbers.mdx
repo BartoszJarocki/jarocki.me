@@ -71,7 +71,7 @@ For readers who know JavaScript, here is the code the demo runs. It is TypeScrip
 ```ts include=src/lib/ml/bigram.ts#sample
 ```
 
-To run them, save the three blocks in order as `names.ts`, and save [names.txt](/data/names.txt), the 32,033 names the demo counts, next to it. Then add these lines at the end of `names.ts`.
+To run them, save the three blocks in order as `names.mts`, and save [names.txt](/data/names.txt), the 32,033 names the demo counts, next to it. Then add these lines at the end of `names.mts`.
 
 ```ts
 import fs from 'node:fs';
@@ -81,7 +81,7 @@ const counts = countPairs(names);
 for (let i = 0; i < 10; i++) console.log(sampleName(counts, 1));
 ```
 
-Run `node names.ts`, and it prints ten new names, like the sample button does. That needs Node 22.18 or later.
+Run `node names.mts`, and it prints ten new names, like the sample button does. That needs Node 22.18 or later.
 
 ## Learning instead of counting
 
