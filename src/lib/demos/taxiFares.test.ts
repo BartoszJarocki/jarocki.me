@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { receipt } from './fareReceipt.ts';
 import { fareRule, leastSquares, meanSquaredError, money, show, start } from './taxiFares.ts';
 
 const close = (actual: number, expected: number) =>
@@ -31,12 +32,32 @@ test('fareRule starts at the start rule, and a set notifies a subscriber', () =>
 test('fareRule.set with an equal rule notifies no one and keeps the rule it has', () => {
   const unsubscribe = new AbortController();
   let calls = 0;
-  const first = { fee: 3, price: 1 };
-  fareRule.set(first);
+  fareRule.set({ fee: 3, price: 1 });
+  const kept = fareRule.get();
   fareRule.subscribe(() => calls++, unsubscribe.signal);
   fareRule.set({ fee: 3, price: 1 });
   assert.equal(calls, 0);
-  assert.equal(fareRule.get(), first);
+  assert.equal(fareRule.get(), kept);
+  unsubscribe.abort();
+});
+
+test('fareRule holds the cents the sliders show, so the losses add up from those cents', () => {
+  fareRule.set({ fee: 8.744, price: -1.1104 });
+  assert.deepEqual(fareRule.get(), { fee: 8.74, price: -1.11 });
+  assert.equal(show(receipt(fareRule.get()).loss.data), '4.65');
+  fareRule.set({ fee: 0.2448711875523813, price: 0.6832386363636362 });
+  assert.deepEqual(fareRule.get(), { fee: 0.24, price: 0.68 });
+  assert.equal(meanSquaredError(fareRule.get()).toFixed(2), '36.80');
+});
+
+test('fareRule.set to a spot inside the same cents notifies no one', () => {
+  const unsubscribe = new AbortController();
+  let calls = 0;
+  fareRule.set({ fee: 5.214, price: 1.484 });
+  fareRule.subscribe(() => calls++, unsubscribe.signal);
+  fareRule.set({ fee: 5.2138, price: 1.4796 });
+  assert.equal(calls, 0);
+  assert.deepEqual(fareRule.get(), { fee: 5.21, price: 1.48 });
   unsubscribe.abort();
 });
 
