@@ -17,7 +17,15 @@ import {
   threeLetterKnobs,
   threeLetterLoss,
 } from './letters.ts';
-import { CheckpointError, checkSlopes, createParams, load, save } from './params.ts';
+import {
+  CheckpointError,
+  adamw,
+  checkSlopes,
+  createParams,
+  load,
+  save,
+  zeros,
+} from './params.ts';
 import { type Out, averageOver, startRun, trainingHandler } from './training.ts';
 
 const text = fs.readFileSync('public/data/names.txt', 'utf8');
@@ -80,6 +88,47 @@ test('softmax and the surprise give the numbers the note uses', () => {
   );
   assert.equal(crossEntropy(Float64Array.from([0.5, 0.5]), 0).toFixed(2), '0.69');
   assert.equal(crossEntropy(Float64Array.from([0.99, 0.01]), 1).toFixed(1), '4.6');
+});
+
+test('softmax gives the same chances for scores near 1,000 or -1,000 as for 2, 1, and 0', () => {
+  const chances = new Float64Array(3);
+  for (const scores of [
+    [2, 1, 0],
+    [1000, 999, 998],
+    [-998, -999, -1000],
+  ]) {
+    softmax(Float64Array.from(scores), chances);
+    assert.deepEqual(
+      Array.from(chances, (c) => c.toFixed(6)),
+      ['0.665241', '0.244728', '0.090031'],
+    );
+  }
+});
+
+test('adamw with decay turns every knob against its slope and shrinks it toward 0', () => {
+  const params = createParams({
+    model: 'twoKnobs',
+    config: {},
+    knobs: () => ({ w: zeros([2]) }),
+    roll: seeded(1),
+    float: Float64Array,
+  });
+  params.data.set([1, -3]);
+  const turn = adamw(params, { rate: 0.1, decay: 0.5 });
+  const after = [
+    [2, 0.5],
+    [-1, 0.5],
+    [0.25, -3],
+  ].map((slopes) => {
+    params.grad.set(slopes);
+    turn();
+    return Array.from(params.data, (n) => n.toFixed(6));
+  });
+  assert.deepEqual(after, [
+    ['0.850000', '-2.950000'],
+    ['0.780866', '-2.902500'],
+    ['0.714259', '-2.712916'],
+  ]);
 });
 
 test('the one-letter model starts at a surprise of 3.30, a 1 in 27 chance for every letter', () => {
