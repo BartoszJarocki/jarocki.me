@@ -100,3 +100,22 @@ Here is the training loop. `crossEntropy` is the yes or no score that part 2 exp
 
 ```ts include=src/lib/ml/mlp.ts#train
 ```
+
+<Glossary>
+<Term name="model">A rule with knobs that turns an input into a guess, like the fare rule</Term>
+<Term name="parameter">One of the model's knobs, like the starting fee or the price per km</Term>
+<Term name="weight">A knob that scales an input, like the price per km</Term>
+<Term name="bias">A knob added on its own, without scaling an input, like the starting fee</Term>
+<Term name="prediction">The model's guess for one input, like the fare the line gives for a ride</Term>
+<Term name="loss">One number for how far the guesses are from what really happened, like the average area of the squares</Term>
+<Term name="gradient">The slope under your feet, which way and how steeply the loss changes as each knob turns</Term>
+<Term name="learning rate">How much of the slope each step uses, set by the step size control</Term>
+<Term name="gradient descent">Feeling the slope and stepping downhill, again and again</Term>
+<Term name="training">Walking downhill until the loss stops getting much smaller, like pressing walk</Term>
+<Term name="inference">Using the trained model on a new question, like the fare for a 1.6 km ride</Term>
+<Term name="backpropagation">Finding every knob's slope by walking the receipt from the bottom line up</Term>
+<Term name="neuron">The taxi rule with a weight for each input, a bias, and a squash, which draws one straight fence</Term>
+<Term name="layer">Several neurons side by side, so several fences</Term>
+<Term name="activation function">The squash at the end of a neuron, which lets layers join fences into shapes</Term>
+<Term name="network">Layers in a row, like the one that fenced in the comfortable days</Term>
+</Glossary>

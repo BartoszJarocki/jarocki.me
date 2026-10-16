@@ -2,6 +2,7 @@ import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
 import Image from 'next/image';
 import { ComponentProps } from 'react';
 
+import { Glossary, Term } from './Glossary';
 import * as demos from './demos';
 
 type Props = {
@@ -29,7 +30,7 @@ function NoteImage({
   );
 }
 
-const components = { img: NoteImage, ...demos };
+const components = { img: NoteImage, Glossary, Term, ...demos };
 
 export function NoteContent({ source, className = '' }: Props) {
   return (
