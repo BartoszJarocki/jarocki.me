@@ -5,7 +5,6 @@ import {
   Color,
   ColorManagement,
   DoubleSide,
-  Float32BufferAttribute,
   Line,
   LineBasicMaterial,
   LineSegments,
@@ -360,19 +359,19 @@ async function valley3d(
       }),
     );
   const cellAt = (i: number, j: number) => [(i / fine) * cells, (j / fine) * cells];
+  const vertex = (i: number, j: number) => j * (fine + 1) + i;
 
   const positions = new Float32Array((fine + 1) ** 2 * 3);
   const gridCells = new Float32Array((fine + 1) ** 2 * 2);
   for (let j = 0; j <= fine; j++)
     for (let i = 0; i <= fine; i++) {
-      const n = j * (fine + 1) + i;
-      positions.set(point(ruleAt(i, j)), n * 3);
-      gridCells.set(cellAt(i, j), n * 2);
+      positions.set(point(ruleAt(i, j)), vertex(i, j) * 3);
+      gridCells.set(cellAt(i, j), vertex(i, j) * 2);
     }
   const faces: number[] = [];
   for (let j = 0; j < fine; j++)
     for (let i = 0; i < fine; i++) {
-      const a = j * (fine + 1) + i;
+      const a = vertex(i, j);
       faces.push(a, a + 1, a + fine + 1, a + 1, a + fine + 2, a + fine + 1);
     }
   const occluderGeometry = owned(new BufferGeometry());
@@ -387,20 +386,19 @@ async function valley3d(
   });
   const occluder = new Mesh(occluderGeometry, occluderMaterial);
 
-  const linePositions: number[] = [];
-  const lineCells: number[] = [];
-  const segment = (a: [number, number], b: [number, number]) => {
-    linePositions.push(...point(ruleAt(...a)), ...point(ruleAt(...b)));
-    lineCells.push(...cellAt(...a), ...cellAt(...b));
-  };
+  const ends: number[] = [];
   const every = fine / cells;
-  for (let j = 0; j <= fine; j += every) for (let i = 0; i < fine; i++) segment([i, j], [i + 1, j]);
-  for (let i = 0; i <= fine; i += every) for (let j = 0; j < fine; j++) segment([i, j], [i, j + 1]);
+  for (let j = 0; j <= fine; j += every)
+    for (let i = 0; i < fine; i++) ends.push(vertex(i, j), vertex(i + 1, j));
+  for (let i = 0; i <= fine; i += every)
+    for (let j = 0; j < fine; j++) ends.push(vertex(i, j), vertex(i, j + 1));
   const wireGeometry = owned(new BufferGeometry());
-  wireGeometry.setAttribute('position', new Float32BufferAttribute(linePositions, 3));
-  wireGeometry.setAttribute('cell', new Float32BufferAttribute(lineCells, 2));
+  wireGeometry.setAttribute('position', occluderGeometry.getAttribute('position'));
+  wireGeometry.setAttribute('cell', occluderGeometry.getAttribute('cell'));
+  wireGeometry.setIndex(ends);
   const wireMaterial = fogged();
-  scene.add(occluder, new LineSegments(wireGeometry, wireMaterial));
+  const wire = new LineSegments(wireGeometry, wireMaterial);
+  scene.add(occluder, wire);
 
   const cubeGeometry = owned(new BoxGeometry(1, 1, 1));
   cubeGeometry.translate(0, 0.5, 0);
@@ -686,16 +684,23 @@ async function valley3d(
   resize();
   placeCamera();
   fit();
-  // compileAsync warns where the browser can't compile in parallel, so those compile in a task of
-  // their own instead.
+  await nextTask();
+  stage.signal.throwIfAborted();
+  // compileAsync warns where the browser can't compile in parallel.
   if (renderer.extensions.has('KHR_parallel_shader_compile')) {
     await renderer.compileAsync(scene, camera);
-  } else {
+    stage.signal.throwIfAborted();
+  } else renderer.compile(scene, camera);
+  // The first draw of each object reads its program's uniforms and logs and uploads its buffers.
+  // One pixel per object, a task apiece, keeps that work out of the first frame.
+  renderer.setScissor(0, 0, 1, 1);
+  for (const object of [occluder, wire, cube, trailLine]) {
     await nextTask();
     stage.signal.throwIfAborted();
-    renderer.compile(scene, camera);
+    renderer.setScissorTest(true);
+    renderer.render(object, camera);
+    renderer.setScissorTest(false);
   }
-  stage.signal.throwIfAborted();
 
   return {
     draw(at, trail, fog) {
