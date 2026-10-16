@@ -91,7 +91,7 @@ export function DemoStage<P>({
     >
       <div className="demo-stage">
         {body}
-        {Still ? <Still /> : <ServerStill scene={scene} />}
+        {Still ? <Still /> : <ServerStillSlot scene={scene} />}
       </div>
       <div className="demo-caption">{caption}</div>
       <div className="demo-controls">{controls}</div>
@@ -102,9 +102,8 @@ export function DemoStage<P>({
   );
 }
 
-// The client never hydrates this slot's children, so the server's still stays in it until the
-// scene's code arrives, whatever re-renders or router updates happen before that.
-function ServerStill({ scene }: { scene: () => Promise<{ Still: ComponentType }> }) {
+// React keeps the server's children of an element with dangerouslySetInnerHTML when it hydrates.
+function ServerStillSlot({ scene }: { scene: () => Promise<{ Still: ComponentType }> }) {
   const [Still] = useState(() =>
     typeof window === 'undefined'
       ? lazy(() => scene().then((module) => ({ default: module.Still })))
