@@ -29,7 +29,8 @@ function block(notebook) {
   const leveled = level(middle);
   const out = [];
   for (let i = 0; i < middle.length; i++) {
-    const hidden = gelu(leveled[i] * 0.7);
+    const weighted = leveled[i] * 0.7;
+    const hidden = gelu(weighted);
     const change = hidden * 0.5;
     out.push(middle[i] + change);
   }
