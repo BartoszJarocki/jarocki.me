@@ -105,26 +105,28 @@ export default function ResidualStream({ label, children }: DemoProps) {
       <div className="demo-caption" role="status" aria-live="polite" aria-atomic="true">
         Step {step + 1} of {steps.length}. {steps[step]}
       </div>
-      <div className="demo-controls demo-actions">
-        <button
-          className="demo-button"
-          type="button"
-          onClick={() => setStep(Math.max(0, step - 1))}
-          disabled={step === 0}
-        >
-          Back
-        </button>
-        <button
-          className="demo-button"
-          type="button"
-          onClick={() => setStep(Math.min(steps.length - 1, step + 1))}
-          disabled={step === steps.length - 1}
-        >
-          Step
-        </button>
-        <button className="demo-button" type="button" onClick={() => setStep(0)}>
-          Reset
-        </button>
+      <div className="demo-controls">
+        <div className="demo-actions">
+          <button
+            className="demo-button"
+            type="button"
+            onClick={() => setStep(Math.max(0, step - 1))}
+            disabled={step === 0}
+          >
+            Back
+          </button>
+          <button
+            className="demo-button"
+            type="button"
+            onClick={() => setStep(Math.min(steps.length - 1, step + 1))}
+            disabled={step === steps.length - 1}
+          >
+            Step
+          </button>
+          <button className="demo-button" type="button" onClick={() => setStep(0)}>
+            Reset
+          </button>
+        </div>
       </div>
       <div id={id} className="demo-description">
         {children}
