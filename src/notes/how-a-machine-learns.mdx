@@ -75,4 +75,28 @@ The code is TypeScript, which is JavaScript with the type of each value written 
 
 ## When a straight line isn't enough
 
-The playground goes here, with comfortable days and a small network that learns to fence them in.
+A new question. Is a day comfortable indoors? Each point is a day, temperature across and humidity up, filled if people said comfortable and hollow if not. The comfortable days sit in the middle. Not too cold, not too hot, not too dry, not too damp.
+
+Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That is one **neuron**. It draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too.
+
+So put several neurons side by side. That is a **layer**, and it draws several fences. Each neuron hands its number to every neuron in the next layer, which gives each one a weight, adds its bias, and squashes again. That is how a second layer reads those fences and joins them into a shape, and four fences make a box around the comfortable days. The last neuron squashes its answer to between 0 for no and 1 for yes. The squash is called the **activation function**. Without it, stacking fences only ever makes another straight fence. Layers in a row are a **network**.
+
+<Playground label="A small network learning to fence in the comfortable days">
+
+One hundred made-up days, temperature across and humidity up, filled where people said comfortable and hollow where they did not. The shade behind them is the network's answer for every spot, stronger where it is surer a day is comfortable, with a line where its answer turns from no to yes. Beside the chart, each row of squares is one first-layer neuron's knobs, filled for a positive number and hollow for a negative one. Three more sets of points sit behind a picker.
+
+</Playground>
+
+Press train and watch the shape form. This network has two layers of eight neurons and one more neuron that gives the answer. For a yes or no answer, it scores its guesses a little differently from the squares, and part 2 explains how. Its steps also remember the last few slopes, a common trick called adam, so it gets there faster.
+
+The shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. Each neuron in the first layer gets a row of three squares, one for each input and one for its bias. A filled square is a positive number and a hollow one is a negative number. A bigger square is a number farther from zero. The layers after it decide what those numbers do to the answer. Point at a row to draw that neuron's fence.
+
+For readers who know JavaScript, here is the network the playground trains, built on `Value`. A `Neuron` adds up each input times its weight, plus its bias, and squashes the sum with `tanh`. A `Layer` is a list of neurons that all read the same inputs, and an `MLP` is layers in a row. The last layer skips the squash and hands back a raw score.
+
+```ts include=src/lib/ml/mlp.ts#mlp
+```
+
+Here is the training loop. `crossEntropy` is the yes or no score that part 2 explains. It turns the raw score into a chance with `sigmoid` and measures how far that chance is from the real answer, worked out so that a very sure guess never overflows. `adam` turns each knob against its slope, using an average of the last few slopes. `trainStep` scores all 100 points, averages their losses, walks back with `backward`, and turns every knob once. The playground calls it once a frame while it trains.
+
+```ts include=src/lib/ml/mlp.ts#train
+```

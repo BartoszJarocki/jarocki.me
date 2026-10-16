@@ -110,7 +110,10 @@ export function predict(model: MLP, x: number, y: number) {
   let values = [x, y];
   for (const layer of model.layers) {
     values = layer.neurons.map((neuron) => {
-      const sum = neuron.weights.reduce((total, w, i) => total + w.data * values[i], neuron.bias.data);
+      const sum = neuron.weights.reduce(
+        (total, w, i) => total + w.data * values[i],
+        neuron.bias.data,
+      );
       return neuron.squash ? Math.tanh(sum) : sum;
     });
   }
@@ -130,4 +133,27 @@ export function score(model: MLP, data: Point[]) {
 
 export function train(net: Network, data: Point[], steps: number) {
   for (let k = 0; k < steps; k++) trainStep(net.model, data, net.step);
+}
+
+export const grid = 40;
+export const reach = 1.15;
+
+/** What the playground draws of a network: its answer at every grid corner, and the first layer's knobs. */
+export type Picture = {
+  answers: Float64Array;
+  first: (readonly [number, number, number])[];
+};
+
+export function picture(model: MLP): Picture {
+  const answers = new Float64Array((grid + 1) ** 2);
+  const spacing = (2 * reach) / grid;
+  for (let j = 0; j <= grid; j++) {
+    for (let i = 0; i <= grid; i++) {
+      answers[j * (grid + 1) + i] = predict(model, -reach + i * spacing, reach - j * spacing);
+    }
+  }
+  const first = model.layers[0].neurons.map(
+    ({ weights, bias }) => [weights[0].data, weights[1].data, bias.data] as const,
+  );
+  return { answers, first };
 }
