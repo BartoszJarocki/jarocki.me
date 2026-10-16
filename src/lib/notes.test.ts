@@ -101,6 +101,9 @@ const source = [
   "  quote = 'it';",
   '}',
   '// #endregion',
+  '// #region empty',
+  '',
+  '// #endregion',
   '// #region repeated',
   '// #endregion',
   '// #region repeated',
@@ -164,10 +167,6 @@ test('getNoteContent names what is wrong with an include', async (t) => {
     ],
     [fence('include=src/lib/ml/value.ts#open'), 'src/lib/ml/value.ts never ends region open'],
     [
-      fence('include=src/lib/ml/value.ts'),
-      'include=src/lib/ml/value.ts needs a file and a region, as include=src/lib/ml/value.ts#backward',
-    ],
-    [
       fence('include=src/lib/ml/value.ts#backward', 'copy\n'),
       'the include=src/lib/ml/value.ts#backward block must be empty, because the build fills it',
     ],
@@ -175,6 +174,35 @@ test('getNoteContent names what is wrong with an include', async (t) => {
   for (const [markdown, message] of cases) {
     await assert.rejects(compileNote(t, markdown), { message: `src/notes/x.mdx: ${message}` });
   }
+});
+
+test('getNoteContent rejects a fence that mentions include in any other form', async (t) => {
+  const fences = [
+    'include=src/lib/ml/value.ts#backward',
+    'ts title="value.ts" include=src/lib/ml/value.ts#backward',
+    'ts Include=src/lib/ml/value.ts#backward',
+    'ts include=src/lib/ml/value.ts',
+  ];
+  for (const info of fences) {
+    await assert.rejects(compileNote(t, `\`\`\`${info}\n\`\`\``), {
+      message: `src/notes/x.mdx: \`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
+    });
+  }
+});
+
+test('getNoteContent rejects a code block that is empty after the build fills it', async (t) => {
+  const blocks = [fence('include=src/lib/ml/value.ts#empty'), '```ts\n```', '```\n\n```'];
+  for (const markdown of blocks) {
+    await assert.rejects(compileNote(t, markdown), {
+      message: 'src/notes/x.mdx: the code block at line 8 is empty',
+    });
+  }
+});
+
+test('getNoteContent names the note and the line in it when the MDX does not parse', async (t) => {
+  await assert.rejects(compileNote(t, 'first\n\n<div>\n\nlast'), {
+    message: /^src\/notes\/x\.mdx: [\s\S]*Expected a closing tag for `<div>` \(10:1-10:6\)/,
+  });
 });
 
 test('getNoteContent names an image that is not in public/', async (t) => {
