@@ -96,7 +96,6 @@ export default defineScene({
     let trail = [walk.at];
     let glide = { from: walk.at, start: 0, ms: 0 };
     let shown = walk.at;
-    let map: ValleyMap | undefined;
 
     const restart = (at: FareRule) => {
       walk = walkFrom(at);
@@ -156,6 +155,23 @@ export default defineScene({
       });
     }
 
+    fareRule.subscribe(() => {
+      if (fareRule.get() !== walk.at) restart(fareRule.get());
+      show();
+      stage.wake();
+    }, stage.signal);
+    show();
+
+    const gl = p.valley.getContext('webgl2', {
+      alpha: true,
+      antialias: true,
+      depth: true,
+      stencil: false,
+      premultipliedAlpha: true,
+      preserveDrawingBuffer: false,
+    });
+    const map = gl ? await valley3d(stage, p, gl, goTo) : valley2d(stage, p, goTo);
+
     const on = { signal: stage.signal };
     const click = (button: HTMLButtonElement, action: () => void) =>
       button.addEventListener(
@@ -179,7 +195,7 @@ export default defineScene({
     click(p.fog, () => (fog = !fog));
     click(p.reset, () => {
       goTo(start);
-      map?.resetView?.();
+      map.resetView?.();
     });
     for (const [name, button] of Object.entries(rateButtons)) {
       click(button, () => {
@@ -187,24 +203,6 @@ export default defineScene({
         if (ended(walk)) goTo(start);
       });
     }
-
-    fareRule.subscribe(() => {
-      if (fareRule.get() !== walk.at) restart(fareRule.get());
-      show();
-      stage.wake();
-    }, stage.signal);
-    show();
-
-    const gl = p.valley.getContext('webgl2', {
-      alpha: true,
-      antialias: true,
-      depth: true,
-      stencil: false,
-      premultipliedAlpha: true,
-      preserveDrawingBuffer: false,
-    });
-    const ready = gl ? await valley3d(stage, p, gl, goTo) : valley2d(stage, p, goTo);
-    map = ready;
 
     return (now) => {
       if (walking && now - glide.start >= glide.ms) advance(now);
@@ -216,7 +214,7 @@ export default defineScene({
       };
       shown = at;
       p.view.dataset.cell = cellOf(at).join(',');
-      const { turning } = ready.draw(at, fog ? [] : trail, fog);
+      const { turning } = map.draw(at, fog ? [] : trail, fog);
       const inset = stage.canvas(p.inset);
       drawFares(
         inset,
