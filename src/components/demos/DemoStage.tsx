@@ -6,6 +6,7 @@ import {
   lazy,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -15,6 +16,10 @@ import type { Scene } from '../../lib/demos/stage';
 export type Phase = 'shell' | 'loading' | 'ready' | 'still' | 'fallback';
 
 const quiet = ['ChunkLoadError', 'Unsupported'];
+
+// React runs a removed component's layout cleanup before it clears its children's refs, so the
+// scene ends while its parts are attached. The server runs no layout effects and warns about them.
+const useStageEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 export type DemoProps = { label: string; children: ReactNode };
 
@@ -42,7 +47,7 @@ export function DemoStage<P>({
   }));
   const [showStill, setShowStill] = useState(false);
 
-  useEffect(() => {
+  useStageEffect(() => {
     const element = root.current!;
     const unmount = new AbortController();
     const setPhase = (phase: Phase) => {
