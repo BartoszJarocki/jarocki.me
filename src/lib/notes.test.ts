@@ -137,9 +137,8 @@ test('getNoteContent fails when an included region is missing', async (t) => {
   });
 });
 
-test('an included block shows the lines of its region as they are in the file', async (t) => {
-  const result = await compileNote(t, fence('include=src/lib/ml/value.ts#backward'));
-  const html = renderToStaticMarkup(createElement(MDXRemote, result));
+async function codeText(t: TestContext, markdown: string) {
+  const html = renderToStaticMarkup(createElement(MDXRemote, await compileNote(t, markdown)));
   const [, code = ''] = /<code[^>]*>([^<]*)<\/code>/.exec(html) ?? [];
   const entities: Record<string, string> = {
     '&lt;': '<',
@@ -148,8 +147,18 @@ test('an included block shows the lines of its region as they are in the file', 
     '&quot;': '"',
     '&#x27;': "'",
   };
-  const text = code.replace(/&(lt|gt|amp|quot|#x27);/g, (entity) => entities[entity]);
-  assert.equal(text, 'export class Value {\n  html = "<b>&</b>";\n\n  quote = \'it\';\n}\n');
+  return code.replace(/&(lt|gt|amp|quot|#x27);/g, (entity) => entities[entity]);
+}
+
+const region = 'export class Value {\n  html = "<b>&</b>";\n\n  quote = \'it\';\n}\n';
+
+test('an included block shows the lines of its region as they are in the file', async (t) => {
+  assert.equal(await codeText(t, fence('include=src/lib/ml/value.ts#backward')), region);
+});
+
+test('an include takes any language, and a plain fence may mention includes', async (t) => {
+  assert.equal(await codeText(t, '```c++ include=src/lib/ml/value.ts#backward\n```'), region);
+  assert.equal(await codeText(t, '```ts title="includes.ts"\nconst x = 1;\n```'), 'const x = 1;\n');
 });
 
 test('getNoteContent names what is wrong with an include', async (t) => {
