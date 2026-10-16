@@ -668,6 +668,9 @@ async function valley3d(
     on,
   );
 
+  let prepared = false;
+  let preparation = 0;
+
   // A page can hold only a few WebGL contexts.
   let idle = 0;
   let restoreDeadline = 0;
@@ -690,41 +693,61 @@ async function valley3d(
     clearTimeout(idle);
     clearTimeout(restoreDeadline);
   });
-  p.valley.addEventListener('webglcontextlost', () => stage.live && failUnlessRestored(), on);
+  p.valley.addEventListener(
+    'webglcontextlost',
+    () => {
+      prepared = false;
+      preparation++;
+      if (stage.live) failUnlessRestored();
+    },
+    on,
+  );
   p.valley.addEventListener(
     'webglcontextrestored',
     () => {
       clearTimeout(restoreDeadline);
-      stage.wake();
+      warmUp().then(stage.wake, (error: unknown) => {
+        if (!stage.signal.aborted) stage.fail(error);
+      });
     },
     on,
   );
 
-  await nextTask();
-  stage.signal.throwIfAborted();
-  paint(stage.tokens);
-  resize();
-  placeCamera();
-  fit();
-  await nextTask();
-  stage.signal.throwIfAborted();
-  // compileAsync warns where the browser can't compile in parallel.
-  if (renderer.extensions.has('KHR_parallel_shader_compile')) {
-    await renderer.compileAsync(scene, camera);
-    stage.signal.throwIfAborted();
-  } else renderer.compile(scene, camera);
-  // The first draw of each object reads its program's uniforms and logs and uploads its buffers.
-  renderer.setScissor(0, 0, 1, 1);
-  for (const object of [occluder, wire, cube, trailLine]) {
-    await nextTask();
-    stage.signal.throwIfAborted();
-    renderer.setScissorTest(true);
-    renderer.render(object, camera);
-    renderer.setScissorTest(false);
+  async function warmUp() {
+    const current = ++preparation;
+    prepared = false;
+    const next = async () => {
+      await nextTask();
+      stage.signal.throwIfAborted();
+      return current === preparation && !gl.isContextLost();
+    };
+    if (!(await next())) return;
+    paint(stage.tokens);
+    resize();
+    placeCamera();
+    fit();
+    if (!(await next())) return;
+    // compileAsync warns where the browser can't compile in parallel.
+    if (renderer.extensions.has('KHR_parallel_shader_compile')) {
+      await renderer.compileAsync(scene, camera);
+      stage.signal.throwIfAborted();
+    } else renderer.compile(scene, camera);
+    // The first draw of each object reads its program's uniforms and logs and uploads its buffers.
+    renderer.setScissor(0, 0, 1, 1);
+    for (const object of [occluder, wire, cube, trailLine]) {
+      if (!(await next())) return;
+      renderer.setScissorTest(true);
+      renderer.render(object, camera);
+      renderer.setScissorTest(false);
+    }
+    prepared = true;
   }
+
+  await warmUp();
 
   return {
     draw(at, trail, fog) {
+      if (!prepared || gl.isContextLost()) return { turning: false };
       if (
         p.valley.clientWidth !== width ||
         p.valley.clientHeight !== height ||
