@@ -48,6 +48,14 @@ test('pow, exp, log, and relu each pass back their own slope', () => {
   }
 });
 
+test('pow(0) at 0 is 1 with a slope of 0', () => {
+  const x = new Value(0);
+  const y = x.pow(0);
+  y.backward();
+  assert.equal(y.data, 1);
+  assert.equal(x.grad, 0);
+});
+
 test('backward twice on the same graph gives the same slopes', () => {
   const a = new Value(2);
   const b = new Value(-3);
