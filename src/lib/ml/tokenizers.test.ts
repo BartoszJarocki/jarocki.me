@@ -57,11 +57,12 @@ test('cutThreeWays keeps Polish letters whole, however they were typed', () => {
   }
 });
 
-test('a row reads 1 piece, but 0 pieces and 2 pieces', () => {
+test('a row uses the singular only for one piece', () => {
   const cut = cutThreeWays('ending', menus);
   assert.deepEqual(
     cuts.map((name) => `${cut[name].pieces.length} ${pieceWord(cut[name].pieces.length)}`),
-    ['6 pieces', '1 piece', '2 pieces'],
+    ['6 pieces', '1 piece', '3 pieces'],
   );
   assert.equal(pieceWord(0), 'pieces');
+  assert.equal(pieceWord(2), 'pieces');
 });

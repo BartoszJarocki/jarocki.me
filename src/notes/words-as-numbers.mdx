@@ -85,8 +85,56 @@ Run `node names.mts`, and it prints ten new names, like the sample button does. 
 
 ## Learning instead of counting
 
-The one-letter network goes here. It learns the same guess the counts make.
+Counting works when the model reads one letter. It gets hard as soon as the model has to look further back, as the next section shows. A network like the one in part 1 can learn the same guess instead, and it can grow from there.
+
+For the letter it just read, the network gives every possible next letter a score. A score can be any number, big or small, positive or negative. Those raw scores are the **logits**.
+
+A score is not a chance yet. Chances can't be negative, and they have to add up to 100%. **Softmax** turns scores into chances. It raises a fixed number, about 2.72, to the power of each score. That makes every score positive and makes the big ones count a lot more. Then it divides each one by the total, so they add up to 100%. Scores of -1, 0 and 1 become chances of 9%, 24% and 67%.
+
+To learn, the network needs a loss, like the squares in part 1. Here the loss is **cross-entropy**. It measures how surprised the model was by the letter that really came next. Giving that letter a 50% chance is a small surprise, 0.69. Giving it a 1% chance is a big one, 4.6. The counting model's 2.45 is this same surprise, averaged over every letter in the names. Training lowers the average surprise. Part 1's playground scored its yes or no answers the same way, with two possible answers instead of 27.
+
+The network in the demo is small. It is a table of 27 rows of 27 scores, one row for each letter it might read, and every score starts at 0. Each step, it reads 4,096 letter pairs picked at random from the names. It works out its average surprise and the slope of every score, then moves the scores a little downhill with adam, the trick from part 1's playground. Press train.
+
+<LearnToCount label="The one-letter network's loss while it trains, next to the counting model's loss">
+
+A chart of the one-letter network's loss over 1,762 training steps, with the counting model's loss of 2.45 as a faint line. The loss starts at 3.30 and flattens just above 2.45.
+
+</LearnToCount>
+
+At the start every score is 0, so every letter gets the same chance, 1 in 27, and the surprise is 3.30. The loss falls fast, then flattens just above the counting model's 2.45. It can't go much lower. A model that sees only one letter knows no more than the counts do, and its trained rows give nearly the same chances as the counting model's. In five trial runs, the slowest took 881 steps to come within 0.02 of 2.45, so training stops at twice that, 1,762 steps.
+
+Here is the code. `softmax` turns scores into chances. It first takes the biggest score away from every score, which gives the same chances and keeps `Math.exp` from overflowing. `crossEntropy` measures the surprise, and `surpriseSlopes` gives the slope of the surprise for each score. That slope is just the letter's chance, less 1 for the letter that really came next.
+
+```ts include=src/lib/ml/letters.ts#softmax
+```
+
+```ts include=src/lib/ml/letters.ts#crossEntropy
+```
+
+The one-letter model keeps its scores in `p.tensors.scores`. Its `data` holds the numbers and its `grad` holds their slopes, like part 1's `Value`, but for a whole table at once.
+
+```ts include=src/lib/ml/letters.ts#oneLetter
+```
 
 ## Letters on a map
 
-The letter map goes here, with three learned numbers for every letter.
+To do better, the model has to see further back. How far back it sees is its **context**. The counting model's context is one letter. Counting three letters back would need a row for every run of three letters, 19,683 rows, and 13,997 of those runs never appear in the names.
+
+So give the model three letters, and give each letter a list of three numbers that training adjusts, like coordinates on a map. That list is the letter's **embedding**. The model reads the places of the three letters, nine numbers in all. A layer reads those nine numbers, as in part 1, but with 32 neurons instead of eight. Each neuron squashes its sum with tanh. Then 27 more neurons turn those outputs into a score for each next letter. Letters that turn up in the same kinds of places often drift close together, because the model can treat them alike. Then what it learns about one letter helps with the others.
+
+The map draws each letter at its three numbers, one number on each axis, while the model trains. A letter too far out to fit is pulled closer to the center, with an arrow toward where it really is. Choose a letter to follow its darker square. Its label stays above the map. Drag the map or use the arrow keys to turn it. Watch whether the vowels find each other.
+
+<LetterSpace label="The 27 tokens on a 3D map of the three numbers the model learns for each">
+
+A 3D map of the 26 letters and the dot, each drawn at the three numbers the three-letter model learns for it. Training moves the letters. After 20,000 steps the five vowels sit closer to one another than to most other letters, and q sits far from all of them.
+
+</LetterSpace>
+
+At the start every letter sits in a small heap in the middle, because every number starts close to 0. After about 300 steps the loss passes the counting model's 2.45. From there it falls slowly and wobbles, because each step practices on 128 letters picked at random, and some picks are harder than others. It starts to dip below 2.3 after about 5,000 steps, and after about 30,000 it stays near 2.28. The vowels find each other. The five of them end up closer to one another than to most other letters, and y's nearest letter is i. The letter q, which is rare and comes before u three times out of four, ends up far from everything, so the map pulls it closer and marks it with an arrow.
+
+The cloud at the top of every page on this site is a hand-built toy of the same idea, where nothing is trained. This demo trains one for real.
+
+Here is the three-letter model. `threeLetterScores` reads the three places and works out the 27 scores. `threeLetterLoss` then walks back from the scores to every number, the way part 1's backward walk goes back up the receipt. On the way it passes back through tanh, whose slope is 1 less its output squared.
+
+```ts include=src/lib/ml/letters.ts#threeLetter
+```
