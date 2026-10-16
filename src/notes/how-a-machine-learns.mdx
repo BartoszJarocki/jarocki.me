@@ -6,7 +6,7 @@ tags: ["ai"]
 draft: true
 ---
 
-This is the first of four notes on how a model like ChatGPT works. ChatGPT writes by guessing what comes next, one small piece of text at a time. It learned to guess well by turning a lot of knobs a little, over and over, the way this note shows. Part 2 turns text into numbers, and part 3 shows the transformer blocks that ChatGPT is built from. Part 4 puts the pieces together and trains a tiny model like it in your browser.
+This is the first of four notes on how ChatGPT and programs like it work. ChatGPT writes by guessing what comes next, one small piece of text at a time. It learned to guess well by turning a lot of knobs a little, over and over, the way this note shows. Part 2 turns text into numbers, and part 3 shows the transformer blocks that ChatGPT is built from. Part 4 puts the pieces together and trains a tiny version of it in your browser.
 
 ## Guess the fare
 
@@ -34,7 +34,7 @@ It uses squares for two reasons. A miss of 4 then counts four times as much as a
 
 You could see the chart while you moved the sliders. The machine has to find the settings another way.
 
-Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom. The picture squeezes the tall parts so the whole valley fits. The cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make.
+Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom. The picture squeezes the tall parts so the whole valley fits. The cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make. The floor runs down to -$2 a km. No taxi charges that, but to the machine a price is just a number.
 
 The machine never sees this picture. Two knobs can be drawn, and this fare rule even has a shortcut formula that finds its bottom. But a real model has millions of knobs. Nobody can draw a valley with millions of directions, and a bigger model's valley is usually lumpier, with no formula for its bottom. Walking downhill still works there, though it may stop in a low spot that isn't the lowest. So it is like standing on a hill in thick fog. You can't see the bottom. You can only feel which way the ground slopes under your feet, so you take a step that way and feel again. Turn on the fog to see only what the machine can feel. You can also click a spot to put the cube there. If your browser draws the valley in 3D, you can drag it to turn it.
 
@@ -44,9 +44,9 @@ A valley over a floor of settings, the starting fee one way and the price per km
 
 </LossLandscape>
 
-Press step a few times. Each step turns both knobs a little, in the direction where the ground drops fastest. The slope under your feet is called the **gradient**. Each step moves every knob downhill by its slope times a number called the **learning rate**, so steeper ground or a bigger learning rate means a bigger step. The step size control under the valley sets the learning rate. Walking downhill one step at a time is **gradient descent**, and walking until the loss stops getting much smaller is **training**.
+Press step a few times. Each step turns both knobs a little, in the direction where the ground drops fastest. The step size control under the valley sets how big the steps are, and that matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
 
-The step size matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
+The slope under your feet is called the **gradient**. Each step moves every knob downhill by its slope times a number called the **learning rate**, so steeper ground or a bigger learning rate means a bigger step. The step size control sets the learning rate. Walking downhill one step at a time is **gradient descent**, and walking until the loss stops getting much smaller is **training**.
 
 Press walk, and once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. Right now the line has a starting fee of <Fare show="fee" /> dollars and a price per km of <Fare show="price" />, so for 1.6 km it says <Fare show="fee" /> + 1.6 × <Fare show="price" factor />, which is about <Fare km="1.6" /> dollars. Using a trained model to answer a new question like this is **inference**.
 
@@ -77,7 +77,7 @@ The code is TypeScript, which is JavaScript with the type of each value written 
 
 A new question. Is a day comfortable indoors? Each point is a day, temperature across and humidity up, filled if people said comfortable and hollow if not. The comfortable days sit in the middle. Not too cold, not too hot, not too dry, not too damp.
 
-Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That is one **neuron**. It draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too.
+Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That rule draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too. A rule like this is one **neuron**.
 
 So put several neurons side by side. That is a **layer**, and it draws several fences. Each neuron hands its number to every neuron in the next layer, which gives each one a weight, adds its bias, and squashes again. That is how a second layer reads those fences and joins them into a shape, and four fences make a box around the comfortable days. The last neuron squashes its answer to between 0 for no and 1 for yes. The squash is called the **activation function**. Without it, stacking fences only ever makes another straight fence. Layers in a row are a **network**.
 
@@ -87,7 +87,7 @@ One hundred made-up days, temperature across and humidity up, filled where peopl
 
 </Playground>
 
-Press train and watch the shape form. This network has two layers of eight neurons and one more neuron that gives the answer. For a yes or no answer, it scores its guesses a little differently from the squares, and part 2 explains how. Its steps also remember the last few slopes, a common trick called adam, so it gets there faster.
+Press train and watch the shape form. This network has two layers of eight neurons and one more neuron that gives the answer. For a yes or no answer, it scores its guesses a little differently from the squares, and part 2 explains how. Its steps also remember the last few slopes, a common trick called Adam, so it gets there faster.
 
 The shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. Each neuron in the first layer gets a row of three squares, one for each input and one for its bias. A filled square is a positive number and a hollow one is a negative number. A bigger square is a number farther from zero. The layers after it decide what those numbers do to the answer. Point at a row to draw that neuron's fence.
 
