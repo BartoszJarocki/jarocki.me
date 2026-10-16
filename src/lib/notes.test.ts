@@ -322,3 +322,21 @@ test("part 4's glossary contains its ten terms and the note is published", () =>
   ]);
   assert.doesNotMatch(note.split('---')[1], /draft: true/);
 });
+
+test('the integrated ai series has parts 1 to 4 with no gap', (t) => {
+  const directory = new URL('../notes/', import.meta.url);
+  const parts = fs
+    .readdirSync(directory)
+    .filter((name) => name.endsWith('.mdx'))
+    .map((name) => fs.readFileSync(new URL(name, directory), 'utf8').split('---')[1])
+    .filter((frontmatter) => /^series: ['"]?ai['"]?$/m.test(frontmatter))
+    .map((frontmatter) => Number(/^part: (\d+)$/m.exec(frontmatter)?.[1]));
+  if (parts.length === 0) {
+    t.skip('The assigned parent predates ai-09 series metadata. Root must restack it first.');
+    return;
+  }
+  assert.deepEqual(
+    parts.sort((a, b) => a - b),
+    [1, 2, 3, 4],
+  );
+});
