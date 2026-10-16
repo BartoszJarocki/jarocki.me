@@ -25,6 +25,8 @@ export const LossLandscape = demo(() => import('./LossLandscape'));
 export const Playground = demo(() => import('./Playground'));
 export const Tokenizers = demo(() => import('./Tokenizers'));
 export const CountingModel = demo(() => import('./CountingModel'));
+export const LearnToCount = demo(() => import('./LearnToCount'));
+export const LetterSpace = demo(() => import('./LetterSpace'));
 
 // React keeps the server's children of an element with dangerouslySetInnerHTML when it hydrates, so a
 // failed chunk leaves the server's numbers in place.
