@@ -1,0 +1,5 @@
+2-H-H-1 MLP, 100 two-moons points, full batch, 100 SGD steps (median of steps 10-99)
+H= 8 params   105 | Value: 2.52 ms/step (2.28 to 33.15), 396 steps/s, 21722 graph nodes, 240 ns per param-example, final loss 0.0072 acc 1 | Float64Array: 0.056 ms/step, 17742 steps/s, 5.4 ns per param-example | Value is 45x slower | |loss diff| 1.7e-18
+H=16 params   337 | Value: 20.03 ms/step (17.96 to 25.98), 50 steps/s, 68818 graph nodes, 594 ns per param-example, final loss 0.0216 acc 1 | Float64Array: 0.086 ms/step, 11632 steps/s, 2.6 ns per param-example | Value is 233x slower | |loss diff| 2.4e-17
+H=32 params  1185 | Value: 136.27 ms/step (87.60 to 233.63), 7 steps/s, 240962 graph nodes, 1150 ns per param-example, final loss 0.0397 acc 1 | Float64Array: 0.406 ms/step, 2465 steps/s, 3.4 ns per param-example | Value is 336x slower | |loss diff| 8.3e-17
+H=64 params  4417 | Value: 637.21 ms/step (470.87 to 839.17), 2 steps/s, 897058 graph nodes, 1443 ns per param-example, final loss 0.1670 acc 1 | Float64Array: 0.952 ms/step, 1050 steps/s, 2.2 ns per param-example | Value is 669x slower | |loss diff| 2.8e-16

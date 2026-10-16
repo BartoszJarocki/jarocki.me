@@ -1,0 +1,142 @@
+{"label":"shakespeare C64 L4 H4 T64 B16","data":"shakespeare","config":{"vocab":65,"ctx":64,"dim":64,"layers":4,"heads":4},"B":16,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":212545,"vocab":65,"trainTokens":1003854,"valTokens":111540,"baselines":{"uniform":4.174387269895637,"bigram":{"train":2.4545713757197,"val":2.4818894321157265}}}
+
+=== shakespeare C64 L4 H4 T64 B16 at 10s: step 16, train(last 5s) 3.415, val 3.351
+--- sample
+
+ wnede en  oe a,e,w s   ,eo tehluhtr  ad
+ oadetnmOa  t, iS mterit eiturhuuer
+eCneowereine, 
+
+trh
+hgny xiqhr yee c rsniyhnue gos eee  ee 
+ 
+ sw  denaaonpepde!eo  rrodat aercvedNe sfxredntei mbhra, mnu
+--- sample
+S& ntoru w.eanohnhg re neeesu  ,eatset etloGtur
+ o  t h'pn ew  aom!e ede o,mr  nt riI  ym e edo o   s
+ ttefn e hnr fa t  ,NorsonsinmEciN ehldn oeear eejh dtnenIw oe e szet e  no 
+elHet em; i eelrofoeo
+--- sample
+hhhlonsslh  y t oer  YniR Gt   n
+n
+wevhco aloeoah  c o M Stsgns
+  de ea
+
+he, eosenxuIsrptnnK:pXo ff elt!
+fe  c lnpooettettGtpea eunaooinhr ot dooedty i feeclhr  s rHiar  eh v he rtl  h Ae  emtiieW Leh
+
+=== shakespeare C64 L4 H4 T64 B16 at 30s: step 51, train(last 5s) 3.103, val 3.019
+--- sample
+ .ure mMer boice neu t b gas umenweto c m
+Aiimethhd b uc r ;it.ols nntureuuho
+e senveo,fle e
+ vlh
+eely yeoho y o l tonnyast dcor obe e n 
+I
+Aou c'llDasisdnee np eorne u keo'we inatayoe st.h s ro g snu
+--- sample
+e ,itntu xdd snoonndoh sehest afe,sset ntho tus
+MiI u o th mu Pasid amee t so
+Jit te Y yhGa neo t e t
+ wrDeiT, rit o -t c isosnoshir lif nlilidine t ofhe mslek w t d doy,t n  sn 
+ehant no ap neitinren
+--- sample
+ipklootrir ey t
+mes cblih hs bas
+i
+y we t lnrenhe GadlBe hrrfko
+MLT be 
+
+e g
+eosdhyu topsir gnas oh: ss  od  l snrnpetrets tng fauo tionmo tr lnoe vy s oce ser do t r t bee w rd tsh ce g c notehe NMeh
+
+=== shakespeare C64 L4 H4 T64 B16 at 60s: step 98, train(last 5s) 2.728, val 2.698
+--- sample
+
+
+hipebeis ciof he y t bamer whenveti che as leusime bt che sorors mhovortoro meorly thhir.
+
+
+ath oriy yathodune hatithy, wharotareak in,
+
+
+
+To beasanosipone mn fothe we lony ime thwonenthhasefond riw
+--- sample
+EC:
+Whovawe.
+SUOQNNETHAhemetocame wooulethofrut
+Ah,
+Whe th my
+
+Hfhe,
+IEMAbelo bls!
+OCAAye l ler s e t IfonenEL:
+RT
+MH:
+CAGBThoshorisanime, penashe t!
+KON:
+Whends thanaty'wan:
+RS:
+INEMe mim, areloshleo
+--- sample
+NNNOSThore gy w thol,
+ROCALid fe
+R
+inveat isirnd e las id worko bane in , im itiriyonsotorimerat nganls!
+IE
+
+E:
+RThletoptomothe ltherlisho tod sionuy pareanlho!
+T
+TAber ang y oodeth chame anlthhe amel
+
+=== shakespeare C64 L4 H4 T64 B16 at 120s: step 184, train(last 5s) 2.579, val 2.544
+--- sample
+A win, cisakle heldthof and,
+Theowhou bea ar, lurime athar arthout mesthetrat
+I shiy thhion HEour oury y thoey man tishwhive noucind d la bafow beeqr, sorore mid thin we-Corurand thuthenthhar oun ariv
+--- sample
+I I;outs yardarend dor shemowae messes luroouvo br at n thanu,
+Gouke lee thit bouloul ay d aras tchat Pyoren m out me we eathoussisimeld lis, d.
+Dou.
+Gou houpont se iloy wapaarl Anfarteen ar menournd,
+--- sample
+I, oustour by vasite goul ft.
+
+S
+S yevinomennd fom her cantosou be, an,
+
+I d hithiyonousthin thicir irs I k Ve pousortortoouse fetheoureer toingin, y r nd ishobes thinom jods oterth ble iie?
+Whin,
+And
+
+=== shakespeare C64 L4 H4 T64 B16 at 300s: step 398, train(last 5s) 2.314, val 2.335
+--- sample
+A: the, nomat dear you be pravengtesid in at mesirce con quchous, aresthays t menent, is,
+Be Onke sisunt thiet o latheay to fous ond gin E'T to chend thour omen grouons ing, on;
+Arcut mit sen?
+
+BEERDU
+--- sample
+CAFOS:
+Whond sotheanld thedes aneavint nplontsp
+An Rome to iwag the:
+I of hit dou the ay he ore the te wo que'd tie lave ingitens! on:
+
+Bour thind theat ante tho the foy we!
+
+NUK:
+OLit kin pelllled, t
+--- sample
+NORIOES:
+NOay wat thangh, hod fo tay your irmerd.
+
+FLO:
+ARovef Ge ke ma Dot I tingtp thit; hen tear noum
+Th I I prourto ut the hesingeener to loundnt see;
+Four er thing diof.
+
+FARTI ER:
+I ENIUS:
+F are

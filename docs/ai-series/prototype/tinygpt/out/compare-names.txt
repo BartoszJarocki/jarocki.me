@@ -1,0 +1,7 @@
+
+names C32 L2 H4 T16 B32, params 27739, 5 runs per variant x 50 steps after 20 warmup
+naive+fresh     median of run medians 74.0 ms (run medians 70.7 to 87.3), all steps 67.5 to 130.6 ms, 6919 tok/s, speedup vs naive+fresh 1.00x, loss 3.297 -> 2.473
+naive+prealloc  median of run medians 74.4 ms (run medians 73.3 to 87.0), all steps 70.6 to 123.9 ms, 6884 tok/s, speedup vs naive+fresh 0.99x, loss 3.297 -> 2.473
+ikj+fresh       median of run medians 62.5 ms (run medians 61.6 to 77.3), all steps 59.0 to 136.2 ms, 8198 tok/s, speedup vs naive+fresh 1.18x, loss 3.297 -> 2.473
+ikj+prealloc    median of run medians 65.7 ms (run medians 63.0 to 83.7), all steps 60.9 to 126.8 ms, 7799 tok/s, speedup vs naive+fresh 1.13x, loss 3.297 -> 2.473
+ikj4+prealloc   median of run medians 37.8 ms (run medians 36.7 to 49.8), all steps 34.9 to 76.4 ms, 13548 tok/s, speedup vs naive+fresh 1.96x, loss 3.297 -> 2.473

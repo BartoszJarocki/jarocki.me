@@ -1,0 +1,50 @@
+data  least squares fee 5.2358  price 1.4629  loss 0.3279
+      curvature eigenvalues 6.0565 and 0.3335, ratio 18.16, rate limit 2/6.0565 = 0.3302
+ok   1440 light: scroll width equals viewport  scrollWidth 1440, viewport 1440
+ok   1440 light: no console errors  none
+ok   1440 dark: scroll width equals viewport  scrollWidth 1440, viewport 1440
+ok   1440 dark: no console errors  none
+ok   390 light: scroll width equals viewport  scrollWidth 390, viewport 390
+ok   390 light: no console errors  none
+ok   390 dark: scroll width equals viewport  scrollWidth 390, viewport 390
+ok   390 dark: no console errors  none
+ok   fare caption at fee 0.00, price 0.00  caption "loss 52.35", mean squared error 52.3525
+ok   fare caption at fee 2.00, price 2.50  caption "loss 4.43", mean squared error 4.4337
+ok   fare caption at fee 5.24, price 1.46  caption "loss 0.33", mean squared error 0.3279
+ok   fare caption at fee 8.50, price 0.75  caption "loss 6.05", mean squared error 6.0484
+ok   fare caption at fee 3.30, price 4.20  caption "loss 6.74", mean squared error 6.7438
+ok   crawl (0.03) reaches 1% of least squares by pressing step  314 presses, simulated 314, caption "loss 0.33 · 314 stepsstep size 0.030"
+ok   good (0.2) reaches 1% of least squares by pressing step  46 presses, simulated 46, caption "loss 0.33 · 46 stepsstep size 0.200"
+ok   zigzag (0.325) reaches 1% of least squares by pressing step  102 presses, simulated 102, caption "loss 0.33 · 102 stepsstep size 0.325"
+ok   too big (0.38) raises the loss on every step  losses 4.43 -> 5.61 -> 7.99 -> 12.34 -> 19.93, then "loss 19.93 · 4 stepsthe next step leaves the map"
+ok   1.6 km sentence at the start: the shown parts add up to the shown answer  2.00 + 1.6 × 2.50 = 6.0000, shown "6.00"
+ok   1.6 km sentence at the bottom: the shown parts add up to the shown answer  5.21 + 1.6 × 1.48 = 7.5780, shown "7.58"
+     1.6 km sentence at the bottom: "once the cube stops, ask the line about a ride it has never seen. none of the eight rides went 1.6 km. right now the line has a starting fee of 5.21 dollars and a price per km of 1.48, so for 1.6 km it says 5.21 + 1.6 × 1.48, which is about 7.58 dollars. using a trained model to answer a new question like this is inference."
+ok   reduced motion: walk jumps to the end in one press, stopping on flat ground within 0.1% of least squares  caption right after the press "loss 0.33 · 69 stepsthe ground is flat here", loss 0.32803 vs 0.32823
+     walk stops when the two slopes together are under 0.01; at good that took 69 steps
+ok   walk at good stops on flat ground after 69 steps, the count the flat-slope rule gives in node  69 steps
+     walk at good: "loss 0.33 · 69 stepsthe ground is flat here" after 3.6 s
+ok   walk at zigzag stops on flat ground after 195 steps, the count the flat-slope rule gives in node  195 steps
+     walk at zigzag: "loss 0.33 · 195 stepsthe ground is flat here" after 7.7 s
+ok   walk at crawl stops on flat ground after 467 steps, the count the flat-slope rule gives in node  467 steps
+     walk at crawl: "loss 0.33 · 467 stepsthe ground is flat here" after 16.9 s
+ok   fog at the start: nothing drawn outside the 5x5 cells  {"fog":true,"cell":[4,12],"cellsAllowed":25,"drawnPixels":1929,"drawnOutsideAllowedCells":0}
+ok   fog after 12 steps: nothing drawn outside the 5x5 cells  {"fog":true,"cell":[9,10],"cellsAllowed":25,"drawnPixels":2103,"drawnOutsideAllowedCells":0}
+ok   control, fog off: the same audit does count pixels outside  {"fog":false,"cell":[9,10],"cellsAllowed":25,"drawnPixels":40710,"drawnOutsideAllowedCells":38022}
+ok   receipt at the starting settings (fee 2.00, price 2.50): the nudge is within km² × 0.01 of the slope  nudge ratio "-2.10", backward slope "-2.10", unrounded -2.09910 vs -2.10000, bound 0.0009, shown equal
+ok   receipt at sliders moved to fee ~6.5, price ~0.9 (fee 6.50, price 0.90): the nudge is within km² × 0.01 of the slope  nudge ratio "0.31", backward slope "0.31", unrounded 0.31290 vs 0.31200, bound 0.0009, shown equal
+ok   the two receipt settings differ  [[2,2.5],[6.5,0.9]]
+ok   reduced motion: backward fills every slope at once  6 of 6 filled right after the press
+ok   backward fills one row at a time from the bottom  filled rows over time: [loss] [miss,loss] [fare,miss,loss] [ride,fare,miss,loss] [fee,ride,fare,miss,loss] [price,fee,ride,fare,miss,loss] [price,fee,ride,fare,miss,loss] [price,fee,ride,fare,miss,loss]
+ok   playground days reaches 100%  100% after 73 steps, 1.9 s, caption "73 steps · loss 0.202 · 100% rightdays"
+ok   playground switches reaches 100%  100% after 16 steps, 0.4 s, caption "16 steps · loss 0.579 · 100% rightswitches"
+ok   playground groups reaches 100%  100% after 9 steps, 0.2 s, caption "9 steps · loss 0.379 · 100% rightgroups"
+ok   playground spiral reaches 90%  93% after 282 steps, 7.6 s, caption "282 steps · loss 0.295 · 93% rightspiral"
+ok   first layer: a weight of -0.1 draws a hollow square and +0.1 a filled one  {"neg":{"corner":"242,240,237,255","center":"242,240,237,255","edge":"26,24,21,255"},"pos":{"corner":"242,240,237,255","center":"26,24,21,255","edge":"26,24,21,255"}}
+ok   none of the corrected wordings remain  none found
+ok   glossary has 16 terms  16 terms
+ok   reduced motion: no animation frames and no training for 3 s without input  frames 1 -> 1, network steps 0, valley "loss 4.43 · 0 stepsstep size 0.200"
+ok   reduced motion: train runs 300 steps in one press  300 steps
+ok   reduced motion: no console errors  none
+     with motion allowed and no input, the page asked for 0 animation frames in 3 s
+all checks passed

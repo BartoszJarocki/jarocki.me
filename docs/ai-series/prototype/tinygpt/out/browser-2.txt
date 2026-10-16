@@ -1,0 +1,4 @@
+/result {"data":"names","dim":32,"layers":2,"heads":4,"ctx":16,"batch":32,"kernel":"ikj4","warmup":20,"steps":50,"params":27739,"medianMs":38.900000005960464,"minMs":36.900000005960464,"maxMs":48.80000001192093,"firstLoss":3.297045287653423,"lastLoss":2.473239076880973}
+/result {"data":"names","dim":32,"layers":2,"heads":4,"ctx":16,"batch":32,"kernel":"ikj","warmup":20,"steps":50,"params":27739,"medianMs":64.5,"minMs":60.400000005960464,"maxMs":120.2999999821186,"firstLoss":3.297045287653423,"lastLoss":2.473239065842237}
+/result {"data":"shakespeare","dim":64,"layers":2,"heads":4,"ctx":64,"batch":16,"kernel":"ikj4","warmup":10,"steps":50,"params":112577,"medianMs":313.19999998807907,"minMs":294.19999998807907,"maxMs":475.90000000596046,"firstLoss":4.183405099495301,"lastLoss":2.6559067405081813}
+/done Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36

@@ -1,0 +1,21 @@
+{"label":"names C48 L2 H4 T16 B32","data":"names","config":{"vocab":27,"ctx":16,"dim":48,"layers":2,"heads":4},"B":32,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":60027,"vocab":27,"trainTokens":205360,"valTokens":22788,"baselines":{"uniform":3.295836866004329,"bigram":{"train":2.455004154239252,"val":2.4528019493119815}}}
+
+=== names C48 L2 H4 T16 B32 at 10s: step 123, train(last 5s) 2.426, val 2.380
+--- sample
+abynie chleen bhandyan aelio thinynon ale aselivin dadydan arxisis jevyontyah
+
+=== names C48 L2 H4 T16 B32 at 30s: step 388, train(last 5s) 2.310, val 2.303
+--- sample
+abynma deriana ikiey saeelll tennyera bheadlee worie aveen arynnir khryriyn
+
+=== names C48 L2 H4 T16 B32 at 60s: step 785, train(last 5s) 2.248, val 2.236
+--- sample
+abyncel klahme handy saeifan thirynne calaan jaymia bdrein arwismra moxsisten
+
+=== names C48 L2 H4 T16 B32 at 120s: step 1579, train(last 5s) 2.193, val 2.185
+--- sample
+abynia deredie haney saeeken thinyah afha ashamrin haguiah aryloni keuvinstek
+
+=== names C48 L2 H4 T16 B32 at 300s: step 3749, train(last 5s) 2.119, val 2.118
+--- sample
+aburiah kildin genez saceell tinlynnn chea peonton gadul macktlynn khytrity

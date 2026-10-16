@@ -1,0 +1,11 @@
+
+3 runs per config, 50 timed steps per run after warmup, core 4
+config                   params  tok/step  median of run medians  run medians      all steps min-max   tok/s
+names-C32-L2              27739       512             37.0 ms   36/37/37             35-42         13826
+names-C48-L2              60027       512             75.5 ms   74/75/83             70-168         6782
+names-C64-L2             104603       512            120.9 ms   120/121/124         118-210         4237
+shakespeare-C32-L2        31745      1024             96.2 ms   94/96/97             91-130        10645
+shakespeare-C64-L2       112577      1024            285.9 ms   283/286/289         270-608         3582
+shakespeare-C64-L4       212545      1024            548.4 ms   546/548/644         527-1093        1867
+shakespeare-lower-C32-L2  30055      1024             92.6 ms   91/93/94             88-148        11059
+pan-C32-L2                31290      1024             95.3 ms   94/95/96             90-178        10747

@@ -1,0 +1,154 @@
+{"label":"shakespeare C32 L2 H4 T64 B16","data":"shakespeare","config":{"vocab":65,"ctx":64,"dim":32,"layers":2,"heads":4},"B":16,"opt":{"lr":0.003,"wd":0.01},"kernel":"ikj4","fresh":false,"params":31745,"vocab":65,"trainTokens":1003854,"valTokens":111540,"baselines":{"uniform":4.174387269895637,"bigram":{"train":2.4545713757197,"val":2.4818894321157265}}}
+
+=== shakespeare C32 L2 H4 T64 B16 at 10s: step 102, train(last 5s) 2.620, val 2.538
+--- sample
+
+
+he ind.
+AERI heheves be po whenthou che ase nthe je we shasthist outourtrer
+I thiverdeor f Irot shey y.
+LUCy pan:
+They tor profine feal
+
+
+
+Uh'd mindenorone no eroundof minthe olrevind, ou ther, arkt
+--- sample
+CE:
+Whiu y oourepor th'sarert ame wors.
+Whinsth
+An at perichu anouf,
+I ode th citere aey, o nde t.
+-t Irthepaparns pe we herousourlld, hanghenashe t pisid whends than:
+zet n asof me oulkin s oritherer
+--- sample
+INLIROUTOO:
+qUT, mof foue gr beo t
+choulmanghende an t hantiprs ce mand 'she mitheyomousthe hino pilels For an thisorsthouithe hethashemer tl kisantt s phe thid t the te me y shatou de he beovene$ hel
+
+=== shakespeare C32 L2 H4 T64 B16 at 30s: step 283, train(last 5s) 2.409, val 2.385
+--- sample
+A: sond ot bre ine y thagher vellrest che at,
+Lot.
+
+
+
+WEFONCITIRIT:
+Soveawr.
+
+CERIOVHREOLIEA
+
+WON:
+ORofsat:
+Ave:
+I thipy surecis meak in An atraind hererer, deo brounde herete,
+Lesay, isthe seerd arit
+--- sample
+HE:
+Whit y nosthed fre theitr ale, thindise wpr
+An at omot my anot mand bomer boulle adth mande the tabut ot n pro on we floutherelind heare,
+And hiford anthemay theally weag ste meant othar opous.
+
+
+
+--- sample
+ORINTUTheag y taser chend hod eo s yowinin.
+
+
+KEOK:
+Cild futens bean le Cleabersents touthe greo or mese
+Thach stist, witonth inesingeemer tod tindow s,
+I heer brat pisag; ay orcour ar, ik louspld for
+
+=== shakespeare C32 L2 H4 T64 B16 at 60s: step 574, train(last 5s) 2.247, val 2.241
+--- sample
+ARY RII:
+Se the he wer dand but toffid licer methe,
+Ank food witht orsus wone omf trepenge.
+
+
+URLARIOV:
+Mors youe:
+To swiste prof milind Cacest ding ithioung ot grour weemory,
+And'ls notiou then hat w
+--- sample
+Flatirst yourbliord that okst bee?
+
+
+SINUSINTY:
+An by qust my benome nop, hit emy the by he?
+
+MERENCO:
+Wof the sto re weandatkens the sim; the the theas betf.
+
+WARING Oxthar Prom mores preat onden:
+Lo
+--- sample
+MINING he anves thin is iges chi t
+nown theen the be the lovens
+An mand Gomacens trunters's hing poings Pood latises womst.
+
+BOMETINIO:
+No to lour wof ford soulde the thard was down ehe maingsen.
+
+
+LO
+
+=== shakespeare C32 L2 H4 T64 B16 at 120s: step 1164, train(last 5s) 2.022, val 2.072
+--- sample
+
+As lind thee dech, do be ot the with cliake mesind ben din
+To thing to sut take ont, knot factoo sthy with,
+the kerlovingse onr of cheiice
+Arve lith the the nof to mere my with hish.
+
+No! DUCETEN:
+To
+--- sample
+DUCIUS:
+Cursentered the meatil he to thereantis
+De If offf my a the be of his courtiie you,
+I the fat attere of to podse.
+
+PUSTERD:
+Here not the mee of scester's the doy well
+Tigank ould hat of thee t
+--- sample
+QUKENCESTICEURD:
+No be shall be 't you ll it pree,
+I tel hought deeight I in love; whis, so him.
+
+LENO:
+And and themert wonged hesears:
+So to love wo she not ther the the paw sides.
+
+LALE:
+If soin he,
+
+=== shakespeare C32 L2 H4 T64 B16 at 300s: step 2709, train(last 5s) 1.852, val 1.964
+--- sample
+
+And he mored come you beart unly not del'er insst in the,
+And thou orstatune minenter prom I wit
+They with by needisintats for dience's Cagatua in,
+His my me them, inbeences light your wither!
+
+GLOUR
+--- sample
+GLEUTES:
+You sto of the in to bearst unfort vow
+But when sampages he in do.
+FRIONCE:
+AMy he lin the that like and an;
+What this the fene my is the the of my my were
+Thither befor my my mumblend, the s
+--- sample
+POMPSTOLIO:
+Yet sit denseely che ray wing in not genes
+I his stagain mib plearss, your tock him.
+
+LEONTEGE:
+Ad, sould with will my his repert is, its seen:
+Thin the of hath your to, break and prie.
+
+M

@@ -1,0 +1,6 @@
+names C32 L2 T16 B32: 100 paired steps after 20 warmup, variants rotate order every step
+naive+fresh     median  127.6 ms (min 107.9, max 162.3)  speedup vs naive+fresh: median 1.00x, IQR 1.00 to 1.00  final loss 2.4136
+naive+prealloc  median  125.6 ms (min 104.5, max 159.5)  speedup vs naive+fresh: median 1.01x, IQR 0.98 to 1.03  final loss 2.4136
+ikj+fresh       median  109.2 ms (min 93.4, max 145.3)  speedup vs naive+fresh: median 1.15x, IQR 1.12 to 1.20  final loss 2.4136
+ikj+prealloc    median  109.1 ms (min 93.6, max 145.4)  speedup vs naive+fresh: median 1.16x, IQR 1.12 to 1.21  final loss 2.4136
+ikj4+prealloc   median   64.3 ms (min 50.5, max 84.5)  speedup vs naive+fresh: median 1.96x, IQR 1.88 to 2.04  final loss 2.4136

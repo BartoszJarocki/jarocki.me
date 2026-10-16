@@ -1,0 +1,6 @@
+shakespeare C64 L2 T64 B16: 40 paired steps after 5 warmup, variants rotate order every step
+naive+fresh     median  991.6 ms (min 585.3, max 1247.9)  speedup vs naive+fresh: median 1.00x, IQR 1.00 to 1.00  final loss 2.9104
+naive+prealloc  median  979.2 ms (min 600.0, max 1255.0)  speedup vs naive+fresh: median 1.02x, IQR 0.99 to 1.05  final loss 2.9104
+ikj+fresh       median  806.9 ms (min 471.1, max 1029.6)  speedup vs naive+fresh: median 1.24x, IQR 1.21 to 1.31  final loss 2.9104
+ikj+prealloc    median  805.4 ms (min 475.6, max 996.2)  speedup vs naive+fresh: median 1.25x, IQR 1.22 to 1.33  final loss 2.9104
+ikj4+prealloc   median  480.5 ms (min 284.8, max 613.7)  speedup vs naive+fresh: median 2.10x, IQR 2.00 to 2.21  final loss 2.9104

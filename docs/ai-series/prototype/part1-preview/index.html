@@ -1,0 +1,1686 @@
+<title>how a machine learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* a jarocki.me note page: 80ch mono column, 37rem sans prose, demos widen to the full column */
+:root {
+  --bg: oklch(98.4% 0.0025 95);
+  --ink: oklch(21% 0.006 70);
+  --body: oklch(40% 0.006 70);
+  --faint: oklch(54% 0.005 70);
+  --rule: oklch(91% 0.004 80);
+  --wash: oklch(95.6% 0.004 85);
+  --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  text-transform: lowercase;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: oklch(15.5% 0.004 70);
+    --ink: oklch(94% 0.004 80);
+    --body: oklch(76% 0.004 80);
+    --faint: oklch(60% 0.004 80);
+    --rule: oklch(27% 0.004 70);
+    --wash: oklch(20% 0.004 70);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: oklch(15.5% 0.004 70);
+  --ink: oklch(94% 0.004 80);
+  --body: oklch(76% 0.004 80);
+  --faint: oklch(60% 0.004 80);
+  --rule: oklch(27% 0.004 70);
+  --wash: oklch(20% 0.004 70);
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.72 var(--mono);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--ink); color: var(--bg); }
+:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.shell {
+  padding-block: clamp(48px, 11vh, 112px) 160px;
+  padding-inline: clamp(20px, 9vw, 160px);
+}
+.column { max-width: 80ch; margin-inline: auto; }
+.f { color: var(--faint); }
+button { text-transform: inherit; }
+code { text-transform: none; }
+.meta { margin: 0; color: var(--faint); }
+h1 {
+  margin: 14px 0 0;
+  max-width: 24ch;
+  font: 600 30px/1.18 var(--sans);
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+section { margin-top: 56px; }
+section:first-of-type { margin-top: 44px; }
+h2 {
+  margin: 0 0 0.7em;
+  font: 600 19px/1.4 var(--sans);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+h2.label { font: 400 14px/1.72 var(--mono); letter-spacing: 0; color: var(--faint); margin-bottom: 8px; }
+.prose { max-width: 37rem; font: 16px/1.75 var(--sans); color: var(--body); }
+.prose p { margin: 0 0 1.15em; }
+.prose code { font: 13.5px var(--mono); color: var(--ink); }
+.prose strong { font-weight: 500; color: var(--ink); }
+.live { color: var(--ink); font-variant-numeric: tabular-nums; }
+.codenote { max-width: 37rem; margin: 0 0 1.15em; color: var(--faint); }
+.codenote code { color: var(--faint); }
+
+.btn {
+  font: inherit;
+  color: var(--faint);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: color 150ms;
+}
+.btn:hover { color: var(--ink); }
+.btn[aria-pressed="true"] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+}
+.btn:disabled { cursor: default; color: var(--faint); opacity: 0.6; }
+.group { display: flex; flex-wrap: wrap; column-gap: 2.5ch; row-gap: 2px; align-items: baseline; }
+.controls { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+
+.demo { margin: 2em 0 2.4em; }
+.caption {
+  margin: 10px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 3ch;
+  font-variant-numeric: tabular-nums;
+}
+.caption > :last-child { color: var(--faint); }
+
+/* guess the fare */
+.chart { display: block; width: 100%; }
+.sliders { margin-top: 16px; display: grid; gap: 4px; }
+.slider { display: grid; grid-template-columns: 13ch minmax(0, 1fr) 6ch; column-gap: 2ch; align-items: center; }
+.slider label { color: var(--faint); }
+.slider output { text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--faint); }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5.5px;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+}
+input[type="range"]::-moz-range-track { height: 1px; background: var(--faint); }
+input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 0; background: var(--ink); }
+input[type="range"]:focus-visible { outline: 1px solid var(--ink); outline-offset: 3px; }
+
+/* downhill in fog */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3ch; align-items: start; }
+.stage3d {
+  position: relative;
+  height: 360px;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+  overflow: hidden;
+}
+.stage3d[data-dragging] { cursor: grabbing; }
+.stage3d > canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.axis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0 1ch;
+  background: var(--bg);
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.side { display: flex; flex-direction: column; gap: 8px; }
+.side canvas { display: block; }
+.stage-note { position: absolute; inset: 0; display: grid; place-items: center; color: var(--faint); }
+
+/* which way is downhill */
+.receipt-wrap { overflow-x: auto; }
+.receipt { border-collapse: collapse; width: 100%; max-width: 62ch; font-variant-numeric: tabular-nums; }
+.receipt th, .receipt td { padding: 5px 0; text-align: left; font-weight: 400; vertical-align: top; }
+.receipt thead th { color: var(--faint); border-bottom: 1px solid var(--rule); }
+.receipt tbody + tbody tr:first-child > * { border-top: 1px solid var(--rule); }
+.receipt tr:last-child > * { border-bottom: 1px solid var(--rule); }
+.receipt .num { text-align: right; padding-left: 2ch; white-space: nowrap; }
+.receipt .note { display: block; color: var(--faint); }
+.receipt .knob th { color: var(--faint); }
+.receipt tr.total > * { color: var(--ink); }
+.receipt td.slope:empty::after { content: "·"; color: var(--faint); }
+.nudge { margin: 14px 0 0; display: grid; grid-template-columns: max-content max-content; column-gap: 3ch; font-variant-numeric: tabular-nums; }
+.nudge dt { color: var(--faint); }
+.nudge dd { margin: 0; text-align: right; }
+
+/* when a straight line isn't enough */
+.split.tight { grid-template-columns: auto auto; justify-content: start; }
+.fieldwrap { display: grid; grid-template-columns: 18px auto; grid-template-rows: auto 18px; }
+.fieldwrap canvas { display: block; }
+.ylab {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: flex;
+  justify-content: space-between;
+  color: var(--faint);
+  font-size: 11px;
+  line-height: 18px;
+}
+.xlab { grid-column: 2; display: flex; justify-content: space-between; color: var(--faint); font-size: 11px; line-height: 18px; }
+canvas.touch { touch-action: none; }
+
+/* index rows */
+.index { list-style: none; margin: 0; padding: 0; }
+.index li { display: grid; grid-template-columns: var(--c1, 20ch) minmax(0, 1fr); column-gap: 3ch; padding: 2px 0; }
+.index .lead { color: var(--ink); }
+.index .main { color: var(--body); }
+.datasets { margin-top: 18px; --c1: 9ch; }
+
+@media (max-width: 640px) {
+  .group { column-gap: 2ch; }
+  .split,
+  .split.tight { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .side { flex-direction: row; align-items: flex-end; gap: 2ch; }
+  .stage3d { height: 230px; }
+  .index li { column-gap: 2ch; grid-template-columns: var(--c1m, 15ch) minmax(0, 1fr); }
+  .datasets { --c1m: 9ch; }
+  .slider { grid-template-columns: 12ch minmax(0, 1fr) 6ch; column-gap: 1.5ch; }
+}
+</style>
+
+<div class="shell">
+  <main class="column">
+    <article>
+      <p class="meta">preview · a sketch of part 1, not the final note</p>
+      <h1>how a machine learns</h1>
+
+      <section id="fare">
+        <h2>guess the fare</h2>
+        <div class="prose">
+          <p>a taxi ride costs a starting fee plus a price for every kilometer. if the fee is 3 dollars and a kilometer costs 2, a 5 kilometer ride costs 3 + 5 × 2 = 13 dollars.</p>
+          <p>now turn it around. you have eight old rides from another city. you know how far each one went and what you paid, but nobody tells you the fee or the price. can you find a fee and a price that guess these fares well?</p>
+          <p>the chart has your eight rides. the line is your guess. move the two sliders until the line runs close to every ride. each square shows how far off the guess is for one ride, so a bad guess has big squares. no line touches every ride, because some of them sat in traffic. the number under the chart, next to the word loss, is the average area of the squares. smaller is better.</p>
+          <p>that is all learning means here. there is a rule with a few knobs, and the machine looks for the knob settings that make its guesses close to what really happened.</p>
+        </div>
+        <figure class="demo" data-gate="fare" style="margin-inline: 0">
+          <canvas id="fare-chart" class="chart" role="img" aria-label="eight taxi rides, distance across and fare up, with your guessed fare line and one square per ride whose side is that ride's miss"></canvas>
+          <p class="caption" id="fare-caption"><span></span><span>eight made-up rides</span></p>
+          <div class="sliders">
+            <div class="slider">
+              <label for="fee">starting fee</label>
+              <input type="range" id="fee" min="0" max="10" step="0.01">
+              <output for="fee" id="fee-out"></output>
+            </div>
+            <div class="slider">
+              <label for="price">price per km</label>
+              <input type="range" id="price" min="0" max="5" step="0.01">
+              <output for="price" id="price-out"></output>
+            </div>
+          </div>
+        </figure>
+        <div class="prose">
+          <p>the rule you just tuned is a <strong>model</strong>. it takes a distance and gives back a fare. the two sliders are its <strong>parameters</strong>, the knobs you turn to make it fit. the price per km is called a <strong>weight</strong>, because it scales the input. a longer ride gets more of it. the starting fee is called a <strong>bias</strong>, because it moves every guess up or down by the same amount. the fare the line gives for one ride is a <strong>prediction</strong>.</p>
+          <p>that average area is the <strong>loss</strong>, one number for how far all the guesses are from what the riders really paid. the machine's whole job is to make it small. however you set the sliders, it never gets below <span class="live" data-live="best-loss"></span>, because no line touches every ride.</p>
+          <p>it uses squares for two reasons. a miss of 4 then counts four times as much as a miss of 2, so big misses matter most. and an area is never negative, so a guess that is too high can't cancel one that is too low.</p>
+        </div>
+      </section>
+
+      <section id="valley">
+        <h2>downhill in fog</h2>
+        <div class="prose">
+          <p>you could see the chart while you moved the sliders. the machine has to find the settings another way.</p>
+          <p>every setting of the two knobs has a loss. lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. you get a valley, and the best settings sit at the bottom. the picture squeezes the tall parts so the whole valley fits. the cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make.</p>
+          <p>the machine never sees this picture. two knobs can be drawn, and this fare rule even has a shortcut formula that finds its bottom. but a real model has millions of knobs. nobody can draw a valley with millions of directions, and a network's valley is usually lumpier, with no formula for its bottom. walking downhill still works there, though it may stop in a low spot that isn't the lowest. so it is like standing on a hill in thick fog. you can't see the bottom. you can only feel which way the ground slopes under your feet, so you take a step that way and feel again. turn on the fog to see only what the machine can feel. you can also drag the valley to turn it, or click a spot to put the cube there.</p>
+        </div>
+        <figure class="demo" data-gate="valley" style="margin-inline: 0">
+          <div class="split">
+            <div class="stage3d" id="valley-stage" role="img" tabindex="0" aria-label="the loss for every starting fee and price per km, drawn as a valley, with a cube at the current settings"></div>
+            <div class="side">
+              <canvas id="valley-inset" role="img" aria-label="the eight rides and the line at the cube's settings"></canvas>
+              <span class="f">the line at<br>the cube</span>
+            </div>
+          </div>
+          <p class="caption" id="valley-caption"><span></span><span></span></p>
+          <div class="controls" id="valley-controls"></div>
+        </figure>
+        <div class="prose">
+          <p>press step a few times. each step turns both knobs a little, in the direction where the ground drops fastest. the slope under your feet is called the <strong>gradient</strong>. each step moves every knob downhill by its slope times a number called the <strong>learning rate</strong>, so steeper ground or a bigger learning rate means a bigger step. walking downhill one step at a time is <strong>gradient descent</strong>, and walking until the loss stops getting much smaller is <strong>training</strong>.</p>
+          <p>the step size matters. crawl takes tiny steps and needs hundreds of them. good walks down the wall and then along the floor of the valley. zigzag overshoots and lands on the far wall, again and again, so it wastes steps. too big jumps across the valley and lands higher than it started. from where the cube starts, it does that on every step, so the loss grows instead of shrinking. for these eight rides, any step size above about <span class="live" data-live="limit"></span> climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.</p>
+          <p id="unseen">once the cube stops, ask the line about a ride it has never seen. none of the eight rides went 1.6 km. right now the line has a starting fee of <span class="live" data-live="fee"></span> dollars and a price per km of <span class="live" data-live="price"></span>, so for 1.6 km it says <span class="live" data-live="fee"></span> + 1.6 × <span class="live" data-live="price"></span>, which is about <span class="live" data-live="unseen"></span> dollars. using a trained model to answer a new question like this is <strong>inference</strong>.</p>
+        </div>
+      </section>
+
+      <section id="receipt">
+        <h2>which way is downhill?</h2>
+        <div class="prose">
+          <p>each step needs the slope for every knob. here is how the machine gets it. take one ride and work out its loss like a receipt, one line at a time. distance times price per km. plus the starting fee, which gives the guessed fare. minus what the rider paid, which gives the miss. then the miss times itself, which is this ride's loss.</p>
+          <p>press nudge to add one cent to the price per km and watch the bottom line. it changes a little. that change divided by one cent is very close to the slope for this knob. it says how fast the loss moves when the knob turns, and which way. a negative slope means turning the knob up makes the loss smaller.</p>
+        </div>
+        <figure class="demo" data-gate="receipt" style="margin-inline: 0">
+          <div class="receipt-wrap">
+            <table class="receipt" id="receipt-table">
+              <caption class="f" style="text-align: left; caption-side: top; padding-bottom: 6px">one ride, <span id="receipt-km"></span> km, the receipt at your current settings</caption>
+              <thead>
+                <tr><th scope="col">line</th><th scope="col" class="num">amount</th><th scope="col" class="num">slope</th></tr>
+              </thead>
+              <tbody>
+                <tr class="knob" data-row="price"><th scope="row">price per km</th><td class="num"></td><td class="num slope"></td></tr>
+                <tr class="knob" data-row="fee"><th scope="row">starting fee</th><td class="num"></td><td class="num slope"></td></tr>
+              </tbody>
+              <tbody>
+                <tr data-row="ride"><th scope="row"><span class="km"></span> km × price per km</th><td class="num"></td><td class="num slope"></td></tr>
+                <tr data-row="fare"><th scope="row">+ starting fee<span class="note">the guessed fare</span></th><td class="num"></td><td class="num slope"></td></tr>
+                <tr data-row="miss"><th scope="row">- what the rider paid, <span class="paid"></span><span class="note">the miss</span></th><td class="num"></td><td class="num slope"></td></tr>
+                <tr data-row="loss" class="total"><th scope="row">miss × miss<span class="note">this ride's loss</span></th><td class="num"></td><td class="num slope"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <dl class="nudge" id="nudge" aria-live="polite" hidden>
+            <dt>price per km</dt><dd data-n="price"></dd>
+            <dt>this ride's loss</dt><dd data-n="loss"></dd>
+            <dt>change</dt><dd data-n="change"></dd>
+            <dt>change divided by one cent</dt><dd data-n="ratio"></dd>
+          </dl>
+          <div class="controls" id="receipt-controls"></div>
+        </figure>
+        <div class="prose">
+          <p>nudging works, but a real model has millions of knobs, and nudging each one in turn would take forever. so the machine walks the receipt from the bottom line up instead, like tracing a wrong total back to the items that caused it. a line's slope says how much the bottom line moves for each unit that line moves, and each line works it out from the line after it.</p>
+          <p>the bottom line is the miss times itself. if the miss is 3, this ride's loss is 9. make the miss 3.01 and the loss is 9.0601, about 0.06 more, which is 2 × 3 × 0.01. so the loss moves about two times the miss for each unit the miss moves, and the miss gets a slope of two times the miss. the guessed fare moves the miss one for one, so it gets the same slope, and so does the starting fee. the price per km moves its line only <span class="live" data-live="km"></span> times as much, because the ride was <span class="live" data-live="km"></span> km, so its slope is <span class="live" data-live="km"></span> times that. press backward to watch it. the slope it gets for the price per km is almost exactly what the nudge gave, and the starting fee got its slope in the same walk. this walk backwards is <strong>backpropagation</strong>. do it for all eight rides, average the slopes, and you have the gradient from the valley.</p>
+        </div>
+        <p class="codenote">the <code>Value</code> code goes here, for readers who know javascript.</p>
+      </section>
+
+      <section id="fences">
+        <h2>when a straight line isn't enough</h2>
+        <div class="prose">
+          <p>a new question. is a day comfortable indoors? each point is a day, temperature across and humidity up, filled if people said comfortable and hollow if not. the comfortable days sit in the middle. not too cold, not too hot, not too dry, not too damp.</p>
+          <p>take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. then squash the result so big sums level off. that is one <strong>neuron</strong>. it draws one straight fence across the chart and says how far onto the yes side a day is. one fence can't pen in the middle. wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too.</p>
+          <p>so put several neurons side by side. that is a <strong>layer</strong>, and it draws several fences. each neuron hands its number to every neuron in the next layer, which gives each one a weight, adds its bias, and squashes again. that is how a second layer reads those fences and joins them into a shape, and four fences make a box around the comfortable days. the last neuron squashes its answer to between 0 for no and 1 for yes. the squash is called the <strong>activation function</strong>. without it, stacking fences only ever makes another straight fence. layers in a row are a <strong>network</strong>.</p>
+        </div>
+        <figure class="demo" data-gate="fences" style="margin-inline: 0">
+          <div class="split tight">
+            <div class="fieldwrap">
+              <div class="ylab" id="ylab"></div>
+              <canvas id="field" class="touch" role="img" aria-label="the days as filled and hollow squares over the network's answer for every spot"></canvas>
+              <div class="xlab" id="xlab"></div>
+            </div>
+            <div class="side">
+              <canvas id="hinton" class="touch" role="img" aria-label="the first layer's knobs, one row per neuron, filled for a positive number and hollow for a negative one, bigger for a number farther from zero"></canvas>
+              <span class="f">first layer,<br>one row<br>per neuron</span>
+            </div>
+          </div>
+          <p class="caption" id="net-caption"><span></span><span></span></p>
+          <div class="controls" id="net-controls"></div>
+          <ul class="index datasets" id="datasets"></ul>
+        </figure>
+        <div class="prose">
+          <p>press train and watch the shape form. this network has two layers of eight neurons and one more neuron that gives the answer. for a yes or no answer, it scores its guesses a little differently from the squares, and part 2 explains how. its steps also remember the last few slopes, a common trick called adam, so it gets there faster.</p>
+          <p>the shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. each neuron in the first layer gets a row of three squares, one for each input and one for its bias. a filled square is a positive number and a hollow one is a negative number. a bigger square is a number farther from zero. the layers after it decide what those numbers do to the answer. point at a row to draw that neuron's fence.</p>
+        </div>
+      </section>
+
+      <section id="glossary">
+        <h2 class="label">glossary</h2>
+        <ul class="index" id="glossary-rows"></ul>
+      </section>
+    </article>
+  </main>
+</div>
+
+<script type="module">
+const $ = (s) => document.querySelector(s);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const darkScheme = matchMedia('(prefers-color-scheme: dark)');
+const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js';
+
+// The tokens are oklch, so a 1x1 canvas resolves them to the sRGB bytes the page paints.
+const swatch = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+swatch.canvas.width = swatch.canvas.height = 1;
+const tok = {};
+function readTokens() {
+  const style = getComputedStyle(document.documentElement);
+  for (const name of ['bg', 'ink', 'body', 'faint', 'rule', 'wash']) {
+    swatch.clearRect(0, 0, 1, 1);
+    swatch.fillStyle = '#000';
+    swatch.fillStyle = style.getPropertyValue(`--${name}`).trim();
+    swatch.fillRect(0, 0, 1, 1);
+    const d = swatch.getImageData(0, 0, 1, 1).data;
+    tok[name] = [d[0], d[1], d[2]];
+  }
+}
+readTokens();
+const mixRgb = (t, from = tok.bg, to = tok.ink) => from.map((v, i) => v + (to[i] - v) * t);
+const css = (t) => `rgb(${mixRgb(t).map((v) => v.toFixed(1)).join(' ')})`;
+const tokCss = (name) => `rgb(${tok[name].join(' ')})`;
+const rgb01 = (c) => c.map((v) => v / 255);
+const themeSubs = [];
+function themeChanged() {
+  readTokens();
+  themeSubs.forEach((f) => f());
+}
+darkScheme.addEventListener('change', themeChanged);
+new MutationObserver(themeChanged).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+const DPR = () => Math.min(devicePixelRatio || 1, 2);
+function sizeCanvas(cv, w, h) {
+  const d = DPR();
+  cv.width = Math.round(w * d);
+  cv.height = Math.round(h * d);
+  cv.style.width = `${w}px`;
+  cv.style.height = `${h}px`;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(d, 0, 0, d, 0, 0);
+  return ctx;
+}
+const narrow = () => matchMedia('(max-width: 640px)').matches;
+const count = new Intl.NumberFormat('en-US');
+const money = (v) => `$${v.toFixed(2)}`;
+const num = (v, d = 2) => (Math.abs(v) < 0.5 * 10 ** -d ? 0 : v).toFixed(d);
+const MONO11 = '11px "Geist Mono", ui-monospace, monospace';
+
+function button(label, onClick) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'btn';
+  b.textContent = label;
+  b.addEventListener('click', onClick);
+  return b;
+}
+function group(parent, label) {
+  const g = document.createElement('div');
+  g.className = 'group';
+  g.setAttribute('role', 'group');
+  if (label) {
+    const s = document.createElement('span');
+    s.className = 'f';
+    s.textContent = label;
+    g.append(s);
+    g.setAttribute('aria-label', label);
+  }
+  parent.append(g);
+  return g;
+}
+const press = (b, on) => b.setAttribute('aria-pressed', String(on));
+
+// A demo runs only while it is on screen and the tab is visible. Scenes mount within 200px of the viewport.
+const onScreen = {};
+const wakers = [];
+const live = (id) => onScreen[id] && !document.hidden;
+const wakeAll = () => wakers.forEach((f) => f());
+const seen = new IntersectionObserver((entries) => {
+  for (const e of entries) onScreen[e.target.dataset.gate] = e.isIntersecting;
+  wakeAll();
+});
+document.querySelectorAll('[data-gate]').forEach((el) => seen.observe(el));
+document.addEventListener('visibilitychange', wakeAll);
+function whenNear(el, fn) {
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) {
+      io.disconnect();
+      fn();
+    }
+  }, { rootMargin: '200px' });
+  io.observe(el);
+}
+
+// ---------- the taxi rides and the fare rule
+// Made up: a fee near 4.50 and 1.50 per km, plus traffic. Short city rides keep the valley from getting long and narrow.
+const RIDES = [
+  { km: 0.3, paid: 6.25 },
+  { km: 0.5, paid: 5.35 },
+  { km: 0.8, paid: 6.6 },
+  { km: 1.1, paid: 6.15 },
+  { km: 1.4, paid: 8.2 },
+  { km: 1.8, paid: 7.5 },
+  { km: 2.1, paid: 7.85 },
+  { km: 2.4, paid: 9.2 },
+];
+const START = { fee: 2, price: 2.5 };
+const BOX = { fee: 10, price: 5 };
+const RECEIPT_RIDE = 0;
+const meanOf = (f) => RIDES.reduce((s, r) => s + f(r), 0) / RIDES.length;
+const guess = (at, km) => at.fee + at.price * km;
+const fareLoss = (at) => meanOf((r) => (guess(at, r.km) - r.paid) ** 2);
+const fareGrad = (at) => [
+  meanOf((r) => 2 * (guess(at, r.km) - r.paid)),
+  meanOf((r) => 2 * (guess(at, r.km) - r.paid) * r.km),
+];
+const BEST = (() => {
+  const mx = meanOf((r) => r.km);
+  const my = meanOf((r) => r.paid);
+  const price = (meanOf((r) => r.km * r.paid) - mx * my) / (meanOf((r) => r.km * r.km) - mx * mx);
+  const fee = my - price * mx;
+  return { fee, price, loss: fareLoss({ fee, price }) };
+})();
+// The loss's curvature is 2 * [[1, mean km], [mean km, mean km^2]]. A step above 2 / its largest eigenvalue grows the loss.
+const LIMIT = (() => {
+  const m = meanOf((r) => r.km);
+  const s = meanOf((r) => r.km * r.km);
+  const tr = 2 + 2 * s;
+  const det = 4 * s - 4 * m * m;
+  return 2 / ((tr + Math.sqrt(tr * tr - 4 * det)) / 2);
+})();
+const RATES = [
+  { name: 'crawl', rate: 0.03 },
+  { name: 'good', rate: 0.2 },
+  { name: 'zigzag', rate: 0.325 },
+  { name: 'too big', rate: 0.38 },
+];
+const inBox = (at) => at.fee >= 0 && at.fee <= BOX.fee && at.price >= 0 && at.price <= BOX.price;
+
+const fare = { ...START };
+const fareSubs = [];
+function setFare(next, source) {
+  fare.fee = next.fee;
+  fare.price = next.price;
+  fareSubs.forEach((f) => f(source));
+}
+
+// ---------- the fare chart, drawn full size in section one and small next to the valley
+const CHART = { km: 3, fare: 14 };
+function drawFares(ctx, W, H, at, { compact = false } = {}) {
+  const pad = compact ? { l: 2, r: 2, t: 2, b: 2 } : { l: 36, r: 6, t: 12, b: 26 };
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+  const kx = pw / CHART.km;
+  const ky = ph / CHART.fare;
+  const sx = (km) => pad.l + km * kx;
+  const sy = (f) => pad.t + ph - f * ky;
+  ctx.fillStyle = tokCss('bg');
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = tokCss('rule');
+  ctx.fillRect(pad.l, Math.round(sy(0)), pw, 1);
+  if (!compact) {
+    ctx.font = MONO11;
+    ctx.fillStyle = tokCss('faint');
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'right';
+    for (const f of [0, 4, 8, 12]) ctx.fillText(`$${f}`, pad.l - 8, sy(f));
+    ctx.textAlign = 'left';
+    ctx.fillText('fare', 0, 5);
+    ctx.textBaseline = 'top';
+    ctx.textAlign = 'center';
+    for (const k of [0, 1, 2]) ctx.fillText(k ? `${k} km` : '0', sx(k), sy(0) + 8);
+    ctx.textAlign = 'right';
+    ctx.fillText('distance', W - pad.r, sy(0) + 8);
+  }
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(pad.l, 0, pw + pad.r, sy(0));
+  ctx.clip();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = css(compact ? 0.4 : 0.45);
+  for (const r of RIDES) {
+    const miss = guess(at, r.km) - r.paid;
+    const side = Math.round(Math.abs(miss) * ky);
+    if (side < 1) continue;
+    const top = Math.round(Math.min(sy(r.paid), sy(r.paid + miss)));
+    ctx.strokeRect(Math.round(sx(r.km)) + 0.5, top + 0.5, side, side);
+  }
+  ctx.strokeStyle = tokCss('ink');
+  ctx.lineWidth = compact ? 1 : 1.5;
+  ctx.beginPath();
+  ctx.moveTo(sx(0), sy(guess(at, 0)));
+  ctx.lineTo(sx(CHART.km) + pad.r, sy(guess(at, CHART.km + pad.r / kx)));
+  ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = tokCss('ink');
+  const p = compact ? 4 : 6;
+  for (const r of RIDES) ctx.fillRect(Math.round(sx(r.km) - p / 2), Math.round(sy(r.paid) - p / 2), p, p);
+}
+
+// ---------- guess the fare
+const fareDemo = (() => {
+  const cv = $('#fare-chart');
+  const caption = $('#fare-caption').children[0];
+  const fee = $('#fee');
+  const price = $('#price');
+  const feeOut = $('#fee-out');
+  const priceOut = $('#price-out');
+  let ctx = null;
+  let size = [0, 0];
+  function layout() {
+    const w = cv.parentElement.clientWidth;
+    if (!w) return;
+    size = [w, Math.round(Math.min(320, Math.max(220, w * 0.46)))];
+    ctx = sizeCanvas(cv, ...size);
+    cv.style.width = '100%';
+    draw();
+  }
+  function draw() {
+    if (!ctx) return;
+    drawFares(ctx, size[0], size[1], fare);
+    caption.innerHTML = `<span class="f">loss</span> ${fareLoss(fare).toFixed(2)}`;
+    feeOut.textContent = money(fare.fee);
+    priceOut.textContent = money(fare.price);
+  }
+  const read = () => setFare({ fee: +fee.value, price: +price.value }, 'slider');
+  fee.addEventListener('input', read);
+  price.addEventListener('input', read);
+  fareSubs.push((source) => {
+    if (source !== 'slider') {
+      fee.value = fare.fee;
+      price.value = fare.price;
+    }
+    draw();
+  });
+  fee.value = fare.fee;
+  price.value = fare.price;
+  new ResizeObserver(layout).observe(cv.parentElement);
+  themeSubs.push(draw);
+  document.fonts?.ready.then(draw);
+  return { draw };
+})();
+
+// ---------- the live numbers in the prose
+function writeLive() {
+  const vals = {
+    'best-loss': BEST.loss.toFixed(2),
+    limit: LIMIT.toFixed(2),
+    fee: fare.fee.toFixed(2),
+    price: fare.price.toFixed(2),
+    unseen: (+fare.fee.toFixed(2) + 1.6 * +fare.price.toFixed(2)).toFixed(2),
+    km: String(RIDES[RECEIPT_RIDE].km),
+  };
+  document.querySelectorAll('[data-live]').forEach((el) => (el.textContent = vals[el.dataset.live]));
+}
+fareSubs.push(writeLive);
+writeLive();
+
+// ---------- downhill in fog: the loss of the eight rides over the two knobs, as a hidden-line wireframe
+const valley = (() => {
+  const stage = $('#valley-stage');
+  const inset = $('#valley-inset');
+  const caption = $('#valley-caption');
+  const N = 24;
+  const M = 48;
+  const LV = 10;
+  const toX = (fee) => (fee / BOX.fee - 0.5) * N;
+  const toZ = (price) => (0.5 - price / BOX.price) * N;
+  const fromX = (x) => (x / N + 0.5) * BOX.fee;
+  const fromZ = (z) => (0.5 - z / N) * BOX.price;
+  const cellOf = (at) => [
+    Math.max(0, Math.min(N - 1, Math.floor((at.fee / BOX.fee) * N))),
+    Math.max(0, Math.min(N - 1, Math.floor((at.price / BOX.price) * N))),
+  ];
+  let lmax = 0;
+  for (let i = 0; i <= M; i++)
+    for (let j = 0; j <= M; j++) lmax = Math.max(lmax, fareLoss({ fee: (i / M) * BOX.fee, price: (j / M) * BOX.price }));
+  const K = 0.6;
+  const hOf = (at) => (LV * Math.log1p(fareLoss(at) / K)) / Math.log1p(lmax / K);
+  const clampAt = (at) => ({
+    fee: Math.max(0, Math.min(BOX.fee, at.fee)),
+    price: Math.max(0, Math.min(BOX.price, at.price)),
+  });
+
+  const walk = { rate: RATES[1], steps: 0, status: 'ready', walking: false, wentUp: false, trail: [{ ...fare }], from: { ...fare }, stepAt: 0, dur: 0 };
+  const pace = (k) => Math.max(20, 170 * 0.92 ** k);
+  let fog = false;
+  let three = null;
+  let raf = 0;
+
+  function restartWalk() {
+    walk.steps = 0;
+    walk.status = 'ready';
+    walk.walking = false;
+    walk.wentUp = false;
+    walk.trail = [{ ...fare }];
+    walk.from = { ...fare };
+    walk.stepAt = 0;
+  }
+  const FLAT = 0.01;
+  function doStep() {
+    if (walk.status === 'bottom' || walk.status === 'off') return false;
+    const before = fareLoss(fare);
+    const [gf, gp] = fareGrad(fare);
+    if (Math.hypot(gf, gp) < FLAT) {
+      walk.status = 'bottom';
+      return false;
+    }
+    const next = { fee: fare.fee - walk.rate.rate * gf, price: fare.price - walk.rate.rate * gp };
+    if (!inBox(next)) {
+      walk.status = 'off';
+      return false;
+    }
+    walk.from = { ...fare };
+    walk.stepAt = performance.now();
+    walk.dur = reduced.matches ? 0 : pace(walk.steps);
+    walk.steps++;
+    walk.trail.push({ ...next });
+    walk.wentUp = fareLoss(next) > before;
+    setFare(next, 'walk');
+    walk.status = Math.hypot(...fareGrad(next)) < FLAT ? 'bottom' : 'stepping';
+    return true;
+  }
+
+  let ictx = null;
+  let insetSize = [0, 0];
+  function layoutInset() {
+    const w = narrow() ? 150 : 176;
+    insetSize = [w, Math.round(w * 0.78)];
+    ictx = sizeCanvas(inset, ...insetSize);
+  }
+
+  function statusText() {
+    if (walk.status === 'bottom') return 'the ground is flat here';
+    if (walk.status === 'off') return 'the next step leaves the map';
+    if (walk.wentUp) return 'that step went uphill';
+    return `step size ${walk.rate.rate.toFixed(3)}`;
+  }
+  function writeCaption() {
+    caption.children[0].innerHTML =
+      `<span class="f">loss</span> ${fareLoss(fare).toFixed(2)} <span class="f">·</span> ${count.format(walk.steps)} <span class="f">${walk.steps === 1 ? 'step' : 'steps'}</span>`;
+    caption.children[1].textContent = statusText();
+  }
+
+  async function mount() {
+    let THREE;
+    try {
+      THREE = await import(THREE_URL);
+    } catch {
+      stage.innerHTML = '<p class="stage-note">the valley needs webgl, which this browser did not give it</p>';
+      return;
+    }
+    THREE.ColorManagement.enabled = false;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+    renderer.setClearColor(0x000000, 0);
+    stage.append(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -500, 500);
+
+    // Every vertex carries its grid position in cells, so the fog can drop whatever lies outside the cube's 5x5 cells.
+    const fogUniforms = { uRect: { value: new THREE.Vector4(-1, -1, N + 1, N + 1) }, uFogOn: { value: 0 } };
+    const fogMaterial = (extra = {}) =>
+      new THREE.ShaderMaterial({
+        uniforms: { ...fogUniforms, uColor: { value: new THREE.Color() } },
+        vertexShader: `
+          attribute vec2 cell;
+          varying vec2 vCell;
+          void main() {
+            vCell = cell;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }`,
+        fragmentShader: `
+          uniform vec3 uColor;
+          uniform vec4 uRect;
+          uniform float uFogOn;
+          varying vec2 vCell;
+          void main() {
+            if (uFogOn > 0.5 && (vCell.x < uRect.x || vCell.x > uRect.z || vCell.y < uRect.y || vCell.y > uRect.w)) discard;
+            gl_FragColor = vec4(uColor, 1.0);
+          }`,
+        ...extra,
+      });
+    const vtx = (i, j) => {
+      const at = { fee: (i / M) * BOX.fee, price: (j / M) * BOX.price };
+      return [toX(at.fee), hOf(at), toZ(at.price)];
+    };
+    const cellUV = (i, j) => [(i / M) * N, (j / M) * N];
+
+    const sp = new Float32Array((M + 1) * (M + 1) * 3);
+    const sc = new Float32Array((M + 1) * (M + 1) * 2);
+    for (let j = 0; j <= M; j++)
+      for (let i = 0; i <= M; i++) {
+        sp.set(vtx(i, j), (j * (M + 1) + i) * 3);
+        sc.set(cellUV(i, j), (j * (M + 1) + i) * 2);
+      }
+    const idx = [];
+    for (let j = 0; j < M; j++)
+      for (let i = 0; i < M; i++) {
+        const a = j * (M + 1) + i;
+        idx.push(a, a + 1, a + M + 1, a + 1, a + M + 2, a + M + 1);
+      }
+    const surfGeo = new THREE.BufferGeometry();
+    surfGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+    surfGeo.setAttribute('cell', new THREE.BufferAttribute(sc, 2));
+    surfGeo.setIndex(idx);
+    const surfMat = fogMaterial({ side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+    const surf = new THREE.Mesh(surfGeo, surfMat);
+
+    const lp = [];
+    const lc = [];
+    const seg = (a, b) => {
+      lp.push(...vtx(...a), ...vtx(...b));
+      lc.push(...cellUV(...a), ...cellUV(...b));
+    };
+    const EVERY = M / N;
+    for (let j = 0; j <= M; j += EVERY) for (let i = 0; i < M; i++) seg([i, j], [i + 1, j]);
+    for (let i = 0; i <= M; i += EVERY) for (let j = 0; j < M; j++) seg([i, j], [i, j + 1]);
+    const wireGeo = new THREE.BufferGeometry();
+    wireGeo.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
+    wireGeo.setAttribute('cell', new THREE.Float32BufferAttribute(lc, 2));
+    const wireMat = fogMaterial();
+    const wire = new THREE.LineSegments(wireGeo, wireMat);
+    scene.add(surf, wire);
+
+    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+    cubeGeo.translate(0, 0.5, 0);
+    const cubeMat = new THREE.ShaderMaterial({
+      uniforms: { uInk: { value: new THREE.Color() }, uBg: { value: new THREE.Color() } },
+      vertexShader: `
+        varying vec3 vN;
+        void main() {
+          vN = normalize(mat3(modelMatrix) * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform vec3 uInk, uBg;
+        varying vec3 vN;
+        void main() {
+          vec3 n = normalize(vN);
+          float t = n.z > 0.5 ? 1.0 : n.y > 0.5 ? 0.66 : n.y < -0.5 ? 0.3 : 0.44;
+          gl_FragColor = vec4(mix(uBg, uInk, t), 1.0);
+        }`,
+    });
+    const cube = new THREE.Mesh(cubeGeo, cubeMat);
+    cube.renderOrder = 2;
+    scene.add(cube);
+
+    const MAXT = 4000;
+    const trailArr = new Float32Array(MAXT * 3);
+    const trailGeo = new THREE.BufferGeometry();
+    trailGeo.setAttribute('position', new THREE.BufferAttribute(trailArr, 3));
+    const trailMat = new THREE.LineBasicMaterial({ depthTest: false });
+    const trailLine = new THREE.Line(trailGeo, trailMat);
+    trailLine.frustumCulled = false;
+    trailLine.renderOrder = 1;
+    scene.add(trailLine);
+
+    // Each label sits just outside the edge it names, so its plate never covers the surface or the cube.
+    const labels = [
+      { text: '$0', at: { fee: 0, price: 0 }, out: [-0.9, -0.5] },
+      { text: `$${BOX.fee}`, at: { fee: BOX.fee, price: 0 }, out: [0.4, -0.6] },
+      { text: `$${BOX.price}`, at: { fee: 0, price: BOX.price }, out: [-0.9, 0.3] },
+      { text: 'starting fee', at: { fee: BOX.fee / 2, price: 0 }, out: [0, -0.8] },
+      { text: 'price per km', at: { fee: 0, price: BOX.price / 2 }, out: [-2.2, 0] },
+    ].map((l) => {
+      const el = document.createElement('span');
+      el.className = 'axis';
+      el.textContent = l.text;
+      el.setAttribute('aria-hidden', 'true');
+      stage.append(el);
+      return { ...l, el, p: new THREE.Vector3(toX(l.at.fee + l.out[0]), hOf(l.at), toZ(l.at.price + l.out[1])) };
+    });
+
+    const deg = Math.PI / 180;
+    const REST = { yaw: 30, pitch: 38 };
+    const view = { ...REST };
+    let target = { ...REST };
+    let restScale = 0;
+    let vw = 1;
+    let vh = 1;
+    const center = new THREE.Vector3(0, LV * 0.3, 0);
+    const corner = new THREE.Vector3();
+    const fitPoints = [];
+    for (let j = 0; j <= M; j += 4)
+      for (let i = 0; i <= M; i += 4) {
+        const [x, y, z] = vtx(i, j);
+        fitPoints.push(new THREE.Vector3(x, y, z), new THREE.Vector3(x, y + 1.2, z));
+      }
+    for (const l of labels) fitPoints.push(l.p);
+    function place() {
+      camera.position.set(
+        center.x + Math.sin(view.yaw * deg) * Math.cos(view.pitch * deg) * 100,
+        center.y + Math.sin(view.pitch * deg) * 100,
+        center.z + Math.cos(view.yaw * deg) * Math.cos(view.pitch * deg) * 100,
+      );
+      camera.lookAt(center);
+      camera.updateMatrixWorld();
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minY = Infinity;
+      let maxY = -Infinity;
+      for (const p of fitPoints) {
+        corner.copy(p).applyMatrix4(camera.matrixWorldInverse);
+        minX = Math.min(minX, corner.x);
+        maxX = Math.max(maxX, corner.x);
+        minY = Math.min(minY, corner.y);
+        maxY = Math.max(maxY, corner.y);
+      }
+      const need = Math.max((maxX - minX) / (vw - 2 * 50), (maxY - minY) / (vh - 2 * 16));
+      if (!restScale) restScale = need;
+      const s = Math.max(need, restScale);
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      camera.left = cx - (vw * s) / 2;
+      camera.right = cx + (vw * s) / 2;
+      camera.bottom = cy - (vh * s) / 2;
+      camera.top = cy + (vh * s) / 2;
+      camera.updateProjectionMatrix();
+    }
+    function ease() {
+      let moving = false;
+      for (const key of ['yaw', 'pitch']) {
+        const d = target[key] - view[key];
+        if (Math.abs(d) > 0.05 && !reduced.matches) {
+          view[key] += d * 0.16;
+          moving = true;
+        } else view[key] = target[key];
+      }
+      return moving;
+    }
+    const turnTo = (v) => {
+      target = { yaw: Math.max(-75, Math.min(75, v.yaw)), pitch: Math.max(12, Math.min(89, v.pitch)) };
+    };
+
+    function paint() {
+      surfMat.uniforms.uColor.value.setRGB(...rgb01(tok.bg));
+      wireMat.uniforms.uColor.value.setRGB(...rgb01(mixRgb(0.42)));
+      cubeMat.uniforms.uInk.value.setRGB(...rgb01(tok.ink));
+      cubeMat.uniforms.uBg.value.setRGB(...rgb01(tok.bg));
+      trailMat.color.setRGB(...rgb01(tok.ink));
+    }
+    const v3 = new THREE.Vector3();
+    function project(p) {
+      v3.copy(p).project(camera);
+      return [((v3.x + 1) / 2) * vw, ((1 - v3.y) / 2) * vh];
+    }
+    function setFog(at) {
+      const [ci, cj] = cellOf(at);
+      const e = 0.001;
+      fogUniforms.uRect.value.set(ci - 2 - e, cj - 2 - e, ci + 3 + e, cj + 3 + e);
+      fogUniforms.uFogOn.value = fog ? 1 : 0;
+    }
+    function render(now, { trail = true } = {}) {
+      const t = walk.dur ? Math.min(1, (now - walk.stepAt) / walk.dur) : 1;
+      const e = t * (2 - t);
+      const at = clampAt({ fee: walk.from.fee + (fare.fee - walk.from.fee) * e, price: walk.from.price + (fare.price - walk.from.price) * e });
+      cube.position.set(toX(at.fee), hOf(at), toZ(at.price));
+      setFog(at);
+      const n = Math.min(walk.trail.length, MAXT);
+      for (let k = 0; k < n; k++) {
+        const p = clampAt(walk.trail[walk.trail.length - n + k]);
+        trailArr.set([toX(p.fee), hOf(p) + 0.06, toZ(p.price)], k * 3);
+      }
+      trailGeo.attributes.position.needsUpdate = true;
+      trailGeo.setDrawRange(0, n);
+      trailLine.visible = trail;
+      place();
+      renderer.render(scene, camera);
+      for (const l of labels) {
+        const [x, y] = project(l.p);
+        l.el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -50%)`;
+      }
+      if (ictx) drawFares(ictx, ...insetSize, at, { compact: true });
+      writeCaption();
+      return at;
+    }
+    function resize() {
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
+      if (!w || !h) return;
+      vw = w;
+      vh = h;
+      renderer.setPixelRatio(DPR());
+      renderer.setSize(w, h, false);
+      restScale = 0;
+      const kept = { ...view };
+      Object.assign(view, REST);
+      place();
+      Object.assign(view, kept);
+      layoutInset();
+      render(performance.now());
+    }
+
+    // dragging turns the valley; a click without a drag puts the cube where it lands
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    let drag = null;
+    stage.addEventListener('pointerdown', (e) => {
+      drag = { x: e.clientX, y: e.clientY, from: { ...target }, moved: false, id: e.pointerId };
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (!drag || drag.id !== e.pointerId || (e.pointerType === 'mouse' && !e.buttons)) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (!drag.moved && Math.hypot(dx, dy) > 4) {
+        drag.moved = true;
+        stage.setPointerCapture(e.pointerId);
+        stage.dataset.dragging = '';
+      }
+      if (drag.moved) {
+        turnTo({ yaw: drag.from.yaw - dx * 0.35, pitch: drag.from.pitch + dy * 0.3 });
+        wake();
+      }
+    });
+    const release = (e) => {
+      if (drag && !drag.moved && e.type === 'pointerup') {
+        const r = stage.getBoundingClientRect();
+        ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+        raycaster.setFromCamera(ndc, camera);
+        const [hit] = raycaster.intersectObject(surf, false);
+        if (hit) setFare(clampAt({ fee: fromX(hit.point.x), price: fromZ(hit.point.z) }), 'click');
+      }
+      drag = null;
+      delete stage.dataset.dragging;
+    };
+    stage.addEventListener('pointerup', release);
+    stage.addEventListener('pointercancel', release);
+    stage.addEventListener('dblclick', () => {
+      target = { ...REST };
+      wake();
+    });
+    stage.addEventListener('keydown', (e) => {
+      const turns = { ArrowLeft: [8, 0], ArrowRight: [-8, 0], ArrowUp: [0, 6], ArrowDown: [0, -6] };
+      const d = turns[e.key];
+      if (!d) return;
+      const next = { yaw: target.yaw + d[0], pitch: target.pitch + d[1] };
+      if ((d[1] > 0 && target.pitch >= 89) || (d[1] < 0 && target.pitch <= 12)) return;
+      e.preventDefault();
+      turnTo(next);
+      wake();
+    });
+
+    themeSubs.push(() => {
+      paint();
+      render(performance.now());
+    });
+    new ResizeObserver(resize).observe(stage);
+    paint();
+    three = { render, ease, renderer, camera, project, vtx, cellOf, cube, size: () => [vw, vh], THREE };
+    resize();
+  }
+
+  function frame(now) {
+    raf = 0;
+    if (!three || !live('valley')) return;
+    let again = three.ease();
+    if (walk.walking && now - walk.stepAt >= walk.dur) {
+      if (!doStep()) {
+        walk.walking = false;
+        sync();
+      } else if (walk.status === 'bottom') {
+        walk.walking = false;
+        sync();
+      }
+    }
+    three.render(now);
+    if (walk.walking || again || now - walk.stepAt < walk.dur) wake();
+  }
+  function wake() {
+    if (!raf && three && live('valley')) raf = requestAnimationFrame(frame);
+  }
+  wakers.push(wake);
+
+  fareSubs.push((source) => {
+    if (source !== 'walk') restartWalk();
+    sync();
+    if (!three) writeCaption();
+    wake();
+  });
+
+  const controls = $('#valley-controls');
+  const row = group(controls);
+  const stepBtn = button('step', () => {
+    walk.walking = false;
+    doStep();
+    sync();
+    wake();
+  });
+  const walkBtn = button('walk', () => {
+    if (walk.walking) {
+      walk.walking = false;
+    } else if (reduced.matches) {
+      for (let k = 0; k < 5000 && doStep(); k++) if (walk.status === 'bottom') break;
+    } else {
+      walk.walking = true;
+      walk.stepAt = 0;
+      walk.dur = 0;
+    }
+    sync();
+    wake();
+  });
+  const fogBtn = button('fog', () => {
+    fog = !fog;
+    sync();
+    wake();
+  });
+  const resetBtn = button('reset', () => setFare(START, 'reset'));
+  row.append(stepBtn, walkBtn, fogBtn, resetBtn);
+  const rateRow = group(controls, 'step size');
+  const rateBtns = RATES.map((r) => {
+    const b = button(r.name, () => {
+      walk.rate = r;
+      if (walk.status === 'bottom' || walk.status === 'off') setFare(START, 'reset');
+      sync();
+      wake();
+    });
+    rateRow.append(b);
+    return [r, b];
+  });
+  function sync() {
+    press(walkBtn, walk.walking);
+    press(fogBtn, fog);
+    for (const [r, b] of rateBtns) press(b, r === walk.rate);
+    writeCaption();
+  }
+  sync();
+  whenNear(stage, async () => {
+    await mount();
+    wake();
+  });
+
+  // For the check script: which pixels the fog lets through, measured on the canvas itself.
+  function fogAudit() {
+    if (!three) return null;
+    const { renderer, camera, cube, THREE } = three;
+    const at = three.render(performance.now(), { trail: false });
+    const gl = renderer.getContext();
+    const W = gl.drawingBufferWidth;
+    const H = gl.drawingBufferHeight;
+    const buf = new Uint8Array(W * H * 4);
+    gl.readPixels(0, 0, W, H, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+    const mask = new OffscreenCanvas(W, H).getContext('2d', { willReadFrequently: true });
+    const v = new THREE.Vector3();
+    const px = (p) => {
+      v.set(...p).project(camera);
+      return [((v.x + 1) / 2) * W, ((1 - v.y) / 2) * H];
+    };
+    const [ci, cj] = three.cellOf(at);
+    let cells = 0;
+    mask.fillStyle = '#fff';
+    mask.strokeStyle = '#fff';
+    mask.lineWidth = 6;
+    mask.lineJoin = 'round';
+    const E = M / N;
+    for (let i = ci - 2; i <= ci + 2; i++)
+      for (let j = cj - 2; j <= cj + 2; j++) {
+        if (i < 0 || j < 0 || i >= N || j >= N) continue;
+        cells++;
+        for (let a = 0; a < E; a++)
+          for (let b = 0; b < E; b++) {
+            const q = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([di, dj]) => px(three.vtx(i * E + a + di, j * E + b + dj)));
+            mask.beginPath();
+            q.forEach(([x, y], k) => (k ? mask.lineTo(x, y) : mask.moveTo(x, y)));
+            mask.closePath();
+            mask.fill();
+            mask.stroke();
+          }
+      }
+    const box = new THREE.Box3().setFromObject(cube);
+    const pts = [];
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) pts.push(px([x, y, z]));
+    const xs = pts.map((p) => p[0]);
+    const ys = pts.map((p) => p[1]);
+    mask.fillRect(Math.min(...xs) - 3, Math.min(...ys) - 3, Math.max(...xs) - Math.min(...xs) + 6, Math.max(...ys) - Math.min(...ys) + 6);
+    const m = mask.getImageData(0, 0, W, H).data;
+    let drawn = 0;
+    let outside = 0;
+    for (let y = 0; y < H; y++)
+      for (let x = 0; x < W; x++) {
+        if (buf[((H - 1 - y) * W + x) * 4 + 3] === 0) continue;
+        drawn++;
+        if (m[(y * W + x) * 4 + 3] === 0) outside++;
+      }
+    three.render(performance.now());
+    return { fog, cell: [ci, cj], cellsAllowed: cells, drawnPixels: drawn, drawnOutsideAllowedCells: outside };
+  }
+
+  return { walk, sync, fogAudit, ready: () => !!three };
+})();
+
+// ---------- which way is downhill: one ride's loss as a receipt
+const receipt = (() => {
+  const ride = RIDES[RECEIPT_RIDE];
+  const rows = Object.fromEntries([...document.querySelectorAll('#receipt-table tr[data-row]')].map((tr) => [tr.dataset.row, tr]));
+  const ORDER = ['loss', 'miss', 'fare', 'ride', 'fee', 'price'];
+  const nudgeEl = $('#nudge');
+  let filled = 0;
+  let nudged = false;
+  let timer = 0;
+  $('#receipt-km').textContent = ride.km;
+  document.querySelectorAll('#receipt-table .km').forEach((el) => (el.textContent = ride.km));
+  document.querySelector('#receipt-table .paid').textContent = ride.paid.toFixed(2);
+
+  function forward(at) {
+    const r = ride.km * at.price;
+    const f = r + at.fee;
+    const miss = f - ride.paid;
+    return { price: at.price, fee: at.fee, ride: r, fare: f, miss, loss: miss * miss };
+  }
+  function backward(v) {
+    const loss = 1;
+    const miss = 2 * v.miss * loss;
+    const fareSlope = miss;
+    const rideSlope = fareSlope;
+    return { loss, miss, fare: fareSlope, ride: rideSlope, fee: fareSlope, price: rideSlope * ride.km };
+  }
+  function draw() {
+    const v = forward(fare);
+    const s = backward(v);
+    const shown = new Set(ORDER.slice(0, filled));
+    for (const [name, tr] of Object.entries(rows)) {
+      tr.children[1].textContent = num(v[name]);
+      tr.children[2].textContent = shown.has(name) ? num(s[name]) : '';
+    }
+    nudgeEl.hidden = !nudged;
+    if (nudged) {
+      const after = forward({ ...fare, price: fare.price + 0.01 });
+      const change = after.loss - v.loss;
+      nudgeEl.querySelector('[data-n="price"]').textContent = `${fare.price.toFixed(2)} → ${(fare.price + 0.01).toFixed(2)}`;
+      nudgeEl.querySelector('[data-n="loss"]').textContent = `${v.loss.toFixed(4)} → ${after.loss.toFixed(4)}`;
+      nudgeEl.querySelector('[data-n="change"]').textContent = num(change, 4);
+      nudgeEl.querySelector('[data-n="ratio"]').textContent = num(change / 0.01);
+    }
+  }
+  const controls = $('#receipt-controls');
+  const row = group(controls);
+  row.append(
+    button('nudge', () => {
+      nudged = true;
+      draw();
+    }),
+    button('backward', () => {
+      clearTimeout(timer);
+      if (reduced.matches) {
+        filled = ORDER.length;
+        draw();
+        return;
+      }
+      filled = 0;
+      const next = () => {
+        filled++;
+        draw();
+        if (filled < ORDER.length) timer = setTimeout(next, 420);
+      };
+      next();
+    }),
+    button('clear', () => {
+      clearTimeout(timer);
+      filled = 0;
+      nudged = false;
+      draw();
+    }),
+  );
+  fareSubs.push(draw);
+  draw();
+  return { forward, backward, ride };
+})();
+
+// ---------- when a straight line isn't enough: a 2-8-8-1 network on four made-up sets of 100 points
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const gauss = (r) => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+const clamp1 = (v) => Math.max(-1, Math.min(1, v));
+function sample(r, n, make) {
+  const out = [];
+  while (out.length < n) {
+    const p = make(out.length);
+    if (p) out.push(p);
+  }
+  return out;
+}
+const DATASETS = {
+  days: {
+    axes: { x: ['colder', 'temperature', 'warmer'], y: ['drier', 'humidity', 'damper'] },
+    cols: ['temp', 'humid', 'bias'],
+    about: 'made-up days indoors, with the comfortable ones in the middle.',
+    make: (r) =>
+      sample(r, 100, () => {
+        const x = r() * 2 - 1;
+        const y = r() * 2 - 1;
+        const d = Math.abs((x - 0.04) / 0.58) ** 4 + Math.abs((y + 0.02) / 0.56) ** 4;
+        if (Math.abs(d - 1) < 0.15) return null;
+        return { x, y, c: d < 1 ? 1 : 0 };
+      }),
+  },
+  switches: {
+    axes: { x: ['down', 'switch one', 'up'], y: ['down', 'switch two', 'up'] },
+    cols: ['one', 'two', 'bias'],
+    about: 'in this hallway, the light is on when exactly one switch is up, and no single fence can split that. the dots are repeats of the four switch settings, spread a little so you can see them.',
+    make: (r) =>
+      sample(r, 100, (i) => {
+        const sx = i % 2 ? 1 : -1;
+        const sy = (i >> 1) % 2 ? 1 : -1;
+        const x = clamp1(sx * 0.62 + gauss(r) * 0.15);
+        const y = clamp1(sy * 0.62 + gauss(r) * 0.15);
+        if (Math.abs(x) < 0.12 || Math.abs(y) < 0.12) return null;
+        return { x, y, c: x * y < 0 ? 1 : 0 };
+      }),
+  },
+  groups: {
+    axes: { x: ['colder', 'temperature', 'warmer'], y: ['calm', 'wind', 'windy'] },
+    cols: ['temp', 'wind', 'bias'],
+    about: 'warm calm beach days and cold windy ones sit in two separate groups, so one fence is enough.',
+    make: (r) =>
+      sample(r, 100, (i) => {
+        const c = i % 2;
+        const x = clamp1((c ? 0.4 : -0.42) + gauss(r) * 0.24);
+        const y = clamp1((c ? -0.38 : 0.4) + gauss(r) * 0.24);
+        if ((c ? 1 : -1) * (x - y) < 0.25) return null;
+        return { x, y, c };
+      }),
+  },
+  spiral: {
+    axes: { x: ['left', '', 'right'], y: ['down', '', 'up'] },
+    cols: ['right', 'up', 'bias'],
+    about: 'two arms wound around each other. the hard one.',
+    make: (r) =>
+      sample(r, 100, (i) => {
+        const c = i % 2;
+        const t = Math.floor(i / 2) / 50;
+        const rad = 0.1 + t * 0.85;
+        const a = t * 1.5 * Math.PI * 2 + c * Math.PI;
+        return { x: Math.cos(a) * rad + gauss(r) * 0.025, y: Math.sin(a) * rad + gauss(r) * 0.025, c };
+      }),
+  },
+};
+
+const SIZES = [2, 8, 8, 1];
+const LAST = SIZES.length - 1;
+function makeNet(seed) {
+  const r = rng(seed);
+  const zeros = (n) => new Float64Array(n);
+  const L = [];
+  for (let l = 1; l < SIZES.length; l++) {
+    const nin = SIZES[l - 1];
+    const nout = SIZES[l];
+    L.push({
+      nin,
+      nout,
+      W: zeros(nin * nout).map(() => gauss(r) * Math.sqrt(1 / nin)),
+      b: zeros(nout),
+      gW: zeros(nin * nout),
+      gb: zeros(nout),
+      mW: zeros(nin * nout),
+      vW: zeros(nin * nout),
+      mb: zeros(nout),
+      vb: zeros(nout),
+    });
+  }
+  return { L, t: 0, steps: 0, loss: NaN, acc: NaN };
+}
+const acts = SIZES.map((n) => new Float64Array(n));
+const deltas = SIZES.map((n) => new Float64Array(n));
+function forward(net, x, y) {
+  acts[0][0] = x;
+  acts[0][1] = y;
+  net.L.forEach((ly, l) => {
+    const a = acts[l];
+    const z = acts[l + 1];
+    for (let o = 0; o < ly.nout; o++) {
+      let s = ly.b[o];
+      for (let i = 0; i < ly.nin; i++) s += ly.W[o * ly.nin + i] * a[i];
+      z[o] = l + 1 === LAST ? 1 / (1 + Math.exp(-s)) : Math.tanh(s);
+    }
+  });
+  return acts[LAST][0];
+}
+function evaluate(net, data) {
+  let loss = 0;
+  let right = 0;
+  for (const p of data) {
+    const q = Math.min(Math.max(forward(net, p.x, p.y), 1e-7), 1 - 1e-7);
+    loss += p.c ? -Math.log(q) : -Math.log(1 - q);
+    if (q > 0.5 === (p.c === 1)) right++;
+  }
+  net.loss = loss / data.length;
+  net.acc = right / data.length;
+}
+function trainStep(net, data, lr = 0.01) {
+  for (const ly of net.L) {
+    ly.gW.fill(0);
+    ly.gb.fill(0);
+  }
+  for (const p of data) {
+    const q = forward(net, p.x, p.y);
+    deltas[LAST][0] = q - p.c;
+    for (let l = net.L.length - 1; l >= 0; l--) {
+      const ly = net.L[l];
+      const a = acts[l];
+      const d = deltas[l + 1];
+      for (let o = 0; o < ly.nout; o++) {
+        ly.gb[o] += d[o];
+        for (let i = 0; i < ly.nin; i++) ly.gW[o * ly.nin + i] += d[o] * a[i];
+      }
+      if (l > 0) {
+        const dp = deltas[l];
+        for (let i = 0; i < ly.nin; i++) {
+          let s = 0;
+          for (let o = 0; o < ly.nout; o++) s += ly.W[o * ly.nin + i] * d[o];
+          dp[i] = s * (1 - a[i] * a[i]);
+        }
+      }
+    }
+  }
+  net.t++;
+  const n = data.length;
+  const c1 = 1 - 0.9 ** net.t;
+  const c2 = 1 - 0.999 ** net.t;
+  const adam = (P, G, Mo, V) => {
+    for (let k = 0; k < P.length; k++) {
+      const g = G[k] / n;
+      Mo[k] = 0.9 * Mo[k] + 0.1 * g;
+      V[k] = 0.999 * V[k] + 0.001 * g * g;
+      P[k] -= (lr * (Mo[k] / c1)) / (Math.sqrt(V[k] / c2) + 1e-8);
+    }
+  };
+  for (const ly of net.L) {
+    adam(ly.W, ly.gW, ly.mW, ly.vW);
+    adam(ly.b, ly.gb, ly.mb, ly.vb);
+  }
+  net.steps++;
+}
+
+const playground = (() => {
+  const field = $('#field');
+  const hinton = $('#hinton');
+  const caption = $('#net-caption');
+  const DOM = 1.15;
+  const G = 40;
+  const TONES = 48;
+  const STEPS_PER_FRAME = 1;
+  const model = { name: 'days', data: null, net: null, seed: 3, running: false };
+  let fieldPalette = [];
+  const buildPalette = () => {
+    fieldPalette = Array.from({ length: TONES }, (_, k) => css(0.03 + (0.21 * k) / (TONES - 1)));
+  };
+  buildPalette();
+  let fctx = null;
+  let hctx = null;
+  let size = 0;
+  let pointPx = 7;
+  let hover = null;
+  let HC = 36;
+  let HEAD = 44;
+  let raf = 0;
+
+  function reset(name = model.name) {
+    model.name = name;
+    model.data = DATASETS[name].make(rng(11));
+    model.net = makeNet(model.seed++);
+    model.running = false;
+    evaluate(model.net, model.data);
+    writeAxes();
+    sync();
+    draw();
+  }
+  function writeAxes() {
+    const { x, y } = DATASETS[model.name].axes;
+    $('#xlab').innerHTML = x.map((t) => `<span>${t}</span>`).join('');
+    $('#ylab').innerHTML = y.map((t) => `<span>${t}</span>`).join('');
+  }
+
+  function layout() {
+    const colW = field.closest('.split').clientWidth;
+    if (!colW) return;
+    const phone = narrow();
+    HC = 36;
+    HEAD = 20;
+    const avail = phone ? colW - 18 : Math.min(440, colW - 18 - 3 * 8.4 - 3 * HC - 10 * 8.4);
+    const cell = Math.max(5, Math.floor(avail / G));
+    size = cell * G;
+    pointPx = cell >= 10 ? 7 : 6;
+    fctx = sizeCanvas(field, size, size);
+    hctx = sizeCanvas(hinton, 3 * HC, HEAD + 8 * HC);
+    draw();
+  }
+  const sx = (x) => ((x + DOM) / (2 * DOM)) * size;
+  const sy = (y) => ((DOM - y) / (2 * DOM)) * size;
+  function drawField() {
+    const net = model.net;
+    const ctx = fctx;
+    const cell = size / G;
+    const step = (2 * DOM) / G;
+    const vals = new Float32Array((G + 1) * (G + 1));
+    for (let j = 0; j <= G; j++) for (let i = 0; i <= G; i++) vals[j * (G + 1) + i] = forward(net, -DOM + i * step, DOM - j * step);
+    ctx.fillStyle = tokCss('bg');
+    ctx.fillRect(0, 0, size, size);
+    const gap = cell >= 6 ? 1 : 0;
+    for (let j = 0; j < G; j++)
+      for (let i = 0; i < G; i++) {
+        const k = j * (G + 1) + i;
+        const p = (vals[k] + vals[k + 1] + vals[k + G + 1] + vals[k + G + 2]) / 4;
+        ctx.fillStyle = fieldPalette[Math.min(TONES - 1, Math.round(p * (TONES - 1)))];
+        ctx.fillRect(i * cell, j * cell, cell - gap, cell - gap);
+      }
+    ctx.beginPath();
+    for (let j = 0; j < G; j++)
+      for (let i = 0; i < G; i++) {
+        const k = j * (G + 1) + i;
+        const v = [vals[k] - 0.5, vals[k + 1] - 0.5, vals[k + G + 2] - 0.5, vals[k + G + 1] - 0.5];
+        const c = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
+        const pts = [];
+        for (let e = 0; e < 4; e++) {
+          const a = v[e];
+          const b = v[(e + 1) % 4];
+          if (a > 0 === b > 0) continue;
+          const t = a / (a - b);
+          const [x0, y0] = c[e];
+          const [x1, y1] = c[(e + 1) % 4];
+          pts.push([(x0 + (x1 - x0) * t) * cell, (y0 + (y1 - y0) * t) * cell]);
+        }
+        for (let q = 0; q + 1 < pts.length; q += 2) {
+          ctx.moveTo(pts[q][0], pts[q][1]);
+          ctx.lineTo(pts[q + 1][0], pts[q + 1][1]);
+        }
+      }
+    ctx.strokeStyle = css(0.5);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    if (hover !== null) {
+      const ly = net.L[0];
+      const [wx, wy] = [ly.W[hover * 2], ly.W[hover * 2 + 1]];
+      const b = ly.b[hover];
+      ctx.save();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = tokCss('ink');
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (Math.abs(wy) > Math.abs(wx)) {
+        ctx.moveTo(sx(-DOM), sy((-b - wx * -DOM) / wy));
+        ctx.lineTo(sx(DOM), sy((-b - wx * DOM) / wy));
+      } else {
+        ctx.moveTo(sx((-b - wy * DOM) / wx), sy(DOM));
+        ctx.lineTo(sx((-b - wy * -DOM) / wx), sy(-DOM));
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    const ink = tokCss('ink');
+    const bg = tokCss('bg');
+    for (const p of model.data) {
+      const x = Math.round(sx(p.x) - pointPx / 2);
+      const y = Math.round(sy(p.y) - pointPx / 2);
+      ctx.fillStyle = ink;
+      ctx.fillRect(x, y, pointPx, pointPx);
+      if (!p.c) {
+        ctx.fillStyle = bg;
+        ctx.fillRect(x + 1, y + 1, pointPx - 2, pointPx - 2);
+      }
+    }
+  }
+  function drawHinton() {
+    const ly = model.net.L[0];
+    const ctx = hctx;
+    const [w, h] = [3 * HC, HEAD + 8 * HC];
+    ctx.fillStyle = tokCss('bg');
+    ctx.fillRect(0, 0, w, h);
+    ctx.font = MONO11;
+    ctx.fillStyle = tokCss('faint');
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    DATASETS[model.name].cols.forEach((label, c) => ctx.fillText(label, c * HC + HC / 2, HEAD / 2));
+    for (let r = 0; r < 8; r++)
+      for (let c = 0; c < 3; c++) {
+        const [x0, y0] = [c * HC, HEAD + r * HC];
+        const cellTone = tokCss(r === hover ? 'rule' : 'wash');
+        ctx.fillStyle = cellTone;
+        ctx.fillRect(x0, y0, HC - 2, HC - 2);
+        const v = c < 2 ? ly.W[r * 2 + c] : ly.b[r];
+        const raw = Math.round(Math.min(1, Math.abs(v) / 3) * (HC - 8));
+        if (raw < 1) continue;
+        const side = Math.max(3, raw);
+        const o = Math.round((HC - 2 - side) / 2);
+        ctx.fillStyle = tokCss('ink');
+        ctx.fillRect(x0 + o, y0 + o, side, side);
+        if (v < 0) {
+          ctx.fillStyle = cellTone;
+          ctx.fillRect(x0 + o + 1, y0 + o + 1, side - 2, side - 2);
+        }
+      }
+  }
+  function draw() {
+    if (!fctx) return;
+    drawField();
+    drawHinton();
+    const net = model.net;
+    caption.children[0].innerHTML =
+      `${count.format(net.steps)} <span class="f">${net.steps === 1 ? 'step' : 'steps'} ·</span> ` +
+      `<span class="f">loss</span> ${net.loss.toFixed(3)} <span class="f">·</span> ${Math.round(net.acc * 100)}% <span class="f">right</span>`;
+    caption.children[1].textContent = model.name;
+  }
+  function pick(e) {
+    const r = hinton.getBoundingClientRect();
+    const along = e.clientY - r.top - HEAD;
+    const k = Math.floor(along / HC);
+    const next = k >= 0 && k < 8 ? k : null;
+    if (next !== hover) {
+      hover = next;
+      draw();
+    }
+  }
+  hinton.addEventListener('pointermove', pick);
+  hinton.addEventListener('pointerdown', pick);
+  hinton.addEventListener('pointerleave', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    hover = null;
+    draw();
+  });
+
+  function frame() {
+    raf = 0;
+    if (!live('fences') || !model.running || reduced.matches) return;
+    for (let k = 0; k < STEPS_PER_FRAME; k++) trainStep(model.net, model.data);
+    evaluate(model.net, model.data);
+    draw();
+    wake();
+  }
+  function wake() {
+    if (!raf && live('fences') && model.running && !reduced.matches) raf = requestAnimationFrame(frame);
+  }
+  wakers.push(wake);
+
+  const controls = $('#net-controls');
+  const row = group(controls);
+  const train = button('train', () => {
+    if (reduced.matches) {
+      for (let k = 0; k < 300; k++) trainStep(model.net, model.data);
+      evaluate(model.net, model.data);
+      draw();
+      return;
+    }
+    model.running = true;
+    sync();
+    wake();
+  });
+  const pause = button('pause', () => {
+    model.running = false;
+    sync();
+  });
+  const step = button('step', () => {
+    model.running = false;
+    trainStep(model.net, model.data);
+    evaluate(model.net, model.data);
+    sync();
+    draw();
+  });
+  const resetBtn = button('reset', () => reset());
+  row.append(train, pause, step, resetBtn);
+  const picker = group(controls, 'data');
+  const picks = Object.keys(DATASETS).map((name) => {
+    const b = button(name, () => reset(name));
+    picker.append(b);
+    return [name, b];
+  });
+  $('#datasets').innerHTML = Object.entries(DATASETS)
+    .map(([name, d]) => `<li><span class="lead">${name}</span><span class="main">${d.about}</span></li>`)
+    .join('');
+  function sync() {
+    const rm = reduced.matches;
+    train.textContent = rm ? 'train 300 steps' : 'train';
+    pause.hidden = rm;
+    press(train, !rm && model.running);
+    press(pause, !rm && !model.running);
+    for (const [name, b] of picks) press(b, name === model.name);
+  }
+  reduced.addEventListener('change', () => {
+    if (reduced.matches) model.running = false;
+    sync();
+  });
+  themeSubs.push(() => {
+    buildPalette();
+    draw();
+  });
+  document.fonts?.ready.then(draw);
+  reset('days');
+  whenNear(field, () => {
+    new ResizeObserver(layout).observe(field.closest('.split'));
+    layout();
+  });
+  return { model, draw };
+})();
+
+// ---------- glossary
+const GLOSSARY = [
+  ['model', 'a rule with knobs that turns an input into a guess, like the fare rule.'],
+  ['parameter', 'one of the model\'s knobs, like the starting fee or the price per km.'],
+  ['weight', 'a knob that scales an input, like the price per km.'],
+  ['bias', 'a knob added on its own, without scaling an input, like the starting fee.'],
+  ['prediction', 'the model\'s guess for one input, like the fare the line gives for a ride.'],
+  ['loss', 'one number for how far the guesses are from what really happened. for the fares, it is the average area of the squares.'],
+  ['gradient', 'the slope under your feet, which way and how steeply the loss changes for each knob.'],
+  ['learning rate', 'how much of the slope each step uses. bigger means bigger steps.'],
+  ['gradient descent', 'feeling the slope and stepping downhill, again and again.'],
+  ['training', 'walking downhill until the loss stops getting much smaller. here the cube stops close to the best line.'],
+  ['inference', 'using the trained model on a new question, like the fare for a 1.6 km ride.'],
+  ['backpropagation', 'finding every knob\'s slope by walking the receipt from the bottom line up.'],
+  ['neuron', 'the taxi rule with a weight for each input, a bias, and a squash. it draws one straight fence.'],
+  ['activation function', 'the squash at the end of a neuron, which lets layers bend fences into shapes.'],
+  ['layer', 'several neurons side by side, so several fences.'],
+  ['network', 'layers in a row, which join fences into shapes, like the box around the comfortable days.'],
+];
+$('#glossary-rows').innerHTML = GLOSSARY.map(([t, m]) => `<li><span class="lead">${t}</span><span class="main">${m}</span></li>`).join('');
+
+reduced.addEventListener('change', () => {
+  valley.sync();
+  wakeAll();
+});
+window.__debug = { RIDES, START, BEST, LIMIT, RATES, fare, fareLoss, valley, receipt, playground, setFare };
+</script>

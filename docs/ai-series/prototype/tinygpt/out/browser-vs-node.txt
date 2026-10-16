@@ -1,0 +1,16 @@
+round 1 browser
+browser names C32 ikj4 median 42.7 min 38.9 max 53.3 loss 3.2970 -> 2.4732
+browser names C32 ikj median 66.4 min 62.5 max 86.9 loss 3.2970 -> 2.4732
+browser shakespeare C64 ikj4 median 312.1 min 297.2 max 394.1 loss 4.1834 -> 2.6559
+round 1 node
+node    names C32 ikj4 median 38.1 min 36.4 max 45.6 loss 3.2970 -> 2.4732
+node    names C32 ikj median 65.9 min 62.5 max 85.1 loss 3.2970 -> 2.4732
+node    shakespeare C64 ikj4 median 288.7 min 272.3 max 342.8 loss 4.1834 -> 2.6559
+round 2 browser
+browser names C32 ikj4 median 38.9 min 36.9 max 48.8 loss 3.2970 -> 2.4732
+browser names C32 ikj median 64.5 min 60.4 max 120.3 loss 3.2970 -> 2.4732
+browser shakespeare C64 ikj4 median 313.2 min 294.2 max 475.9 loss 4.1834 -> 2.6559
+round 2 node
+node    names C32 ikj4 median 39.2 min 36.3 max 59.9 loss 3.2970 -> 2.4732
+node    names C32 ikj median 66.2 min 62.1 max 71.3 loss 3.2970 -> 2.4732
+node    shakespeare C64 ikj4 median 287.4 min 269.0 max 327.0 loss 4.1834 -> 2.6559
