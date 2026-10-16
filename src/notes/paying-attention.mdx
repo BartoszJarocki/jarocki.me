@@ -74,6 +74,8 @@ For readers who know JavaScript, here is the attention the tiny model runs. `loo
 
 ## Keeping what was already there
 
+<div className="[content-visibility:auto] [contain-intrinsic-block-size:auto_4009px] max-sm:[contain-intrinsic-block-size:auto_5883px] print:[content-visibility:visible]">
+
 Each letter carries its list of numbers through the model, like a notebook. Attention reads the notebooks and works out something to add to each one. A small network like part 1's then reads each updated notebook and works out another addition. Attention can mix information between letters. The small network works on each letter separately, with the same learned knobs at every position.
 
 The model adds each change to the numbers already there. If a notebook holds 2 and a part proposes -0.5, the result is 1.5. A change can strengthen or weaken what was there. The old numbers keep a straight path through each addition. This path is called a **residual connection**. It does not guarantee that the old information survives unchanged. Later additions can cancel it.
@@ -123,3 +125,5 @@ Attention lets a letter choose what to read inside the available context. The sm
 <Term name="layer normalization">Making a leveled copy of each notebook for attention or the small network to read</Term>
 <Term name="transformer block">Attention and a small network, each reading a leveled copy and adding a change to the notebook</Term>
 </Glossary>
+
+</div>
