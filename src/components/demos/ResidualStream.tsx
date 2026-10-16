@@ -25,7 +25,7 @@ export default function ResidualStream({ label, children }: DemoProps) {
     { y: 620, label: 'notebooks now', writes: step >= 4 ? 4 : step >= 2 ? 2 : 0 },
   ];
   return (
-    <div className="demo" role="figure" aria-label={label} aria-describedby={id}>
+    <div className="demo max-w-full" role="figure" aria-label={label} aria-describedby={id}>
       <div className="demo-stage aspect-[360/765] w-full max-w-[480px] [content-visibility:auto]">
         <svg
           viewBox="0 0 360 765"
