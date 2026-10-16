@@ -69,7 +69,7 @@ For readers who know JavaScript, here is the code the demo runs. It is TypeScrip
 ```ts include=src/lib/ml/bigram.ts#sample
 ```
 
-To run them, paste the three blocks in order into `node --input-type=module-typescript`, then add `console.log(sampleName(countPairs(['emma', 'olivia', 'ava']), 1))`.
+To run them, save the three blocks in order as `names.ts`, add `console.log(sampleName(countPairs(['emma', 'olivia', 'ava']), 1))` at the end, and run `node --input-type=module-typescript < names.ts`. That needs Node 22.18 or later.
 
 ## Learning instead of counting
 
