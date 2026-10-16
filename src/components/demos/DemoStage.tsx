@@ -17,6 +17,8 @@ export type Phase = 'shell' | 'loading' | 'ready' | 'still' | 'fallback';
 
 const quiet = ['ChunkLoadError', 'Unsupported'];
 
+type SceneModule<P> = { default: Scene<P>; Still: ComponentType };
+
 // React runs a removed component's layout cleanup before it clears its children's refs, so the
 // scene ends while its parts are attached. The server runs no layout effects and warns about them.
 const useStageEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -31,7 +33,7 @@ export function DemoStage<P>({
   scene,
   render,
 }: DemoProps & {
-  scene: () => Promise<{ default: Scene<P>; Still: ComponentType }>;
+  scene: () => Promise<SceneModule<P>>;
   render: (part: Part<P>) => { body: ReactNode; caption: ReactNode; controls: ReactNode };
 }) {
   if (typeof window === 'undefined' && !(label && children)) {
@@ -39,13 +41,8 @@ export function DemoStage<P>({
   }
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
-  // React never renders noscript children on the client, so this lazy Still imports nothing there
-  // until a failed mount shows it.
-  const [{ parts, Still }] = useState(() => ({
-    parts: {} as Partial<P>,
-    Still: lazy(() => scene().then((module) => ({ default: module.Still }))),
-  }));
-  const [showStill, setShowStill] = useState(false);
+  const [parts] = useState(() => ({}) as Partial<P>);
+  const [Still, setStill] = useState<ComponentType | null>(null);
 
   useStageEffect(() => {
     const element = root.current!;
@@ -58,17 +55,17 @@ export function DemoStage<P>({
         if (!entries.some((entry) => entry.isIntersecting)) return;
         near.disconnect();
         setPhase('loading');
-        let loaded = false;
+        let arrived = false;
         scene()
           .then((module) => {
-            loaded = true;
+            arrived = true;
+            setStill(() => module.Still);
             return module.default.start(element, parts, unmount.signal, () => setPhase('ready'));
           })
           .catch((error) => {
             if (unmount.signal.aborted) return;
             if (!quiet.includes(error?.name)) console.error(error);
-            setPhase(loaded ? 'still' : 'fallback');
-            setShowStill(loaded);
+            setPhase(arrived ? 'still' : 'fallback');
           });
       },
       { rootMargin: '200px' },
@@ -83,12 +80,6 @@ export function DemoStage<P>({
   const { body, caption, controls } = render((key) => (element) => {
     parts[key] = element ?? undefined;
   });
-  const still = (
-    <Suspense>
-      <Still />
-    </Suspense>
-  );
-
   return (
     <div
       ref={root}
@@ -100,7 +91,7 @@ export function DemoStage<P>({
     >
       <div className="demo-stage">
         {body}
-        {showStill ? still : <noscript>{still}</noscript>}
+        {Still ? <Still /> : <ServerStill scene={scene} />}
       </div>
       <div className="demo-caption">{caption}</div>
       <div className="demo-controls">{controls}</div>
@@ -108,6 +99,25 @@ export function DemoStage<P>({
         {children}
       </div>
     </div>
+  );
+}
+
+// The client never hydrates this slot's children, so the server's still stays in it until the
+// scene's code arrives, whatever re-renders or router updates happen before that.
+function ServerStill({ scene }: { scene: () => Promise<{ Still: ComponentType }> }) {
+  const [Still] = useState(() =>
+    typeof window === 'undefined'
+      ? lazy(() => scene().then((module) => ({ default: module.Still })))
+      : null,
+  );
+  return Still ? (
+    <div>
+      <Suspense>
+        <Still />
+      </Suspense>
+    </div>
+  ) : (
+    <div dangerouslySetInnerHTML={{ __html: '' }} suppressHydrationWarning />
   );
 }
 

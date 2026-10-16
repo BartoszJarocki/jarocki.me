@@ -443,6 +443,9 @@
     height: 100%;
     background: var(--bg);
   }
+  .demo[data-phase='ready'] .demo-still {
+    display: none;
+  }
   .demo-caption {
     grid-area: caption;
     display: flex;
@@ -552,7 +555,7 @@
   .demo:is([data-phase='still'], [data-phase='fallback']) :is(.demo-caption, .demo-controls) {
     visibility: hidden;
   }
-  .demo[data-phase='fallback'] .demo-description {
+  .demo[data-phase='fallback']:not(:has(.demo-still)) .demo-description {
     grid-area: stage;
     align-self: center;
     position: relative;
