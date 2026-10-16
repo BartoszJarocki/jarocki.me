@@ -91,7 +91,7 @@ For the letter it just read, the network gives every possible next letter a scor
 
 A score is not a chance yet. Chances can't be negative, and they have to add up to 100%. **Softmax** turns scores into chances. It raises a fixed number, about 2.72, to the power of each score. That makes every score positive and makes the big ones count a lot more. Then it divides each one by the total, so they add up to 100%. Scores of -1, 0 and 1 become chances of 9%, 24% and 67%.
 
-To learn, the network needs a loss, like the squares in part 1. Here the loss is **cross-entropy**. It measures how surprised the model was by the letter that really came next. Giving that letter a 50% chance is a small surprise, 0.69. Giving it a 1% chance is a big one, 4.6. The counting model's 2.45 is this same surprise, averaged over every letter in the names. Training lowers the average surprise.
+To learn, the network needs a loss, like the squares in part 1. Here the loss is **cross-entropy**. It measures how surprised the model was by the letter that really came next. Giving that letter a 50% chance is a small surprise, 0.69. Giving it a 1% chance is a big one, 4.6. The counting model's 2.45 is this same surprise, averaged over every letter in the names. Training lowers the average surprise. Part 1's playground scored its yes or no answers the same way, with two possible answers instead of 27.
 
 The network in the demo is small. It is a table of 27 rows of 27 scores, one row for each letter it might read, and every score starts at 0. Each step, it reads 4,096 letter pairs picked at random from the names. It works out its average surprise and the slope of every score, then moves the scores a little downhill with adam, the trick from part 1's playground. Press train.
 
@@ -101,7 +101,7 @@ A chart of the one-letter network's loss over 1,762 training steps, with the cou
 
 </LearnToCount>
 
-At the start every score is 0, so every letter gets the same chance, 1 in 27, and the surprise is 3.30. The loss falls fast, then flattens just above the counting model's 2.45, and training stops after 1,762 steps. It can't go much lower. A model that sees only one letter knows no more than the counts do, and its trained rows give nearly the same chances as the counting model's.
+At the start every score is 0, so every letter gets the same chance, 1 in 27, and the surprise is 3.30. The loss falls fast, then flattens just above the counting model's 2.45. It can't go much lower. A model that sees only one letter knows no more than the counts do, and its trained rows give nearly the same chances as the counting model's. In five trial runs, the slowest took 881 steps to come within 0.02 of 2.45, so training stops at twice that, 1,762 steps.
 
 Here is the code. `softmax` turns scores into chances. It first takes the biggest score away from every score, which gives the same chances and keeps `Math.exp` from overflowing. `crossEntropy` measures the surprise, and `surpriseSlopes` gives the slope of the surprise for each score. That slope is just the letter's chance, less 1 for the letter that really came next.
 
@@ -120,9 +120,9 @@ The one-letter model keeps its scores in `p.tensors.scores`. Its `data` holds th
 
 To do better, the model has to see further back. How far back it sees is its **context**. The counting model's context is one letter. Counting three letters back would need a row for every run of three letters, 19,683 rows, and 13,997 of those runs never appear in the names.
 
-So give the model three letters, and give each letter a list of three numbers that training adjusts, like coordinates on a map. That list is the letter's **embedding**. The model reads the places of the three letters, nine numbers in all. A layer of hidden neurons, like part 1's, reads those nine, and 27 more neurons turn what they say into a score for each next letter. Letters that turn up in the same kinds of places often drift close together, because the model can treat them alike. Then what it learns about one letter helps with the others.
+So give the model three letters, and give each letter a list of three numbers that training adjusts, like coordinates on a map. That list is the letter's **embedding**. The model reads the places of the three letters, nine numbers in all. A layer of 32 neurons, like part 1's, reads those nine, and 27 more neurons turn what they say into a score for each next letter. Letters that turn up in the same kinds of places often drift close together, because the model can treat them alike. Then what it learns about one letter helps with the others.
 
-The map draws each letter at its three numbers, one number on each axis, while the model trains. Drag the map or use the arrow keys to turn it. Watch whether the vowels find each other.
+The map draws each letter at its three numbers, one number on each axis, while the model trains. A letter too far out to fit sits at the edge, with an arrow toward where it really is. Drag the map or use the arrow keys to turn it. Watch whether the vowels find each other.
 
 <LetterSpace label="The 27 tokens on a 3D map of the three numbers the model learns for each">
 
@@ -130,7 +130,7 @@ A 3D map of the 26 letters and the dot, each drawn at the three numbers the thre
 
 </LetterSpace>
 
-At the start every letter sits in a small heap in the middle, because every number starts close to 0. After about 300 steps the loss passes the counting model's 2.45, and after about 4,000 it drops below 2.3. The vowels find each other. The five of them end up closer to one another than to most other letters, and y sits next to i. The letter q, which is rare and comes before u three times out of four, ends up far from everything, so the map draws it at its edge.
+At the start every letter sits in a small heap in the middle, because every number starts close to 0. After about 300 steps the loss passes the counting model's 2.45. From there it falls slowly and wobbles, because each step practices on 128 letters picked at random, and some picks are harder than others. It first dips below 2.3 after about 5,000 steps, and after about 30,000 it stays near 2.28. The vowels find each other. The five of them end up closer to one another than to most other letters, and y sits next to i. The letter q, which is rare and comes before u three times out of four, ends up far from everything, so the map draws it at the edge with an arrow.
 
 The cloud at the top of every page on this site is a hand-built toy of the same idea, where nothing is trained. This demo trains one for real.
 
