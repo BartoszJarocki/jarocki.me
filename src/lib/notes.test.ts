@@ -1,8 +1,11 @@
+import { MDXRemote } from 'next-mdx-remote';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { after, test } from 'node:test';
+import { type TestContext, after, test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'notes-test-'));
 const notesDir = path.join(root, 'src/notes');
@@ -10,7 +13,7 @@ fs.mkdirSync(notesDir, { recursive: true });
 process.chdir(root);
 after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-const { getNotes } = await import('./notes.ts');
+const { getNoteContent, getNotes } = await import('./notes.ts');
 
 function writeNote(slug: string, publishedAt: string, extra = '') {
   const frontmatter = `title: ${slug}\ndescription: about ${slug}\npublishedAt: ${publishedAt}\ntags: [test]\n${extra}`;
@@ -87,4 +90,132 @@ test('getNotes rejects a misspelled draft field even in production', (t) => {
       message: `src/notes/misspelled.mdx: frontmatter has an unknown field ${field}`,
     });
   }
+});
+
+const source = [
+  'import { other } from "./other";',
+  '// #region backward',
+  'export class Value {',
+  '  html = "<b>&</b>";',
+  '',
+  "  quote = 'it';",
+  '}',
+  '// #endregion',
+  '// #region empty',
+  '',
+  '// #endregion',
+  '// #region repeated',
+  '// #endregion',
+  '// #region repeated',
+  '// #endregion',
+  '// #region outer',
+  '  // #region inner',
+  '// #endregion',
+  '// #region open',
+  'export const open = 1;',
+].join('\n');
+
+function compileNote(t: TestContext, markdown: string) {
+  const note = path.join(notesDir, 'x.mdx');
+  const lib = path.join(root, 'src/lib');
+  fs.mkdirSync(path.join(lib, 'ml'), { recursive: true });
+  fs.writeFileSync(path.join(lib, 'ml/value.ts'), source);
+  const frontmatter = 'title: x\ndescription: x\npublishedAt: 2024-01-01\ntags: [test]\n';
+  fs.writeFileSync(note, `---\n${frontmatter}---\n\n${markdown}\n`);
+  t.after(() => {
+    fs.rmSync(note, { force: true });
+    fs.rmSync(lib, { recursive: true, force: true });
+  });
+  return getNoteContent('x');
+}
+
+const fence = (meta: string, body = '') => `\`\`\`ts ${meta}\n${body}\`\`\``;
+
+test('getNoteContent fails when an included region is missing', async (t) => {
+  await assert.rejects(compileNote(t, fence('include=src/lib/ml/value.ts#nope')), {
+    message: 'src/notes/x.mdx: src/lib/ml/value.ts has no region nope',
+  });
+});
+
+async function codeText(t: TestContext, markdown: string) {
+  const html = renderToStaticMarkup(createElement(MDXRemote, await compileNote(t, markdown)));
+  const [, code = ''] = /<code[^>]*>([^<]*)<\/code>/.exec(html) ?? [];
+  const entities: Record<string, string> = {
+    '&lt;': '<',
+    '&gt;': '>',
+    '&amp;': '&',
+    '&quot;': '"',
+    '&#x27;': "'",
+  };
+  return code.replace(/&(lt|gt|amp|quot|#x27);/g, (entity) => entities[entity]);
+}
+
+const region = 'export class Value {\n  html = "<b>&</b>";\n\n  quote = \'it\';\n}\n';
+
+test('an included block shows the lines of its region as they are in the file', async (t) => {
+  assert.equal(await codeText(t, fence('include=src/lib/ml/value.ts#backward')), region);
+});
+
+test('an include takes any language, and a plain fence may mention includes', async (t) => {
+  assert.equal(await codeText(t, '```c++ include=src/lib/ml/value.ts#backward\n```'), region);
+  assert.equal(await codeText(t, '```ts title="includes.ts"\nconst x = 1;\n```'), 'const x = 1;\n');
+});
+
+test('getNoteContent names what is wrong with an include', async (t) => {
+  const cases: [string, string][] = [
+    [fence('include=src/lib/ml/gone.ts#backward'), 'src/lib/ml/gone.ts does not exist'],
+    [fence('include=package.json#x'), 'package.json must be a file in src/'],
+    [fence('include=../x.ts#x'), '../x.ts must be a file in src/'],
+    [
+      fence('include=src/lib/ml/value.ts#repeated'),
+      'src/lib/ml/value.ts has region repeated twice',
+    ],
+    [
+      fence('include=src/lib/ml/value.ts#outer'),
+      'src/lib/ml/value.ts starts a region inside region outer',
+    ],
+    [fence('include=src/lib/ml/value.ts#open'), 'src/lib/ml/value.ts never ends region open'],
+    [
+      fence('include=src/lib/ml/value.ts#backward', 'copy\n'),
+      'the include=src/lib/ml/value.ts#backward block must be empty, because the build fills it',
+    ],
+  ];
+  for (const [markdown, message] of cases) {
+    await assert.rejects(compileNote(t, markdown), { message: `src/notes/x.mdx: ${message}` });
+  }
+});
+
+test('getNoteContent rejects a fence that mentions include in any other form', async (t) => {
+  const fences = [
+    'include=src/lib/ml/value.ts#backward',
+    'ts title="value.ts" include=src/lib/ml/value.ts#backward',
+    'ts Include=src/lib/ml/value.ts#backward',
+    'ts include=src/lib/ml/value.ts',
+  ];
+  for (const info of fences) {
+    await assert.rejects(compileNote(t, `\`\`\`${info}\n\`\`\``), {
+      message: `src/notes/x.mdx: \`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
+    });
+  }
+});
+
+test('getNoteContent rejects a code block that is empty after the build fills it', async (t) => {
+  const blocks = [fence('include=src/lib/ml/value.ts#empty'), '```ts\n```', '```\n\n```'];
+  for (const markdown of blocks) {
+    await assert.rejects(compileNote(t, markdown), {
+      message: 'src/notes/x.mdx: the code block at line 8 is empty',
+    });
+  }
+});
+
+test('getNoteContent names the note and the line in it when the MDX does not parse', async (t) => {
+  await assert.rejects(compileNote(t, 'first\n\n<div>\n\nlast'), {
+    message: /^src\/notes\/x\.mdx: [\s\S]*Expected a closing tag for `<div>` \(10:1-10:6\)/,
+  });
+});
+
+test('getNoteContent names an image that is not in public/', async (t) => {
+  await assert.rejects(compileNote(t, '![a](/images/notes/x/missing.jpg)'), {
+    message: 'src/notes/x.mdx: /images/notes/x/missing.jpg is not in public/',
+  });
 });
