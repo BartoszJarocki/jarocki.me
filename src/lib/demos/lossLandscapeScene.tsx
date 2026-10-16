@@ -572,6 +572,15 @@ async function valley3d(
   const pointer = new Vector2();
   let drag: { x: number; y: number; from: View; moved: boolean; pointer: number } | null = null;
   const on = { signal: stage.signal };
+  const stillLabel = p.view.getAttribute('aria-label') ?? '';
+  p.view.tabIndex = 0;
+  p.view.setAttribute('aria-label', 'The valley. The arrow keys turn it.');
+  p.view.dataset.turn = '';
+  stage.defer(() => {
+    p.view.removeAttribute('tabindex');
+    p.view.setAttribute('aria-label', stillLabel);
+    delete p.view.dataset.turn;
+  });
   const turnTo = (next: View) => {
     target = clampView(next);
     stage.wake();
@@ -798,8 +807,8 @@ function contourFigure(width: number, height: number) {
 }
 
 function valley2d(stage: Stage, p: Parts, place: (at: FareRule) => void): ValleyMap {
-  p.view.removeAttribute('tabindex');
-  p.view.setAttribute('aria-label', 'The valley seen from above, as rings of equal loss');
+  p.view.dataset.pick = '';
+  stage.defer(() => delete p.view.dataset.pick);
   let figure: ContourFigure | null = null;
   p.view.addEventListener(
     'click',

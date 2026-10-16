@@ -15,10 +15,9 @@ export default function LossLandscape(props: DemoProps) {
           <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-[3ch] max-[640px]:grid-cols-1 max-[640px]:gap-y-4">
             <div
               ref={part('view')}
-              tabIndex={0}
               role="img"
-              aria-label="The valley. The arrow keys turn it."
-              className="relative h-[360px] touch-pan-y select-none data-[dragging]:cursor-grabbing max-[640px]:h-[230px] [[data-phase=ready]_&]:cursor-grab"
+              aria-label="The valley seen from above, as rings of equal loss"
+              className="relative h-[360px] touch-pan-y select-none data-[pick]:cursor-crosshair data-[turn]:cursor-grab data-[turn]:data-[dragging]:cursor-grabbing max-[640px]:h-[230px]"
             >
               <canvas ref={part('valley')} className="absolute inset-0 h-full w-full" />
             </div>
