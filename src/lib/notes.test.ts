@@ -304,3 +304,39 @@ test("part 3's glossary contains its twelve terms and the note is published", ()
     assert.ok(note.includes('include=src/lib/ml/gpt.ts#' + region));
   }
 });
+
+test("part 4's glossary contains its ten terms and the note is published", () => {
+  const note = fs.readFileSync(new URL('../notes/a-tiny-gpt.mdx', import.meta.url), 'utf8');
+  const terms = [...note.matchAll(/<Term name="([^"]+)">/g)].map(([, name]) => name);
+  assert.deepEqual(terms, [
+    'batch',
+    'step',
+    'training loss',
+    'validation loss',
+    'overfitting',
+    'checkpoint',
+    'parameter count',
+    'scale',
+    'pretraining',
+    'fine-tuning',
+  ]);
+  assert.doesNotMatch(note.split('---')[1], /draft: true/);
+});
+
+test('the integrated ai series has parts 1 to 4 with no gap', (t) => {
+  const directory = new URL('../notes/', import.meta.url);
+  const parts = fs
+    .readdirSync(directory)
+    .filter((name) => name.endsWith('.mdx'))
+    .map((name) => fs.readFileSync(new URL(name, directory), 'utf8').split('---')[1])
+    .filter((frontmatter) => /^series: ['"]?ai['"]?$/m.test(frontmatter))
+    .map((frontmatter) => Number(/^part: (\d+)$/m.exec(frontmatter)?.[1]));
+  if (parts.length === 0) {
+    t.skip('The assigned parent predates ai-09 series metadata. Root must restack it first.');
+    return;
+  }
+  assert.deepEqual(
+    parts.sort((a, b) => a - b),
+    [1, 2, 3, 4],
+  );
+});

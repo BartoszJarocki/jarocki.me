@@ -7,6 +7,9 @@ import {
   shakespeare,
 } from './gpt.ts';
 import { load } from './params.ts';
+import type { Weights } from './training.ts';
+
+export type HeadsRequest = string | { readonly text: string; readonly exported: Weights };
 
 /**
  * Every head's attention weights for one text. weights is [blocks, heads, n, n] for n letters.

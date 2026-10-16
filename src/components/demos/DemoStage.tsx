@@ -2,6 +2,7 @@ import {
   type ComponentType,
   type ReactNode,
   type RefCallback,
+  type RefObject,
   Suspense,
   lazy,
   useEffect,
@@ -22,6 +23,13 @@ type SceneModule<P> = { default: Scene<P>; Still: ComponentType };
 // React runs a removed component's layout cleanup before it clears its children's refs, so the
 // scene ends while its parts are attached. The server runs no layout effects and warns about them.
 const useStageEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
+function retainStillFocus(element: HTMLElement) {
+  const still = document.activeElement?.closest('.demo-still');
+  if (still && element.contains(still)) {
+    element.focus({ preventScroll: true });
+  }
+}
 
 export type DemoProps = { label: string; children: ReactNode };
 
@@ -45,6 +53,7 @@ export function DemoStage<P>({
     const element = root.current!;
     const unmount = new AbortController();
     const setPhase = (phase: Phase) => {
+      if (phase === 'ready') retainStillFocus(element);
       element.dataset.phase = phase;
     };
     const near = new IntersectionObserver(
@@ -83,12 +92,13 @@ export function DemoStage<P>({
       className="demo"
       data-phase="shell"
       role="figure"
+      tabIndex={-1}
       aria-label={label}
       aria-describedby={id}
     >
       <div className="demo-stage">
         {body}
-        {Still ? <Still /> : <ServerStillSlot scene={scene} />}
+        {Still ? <Still /> : <ServerStillSlot scene={scene} focusTarget={root} />}
       </div>
       <div className="demo-caption">{caption}</div>
       <div className="demo-controls">{controls}</div>
@@ -100,7 +110,19 @@ export function DemoStage<P>({
 }
 
 // React keeps the server's children of an element with dangerouslySetInnerHTML when it hydrates.
-function ServerStillSlot({ scene }: { scene: () => Promise<{ Still: ComponentType }> }) {
+function ServerStillSlot({
+  scene,
+  focusTarget,
+}: {
+  scene: () => Promise<{ Still: ComponentType }>;
+  focusTarget: RefObject<HTMLDivElement>;
+}) {
+  useStageEffect(
+    () => () => {
+      if (focusTarget.current) retainStillFocus(focusTarget.current);
+    },
+    [focusTarget],
+  );
   const [Still] = useState(() =>
     typeof window === 'undefined'
       ? lazy(() => scene().then((module) => ({ default: module.Still })))

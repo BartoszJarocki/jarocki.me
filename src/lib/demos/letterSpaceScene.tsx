@@ -83,7 +83,7 @@ function drawMap(
     const { x, y } = square(followed);
     ctx.fillStyle = css(ink);
     ctx.fillRect(x, y, side, side);
-    const label = followLabel(followed.text);
+    const label = followLabel(shownSymbol(followed.text));
     ctx.fillText(label.text, label.x, label.y);
   }
 }
@@ -107,7 +107,9 @@ function shownAt(motion: Motion, now: number) {
   };
 }
 
-const spoken = (symbol: string) => (symbol === '.' ? 'the dot' : symbol);
+const shownSymbol = (symbol: string) => symbol.replace(' ', '·').replace('\n', '↵');
+const spoken = (symbol: string) =>
+  symbol === ' ' ? 'space' : symbol === '\n' ? 'line break' : symbol === '.' ? 'the dot' : symbol;
 
 function nearest(places: ArrayLike<number>, symbols: string, from: number, count: number) {
   const distance = (to: number) =>
@@ -161,10 +163,16 @@ export function letterSpace({
         start: -Infinity,
       };
       let running = false;
+      let done = false;
       let trainer: Trainer | undefined;
 
       const writeTrain = () => {
-        p.train.textContent = trainer?.training && running ? 'Pause' : 'Train';
+        p.train.textContent =
+          trainer?.training && running
+            ? 'Pause'
+            : done && model === 'gpt'
+              ? 'Train again'
+              : 'Train';
       };
 
       const writeNearest = (places: ArrayLike<number>, symbols: string) => {
@@ -185,6 +193,7 @@ export function letterSpace({
 
       const progress = (update: Progress) => {
         running = update.running && !update.done;
+        done = update.done;
         p.loss.textContent = update.average === null ? 'not measured' : update.average.toFixed(2);
         p.step.textContent = update.step.toLocaleString('en-US');
         p.map.dataset.step = String(update.step);
@@ -212,6 +221,9 @@ export function letterSpace({
           reachTo: fitReach(places),
           start: stage.reducedMotion ? -Infinity : now,
         };
+        p.map.dataset.symbols = update.symbols;
+        p.map.dataset.width = String(update.width);
+        p.map.dataset.projected = Array.from(places).join(',');
         p.map.dataset.places = Array.from(update.vectors, (n) => n.toFixed(4)).join(',');
         if (!update.running) writeNearest(places, update.symbols);
         stage.wake();
@@ -219,6 +231,11 @@ export function letterSpace({
 
       const sample = ({ text }: Sample) => {
         p.names.classList.replace('text-faint', 'text-ink');
+        if (model === 'gpt') {
+          p.names.classList.add('whitespace-pre-wrap');
+          p.names.textContent = text;
+          return;
+        }
         p.names.replaceChildren(
           ...text
             .split(' ')
@@ -236,6 +253,7 @@ export function letterSpace({
           if (trainer.training && running) {
             trainer.pause();
           } else {
+            if (done && model === 'gpt') trainer.reset();
             trainer.train();
             running = trainer.training;
           }
@@ -343,37 +361,55 @@ const tenth = (n: number) => Math.round(n * 10) / 10;
 const mixed = (tone: number) =>
   `color-mix(in srgb, var(--ink) ${Math.round(tone * 100)}%, var(--bg))`;
 
-const stills = [
-  { width: 672, height: 420, className: '[@container(max-width:478px)]:hidden' },
-  { width: 320, height: 300, className: 'hidden [@container(max-width:478px)]:block' },
-].map((box) => {
-  const columns = Math.floor(box.width / 28);
-  const keyHeight = Math.ceil(nameSymbols.length / columns) * 28;
-  return {
-    ...box,
-    columns,
-    keyHeight,
-    figure: mapFigure(
-      trainedPlaces,
-      nameSymbols,
-      restView,
-      { width: box.width, height: box.height - keyHeight },
-      fitReach(trainedPlaces),
-    ),
-  };
-});
+function makeStills(places: ArrayLike<number>, symbols: string) {
+  return [
+    { width: 672, height: 420, className: '[@container(max-width:478px)]:hidden' },
+    { width: 320, height: 300, className: 'hidden [@container(max-width:478px)]:block' },
+  ].map((box) => {
+    const columns = Math.floor(box.width / 28);
+    const keyHeight = Math.ceil(symbols.length / columns) * 28;
+    return {
+      ...box,
+      symbols,
+      columns,
+      keyHeight,
+      figure: mapFigure(
+        places,
+        symbols,
+        restView,
+        { width: box.width, height: box.height - keyHeight },
+        fitReach(places),
+      ),
+    };
+  });
+}
 
-export function Still() {
+const stills = makeStills(trainedPlaces, nameSymbols);
+
+export function Still({
+  places = trainedPlaces,
+  symbols = nameSymbols,
+}: { places?: ArrayLike<number>; symbols?: string } = {}) {
+  const figures =
+    places === trainedPlaces && symbols === nameSymbols ? stills : makeStills(places, symbols);
   return (
     <>
-      {stills.map((still) => (
+      {figures.map((still) => (
         <MapSvg key={still.width} {...still} />
       ))}
     </>
   );
 }
 
-function MapSvg({ width, height, className, columns, keyHeight, figure }: (typeof stills)[number]) {
+function MapSvg({
+  width,
+  height,
+  className,
+  symbols,
+  columns,
+  keyHeight,
+  figure,
+}: (typeof stills)[number]) {
   return (
     <svg
       className={`demo-still ${className} [&:has(.letter-key:focus)_.letter-default]:hidden [&:has(.letter-key:focus)_.letter-key:not(:focus)_.letter-follow]:hidden [&:has(.letter-key:hover)_.letter-default]:hidden [&_.letter-key:focus-visible]:outline-none`}
@@ -417,7 +453,7 @@ function MapSvg({ width, height, className, columns, keyHeight, figure }: (typeo
           <Followed key={point.symbol} point={point} className="letter-default" />
         ))}
       {[...figure.points]
-        .sort((a, b) => nameSymbols.indexOf(a.symbol) - nameSymbols.indexOf(b.symbol))
+        .sort((a, b) => symbols.indexOf(a.symbol) - symbols.indexOf(b.symbol))
         .map((point, i) => {
           const { symbol } = point;
           const x = (i % columns) * 28;
@@ -446,7 +482,7 @@ function MapSvg({ width, height, className, columns, keyHeight, figure }: (typeo
                 dominantBaseline="central"
                 className="fill-faint group-hover/letter:fill-ink group-focus/letter:fill-ink"
               >
-                {symbol}
+                {shownSymbol(symbol)}
               </text>
               <Followed
                 point={point}
@@ -460,7 +496,7 @@ function MapSvg({ width, height, className, columns, keyHeight, figure }: (typeo
 }
 
 function Followed({ point, className }: { point: MapFigure['points'][number]; className: string }) {
-  const label = followLabel(point.text);
+  const label = followLabel(shownSymbol(point.text));
   return (
     <g className={`${className} fill-ink`} aria-hidden="true">
       <rect {...square(point)} width={side} height={side} />
