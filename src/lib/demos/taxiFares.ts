@@ -64,7 +64,6 @@ export const sameRule = (a: FareRule, b: FareRule) => a.fee === b.fee && a.price
 let rule = start;
 const listeners = new Set<() => void>();
 
-// The sliders show whole cents, so the settings keep whole cents, and every number printed from them adds up.
 export const fareRule = {
   get: () => rule,
   set(next: FareRule) {
