@@ -67,7 +67,7 @@ Nobody told the heads what to look for. Training found it. In this sentence, the
 
 The heads of the first block read close by. Averaged over the sentence after its first letter, each head puts about 80% to 85% of its weight on the letter itself and the two before it. So the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average over the same positions.
 
-For readers who know JavaScript, here is a short version of one attention head. The example has two positions, each with two numbers in its query, key, and value. It uses the queries as keys too. For each position `t`, it scores the keys from 0 to `t`, turns those scores into weights with softmax, and mixes the values. The loop stops at `j <= t`, so it never reads ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. Press Run to see the last position's weights and mix, or Edit to try other vectors.
+For readers who know JavaScript, here is a short version of one attention head. The example has two positions, each with two numbers in its query, key, and value. It uses the queries as keys too. For each position `t`, it scores the keys from 0 to `t` with a dot product, turns those scores into weights with part 2's softmax, and mixes the values. The loop stops at `j <= t`, so it never reads ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. Press Run to see the last position's weights and mix, or Edit to try other vectors.
 
 ```js run=src/notes/snippets/paying-attention/attention.js
 ```

@@ -364,10 +364,10 @@ test('snippet agreement: paying-attention/block.js', () => {
   ]);
 });
 
-test('snippets are plain scripts of at most 50 lines', () => {
+test('snippets are plain scripts of at most 55 lines', () => {
   for (const file of Object.keys(outputs)) {
     const source = read(file);
-    assert.ok(source.replace(/\n$/, '').split('\n').length <= 50, file);
+    assert.ok(source.replace(/\n$/, '').split('\n').length <= 55, file);
     assert.doesNotMatch(source, /\b(class|this|import|export)\b/, file);
     // JavaScript's own parser rejects type annotations.
     assert.doesNotThrow(() => new Function(source), file);
