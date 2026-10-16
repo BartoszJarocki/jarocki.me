@@ -303,3 +303,64 @@ test('a first frame that ends the scene never calls ready', async () => {
   await running;
   assert.deepEqual({ order, held: browser.held() }, { order: ['frame'], held: released });
 });
+
+test('a scene keeps the parts it started with after the caller clears them', async () => {
+  const browser = fakeBrowser();
+  const unmount = new AbortController();
+  const chart = canvas();
+  const collected: { chart?: HTMLCanvasElement } = { chart };
+  const drawnOn: (HTMLCanvasElement | undefined)[] = [];
+  let stage!: Stage;
+  const scene = sceneOf((given, parts) => {
+    stage = given;
+    return () => {
+      drawnOn.push(parts.chart);
+    };
+  });
+  const running = scene.start(root, collected, unmount.signal, ignore);
+  await browser.render();
+  await browser.render();
+  collected.chart = undefined;
+  stage.wake();
+  await browser.render();
+  unmount.abort();
+  await running;
+  assert.deepEqual(drawnOn, [chart, chart]);
+});
+
+test('fail after ready rejects start with that error and releases the stage', async () => {
+  const browser = fakeBrowser();
+  const order: string[] = [];
+  let stage!: Stage;
+  const scene = sceneOf((given) => {
+    stage = given;
+    return ignore;
+  });
+  const rejected = assert.rejects(
+    scene.start(root, { chart: canvas() }, new AbortController().signal, () => order.push('ready')),
+    /worker crashed/,
+  );
+  await browser.render();
+  await browser.render();
+  stage.fail(new Error('worker crashed'));
+  await rejected;
+  assert.deepEqual({ order, held: browser.held() }, { order: ['ready'], held: released });
+});
+
+test('a ready that throws rejects start and releases the stage', async () => {
+  const browser = fakeBrowser();
+  const scene = sceneOf(() => ignore);
+  const rejected = assert.rejects(
+    scene.start(root, { chart: canvas() }, new AbortController().signal, () => {
+      throw new Error('ready broke');
+    }),
+    /ready broke/,
+  );
+  await browser.render();
+  await browser.render();
+  await rejected;
+  assert.deepEqual(
+    { held: browser.held(), uncaught: browser.uncaught },
+    { held: released, uncaught: [] },
+  );
+});
