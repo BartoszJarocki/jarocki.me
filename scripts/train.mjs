@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { gpt, readCheckpoint, shakespeareFiles, write } from '../src/lib/ml/gpt.ts';
@@ -75,6 +76,7 @@ if (flag === '--bench') {
     [shakespeareFiles.bytes, bytes],
     [shakespeareFiles.json, json],
   ]) {
+    mkdirSync(dirname(file(path)), { recursive: true });
     writeFileSync(file(path), contents);
     console.log(`wrote public${path}, ${Buffer.byteLength(contents).toLocaleString('en')} bytes`);
   }

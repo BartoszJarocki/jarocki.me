@@ -55,9 +55,11 @@ test('changing a later letter leaves the scores of every earlier letter as they 
   }
 });
 
-test("seed 1 takes the prototype's first step, at a loss of 3.6536311176321363", () => {
+test("seed 1 takes the prototype's first ten steps, to a loss of 3.1366722466101202", () => {
   const run = startRun(gpt, text, { seed: 1 });
-  assert.equal(run.step(), 3.6536311176321363);
+  const losses = Array.from({ length: 10 }, () => run.step());
+  assert.equal(losses[0], 3.6536311176321363);
+  assert.equal(losses[9], 3.1366722466101202);
 });
 
 test('the corpus is lowercase tiny shakespeare, 39 symbols, cut 90% to 10%', () => {

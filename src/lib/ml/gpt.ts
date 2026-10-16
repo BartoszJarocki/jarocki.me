@@ -43,7 +43,6 @@ const newLayer = (inputs: number, outputs: number) => ({
   bias: zeros([outputs]),
 });
 
-/** Every knob, in the order they sit in the flat arrays. A knob's name is its path, as blocks.0.attention.lookup.weights. */
 const knobTree = ({ symbols, context, width, blocks }: TransformerConfig) => ({
   letters: random([symbols.length, width], 0.02),
   positions: random([context, width], 0.02),
@@ -79,7 +78,7 @@ export type Layer = { readonly weights: Tensor; readonly bias: Tensor };
 export type Level = { readonly gain: Tensor; readonly bias: Tensor };
 export type BlockKnobs = Grown<KnobTree, Tensor>['blocks'][number];
 
-/** The knobs as a tree for the math, and as ai-08's flat Params for adamw, save, and load. Both hold the same numbers. */
+/** The knobs as a tree for the math, and as flat Params for adamw, save, and load. Both hold the same numbers. */
 export type Transformer<F extends Floats = Floats> = Grown<KnobTree, Tensor<F>> & {
   readonly config: TransformerConfig;
   readonly params: Params<Knobs, F>;
@@ -109,7 +108,6 @@ export function createTransformer<F extends Floats = Float32Array>(
 const like = (x: Floats, length: number) =>
   x instanceof Float64Array ? new Float64Array(length) : new Float32Array(length);
 
-/** x holds rows of `inputs` numbers. Each row comes out as `outputs` numbers. */
 function multiply(x: Floats, { weights, bias }: Layer) {
   const [inputs, outputs] = weights.shape;
   const rows = x.length / inputs;
@@ -210,7 +208,6 @@ function multiplyBack(outSlopes: Floats, x: Floats, { weights, bias }: Layer) {
   return slopes;
 }
 
-/** A copy of x with each row turned to a steady size. mean and scale are kept for the way back. */
 type Leveled = {
   readonly x: Floats;
   readonly out: Floats;
@@ -241,8 +238,7 @@ function level(x: Floats, { gain, bias }: Level): Leveled {
   return { x, out, mean, scale };
 }
 
-/** Adds the slopes of leveled.x into slopes. */
-function levelBack(slopes: Floats, outSlopes: Floats, leveled: Leveled, { gain, bias }: Level) {
+function levelBackInto(slopes: Floats, outSlopes: Floats, leveled: Leveled, { gain, bias }: Level) {
   const { x, mean, scale } = leveled;
   const width = gain.data.length;
   const g = gain.data;
@@ -417,8 +413,8 @@ function block(knobs: BlockKnobs, notebooks: Floats, sizes: Sizes): BlockTape {
 }
 // #endregion
 
-// #region forward
 /** Runs rows of `length` tokens through the network, each row on its own. */
+// #region forward
 export function forward(net: Transformer, tokens: Int32Array, length = tokens.length): Tape {
   const { context, width, heads } = net.config;
   if (length > context || tokens.length % length !== 0) {
@@ -443,7 +439,6 @@ export function forward(net: Transformer, tokens: Int32Array, length = tokens.le
   return { tokens, sizes, blocks, leveled, scores: multiply(leveled.out, net.scores) };
 }
 
-/** Softmax turns each token's scores into chances. The loss is the average surprise at the targets. */
 function surprise(scores: Floats, targets: Int32Array) {
   const symbols = scores.length / targets.length;
   const chances = like(scores, scores.length);
@@ -462,7 +457,6 @@ function surprise(scores: Floats, targets: Int32Array) {
 // #endregion
 
 // #region backward
-/** Adds the slope of the loss to every knob's grad, walking the tape from the scores back to the tokens. */
 function backward(net: Transformer, tape: Tape, targets: Int32Array, chances: Floats) {
   const { tokens, sizes } = tape;
   const { length, width } = sizes;
@@ -476,18 +470,18 @@ function backward(net: Transformer, tape: Tape, targets: Int32Array, chances: Fl
   }
   const slopes = like(chances, tokens.length * width);
   const leveledSlopes = multiplyBack(scoreSlopes, tape.leveled.out, net.scores);
-  levelBack(slopes, leveledSlopes, tape.leveled, net.level);
+  levelBackInto(slopes, leveledSlopes, tape.leveled, net.level);
   for (let b = net.blocks.length - 1; b >= 0; b--) {
     const { attention, network } = net.blocks[b];
     const t = tape.blocks[b];
     const firedSlopes = multiplyBack(slopes, t.fired, network.write);
     const hiddenSlopes = geluBack(firedSlopes, t.hidden);
     const secondSlopes = multiplyBack(hiddenSlopes, t.second.out, network.hidden);
-    levelBack(slopes, secondSlopes, t.second, network.level);
+    levelBackInto(slopes, secondSlopes, t.second, network.level);
     const foundSlopes = multiplyBack(slopes, t.found, attention.write);
     const lookupSlopes = attendBack(foundSlopes, t.lookups, t.weights, sizes);
     const firstSlopes = multiplyBack(lookupSlopes, t.first.out, attention.lookup);
-    levelBack(slopes, firstSlopes, t.first, attention.level);
+    levelBackInto(slopes, firstSlopes, t.first, attention.level);
   }
   for (let i = 0; i < tokens.length; i++) {
     for (let c = 0; c < width; c++) {
@@ -497,7 +491,6 @@ function backward(net: Transformer, tape: Tape, targets: Int32Array, chances: Fl
   }
 }
 
-/** One batch forward and back. Returns the batch's loss and leaves every knob's slope in net.params.grad. */
 export function practice(net: Transformer, { tokens, targets, length }: Batch) {
   const tape = forward(net, tokens, length);
   const { chances, loss } = surprise(tape.scores, targets);
