@@ -34,7 +34,9 @@ test('a character outside the basic plane stays one piece', () => {
     words: ['𐐷𐐷'],
     merges: [['𐐷', '𐐷']],
   });
-  assert.equal(shown(cutThreeWays('a😀b 𐐷', trainMenus('ab 𐐷𐐷', 0)).letters), 'a ?😀 b 𐐷');
+  const cut = cutThreeWays('a😀b 𐐷', trainMenus('ab 𐐷𐐷', 0));
+  assert.equal(shown(cut.letters), 'a ?😀 b 𐐷');
+  assert.equal(shown(cut.pieces), 'a ?😀 b 𐐷');
 });
 
 test('cutThreeWays marks the pieces each menu does not have', () => {
