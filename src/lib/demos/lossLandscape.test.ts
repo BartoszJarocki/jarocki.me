@@ -102,6 +102,36 @@ test('a walk stops on flat ground after 69 steps at good, 195 at zigzag, and 467
   for (const walk of ends) assert.ok(meanSquaredError(walk.at) < best * 1.001);
 });
 
+test('from every spot from $0 to $10 and -$2 to $5 a km, crawl and good walk to flat ground', () => {
+  const flat = { crawl: 0, good: 0 };
+  for (let i = 0; i <= 100; i++)
+    for (let j = 0; j <= 100; j++) {
+      const at = { fee: i / 10, price: -2 + (j * 7) / 100 };
+      for (const rate of ['crawl', 'good'] as const) {
+        const end = walkToEnd(walkFrom(at), rates[rate]);
+        if (end.status === 'flat' && meanSquaredError(end.at) < best * 1.001) flat[rate]++;
+      }
+    }
+  assert.deepEqual(flat, { crawl: 10201, good: 10201 });
+});
+
+test('zigzag lands across the valley floor on each of its first 20 steps from the start', () => {
+  const across = ({ fee, price }: FareRule) =>
+    (fee - valley.bottom.fee) * Math.cos(valley.angle) +
+    (price - valley.bottom.price) * Math.sin(valley.angle);
+  let walk = walkFrom(start);
+  const sides = [];
+  for (let k = 0; k < 20; k++) {
+    walk = step(walk, rates.zigzag);
+    sides.push(Math.sign(across(walk.at)));
+  }
+  assert.deepEqual(
+    sides,
+    Array.from({ length: 20 }, (_, k) => (k % 2 ? -1 : 1)),
+  );
+  assert.equal(Math.abs(across(walk.at)).toFixed(2), '0.46');
+});
+
 test('the 1.6 km fare adds up the fee and price rounded to cents', () => {
   const { at } = walkToEnd(walkFrom(start), rates.good);
   const ask = (rule: FareRule) => [rounded(rule), fareFromRounded(rule, 1.6)];
