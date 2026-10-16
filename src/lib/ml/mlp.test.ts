@@ -43,16 +43,18 @@ test('switches gets its loss under 0.05 in 86 steps from seed 3', () => {
   assert.ok(score(net.model, data).loss < 0.05);
 });
 
-test('the field reads the same answer as the network', () => {
-  const { model } = network(5);
-  const chance = chanceOfYes(model);
-  for (const [x, y] of [
-    [0, 0],
-    [-1.15, 0.4],
-    [0.7, -0.9],
-  ]) {
-    assert.equal(chance(x, y), sigmoid(model.call([x, y]).data));
-  }
+test('the field reads the same answer as the network, before and after training', () => {
+  const net = network(5);
+  const spots = [-1.15, -0.4, 0, 0.7, 1.15].flatMap((x) => [-1.15, -0.2, 0.9].map((y) => [x, y]));
+  const same = () => {
+    const chance = chanceOfYes(net.model);
+    for (const [x, y] of spots) {
+      assert.equal(chance(x, y), sigmoid(net.model.call([x, y]).data));
+    }
+  };
+  same();
+  train(net, points('spiral'), 50);
+  same();
 });
 
 test('cross-entropy gives a fifty-fifty guess a loss of log 2 and a slope of the miss', () => {
