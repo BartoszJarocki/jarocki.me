@@ -36,7 +36,13 @@ export function ReceiptTable({
   );
   return (
     <table className={printed ? 'demo-receipt demo-still' : 'demo-receipt demo-receipt-live'}>
-      <caption>One ride, the receipt at your current settings</caption>
+      <caption>
+        One ride, the receipt at your current settings
+        <span className="mt-2 block">
+          Amounts, slopes, and nudge results are rounded for display. Calculations keep all digits,
+          so using the printed numbers can give a slightly different answer.
+        </span>
+      </caption>
       <thead>
         <tr>
           <th scope="col">Line</th>

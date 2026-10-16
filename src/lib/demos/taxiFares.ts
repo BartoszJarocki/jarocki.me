@@ -17,10 +17,24 @@ export const start: FareRule = { fee: 2, price: 2.5 };
 
 export const fareBox = {
   fee: { min: 0, max: 10, step: 0.01 },
-  price: { min: 0, max: 5, step: 0.01 },
+  price: { min: -2, max: 5, step: 0.01 },
 } as const;
 
-export const money = (dollars: number) => `$${dollars.toFixed(2)}`;
+const minusSign = '−';
+
+// toFixed prints a tiny negative as -0.00.
+export const show = (value: number, digits = 2) =>
+  (Math.abs(value) < 0.5 * 10 ** -digits ? 0 : value).toFixed(digits).replace('-', minusSign);
+
+export function money(dollars: number, digits = 2) {
+  const amount = show(dollars, digits);
+  return amount.startsWith(minusSign) ? `${minusSign}$${amount.slice(1)}` : `$${amount}`;
+}
+
+export function factor(value: number) {
+  const amount = show(value);
+  return amount.startsWith(minusSign) ? `(${amount})` : amount;
+}
 
 export const predict = (rule: FareRule, km: number) => rule.fee + rule.price * km;
 
@@ -38,14 +52,24 @@ export function leastSquares(): FareRule {
   return { fee: paid - price * km, price };
 }
 
+const cents = (dollars: number) => Math.round(dollars * 100) / 100;
+
+export const inCents = ({ fee, price }: FareRule): FareRule => ({
+  fee: cents(fee),
+  price: cents(price),
+});
+
+export const sameRule = (a: FareRule, b: FareRule) => a.fee === b.fee && a.price === b.price;
+
 let rule = start;
 const listeners = new Set<() => void>();
 
 export const fareRule = {
   get: () => rule,
   set(next: FareRule) {
-    if (next.fee === rule.fee && next.price === rule.price) return;
-    rule = next;
+    const shown = inCents(next);
+    if (sameRule(shown, rule)) return;
+    rule = shown;
     for (const listener of listeners) listener();
   },
   subscribe(listener: () => void, signal: AbortSignal) {

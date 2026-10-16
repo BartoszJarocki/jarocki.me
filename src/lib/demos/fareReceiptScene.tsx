@@ -1,8 +1,8 @@
 import { ReceiptTable } from '../../components/demos/ReceiptTable';
-import { nudge, receipt, ride, show } from './fareReceipt';
+import { nudge, receipt, ride } from './fareReceipt';
 import { lines } from './receiptLines';
 import { defineScene } from './stage';
-import { fareRule, start } from './taxiFares';
+import { fareRule, show, start } from './taxiFares';
 
 const rowMs = 420;
 

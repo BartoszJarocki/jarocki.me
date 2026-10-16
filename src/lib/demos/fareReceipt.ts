@@ -23,7 +23,3 @@ export function nudge(rule: FareRule) {
   const change = after - before;
   return { price, before, after, change, ratio: change / cent };
 }
-
-// toFixed prints a tiny negative as -0.00.
-export const show = (value: number, digits = 2) =>
-  (Math.abs(value) < 0.5 * 10 ** -digits ? 0 : value).toFixed(digits);

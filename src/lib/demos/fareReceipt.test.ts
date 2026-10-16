@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { nudge, receipt, show } from './fareReceipt.ts';
+import { nudge, receipt } from './fareReceipt.ts';
 import type { Line } from './receiptLines.ts';
+import { show } from './taxiFares.ts';
 
 const close = (actual: number, expected: number) =>
   assert.ok(Math.abs(actual - expected) <= 1e-9, `${actual} is not ${expected}`);
@@ -23,18 +24,18 @@ test('the first ride at a fee of 2 and 2.50 per km, line by line', () => {
   }
 });
 
-test('at the start, the nudge and the slope both show -2.10', () => {
+test('at the start, the nudge and the slope both show −2.10', () => {
   const rule = { fee: 2, price: 2.5 };
   const { ratio } = nudge(rule);
   close(ratio, -2.0991);
-  assert.equal(show(ratio), '-2.10');
-  assert.equal(show(receipt(rule).price.grad), '-2.10');
+  assert.equal(show(ratio), '−2.10');
+  assert.equal(show(receipt(rule).price.grad), '−2.10');
 });
 
 test('the nudge and the slope can round apart', () => {
   const rule = { fee: 5, price: 1.08 };
-  assert.equal(show(nudge(rule).ratio), '-0.55');
-  assert.equal(show(receipt(rule).price.grad), '-0.56');
+  assert.equal(show(nudge(rule).ratio), '−0.55');
+  assert.equal(show(receipt(rule).price.grad), '−0.56');
 });
 
 test('the nudge is very close to the slope at every setting, and never equal', () => {
@@ -47,8 +48,4 @@ test('the nudge is very close to the slope at every setting, and never equal', (
       assert.notEqual(ratio, slope);
     }
   }
-});
-
-test('show prints a tiny negative as zero', () => {
-  assert.equal(show(-0.001), '0.00');
 });

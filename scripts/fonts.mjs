@@ -35,6 +35,7 @@ const blocks = {
   'Latin Extended-A': [0x100, 0x17f],
   'General Punctuation': [0x2000, 0x206f],
   Arrows: [0x2190, 0x21ff],
+  'Minus sign': [0x2212, 0x2212],
 };
 
 // Every feature a browser applies without CSS asking for it, plus tnum for Tailwind's
