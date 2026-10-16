@@ -207,6 +207,12 @@
     position: relative;
     z-index: 2;
   }
+  /* the home lede's raised plate, later in the DOM, would paint over the lower edge of a focused
+     link's ring on the line above, so the link rises past it */
+  .text-link:focus-visible {
+    position: relative;
+    z-index: 3;
+  }
   /* Chrome drops a clipped line's ellipsis when the text sits in a raised inline, so a clipping
      cell rises in place of its plate */
   :is(.index-clip, .index-trail):has(> .plate-inline) {
