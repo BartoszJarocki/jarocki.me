@@ -52,13 +52,13 @@ export const contour = (loss: number) => ({
 
 export const rateLimit = 1 / valley.steep;
 
-/**
- * The settings the valley draws. Past a fee of about $7.70 the valley floor runs below $0 a km, so the
- * prices go down to -$2. A step at crawl or good from any spot on this map lands on it again.
- */
+const bestPriceFor = (fee: number) => valley.bottom.price - (km / km2) * (fee - valley.bottom.fee);
+
+const fees = { min: 0, max: 10 } as const;
+
 export const mapBox = {
-  fee: { min: 0, max: 10 },
-  price: { min: -2, max: 5 },
+  fee: fees,
+  price: { min: Math.floor(bestPriceFor(fees.max)), max: 5 },
 } as const;
 
 const squeeze = (loss: number) => Math.log1p(loss / 0.6);

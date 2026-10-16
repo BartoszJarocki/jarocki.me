@@ -20,20 +20,20 @@ import { type FareRule, leastSquares, meanSquaredError, start } from './taxiFare
 
 const best = meanSquaredError(leastSquares());
 
-// step returns an ended walk unchanged, so a loop without a cap spins forever when a rate regresses.
-const cap = 2000;
+const maxSteps = 2000;
 
-function walkToEnd(walk: Walk, rate: number) {
-  for (let k = 0; k < cap && !ended(walk); k++) walk = step(walk, rate);
-  return walk;
+function stepsUntil(walk: Walk, rate: number, done: (walk: Walk) => boolean) {
+  const walks = [walk];
+  while (walks.length <= maxSteps && !done(walks.at(-1)!)) walks.push(step(walks.at(-1)!, rate));
+  return walks;
 }
 
+const walkToEnd = (walk: Walk, rate: number) => stepsUntil(walk, rate, ended).at(-1)!;
+
 test('steps at the good rate reach 1% of the least-squares loss after 46 steps', () => {
-  let walk = walkFrom(start);
-  for (let k = 0; k < cap && meanSquaredError(walk.at) > best * 1.01; k++) {
-    walk = step(walk, rates.good);
-  }
-  assert.equal(walk.steps, 46);
+  const near = (walk: Walk) => meanSquaredError(walk.at) <= best * 1.01;
+  const walks = stepsUntil(walkFrom(start), rates.good, near);
+  assert.equal(walks.at(-1)!.steps, 46);
 });
 
 test('the rate limit computed from the rides is 0.3302', () => {
@@ -58,16 +58,13 @@ test('lift is 1 at the highest corner of the map, and lossAtLift undoes it', () 
 });
 
 test('every step at too big from the start raises the loss, until the next one leaves the map', () => {
-  const statuses: Walk['status'][] = [];
-  const losses = [meanSquaredError(start)];
-  for (let walk = walkFrom(start), k = 0; k < cap && walk.status !== 'off'; k++) {
-    walk = step(walk, rates.tooBig);
-    statuses.push(walk.status);
-    if (walk.status !== 'off') losses.push(meanSquaredError(walk.at));
-  }
-  assert.deepEqual(statuses, ['up', 'up', 'up', 'up', 'off']);
+  const walks = stepsUntil(walkFrom(start), rates.tooBig, (walk) => walk.status === 'off');
   assert.deepEqual(
-    losses.map((loss) => loss.toFixed(2)),
+    walks.map((walk) => walk.status),
+    ['ready', 'up', 'up', 'up', 'up', 'off'],
+  );
+  assert.deepEqual(
+    walks.slice(0, -1).map((walk) => meanSquaredError(walk.at).toFixed(2)),
     ['4.43', '5.61', '7.99', '12.34', '19.93'],
   );
 });

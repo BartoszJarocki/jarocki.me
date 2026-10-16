@@ -694,7 +694,6 @@ async function valley3d(
     stage.signal.throwIfAborted();
   } else renderer.compile(scene, camera);
   // The first draw of each object reads its program's uniforms and logs and uploads its buffers.
-  // One pixel per object, a task apiece, keeps that work out of the first frame.
   renderer.setScissor(0, 0, 1, 1);
   for (const object of [occluder, wire, cube, trailLine]) {
     await nextTask();
