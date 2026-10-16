@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import { getEventListeners } from 'node:events';
 import { test as nodeTest } from 'node:test';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
 
+import type { DemoProps } from '../../components/demos/DemoStage.tsx';
+import { TaxiFares } from '../../components/demos/index.ts';
 import { type Frame, type Stage, defineScene } from './stage.ts';
 
 type Entry = { isIntersecting: boolean };
@@ -51,11 +55,13 @@ function fakeBrowser() {
       this.due = true;
     }
   }
+  class MutationObserver extends Observer {}
 
   Object.assign(globalThis, {
     document: doc,
     devicePixelRatio: 1,
     IntersectionObserver,
+    MutationObserver,
     ResizeObserver: Observer,
     getComputedStyle: () => ({ fontFamily: 'Geist Mono', getPropertyValue: () => '#000' }),
     matchMedia: () => {
@@ -97,6 +103,10 @@ function fakeBrowser() {
       onScreen = to === 'on';
       for (const observer of observers) observer.due = observer instanceof IntersectionObserver;
     },
+    detach(element: object) {
+      Object.assign(element, { isConnected: false });
+      for (const observer of observers) observer.due = observer instanceof MutationObserver;
+    },
     held: () => ({
       observing: [...observers].reduce((sum, observer) => sum + observer.targets.size, 0),
       listeners:
@@ -112,6 +122,7 @@ const root = {} as HTMLElement;
 const canvas = (context: object | null = { setTransform() {} }) =>
   ({
     localName: 'canvas',
+    isConnected: true,
     getBoundingClientRect: () => ({ width: 300, height: 150 }),
     getContext: () => context,
   }) as unknown as HTMLCanvasElement;
@@ -362,4 +373,79 @@ test('a ready that throws rejects start and releases the stage', async () => {
     { held: browser.held(), uncaught: browser.uncaught },
     { held: released, uncaught: [] },
   );
+});
+
+test('a demo without a label or a description fails the server render', async () => {
+  const render = (props: Partial<DemoProps>) => () =>
+    renderToString(createElement(TaxiFares, props as DemoProps));
+  const missing = /A demo needs a label and a description/;
+  assert.throws(render({ children: 'A description' }), missing);
+  assert.throws(render({ label: 'A label' }), missing);
+});
+
+test('a listener that ends the scene stops the onLive calls to the listeners after it', async () => {
+  for (const ending of ['fail', 'unmount'] as const) {
+    const browser = fakeBrowser();
+    const unmount = new AbortController();
+    const first: boolean[] = [];
+    const second: boolean[] = [];
+    const scene = sceneOf((stage) => {
+      stage.onLive((live) => {
+        first.push(live);
+        if (!live) return;
+        if (ending === 'fail') stage.fail(new Error('worker failed'));
+        else unmount.abort();
+      });
+      stage.onLive((live) => second.push(live));
+      return ignore;
+    });
+    browser.scroll('off');
+    const running = scene.start(root, { chart: canvas() }, unmount.signal, ignore).catch(ignore);
+    await browser.render();
+    await browser.render();
+    browser.scroll('on');
+    await browser.render();
+    await running;
+    assert.deepEqual({ ending, first, second }, { ending, first: [false, true], second: [false] });
+  }
+});
+
+test('onLive after the scene ends never calls the listener', async () => {
+  const browser = fakeBrowser();
+  const unmount = new AbortController();
+  const before: boolean[] = [];
+  const after: boolean[] = [];
+  let resume!: () => void;
+  const scene = sceneOf(async (stage) => {
+    stage.onLive((live) => before.push(live));
+    await new Promise<void>((resolve) => (resume = resolve));
+    stage.onLive((live) => after.push(live));
+    return ignore;
+  });
+  const running = scene.start(root, { chart: canvas() }, unmount.signal, ignore);
+  await browser.render();
+  unmount.abort();
+  resume();
+  await running;
+  await browser.render();
+  assert.deepEqual({ before, after }, { before: [true], after: [] });
+});
+
+test('a part that React removes or replaces fails the scene with its name', async () => {
+  const browser = fakeBrowser();
+  const chart = canvas();
+  let frames = 0;
+  const scene = sceneOf(() => () => {
+    frames++;
+  });
+  const rejected = assert.rejects(
+    scene.start(root, { chart }, new AbortController().signal, ignore),
+    /The demo part chart was removed or replaced/,
+  );
+  await browser.render();
+  await browser.render();
+  browser.detach(chart);
+  await browser.render();
+  await rejected;
+  assert.deepEqual({ frames, held: browser.held() }, { frames: 1, held: released });
 });
