@@ -394,10 +394,19 @@ export default defineScene({
         Reflect.deleteProperty(window, '__playground');
     });
 
-    write();
+    let queued = 0;
+    stage.defer(() => clearTimeout(queued));
+    const ownTask = (work: () => void) =>
+      window.setTimeout(() => {
+        try {
+          work();
+        } catch (error) {
+          stage.fail(error);
+        }
+      });
 
-    return () => {
-      if (run === 'running' && stage.reducedMotion) run = 'paused';
+    const trainSteps = () => {
+      queued = 0;
       if (run === 'running') {
         trainOnce();
       } else if (run !== 'paused') {
@@ -406,6 +415,13 @@ export default defineScene({
         while (steps < run.until && performance.now() - begin < batchMs);
         if (steps >= run.until) run = 'paused';
       }
+    };
+
+    write();
+
+    return () => {
+      if (run === 'running' && stage.reducedMotion) run = 'paused';
+      if (run !== 'paused') queued ||= ownTask(trainSteps);
       shown = score(net.model, data);
       if (typeof run === 'string') pic = picture(net.model);
       write();
