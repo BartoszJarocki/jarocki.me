@@ -251,6 +251,15 @@ test('seriesParts orders all four titles and links only published parts', (t) =>
   }
 });
 
+test('series parts published on one day list in part order', (t) => {
+  const parts = ['d-one', 'c-two', 'b-three', 'a-four'];
+  parts.forEach((slug, index) => writeNote(slug, '2024-09-01', `series: ai\npart: ${index + 1}\n`));
+  t.after(() => {
+    for (const slug of parts) fs.rmSync(path.join(notesDir, `${slug}.mdx`));
+  });
+  assert.deepEqual(slugsWhen(undefined).slice(0, 4), ['d-one', 'c-two', 'b-three', 'a-four']);
+});
+
 test('duplicate series parts name both files, including hidden drafts', (t) => {
   writeNote('duplicate-first', '2024-08-01', 'series: ai\npart: 1\n');
   writeNote('duplicate-second', '2024-08-02', 'series: ai\npart: 1\ndraft: true\n');
