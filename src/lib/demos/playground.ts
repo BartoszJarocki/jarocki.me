@@ -1,4 +1,4 @@
-import { MLP, type Point, adam, sigmoid, trainStep } from '../ml/mlp.ts';
+import { type MLP, type Point, adam, mlp, parameters, sigmoid, trainStep } from '../ml/mlp.ts';
 
 export const sizes = [2, 8, 8, 1];
 export const dataSeed = 11;
@@ -100,8 +100,8 @@ export type DatasetName = keyof typeof datasets;
 export const points = (name: DatasetName) => datasets[name].make(seeded(dataSeed));
 
 export function network(seed: number) {
-  const model = new MLP(sizes, normal(seeded(seed)));
-  return { model, step: adam(model.parameters()) };
+  const model = mlp(sizes, normal(seeded(seed)));
+  return { model, step: adam(parameters(model)) };
 }
 
 export type Network = ReturnType<typeof network>;

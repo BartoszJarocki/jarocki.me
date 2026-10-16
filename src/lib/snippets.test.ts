@@ -16,10 +16,10 @@ import {
   threeLetterKnobs,
   threeLetterScores,
 } from './ml/letters.ts';
-import { MLP } from './ml/mlp.ts';
+import { mlp, forward as mlpForward, parameters } from './ml/mlp.ts';
 import { createParams } from './ml/params.ts';
 import { cutThreeWays } from './ml/tokenizers.ts';
-import { Value } from './ml/value.ts';
+import { add, backward, multiply, pow, value } from './ml/value.ts';
 
 const directory = new URL('../notes/snippets/', import.meta.url);
 const outputs: Record<string, string[]> = {
@@ -98,11 +98,11 @@ for (const [file, expected] of Object.entries(outputs)) {
 }
 
 test('snippet agreement: how-a-machine-learns/value.js', () => {
-  const fee = new Value(2),
-    price = new Value(2.5);
-  const miss = fee.add(price.mul(0.3)).add(-6.25);
-  const loss = miss.mul(miss);
-  loss.backward();
+  const fee = value(2),
+    price = value(2.5);
+  const miss = add(add(fee, multiply(price, 0.3)), -6.25);
+  const loss = multiply(miss, miss);
+  backward(loss);
   close(evaluate('how-a-machine-learns/value.js', '[loss.data, fee.grad, price.grad]'), [
     loss.data,
     fee.grad,
@@ -122,9 +122,9 @@ test('snippet agreement: how-a-machine-learns/value.js', () => {
 });
 
 test('snippet agreement: how-a-machine-learns/network.js', () => {
-  const net = new MLP([2, 2, 1], () => 0);
+  const net = mlp([2, 2, 1], () => 0);
   const knobs = [1, -1, 0, 0.5, 0.5, -0.5, 2, -1, 0.1];
-  net.parameters().forEach((p, i) => (p.data = knobs[i]));
+  parameters(net).forEach((p, i) => (p.data = knobs[i]));
   for (const input of [
     [0.2, 0.8],
     [-1, 2],
@@ -132,18 +132,21 @@ test('snippet agreement: how-a-machine-learns/network.js', () => {
   ]) {
     close(
       evaluate('how-a-machine-learns/network.js', 'forward(fixture, layers)[0]', input),
-      net.call(input).data,
+      mlpForward(net, input).data,
     );
   }
 });
 
 test('snippet agreement: how-a-machine-learns/training.js', () => {
-  const fee = new Value(2),
-    price = new Value(2.5);
+  const fee = value(2),
+    price = value(2.5);
   for (let turn = 0; turn < 100; turn++) {
-    const losses = rides.map(({ km, paid }) => fee.add(price.mul(km)).add(-paid).pow(2));
-    const loss = losses.reduce((sum, x) => sum.add(x)).mul(1 / rides.length);
-    loss.backward();
+    const losses = rides.map(({ km, paid }) => pow(add(add(fee, multiply(price, km)), -paid), 2));
+    const loss = multiply(
+      losses.reduce((sum, x) => add(sum, x)),
+      1 / rides.length,
+    );
+    backward(loss);
     const rule = { fee: fee.data, price: price.data };
     close(evaluate('how-a-machine-learns/training.js', 'measure(fixture, rides)', rule), {
       loss: loss.data,

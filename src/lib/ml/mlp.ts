@@ -1,83 +1,105 @@
-import { Value } from './value.ts';
+import { type Value, add, backward, multiply, tanh, value } from './value.ts';
 
-export class Neuron {
-  weights: Value[];
-  bias = new Value(0);
-  squash: boolean;
+export type Neuron = { weights: Value[]; bias: Value; squash: boolean };
+export type Layer = { neurons: Neuron[] };
+export type MLP = { layers: Layer[] };
 
-  constructor(inputs: number, normal: () => number, squash: boolean) {
-    this.weights = Array.from(
-      { length: inputs },
-      () => new Value(normal() * Math.sqrt(1 / inputs)),
-    );
-    this.squash = squash;
+function neuron(inputs: number, normal: () => number, squash: boolean): Neuron {
+  const weights: Value[] = [];
+  for (let i = 0; i < inputs; i++) {
+    weights.push(value(normal() * Math.sqrt(1 / inputs)));
   }
-
-  call(x: Value[]) {
-    const sum = this.weights.reduce((total, w, i) => total.add(w.mul(x[i])), this.bias);
-    return this.squash ? sum.tanh() : sum;
-  }
+  return { weights, bias: value(0), squash };
 }
 
-export class Layer {
-  neurons: Neuron[];
-
-  constructor(inputs: number, outputs: number, normal: () => number, squash: boolean) {
-    this.neurons = Array.from({ length: outputs }, () => new Neuron(inputs, normal, squash));
+function neuronOutput(knobs: Neuron, inputs: Value[]) {
+  let sum = knobs.bias;
+  for (let i = 0; i < knobs.weights.length; i++) {
+    const weighted = multiply(knobs.weights[i], inputs[i]);
+    sum = add(sum, weighted);
   }
-
-  call(x: Value[]) {
-    return this.neurons.map((neuron) => neuron.call(x));
-  }
+  if (knobs.squash) return tanh(sum);
+  return sum;
 }
 
-export class MLP {
-  layers: Layer[];
-
-  constructor(sizes: number[], normal: () => number) {
-    const last = sizes.length - 2;
-    this.layers = sizes.slice(1).map((size, i) => new Layer(sizes[i], size, normal, i < last));
+function layer(inputs: number, outputs: number, normal: () => number, squash: boolean): Layer {
+  const neurons: Neuron[] = [];
+  for (let i = 0; i < outputs; i++) {
+    neurons.push(neuron(inputs, normal, squash));
   }
+  return { neurons };
+}
 
-  call(x: number[]) {
-    let values = x.map((input) => new Value(input));
-    for (const layer of this.layers) values = layer.call(values);
-    return values[0];
+export function mlp(sizes: number[], normal: () => number): MLP {
+  const layers: Layer[] = [];
+  const last = sizes.length - 2;
+  for (let i = 0; i < sizes.length - 1; i++) {
+    layers.push(layer(sizes[i], sizes[i + 1], normal, i < last));
   }
+  return { layers };
+}
 
-  parameters() {
-    return this.layers.flatMap((layer) => layer.neurons.flatMap((n) => [...n.weights, n.bias]));
+export function forward(model: MLP, inputs: number[]) {
+  let values = inputs.map((input) => value(input));
+  for (const layer of model.layers) {
+    const next: Value[] = [];
+    for (const knobs of layer.neurons) {
+      next.push(neuronOutput(knobs, values));
+    }
+    values = next;
   }
+  return values[0];
+}
+
+export function parameters(model: MLP) {
+  const knobs: Value[] = [];
+  for (const layer of model.layers) {
+    for (const neuron of layer.neurons) {
+      knobs.push(...neuron.weights, neuron.bias);
+    }
+  }
+  return knobs;
 }
 
 export type Point = { x: number; y: number; label: 0 | 1 };
 
-export const sigmoid = (s: number) => 1 / (1 + Math.exp(-s));
-
-export function crossEntropy(score: Value, label: number) {
-  const s = score.data;
-  const loss = Math.max(s, 0) - label * s + Math.log(1 + Math.exp(-Math.abs(s)));
-  return new Value(loss, [[score, sigmoid(s) - label]]);
+export function sigmoid(score: number) {
+  return 1 / (1 + Math.exp(-score));
 }
 
-export function adam(parameters: Value[], rate = 0.01) {
-  const m = parameters.map(() => 0);
-  const v = parameters.map(() => 0);
-  let t = 0;
+export function crossEntropy(score: Value, label: number) {
+  const guess = score.data;
+  const loss = Math.max(guess, 0) - label * guess + Math.log(1 + Math.exp(-Math.abs(guess)));
+  return value(loss, [[score, sigmoid(guess) - label]]);
+}
+
+export function adam(knobs: Value[], rate = 0.01) {
+  const averageSlope = knobs.map(() => 0);
+  const averageSquare = knobs.map(() => 0);
+  let steps = 0;
   return () => {
-    t++;
-    parameters.forEach((p, i) => {
-      m[i] = 0.9 * m[i] + 0.1 * p.grad;
-      v[i] = 0.999 * v[i] + 0.001 * p.grad * p.grad;
-      p.data -= (rate * (m[i] / (1 - 0.9 ** t))) / (Math.sqrt(v[i] / (1 - 0.999 ** t)) + 1e-8);
-    });
+    steps++;
+    for (let i = 0; i < knobs.length; i++) {
+      const knob = knobs[i];
+      averageSlope[i] = 0.9 * averageSlope[i] + 0.1 * knob.grad;
+      averageSquare[i] = 0.999 * averageSquare[i] + 0.001 * knob.grad * knob.grad;
+      const slope = averageSlope[i] / (1 - 0.9 ** steps);
+      const square = averageSquare[i] / (1 - 0.999 ** steps);
+      knob.data -= (rate * slope) / (Math.sqrt(square) + 1e-8);
+    }
   };
 }
 
 export function trainStep(model: MLP, points: Point[], step: () => void) {
-  const losses = points.map((p) => crossEntropy(model.call([p.x, p.y]), p.label));
-  const loss = losses.reduce((sum, each) => sum.add(each)).mul(1 / points.length);
-  loss.backward();
+  const losses: Value[] = [];
+  for (const point of points) {
+    const guess = forward(model, [point.x, point.y]);
+    losses.push(crossEntropy(guess, point.label));
+  }
+  let total = losses[0];
+  for (let i = 1; i < losses.length; i++) total = add(total, losses[i]);
+  const loss = multiply(total, 1 / points.length);
+  backward(loss);
   step();
   return loss.data;
 }

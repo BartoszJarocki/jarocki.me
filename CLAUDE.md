@@ -33,7 +33,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
 - `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote, fills runnable code blocks from snippet files, and highlights code at build time
-- `src/lib/ml/value.ts` - `Value`, the small autograd class the part 1 demos run on. The notes teach the same calculations with short plain JavaScript functions
+- `src/lib/ml/value.ts` - `value` and the arithmetic functions, the plain objects and backward walk the part 1 demos run on. `src/lib/ml/mlp.ts` builds plain networks and provides their forward pass, knobs, and training step. The notes teach the same calculations with short plain JavaScript functions
 - `src/components/NoteContent.tsx` - Renders a compiled note, with `next/image` for images
 - `src/components/` - Reusable React components
 - `src/data/` - Static data and content
