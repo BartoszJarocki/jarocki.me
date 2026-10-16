@@ -12,7 +12,7 @@ import {
   reach,
   reducedMotionSteps,
   score,
-  train,
+  stillKnobs,
 } from './playground';
 import { type Rgb, type Tokens, css, defineScene } from './stage';
 
@@ -22,7 +22,6 @@ const toneOf = (level: number) => 0.03 + (0.21 * level) / (tones - 1);
 const knobCell = 36;
 const knobHead = 20;
 const batchMs = 8;
-const stillSteps = 150;
 
 const sides = [
   [0, 0, 1, 0],
@@ -429,16 +428,10 @@ export default defineScene({
   },
 });
 
-let trained: { pic: Picture; data: Point[] } | undefined;
-
 function trainedDays() {
-  if (!trained) {
-    const data = points('days');
-    const net = network(firstNetworkSeed);
-    train(net, data, stillSteps);
-    trained = { pic: picture(net.model), data };
-  }
-  return trained;
+  const { model } = network(firstNetworkSeed);
+  model.parameters().forEach((knob, i) => (knob.data = stillKnobs[i]));
+  return picture(model);
 }
 
 const ink = (share: number) =>
@@ -446,70 +439,26 @@ const ink = (share: number) =>
 const rounded = (v: number) => +v.toFixed(1);
 const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
 
+const square = (x: number, y: number, side: number) => `M${x} ${y}h${side}v${side}h${-side}z`;
+
 export function Still() {
-  const { pic, data } = trainedDays();
-  const field = fieldFigure(pic, data, 'days', 418);
+  const pic = trainedDays();
+  const data = points('days');
   const knobs = knobFigure(pic.firstLayer, 'days', null);
-  const { plot, dot } = field;
-  const shades = field.shades.map((rects) =>
-    rects.map((r) => `M${r.x} ${r.y}h${r.width}v${r.height}h${-r.width}z`).join(''),
-  );
-  const gaps = field.gaps
-    .map(
-      (gap) =>
-        `M${plot.x + gap} ${plot.y}h1v${plot.size}h-1zM${plot.x} ${plot.y + gap}h${plot.size}v1h${-plot.size}z`,
-    )
-    .join('');
-  const contour = field.contour
-    .map(([x1, y1, x2, y2]) => `M${rounded(x1)} ${rounded(y1)}L${rounded(x2)} ${rounded(y2)}`)
-    .join('');
-  const square = (x: number, y: number, side: number) => `M${x} ${y}h${side}v${side}h${-side}z`;
-  const filled = field.points.filter((point) => point.filled);
-  const hollow = field.points.filter((point) => !point.filled);
   return (
     <div className="demo-still">
       <PlaygroundLayout
         field={
-          <svg
-            viewBox={`0 0 ${field.width} ${field.width}`}
-            className="aspect-square w-full"
-            aria-hidden="true"
-          >
-            {shades.map(
-              (d, level) => d && <path key={level} d={d} style={{ fill: ink(toneOf(level)) }} />,
-            )}
-            <path className="fill-bg" d={gaps} />
-            <path d={contour} fill="none" strokeWidth={1} style={{ stroke: ink(0.5) }} />
-            <path className="fill-ink" d={filled.map((p) => square(p.x, p.y, dot)).join('')} />
-            <path
-              className="fill-bg stroke-ink"
-              strokeWidth={1}
-              d={hollow.map((p) => square(p.x + 0.5, p.y + 0.5, dot - 1)).join('')}
+          <>
+            <FieldSvg
+              field={fieldFigure(pic, data, 'days', 418)}
+              className="[@container(max-width:380px)]:hidden"
             />
-            <g className="fill-faint" fontSize={11}>
-              {field.across.map((label) => (
-                <text
-                  key={label.text}
-                  x={label.x}
-                  y={label.y}
-                  textAnchor={anchors[label.align]}
-                  dominantBaseline="central"
-                >
-                  {label.text}
-                </text>
-              ))}
-              {field.up.map((label) => (
-                <text
-                  key={label.text}
-                  transform={`translate(${label.x} ${label.y}) rotate(-90)`}
-                  textAnchor={anchors[label.align]}
-                  dominantBaseline="central"
-                >
-                  {label.text}
-                </text>
-              ))}
-            </g>
-          </svg>
+            <FieldSvg
+              field={fieldFigure(pic, data, 'days', 320)}
+              className="hidden [@container(max-width:380px)]:block"
+            />
+          </>
         }
         hinton={
           <svg
@@ -553,5 +502,71 @@ export function Still() {
         }
       />
     </div>
+  );
+}
+
+function FieldSvg({
+  field,
+  className,
+}: {
+  field: ReturnType<typeof fieldFigure>;
+  className: string;
+}) {
+  const { plot, dot } = field;
+  const shades = field.shades.map((rects) =>
+    rects.map((r) => `M${r.x} ${r.y}h${r.width}v${r.height}h${-r.width}z`).join(''),
+  );
+  const gaps = field.gaps
+    .map(
+      (gap) =>
+        `M${plot.x + gap} ${plot.y}h1v${plot.size}h-1zM${plot.x} ${plot.y + gap}h${plot.size}v1h${-plot.size}z`,
+    )
+    .join('');
+  const contour = field.contour
+    .map(([x1, y1, x2, y2]) => `M${rounded(x1)} ${rounded(y1)}L${rounded(x2)} ${rounded(y2)}`)
+    .join('');
+  const filled = field.points.filter((point) => point.filled);
+  const hollow = field.points.filter((point) => !point.filled);
+  return (
+    <svg
+      viewBox={`0 0 ${field.width} ${field.width}`}
+      className={`aspect-square w-full ${className}`}
+      aria-hidden="true"
+    >
+      {shades.map(
+        (d, level) => d && <path key={level} d={d} style={{ fill: ink(toneOf(level)) }} />,
+      )}
+      <path className="fill-bg" d={gaps} />
+      <path d={contour} fill="none" strokeWidth={1} style={{ stroke: ink(0.5) }} />
+      <path className="fill-ink" d={filled.map((p) => square(p.x, p.y, dot)).join('')} />
+      <path
+        className="fill-bg stroke-ink"
+        strokeWidth={1}
+        d={hollow.map((p) => square(p.x + 0.5, p.y + 0.5, dot - 1)).join('')}
+      />
+      <g className="fill-faint" fontSize={11}>
+        {field.across.map((label) => (
+          <text
+            key={label.text}
+            x={label.x}
+            y={label.y}
+            textAnchor={anchors[label.align]}
+            dominantBaseline="central"
+          >
+            {label.text}
+          </text>
+        ))}
+        {field.up.map((label) => (
+          <text
+            key={label.text}
+            transform={`translate(${label.x} ${label.y}) rotate(-90)`}
+            textAnchor={anchors[label.align]}
+            dominantBaseline="central"
+          >
+            {label.text}
+          </text>
+        ))}
+      </g>
+    </svg>
   );
 }

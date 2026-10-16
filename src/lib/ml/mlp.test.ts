@@ -1,7 +1,18 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { chanceOfYes, network, normal, points, score, seeded, train } from '../demos/playground.ts';
+import {
+  chanceOfYes,
+  firstNetworkSeed,
+  network,
+  normal,
+  points,
+  score,
+  seeded,
+  stillKnobs,
+  stillSteps,
+  train,
+} from '../demos/playground.ts';
 import { MLP, adam, crossEntropy, sigmoid } from './mlp.ts';
 import { Value } from './value.ts';
 
@@ -41,6 +52,22 @@ test('switches gets its loss under 0.05 in 86 steps from seed 3', () => {
   assert.ok(score(net.model, data).loss >= 0.05);
   train(net, data, 1);
   assert.ok(score(net.model, data).loss < 0.05);
+});
+
+test('the still shows days after its training steps from the first seed', () => {
+  const net = network(firstNetworkSeed);
+  const data = points('days');
+  train(net, data, stillSteps);
+  const knobs = net.model.parameters().map((knob) => knob.data);
+  // Node 22 rounds ** in the last bit differently from Node 24, and adam's bias correction uses it.
+  assert.ok(
+    knobs.length === stillKnobs.length &&
+      knobs.every((knob, i) => Math.abs(knob - stillKnobs[i]) < 1e-9),
+    `Replace stillKnobs with ${JSON.stringify(knobs)}`,
+  );
+  const { loss, accuracy } = score(net.model, data);
+  assert.equal(accuracy, 1);
+  close(loss, 0.027, 0.001);
 });
 
 test('the field reads the same answer as the network, before and after training', () => {
