@@ -167,7 +167,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Lane 3. 390px, dark. Save `phone-dark.png`. Pass when the probe reports a scroll width of 390 and both sliders work by touch.
 - [ ] Lane 4. Reduced motion. Save `reduced-motion.png`. Pass when nothing on the page animates without input.
 - [ ] Lane 5. JavaScript off. Save `no-js.png`. Pass when the shell shows its still figure and description at the same height as the live stage.
-- [ ] Lane 6. Layout shift. Load the note cold with the network throttled to Fast 3G. Save `cls.png`. Pass when the layout shift from the demo's mount onward is 0 and the whole load's shift equals trunk's. Trunk's font swap shifts every note by 0.0000327.
+- [ ] Lane 6. Layout shift. Load the note cold with the network throttled to Fast 3G. Save `cls.png`. Pass when the layout shift from the demo's mount onward is 0 and the whole load's shift equals trunk's. Trunk's font swap shifts part 1 by 0.0000327.
 - [ ] Lane 7. Keyboard only. Tab to each slider and move it with the arrow keys. Save `keyboard.png`. Pass when focus is visible on each control and the loss updates.
 - [ ] Lane 8. Lazy load and off screen. Record request times from a cold load, then scroll the demo into view, then out of view, and count canvas paints for five seconds. Save `offscreen.png`. Pass when the demo's chunk is first requested after the shell comes within 200px of the viewport, and the paint count is 0.
 - [ ] Lane 9. Client navigation. Go between the note and `/notes` five times. Save `navigation.png`. Pass when the console is clean and one stage is mounted at the end.
@@ -232,7 +232,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Lane 5. JavaScript off. Save `no-js.png`. Pass when the receipt shows its forward values from the server render.
 - [ ] Lane 6. Edit the region in `value.ts` and rebuild. Save `include-follows.png`. Pass when the note's block shows the edit.
 - [ ] Lane 7. Keyboard only. Save `keyboard.png`. Pass when both buttons work from the keyboard and focus is visible.
-- [ ] Lane 8. Copy the included block from the page. Save `copy.png`. Pass when pasting it into `node --input-type=module` with `value.ts`'s imports defines `Value`.
+- [ ] Lane 8. Copy the included block from the page. Save `copy.png`. Pass when pasting it into `node --input-type=module-typescript` with `value.ts`'s imports defines `Value`.
 - [ ] Lane 9. Client navigation five times. Save `navigation.png`. Pass when the console is clean.
 - [ ] Lane 10. Screen reader names. Save `a11y.png`. Pass when the receipt reads as a table with a header row, and every row's value and slope are in the accessibility tree.
 
@@ -451,7 +451,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 - [ ] Copy `names.txt` from karpathy/makemore at a pinned commit and record the commit and the MIT license in the PR body.
 - [ ] `src/lib/ml/bigram.ts` counts letter pairs into a 27 by 27 `Uint32Array` with `.` as the start and end token, starting every count at one as the prototype's `bigramLoss` does, turns a row into probabilities, and samples with a temperature. Starting at one keeps every letter's chance above zero, so temperature can reach every letter. On all names the loss is 2.4546 with the extra one and 2.4540 without, both 2.45 (measured). Mark regions `tokenizer` in `tokenizers.ts` and `counts` and `sample` in `bigram.ts`.
 - [ ] `CountingModel` fetches `names.txt` when the shell nears the viewport and draws the grid as squares sized by count, one row per letter and one column per next letter. Typing a letter highlights its row and shows each next letter's share. Sample and a temperature control produce names. The temperature control's ends read `samey` and `strange`.
-- [ ] `Tokenizers` splits one sentence into characters, words, and pieces from a byte-pair vocabulary trained at build time on the note's own text. Each row shows the menu size and the number of pieces. It comes first in the note, because the note names the token before anything else.
+- [ ] `Tokenizers` splits one sentence into characters, words, and pieces from a byte-pair vocabulary trained ahead of time on the note's own text by `src/lib/demos/writeData.ts` and committed. A test fails when the note's text and the committed vocabulary drift apart. Each row shows the menu size and the number of pieces. It comes first in the note, because the note names the token before anything else.
 - [ ] Create part 2 as a draft with the demos in place.
 
 **You see.**
