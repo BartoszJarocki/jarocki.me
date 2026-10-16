@@ -49,7 +49,7 @@ export function getNotes(): Note[] {
   }
   return notes
     .filter((note) => !(production && note.draft))
-    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || (a.part ?? 0) - (b.part ?? 0));
 }
 
 export function seriesParts(name: SeriesName): SeriesPart[] {
