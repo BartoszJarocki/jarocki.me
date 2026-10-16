@@ -2,7 +2,7 @@ import { type DemoProps, DemoStage, Slider } from './DemoStage';
 
 const scene = () => import('../../lib/demos/taxiFaresScene');
 
-export function TaxiFares(props: DemoProps) {
+export default function TaxiFares(props: DemoProps) {
   return (
     <DemoStage
       {...props}
