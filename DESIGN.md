@@ -247,7 +247,7 @@ A day with no activity has no voxels. Any other day is `max(1, round(scale * 12)
 
 ## Backdrop
 
-Every page draws a toy embedding space behind its top 460px. It shows one thing a language model does: it places tokens near each other when they mean similar things.
+Every page draws a toy embedding space over its top 460px. It shows one thing a language model does: it places tokens near each other when they mean similar things.
 
 ### What it computes
 
@@ -269,22 +269,36 @@ Every page draws a toy embedding space behind its top 460px. It shows one thing 
 - `mountEmbeddings` in `src/lib/embeddingsScene.ts` loads as an async chunk, like the skyline's scene, so three.js stays out of the first load. It builds the space, the neighbor lists, and the label atlases in slices of at most 16ms. At 4x CPU throttling its longest task is about 30ms, and the stage is ready about 1.3 seconds after navigation.
 - It draws at most 30 frames a second, and stops while the page is hidden or the band is out of view. Under reduced motion it draws one frame, at t = 6 seconds, and draws again only on a resize or a theme change.
 - If WebGL is unavailable or the chunk fails to load, the page has no backdrop.
-- Print hides it. Printing drops background graphics, so the plates would vanish and text would print over the cloud.
+- Print and forced colors hide it. Printing drops background graphics, so the plates would vanish and text would print over the cloud. In forced colors, as in Windows High Contrast, Chrome paints a `Canvas` backplate behind each line of text, and the stage would paint over it.
 
 ### Stacking
 
 The stage paints above the page text, at `z-index: 1`, so that text keeps subpixel antialiasing on screens that use it, such as Windows with ClearType. Chrome draws subpixel text only in a layer with an opaque background. With the stage under the page, Chrome put the page text in a layer above the stage's canvas, with no background, and drew it in grayscale while the band was on screen.
 
-- Above the page, the stage blends with `darken` in light and `lighten` in dark. Every color it draws lies between `bg` and `ink`, so over `bg` the blend gives the same pixel as a stage under the page.
-- Over text it does not. Where the cloud crosses `ink` text without a plate, the glyph edges move by up to 23 levels. Selected text in the band shows the cloud over its letters.
-- The blend reads back the page under the stage on every frame it draws. On an Intel Iris Xe that keeps the GPU awake about 0.5ms longer per frame at 1x and 2.3ms longer at 2x.
+- Above the page, the stage blends with `darken` in light and `lighten` in dark. Every color it draws lies between `bg` and `ink`, so over `bg` the blend gives the same pixel as a stage under the page. Over anything else it does not. See What painting above the text costs.
 - Anything opaque that can sit in the band rises above the stage, at `z-index: 2`, or the stage would draw over it. That is every plate, a hovered or focused row, the skyline, and note prose with its images and code. `src/styles/index.css` lists them right after `.backdrop`.
+- A raised box paints above every box that is not raised, whatever the DOM order, so its padding can cover a neighbor's focus ring. On the home page, the lede's plate on the second line would cover the lower edge of the ring around `motion` or `we're hiring` on the first, so a focused `.text-link` rises to `z-index: 3`. It loses subpixel text only while it has focus.
 - A clipping row cell rises in place of its plate, because Chrome drops a clipped line's ellipsis when the text sits in a raised inline.
-- Text on a raised plate keeps subpixel antialiasing only while Chrome can tell that it sits on the plate. Chrome tracks one opaque rectangle per raised element, so a plate that wraps to a second line, like the ledes on the home page and on /about, stays grayscale. Row plates that Chrome merges into one layer can stay grayscale too, like the second and third authors on /about.
+- Text on a raised plate keeps subpixel antialiasing only while Chrome can tell that it sits on the plate. Chrome tracks one opaque rectangle per raised element, so a plate that wraps to a second line, like the ledes on the home page and on /about, stays grayscale. Row plates that Chrome merges into one layer can stay grayscale too, like the Taleb, Knight, and Hesse rows on /about.
+
+### What painting above the text costs
+
+Measured against the same page with the stage under it, in light and dark:
+
+- Where the cloud crosses `ink` text without a plate, the glyph edges move by up to 23 levels.
+- The `faint` underline of a link without a plate, like `motion` and `we're hiring` in the home lede, moves by up to 36 levels as the cloud passes.
+- Selected text in the band shows the cloud over its letters. A select-all differs in 11 to 202 px per page at 1440px, by up to 50 levels. On a phone, where a portrait stage draws no words, it differs in 28 to 305 px, by up to 46 levels.
+- Other highlights in the band show the cloud the same way. A text fragment (`#:~:text=`) on a word without a plate differs in up to 144 px at 1440px, by up to 50 levels, and in up to 139 px on a phone, by up to 57 levels. Chrome paints find-in-page highlights with the text as well, so the cloud draws over them too. They were not measured.
+- The prose plate reaches 1px past the text. On three notes at 1440px, 5 px at its edge in the band move by up to 17 levels.
+- The photo in the band on the Apple note rasters inside the raised prose. At 390px it moves by up to 18 levels in 1515 px.
+- Below the band, on the Apple note at 1440px, 2 px of the underline under `support DSC` move by up to 6 levels.
+- Forced colors hide the stage. Under the page, it showed between the lines of text.
+- A browser without `:has` raises the plate in a clipping row cell instead of the cell, so the clipped line loses its ellipsis there.
+- The blend reads back the page under the stage on every frame it draws. On an Intel Iris Xe, the GPU stays awake 0.43 to 0.51 ms longer per frame at 1x, on top of 3.69 to 3.84 ms, and 1.56 to 2.37 ms longer at 2x, on top of 10.66 to 11.29 ms. Each range spans the medians of two sets of 6 interleaved runs per side.
 
 ### Plates
 
-`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts behind it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity. That holds only while the stage stays at or under about 42% opacity (42.3% in dark, 53.7% in light). Raising it needs plates under `ink` text too.
+`faint` text keeps 4.5:1 only while the pixel behind it stays within 3.7% (light) or 5.1% (dark) of the way from `bg` to `ink`. Even `rule` behind `faint` text measures 3.88:1. `body` text drops under 4.5:1 when the reading list drifts across it in the upper part of the band. `ink` keeps 4.88:1 or more, because the stage is drawn at 40% opacity. That holds only while the stage stays at or under about 42% opacity (42.3% in dark, 53.7% in light). Raising it needs plates under `ink` text too.
 
 So the tone decides. In the band, `ink` text needs no plate, and every piece of `body` or `faint` text sits on one. The `.plate` class gives an element a `bg` background 1ch wider on each side, with a negative margin, so nothing moves. These carry it:
 
@@ -356,7 +370,7 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Decorative arrows are `aria-hidden`: the `↗` in the elsewhere rows, the arrows in section links, and the `←` and `→` in note footers and on the error pages. The `→` inside a job title stays, because it means "then".
 - Every link that opens a new tab goes through `ExternalLink`, so screen readers hear `(opens in new tab)` after its name.
 - Every animation respects `prefers-reduced-motion`.
-- The backdrop is `aria-hidden`. Text it can reach sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
+- The backdrop is `aria-hidden`, and forced colors hide it. Text it can reach sits on a plate, so it never lowers a text tone under 4.5:1. See Backdrop > Plates.
 
 ## Do and don't
 
@@ -369,4 +383,4 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 - Don't add a theme toggle. The site follows the system setting.
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
 - Don't lower the contrast of `faint`.
-- Don't put anything behind `faint` or `body` text without a plate.
+- Don't leave `faint` or `body` text in the band without a plate.

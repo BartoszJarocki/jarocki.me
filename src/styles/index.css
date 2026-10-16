@@ -73,9 +73,9 @@
     color: var(--ink);
   }
 
-  /* the backdrop must never pass behind faint or body text, which drop under 4.5:1 over it. A plate
-     on text that wraps inline, like a lede's, is .plate-inline, whose 3px of block padding covers
-     the lines' half-leading. */
+  /* the backdrop must never draw over faint or body text, which drop under 4.5:1 where the cloud
+     crosses them, so a plate rises above it. A plate on text that wraps inline, like a lede's, is
+     .plate-inline, whose 3px of block padding covers the lines' half-leading. */
   .plate,
   .plate-inline {
     margin-inline: -1ch;
