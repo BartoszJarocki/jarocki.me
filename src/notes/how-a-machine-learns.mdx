@@ -52,7 +52,7 @@ The bottom line is the miss times itself. If the miss is 3, this ride's loss is 
 
 For readers who know JavaScript, here is `Value`, the class the receipt above runs on. A `Value` keeps its number in `data`, its slope in `grad`, and the values it was made from. Each of those comes paired with how much this value moves when that one moves by one. `backward` walks from the bottom line up, and each value passes its slope back to the values it was made from, times those numbers. It works for any calculation built from these methods, not only this receipt. A value used twice adds up the slopes from each use. The bottom line uses the miss twice, as miss times miss. Each use passes back the miss, so the miss gets two times the miss.
 
-The code is TypeScript, which is JavaScript with the type of each value written after a colon. To run it, save it as `value.ts`, add a few lines at the end that use it, and run `node value.ts`. That needs Node 22.18 or later.
+The code is TypeScript, which is JavaScript with the type of each value written after a colon. To run it, save it as `value.mts`, add a few lines at the end that use it, and run `node value.mts`. That needs Node 22.18 or later.
 
 ```ts include=src/lib/ml/value.ts#backward
 ```
