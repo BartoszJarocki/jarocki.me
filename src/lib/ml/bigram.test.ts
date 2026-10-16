@@ -19,6 +19,7 @@ test('encode stops on anything that is not a letter from a to z', () => {
   assert.throws(() => countPairs(['eMma']), { message: '"M" is not a letter from a to z' });
   assert.throws(() => encode('a.b'), { message: '"." is not a letter from a to z' });
   assert.throws(() => encode('zoë'), { message: '"ë" is not a letter from a to z' });
+  assert.throws(() => encode('emma smith'), { message: '" " is not a letter from a to z' });
   assert.throws(() => encode('emma\r'), { message: '"\\r" is not a letter from a to z' });
 });
 
