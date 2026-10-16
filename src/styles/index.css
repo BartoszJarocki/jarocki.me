@@ -631,7 +631,7 @@
     font-size: inherit;
   }
   .demo-receipt td:last-child:empty::after {
-    content: '·';
+    content: '·' / '';
   }
   .demo-receipt th > span {
     display: inline-block;
