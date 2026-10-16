@@ -71,7 +71,7 @@ const SCALE = [18, 15, 18] as const satisfies { length: typeof DRAWN };
 const HALF_W = 11.6;
 const HALF_H = 6;
 const DEPTH = 6;
-// A very wide stage, like the band behind the header, squashes y and lifts the band. Both ramp in
+// A very wide stage, like the band over the header, squashes y and lifts the band. Both ramp in
 // as the aspect grows from WIDE_FROM to WIDE_FROM + WIDE_SPAN. The lift, a share of the stage
 // height, keeps the band inside the unfaded top that --unfaded sets on .backdrop in index.css.
 const WIDE_FROM = 2.4;
@@ -707,7 +707,7 @@ async function mountScene(
     // A portrait stage rolls the camera so the band runs down the screen.
     const portrait = a < 1;
     camera.up.set(portrait ? 1 : 0, portrait ? 0 : 1, 0);
-    // On a phone the header covers much of a portrait band, and any word could drift behind it.
+    // On a phone the header fills much of a portrait band, and any word could drift over it.
     showWords = !portrait;
     const along = portrait ? tan : tan * a;
     const across = portrait ? tan * a : tan;

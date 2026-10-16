@@ -263,7 +263,7 @@ Every page draws a toy embedding space over its top 460px. It shows one thing a 
 - Tokens are square points, each a mix of `bg` and `ink` that fades toward `bg` with depth. There are no lights, as in the skyline. Lines are 1px. Labels are Geist Mono at 11px and 13px.
 - The stage is a `position: absolute` element, rendered by `_app` before the page, 460px tall, at 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede under it stay clickable. `_app` clips it to the page, or to the screen when the page is shorter, so the stage never makes a page scroll.
 - On a wide stage the space is squashed vertically to fill the band, and lifted into the top 55% that the mask leaves unfaded. That stop is written once, as `--unfaded` on `.backdrop` in `src/styles/index.css`. On a portrait stage, such as a phone, the camera rolls 90° so the clusters run down the screen.
-- A portrait stage shows no words: no neighbor list, no trail or analogy labels, no cosines. The header covers much of the band there, and any word can drift behind it. The points, the lines, and the boxes around the current token and the analogy's sum stay.
+- A portrait stage shows no words: no neighbor list, no trail or analogy labels, no cosines. The header fills much of the band there, and any word could drift over it. The points, the lines, and the boxes around the current token and the analogy's sum stay.
 - A mouse resting on a cluster point shows that token's neighbors. On a portrait stage the hover draws the lines to the neighbors and the box around the token, but no words. Touch does nothing.
 - The stage stays mounted across client-side navigation, so the space is built once per visit and the animation carries on from page to page.
 - `mountEmbeddings` in `src/lib/embeddingsScene.ts` loads as an async chunk, like the skyline's scene, so three.js stays out of the first load. It builds the space, the neighbor lists, and the label atlases in slices of at most 16ms. At 4x CPU throttling its longest task is about 30ms, and the stage is ready about 1.3 seconds after navigation.
@@ -286,7 +286,7 @@ The stage paints above the page text, at `z-index: 1`, so that text keeps subpix
 Measured against the same page with the stage under it, in light and dark:
 
 - Where the cloud crosses `ink` text without a plate, the glyph edges move by up to 23 levels.
-- The `faint` underline of a link without a plate, like `motion` and `we're hiring` in the home lede, moves by up to 36 levels as the cloud passes.
+- The `faint` underline of a link without a plate, like `motion` and `we're hiring` in the home lede, moves by up to 36 levels as the cloud passes, measured in dark. At 40% opacity the stage can move it by at most 34.8 levels in light and 42.8 in dark.
 - Selected text in the band shows the cloud over its letters. A select-all differs in 11 to 202 px per page at 1440px, by up to 50 levels. On a phone, where a portrait stage draws no words, it differs in 28 to 305 px, by up to 46 levels.
 - Other highlights in the band show the cloud the same way. A text fragment (`#:~:text=`) on a word without a plate differs in up to 144 px at 1440px, by up to 50 levels, and in up to 139 px on a phone, by up to 57 levels. Chrome paints find-in-page highlights with the text as well, so the cloud draws over them too. They were not measured.
 - The prose plate reaches 1px past the text. On three notes at 1440px, 5 px at its edge in the band move by up to 17 levels.
