@@ -52,7 +52,7 @@
 
 @layer components {
   .text-link,
-  .prose a {
+  .prose a:not(:where(.not-prose, .not-prose *)) {
     color: var(--ink);
     text-decoration-line: underline;
     text-decoration-color: var(--faint);
@@ -61,7 +61,7 @@
     transition: text-decoration-color 150ms;
   }
   .text-link:hover,
-  .prose a:hover {
+  .prose a:hover:not(:where(.not-prose, .not-prose *)) {
     text-decoration-color: var(--ink);
   }
 
@@ -331,12 +331,12 @@
        subpixel text above the backdrop only when the text lies inside its plate's whole pixels */
     background: var(--bg);
   }
-  .prose p {
+  .prose p:not(:where(.not-prose, .not-prose *)) {
     margin: 0 0 1.15em;
   }
-  .prose h1,
-  .prose h2,
-  .prose h3 {
+  .prose h1:not(:where(.not-prose, .not-prose *)),
+  .prose h2:not(:where(.not-prose, .not-prose *)),
+  .prose h3:not(:where(.not-prose, .not-prose *)) {
     margin: 2.2em 0 0.6em;
     font-size: 19px;
     font-weight: 600;
@@ -344,36 +344,36 @@
     letter-spacing: -0.012em;
     color: var(--ink);
   }
-  .prose ul,
-  .prose ol {
+  .prose ul:not(:where(.not-prose, .not-prose *)),
+  .prose ol:not(:where(.not-prose, .not-prose *)) {
     margin: 0 0 1.15em;
     padding-left: 2.2ch;
   }
-  .prose ul {
+  .prose ul:not(:where(.not-prose, .not-prose *)) {
     list-style: '-  ';
   }
-  .prose ol {
+  .prose ol:not(:where(.not-prose, .not-prose *)) {
     list-style: decimal;
   }
-  .prose li {
+  .prose li:not(:where(.not-prose, .not-prose *)) {
     margin: 0.3em 0;
     padding-left: 0.6ch;
   }
-  .prose li::marker {
+  .prose li:not(:where(.not-prose, .not-prose *))::marker {
     font-family: theme('fontFamily.mono');
     font-size: 13px;
     color: var(--faint);
   }
-  .prose strong {
+  .prose strong:not(:where(.not-prose, .not-prose *)) {
     font-weight: 500;
     color: var(--ink);
   }
-  .prose code {
+  .prose code:not(:where(.not-prose, .not-prose *)) {
     font-family: theme('fontFamily.mono');
     font-size: 13.5px;
     color: var(--ink);
   }
-  .prose pre {
+  .prose pre:not(:where(.not-prose, .not-prose *)) {
     margin: 0 -20px 1.4em;
     padding: 16px 20px;
     overflow-x: auto;
@@ -382,25 +382,25 @@
     color: var(--ink);
     background: var(--wash);
   }
-  .prose li > pre {
+  .prose li > pre:not(:where(.not-prose, .not-prose *)) {
     margin-top: 0.6em;
   }
-  .prose pre code {
+  .prose pre code:not(:where(.not-prose, .not-prose *)) {
     font-size: inherit;
   }
-  .prose blockquote {
+  .prose blockquote:not(:where(.not-prose, .not-prose *)) {
     margin: 0 0 1.15em;
     padding-left: 2ch;
     border-left: 1px solid var(--rule);
   }
-  .prose hr {
+  .prose hr:not(:where(.not-prose, .not-prose *)) {
     margin: 2.6em 0;
     border-color: var(--rule);
   }
-  .prose figure {
+  .prose figure:not(:where(.not-prose, .not-prose *)) {
     margin: 0 0 1.4em;
   }
-  .prose figcaption {
+  .prose figcaption:not(:where(.not-prose, .not-prose *)) {
     margin-top: 8px;
     font-family: theme('fontFamily.mono');
     font-size: 13px;

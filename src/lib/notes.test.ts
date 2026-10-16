@@ -13,7 +13,7 @@ fs.mkdirSync(notesDir, { recursive: true });
 process.chdir(root);
 after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-const { getNoteContent, getNotes } = await import('./notes.ts');
+const { getNoteContent, getNotes, seriesParts } = await import('./notes.ts');
 
 function writeNote(slug: string, publishedAt: string, extra = '') {
   const frontmatter = `title: ${slug}\ndescription: about ${slug}\npublishedAt: ${publishedAt}\ntags: [test]\n${extra}`;
@@ -230,4 +230,54 @@ test("part 1's glossary holds exactly the terms the design doc lists for part 1"
   const terms = [...glossary.matchAll(/<Term name="([^"]+)">/g)].map(([, name]) => name);
 
   assert.deepEqual(terms.toSorted(), listed.split(', ').toSorted());
+});
+
+test('seriesParts orders all four titles and links only published parts', (t) => {
+  writeNote('first', '2024-08-01', 'series: ai\npart: 1\n');
+  writeNote('second', '2024-08-02', 'series: ai\npart: 2\n');
+  writeNote('third', '2024-08-03', 'series: ai\npart: 3\ndraft: true\n');
+  t.after(() => {
+    for (const slug of ['first', 'second', 'third']) fs.rmSync(path.join(notesDir, `${slug}.mdx`));
+    delete process.env.VERCEL_ENV;
+  });
+  for (const env of ['preview', 'production']) {
+    process.env.VERCEL_ENV = env;
+    assert.deepEqual(seriesParts('ai'), [
+      { part: 1, title: 'How a machine learns', slug: 'first' },
+      { part: 2, title: 'Words as numbers', slug: 'second' },
+      { part: 3, title: 'Paying attention', slug: null },
+      { part: 4, title: 'A tiny GPT, trained in your browser', slug: null },
+    ]);
+  }
+});
+
+test('duplicate series parts name both files, including hidden drafts', (t) => {
+  writeNote('duplicate-first', '2024-08-01', 'series: ai\npart: 1\n');
+  writeNote('duplicate-second', '2024-08-02', 'series: ai\npart: 1\ndraft: true\n');
+  process.env.VERCEL_ENV = 'production';
+  t.after(() => {
+    for (const slug of ['duplicate-first', 'duplicate-second'])
+      fs.rmSync(path.join(notesDir, `${slug}.mdx`));
+    delete process.env.VERCEL_ENV;
+  });
+  assert.throws(() => seriesParts('ai'), {
+    message:
+      'src/notes/duplicate-first.mdx and src/notes/duplicate-second.mdx: duplicate ai part 1',
+  });
+});
+
+test('series membership requires a supported series and an in-range integer part', (t) => {
+  t.after(() => fs.rmSync(path.join(notesDir, 'bad-series.mdx')));
+  for (const extra of [
+    'series: ai',
+    'part: 1',
+    'series: other\npart: 1',
+    'series: ai\npart: 0',
+    'series: ai\npart: 5',
+    'series: ai\npart: 1.5',
+    'series: ai\npart: "2"',
+  ]) {
+    writeNote('bad-series', '2024-08-01', `${extra}\n`);
+    assert.throws(() => getNotes(), /src\/notes\/bad-series.mdx: frontmatter needs/);
+  }
 });

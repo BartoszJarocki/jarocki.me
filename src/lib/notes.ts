@@ -4,6 +4,19 @@ import yaml from 'js-yaml';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import path from 'path';
 
+const series = {
+  ai: [
+    'How a machine learns',
+    'Words as numbers',
+    'Paying attention',
+    'A tiny GPT, trained in your browser',
+  ],
+};
+
+type SeriesName = keyof typeof series;
+type SeriesMembership = { series: SeriesName; part: number } | { series?: never; part?: never };
+export type SeriesPart = { part: number; title: string; slug: string | null };
+
 export type Note = {
   slug: string;
   title: string;
@@ -11,19 +24,43 @@ export type Note = {
   publishedAt: string;
   tags: string[];
   draft: boolean;
-};
+} & SeriesMembership;
 
 const notesDir = path.join(process.cwd(), 'src/notes');
-const fields = ['title', 'description', 'publishedAt', 'tags', 'draft'];
+const fields = ['title', 'description', 'publishedAt', 'tags', 'draft', 'series', 'part'];
 
 export function getNotes(): Note[] {
   const production = process.env.VERCEL_ENV === 'production';
-  return fs
+  const notes = fs
     .readdirSync(notesDir)
     .filter((file) => file.endsWith('.mdx'))
-    .map((file) => parseNote(file, readNote(file).data))
+    .map((file) => parseNote(file, readNote(file).data));
+  const occupied = new Map<string, string>();
+  for (const note of notes) {
+    if (!note.series) continue;
+    const key = `${note.series}/${note.part}`;
+    const previous = occupied.get(key);
+    if (previous) {
+      throw new Error(
+        `src/notes/${previous}.mdx and src/notes/${note.slug}.mdx: duplicate ${note.series} part ${note.part}`,
+      );
+    }
+    occupied.set(key, note.slug);
+  }
+  return notes
     .filter((note) => !(production && note.draft))
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+}
+
+export function seriesParts(name: SeriesName): SeriesPart[] {
+  const notes = getNotes();
+  return series[name].map((title, index) => ({
+    title,
+    part: index + 1,
+    slug:
+      notes.find((note) => note.series === name && note.part === index + 1 && !note.draft)?.slug ??
+      null,
+  }));
 }
 
 export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeResult> {
@@ -87,7 +124,22 @@ function parseNote(file: string, data: Record<string, unknown>): Note {
   }
   if (typeof draft !== 'boolean') throw invalid('draft as true or false');
 
+  let membership: SeriesMembership = {};
+  if (data.series !== undefined || data.part !== undefined) {
+    if (data.series !== 'ai') throw invalid('series as ai with a part number');
+    if (
+      typeof data.part !== 'number' ||
+      !Number.isInteger(data.part) ||
+      data.part < 1 ||
+      data.part > series.ai.length
+    ) {
+      throw invalid('part as a whole number from 1 to 4 with series: ai');
+    }
+    membership = { series: data.series, part: data.part };
+  }
+
   return {
+    ...membership,
     slug: file.replace(/\.mdx$/, ''),
     title,
     description,
