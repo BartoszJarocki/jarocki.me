@@ -64,7 +64,7 @@ Eight strips, one for each head of the trained model, each with the 54 letters a
 
 </Heads>
 
-Nobody told the heads what to look for. Training found it. In this sentence, the second head of the first block reads the letter just before more than any other at 39 of the 53 letters that have one. The fourth head of the second block looks for the start of the word. At 20 of the 29 letters that come after the first letter of their word, it reads the space before that word most.
+Nobody told the heads what to look for. Training found it. In this sentence, the second head of the first block gives its largest weight to the previous character at 39 of the 53 positions that have one. The fourth head of the second block often reads the space before a word. Choose a character after a word's first letter, with a space before the word. At 20 of those 29 positions, this head gives that space its largest weight.
 
 The heads of the first block read close by. Averaged over the sentence after its first letter, each head puts about 80% to 85% of its weight on the letter itself and the two before it. So the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average over the same positions.
 
