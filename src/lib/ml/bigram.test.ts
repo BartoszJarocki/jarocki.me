@@ -85,8 +85,9 @@ test('the run instructions in the note print ten names', () => {
   const region = (file: string, name: string) =>
     fs.readFileSync(file, 'utf8').split(`// #region ${name}\n`)[1].split('// #endregion')[0];
   const note = fs.readFileSync('src/notes/words-as-numbers.mdx', 'utf8');
+  const section = note.split(/^## /m).find((part) => part.startsWith('The counting model'))!;
   const blocks = Array.from(
-    note.matchAll(/^```ts(?: include=(\S+)#(\S+))?\n([\s\S]*?)^```$/gm),
+    section.matchAll(/^```ts(?: include=(\S+)#(\S+))?\n([\s\S]*?)^```$/gm),
     ([, file, name, code]) => (file ? region(file, name) : code),
   );
   const printed = execFileSync(process.execPath, ['--input-type=module-typescript'], {
