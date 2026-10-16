@@ -373,26 +373,21 @@
     font-size: 13.5px;
     color: var(--ink);
   }
-  .shiki {
-    --shiki-foreground: var(--body);
-    --shiki-background: var(--wash);
-    --shiki-token-keyword: var(--ink);
-    --shiki-token-function: var(--ink);
-    --shiki-token-parameter: var(--ink);
-    --shiki-token-comment: var(--faint);
-    --shiki-token-punctuation: var(--faint);
-    --shiki-token-constant: var(--body);
-    --shiki-token-string: var(--body);
-    --shiki-token-string-expression: var(--body);
-    --shiki-token-link: var(--body);
-    --shiki-token-inserted: var(--body);
-    --shiki-token-deleted: var(--body);
-    --shiki-token-changed: var(--body);
+  .ci {
+    color: var(--ink);
+  }
+  .cb {
+    color: var(--body);
+  }
+  .cf {
+    color: var(--faint);
   }
   .prose pre:not(:where(.not-prose, .not-prose *)) {
     margin: 0 -20px 1.4em;
     padding: 16px 20px;
     overflow-x: auto;
+    white-space: pre;
+    overflow-wrap: normal;
     font-size: 13px;
     line-height: 1.7;
     color: var(--ink);
@@ -424,6 +419,9 @@
     background: var(--wash);
     text-transform: none;
     tab-size: 2;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
   }
   .snippet-controls {
     display: flex;
@@ -440,12 +438,6 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     color: var(--body);
-  }
-  @media (max-width: 640px) {
-    .prose pre:not(:where(.not-prose, .not-prose *)) {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
   }
   .prose blockquote:not(:where(.not-prose, .not-prose *)) {
     margin: 0 0 1.15em;

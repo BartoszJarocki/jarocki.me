@@ -7,6 +7,8 @@ import { type TestContext, after, test } from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
+import { readCodeTokens } from './codeTokens.ts';
+
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'notes-test-'));
 const notesDir = path.join(root, 'src/notes');
 fs.mkdirSync(notesDir, { recursive: true });
@@ -111,7 +113,7 @@ function compileNote(t: TestContext, markdown: string) {
 
 const fence = (meta: string, body = '') => `\`\`\`js ${meta}\n${body}\`\`\``;
 
-test('runnable fences carry the file source and highlight with CSS variables', async (t) => {
+test('runnable fences store code once as compact colored runs', async (t) => {
   const compiled = await compileNote(t, fence('run=src/notes/snippets/x/example.js'));
   let raw: unknown;
   let snippet: unknown;
@@ -120,29 +122,55 @@ test('runnable fences carry the file source and highlight with CSS variables', a
       ...compiled,
       components: {
         pre: (props) => {
-          raw = Reflect.get(props, 'data-source');
+          const encoded = Reflect.get(props, 'data-code');
+          assert.equal(typeof encoded, 'string');
+          const { tokens, source } = readCodeTokens(encoded);
+          raw = source;
           snippet = Reflect.get(props, 'data-snippet');
-          return createElement('pre', props);
+          return createElement(
+            'pre',
+            {},
+            tokens.map(([tone, text], index) =>
+              createElement('span', { className: tone, key: index }, text),
+            ),
+          );
         },
       },
     }),
   );
   assert.equal(raw, source.trimEnd());
   assert.equal(snippet, 'src/notes/snippets/x/example.js');
-  assert.match(html, /color:var\(--shiki-token-keyword\)/);
-  assert.match(html, /color:var\(--shiki-token-function\)/);
-  assert.match(html, /color:var\(--shiki-token-punctuation\)/);
-  assert.match(html, /color:var\(--shiki-token-function\)">html<\/span>/);
-  assert.match(html, /color:var\(--shiki-token-function\)"> ?name<\/span>/);
-  assert.match(html, /color:var\(--shiki-token-punctuation\)">\(<\/span>/);
+  assert.match(html, /class="ci">const<\/span>/);
+  assert.match(html, /class="ci">html<\/span>/);
+  assert.match(html, /class="ci"> ?name<\/span>/);
+  assert.match(html, /class="cf">\(/);
+  assert.match(html, /class="cb">/);
   assert.match(html, /&lt;b&gt;&amp;&lt;\/b&gt;/);
+  assert.doesNotMatch(compiled.compiledSource, /data-source|style:|--shiki/);
+  assert.ok(compiled.compiledSource.length < 3000);
 });
 
 test('plain fences are highlighted without runnable source', async (t) => {
   const compiled = await compileNote(t, fence('', 'const answer = 42;\n'));
-  const html = renderToStaticMarkup(createElement(MDXRemote, compiled));
-  assert.match(html, /color:var\(--shiki-token-keyword\)/);
-  assert.doesNotMatch(html, /data-source|data-snippet/);
+  let raw: unknown;
+  renderToStaticMarkup(
+    createElement(MDXRemote, {
+      ...compiled,
+      components: {
+        pre: (props) => {
+          const encoded = Reflect.get(props, 'data-code');
+          assert.equal(typeof encoded, 'string');
+          const { tokens, source } = readCodeTokens(encoded);
+          raw = source;
+          assert.deepEqual(tokens[0], ['ci', 'const']);
+          assert.equal(Reflect.get(props, 'data-snippet'), undefined);
+          return null;
+        },
+      },
+    }),
+  );
+  assert.equal(raw, 'const answer = 42;');
+  assert.doesNotMatch(compiled.compiledSource, /data-source|data-snippet/);
 });
 
 test('runnable fences reject missing files, bodies, and invalid paths or metadata', async (t) => {

@@ -16,7 +16,7 @@ const executablePath =
 const { chromium } = await import(pathToFileURL(playwright).href);
 const browser = await chromium.launch({ executablePath, headless: true, args: ['--no-sandbox'] });
 const slugs = ['how-a-machine-learns', 'words-as-numbers', 'paying-attention'];
-const report = { notes: [], screenshots: [], pageErrors: [], horizontalOverflow: [] };
+const report = { notes: [], screenshots: [], pageErrors: [], layouts: [] };
 await fs.mkdir(evidence, { recursive: true });
 
 async function visit(page, slug) {
@@ -43,17 +43,45 @@ async function tabTo(page, predicate) {
   throw new Error('Could not reach snippet with the keyboard');
 }
 
-async function noOverflow(page) {
-  const overflow = await page.evaluate(() => {
-    const found = [];
-    if (document.documentElement.scrollWidth > innerWidth) found.push('page');
-    for (const element of document.querySelectorAll('.snippet pre, .snippet textarea')) {
-      if (element.scrollWidth > element.clientWidth + 1) found.push(element.tagName);
-    }
-    return found;
+async function checkLayout(page) {
+  const layout = await page.evaluate(() => {
+    const blocks = [...document.querySelectorAll('.snippet > pre, .snippet textarea')];
+    return {
+      width: innerWidth,
+      pageWidth: document.documentElement.scrollWidth,
+      blocks: blocks.map((block) => {
+        const style = getComputedStyle(block);
+        const before = block.scrollLeft;
+        block.scrollLeft = block.scrollWidth;
+        const scrolled = block.scrollLeft;
+        block.scrollLeft = before;
+        return {
+          kind: block.tagName,
+          whiteSpace: style.whiteSpace,
+          width: block.clientWidth,
+          scrollWidth: block.scrollWidth,
+          scrolled,
+          height: block.scrollHeight,
+          lineHeight: parseFloat(style.lineHeight),
+          lines: (block.value ?? block.textContent).split('\n').length,
+        };
+      }),
+    };
   });
-  report.horizontalOverflow.push(...overflow);
-  assert.deepEqual(overflow, []);
+  assert.ok(layout.pageWidth <= layout.width, 'The page stays within the viewport');
+  for (const block of layout.blocks) {
+    assert.equal(block.whiteSpace, 'pre', 'Code never wraps');
+    if (layout.width === 1440) assert.ok(block.scrollWidth <= block.width + 1, 'Desktop code fits');
+    if (block.scrollWidth > block.width + 1)
+      assert.ok(block.scrolled > 0, 'Long lines scroll inside the block');
+    if (block.kind === 'PRE') {
+      assert.ok(
+        Math.abs(block.height - (block.lines * block.lineHeight + 32)) < 2,
+        'One visual line per source line',
+      );
+    }
+  }
+  report.layouts.push(layout);
 }
 
 try {
@@ -74,8 +102,14 @@ try {
       new Function('console', source)({ log: (...args) => output.push(args.join(' ')) });
       assert.equal(await block.locator('pre').first().textContent(), source.trimEnd());
       await run(block, output.join('\n'));
-      note.snippets.push({ file, lines: source.trimEnd().split('\n').length, output });
+      note.snippets.push({
+        file,
+        lines: source.trimEnd().split('\n').length,
+        columns: Math.max(...source.split('\n').map((line) => line.length)),
+        output,
+      });
     }
+    await checkLayout(page);
     const first = blocks.first();
     await first.getByRole('button', { name: /^edit$/i }).click();
     await first
@@ -136,9 +170,9 @@ try {
     note.keyboard = true;
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ colorScheme: 'light' });
-    await noOverflow(page);
+    await checkLayout(page);
     await first.getByRole('button', { name: /^edit$/i }).click();
-    await noOverflow(page);
+    await checkLayout(page);
     report.notes.push(note);
     console.log(
       `${slug}: ${note.snippets.length} outputs, edit, timeout, keyboard, and mobile checks passed`,
@@ -150,22 +184,28 @@ try {
     [1440, 'dark'],
     [390, 'light'],
   ]) {
-    const page = await browser.newPage({ viewport: { width, height: 1000 }, colorScheme });
-    await visit(page, slugs[0]);
-    const block = page.locator('.snippet').nth(1);
-    for (const state of ['before', 'after']) {
-      if (state === 'after') await run(block, report.notes[0].snippets[1].output.join('\n'));
-      await block.scrollIntoViewIfNeeded();
-      const file = `network-${width}-${colorScheme}-${state}.png`;
-      await block.screenshot({ path: path.join(evidence, file) });
-      report.screenshots.push(file);
+    for (const [slug, name] of [
+      [slugs[0], 'value'],
+      [slugs[2], 'attention'],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height: 1000 }, colorScheme });
+      await visit(page, slug);
+      const block = page.locator('.snippet').first();
+      const note = report.notes.find((note) => note.slug === slug);
+      for (const state of ['before', 'after']) {
+        if (state === 'after') await run(block, note.snippets[0].output.join('\n'));
+        await block.scrollIntoViewIfNeeded();
+        const file = `${name}-${width}-${colorScheme}-${state}.png`;
+        await block.screenshot({ path: path.join(evidence, file) });
+        report.screenshots.push(file);
+      }
+      await checkLayout(page);
+      const colors = await block
+        .locator('code span')
+        .evaluateAll((spans) => [...new Set(spans.map((span) => getComputedStyle(span).color))]);
+      assert.equal(colors.length, 3, 'Code uses three text tones');
+      await page.close();
     }
-    if (width === 390) await noOverflow(page);
-    const colors = await block
-      .locator('span[style]')
-      .evaluateAll((spans) => [...new Set(spans.map((span) => getComputedStyle(span).color))]);
-    assert.equal(colors.length, 3, 'Code uses three text tones');
-    await page.close();
   }
   assert.deepEqual(report.pageErrors, []);
   await fs.writeFile(

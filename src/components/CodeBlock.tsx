@@ -1,12 +1,34 @@
 'use client';
 
-import { ComponentProps, useEffect, useId, useRef, useState } from 'react';
+import { ComponentProps, useEffect, useId, useMemo, useRef, useState } from 'react';
 
+import { readCodeTokens } from '../lib/codeTokens';
 import { runSnippet, workerPrelude } from '../lib/snippetRunner';
 
-type Props = ComponentProps<'pre'> & { 'data-source'?: string; 'data-snippet'?: string };
+type Props = ComponentProps<'pre'> & { 'data-code'?: string; 'data-snippet'?: string };
 
-export function CodeBlock({ 'data-source': raw, 'data-snippet': name, children, ...props }: Props) {
+export function CodeBlock({
+  'data-code': encoded,
+  'data-snippet': name,
+  children,
+  ...props
+}: Props) {
+  const highlighted = useMemo(
+    () => (encoded === undefined ? undefined : readCodeTokens(encoded)),
+    [encoded],
+  );
+  const raw = highlighted?.source ?? '';
+  const code = highlighted ? (
+    <code>
+      {highlighted.tokens.map(([tone, text], index) => (
+        <span className={tone} key={index}>
+          {text}
+        </span>
+      ))}
+    </code>
+  ) : (
+    children
+  );
   const [source, setSource] = useState(raw ?? '');
   const [editing, setEditing] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
@@ -20,7 +42,7 @@ export function CodeBlock({ 'data-source': raw, 'data-snippet': name, children, 
     if (editing) editor.current?.focus();
   }, [editing]);
 
-  if (raw === undefined) return <pre {...props}>{children}</pre>;
+  if (name === undefined) return <pre {...props}>{code}</pre>;
 
   function run() {
     cancel.current?.();
@@ -77,11 +99,11 @@ export function CodeBlock({ 'data-source': raw, 'data-snippet': name, children, 
           spellCheck={false}
           autoCapitalize="off"
           autoCorrect="off"
-          wrap="soft"
+          wrap="off"
         />
       ) : (
         <pre {...props} tabIndex={0} aria-label="Code snippet">
-          {source === raw ? children : <code>{source}</code>}
+          {source === raw ? code : <code>{source}</code>}
         </pre>
       )}
       <div className="snippet-controls">

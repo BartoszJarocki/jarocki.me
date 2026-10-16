@@ -3,6 +3,9 @@ import { imageSize } from 'image-size';
 import yaml from 'js-yaml';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import path from 'path';
+import type { BundledLanguage } from 'shiki';
+
+import type { CodeToken } from './codeTokens.ts';
 
 const series = {
   ai: [
@@ -229,7 +232,9 @@ function remarkSnippets(fail: Fail) {
 
 function rehypeNoteCode() {
   return async (tree: HastNode) => {
-    const { codeToHast, createCssVariablesTheme } = await import('shiki');
+    const { bundledLanguages, codeToTokens, createCssVariablesTheme } = await import('shiki');
+    const isLanguage = (name: string): name is BundledLanguage =>
+      Object.hasOwn(bundledLanguages, name);
     const theme = createCssVariablesTheme({ fontStyle: false });
     const scopes =
       theme.tokenColors?.flatMap(({ scope }) =>
@@ -268,19 +273,33 @@ function rehypeNoteCode() {
               (name: unknown) => typeof name === 'string' && name.startsWith('language-'),
             )
           : undefined;
-        const highlighted = await codeToHast(source.trimEnd(), {
-          lang: typeof language === 'string' ? language.slice(9) : 'text',
+        const lang = typeof language === 'string' ? language.slice(9) : 'text';
+        if (lang !== 'text' && lang !== 'ansi' && !isLanguage(lang)) {
+          throw new Error(`Unknown code language: ${lang}`);
+        }
+        const highlighted = await codeToTokens(source.trimEnd(), {
+          lang,
           theme,
         });
-        const pre = highlighted.children[0];
-        if (pre?.type === 'element') {
-          const snippet = code.properties?.['data-snippet'];
-          if (typeof snippet === 'string') {
-            pre.properties['data-snippet'] = snippet;
-            pre.properties['data-source'] = source.trimEnd();
-          }
-          Object.assign(node, pre);
+        const tokens: CodeToken[] = [];
+        function append(tone: CodeToken[0], text: string) {
+          const previous = tokens.at(-1);
+          if (previous?.[0] === tone) previous[1] += text;
+          else tokens.push([tone, text]);
         }
+        for (const [index, line] of highlighted.tokens.entries()) {
+          if (index > 0) append('cb', '\n');
+          for (const token of line) {
+            let tone: CodeToken[0] = 'cb';
+            if (/keyword|function|parameter/.test(token.color ?? '')) tone = 'ci';
+            if (/comment|punctuation/.test(token.color ?? '')) tone = 'cf';
+            append(tone, token.content);
+          }
+        }
+        const snippet = code.properties?.['data-snippet'];
+        node.properties = { 'data-code': JSON.stringify(tokens) };
+        if (typeof snippet === 'string') node.properties['data-snippet'] = snippet;
+        node.children = [];
         return;
       }
       for (const child of node.children ?? []) await walk(child);
