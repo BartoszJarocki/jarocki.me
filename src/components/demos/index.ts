@@ -46,6 +46,7 @@ export const Fare = (props: FareProps) =>
   createElement(Suspense, null, createElement(LiveFare, props));
 
 export const ResidualStream = demo(() => import('./ResidualStream'));
+export const TrainGpt = demo(() => import('./TrainGpt'));
 
 export function ResidualSection({ children }: { children: ReactNode }) {
   return createElement(

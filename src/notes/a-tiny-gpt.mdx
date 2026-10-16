@@ -1,0 +1,45 @@
+---
+title: A tiny GPT, trained in your browser
+description: Put the pieces together and watch a small language model learn from Shakespeare.
+publishedAt: '2026-10-16'
+tags: ['ai', 'learning']
+draft: true
+---
+
+A model is a rule with knobs. Training adjusts those knobs using the slopes of its mistakes. Letters become lists of numbers, and attention lets each letter read the letters before it. Now we put those pieces together and let the model read Shakespeare.
+
+This is the phone keyboard from part 2, with a longer memory and a different reading list. It guesses one letter at a time. It has no instructions about characters, speeches, or spelling. All it gets is text and the task of guessing what comes next.
+
+## A handful of passages
+
+Each turn, the trainer picks a handful of short passages from the text. That handful is a batch. Reading `to be`, the model sees `t` and guesses `o`, sees `to` and guesses the space, and so on. It scores all those guesses together. The rule from part 3 keeps each position from seeing its answer, even while the computer works on many positions at once.
+
+The trainer averages the model's surprise over the batch, works out every knob's slope, and adjusts the knobs. That whole turn is one step. This trainer uses Adam, which remembers recent slopes and their sizes. A turn need not lower the loss immediately. The aim is to improve over many turns.
+
+## Practice and an exam
+
+We keep a tenth of the text out of training. Think of practice cards and an exam with different questions. A model that only remembers the practice cards may do badly on the exam.
+
+The model's average surprise on practice text is its training loss. Its average surprise on the text it never trains on is its validation loss. Lower means it gave the actual next letters higher chances on average.
+
+The chart calls these lines practice and exam. Both use the same fixed sets of passages at each check, so the comparisons are fair. The horizontal axis counts training steps. A slow phone takes longer to reach a point, but the point still means the same amount of training.
+
+If the practice line keeps falling while the exam line flattens or rises, the model is learning details that do not carry over. That is overfitting. A single bump is not enough to diagnose it. Look for the lines pulling apart over several checks.
+
+Press Train to start from random knobs. Pause keeps the current numbers. Load the trained one replaces them with saved numbers from a longer run. A new sample appears every 150 steps. Evaluating the two lines and writing a sample take time too, so the counter briefly waits at each check.
+
+<TrainGpt label="Train a tiny GPT on Shakespeare">The practice and exam losses fall as a small model learns from lowercase Shakespeare. Three recorded samples show how its writing changes. With JavaScript, train your own model or load the saved one.</TrainGpt>
+
+## Write with the current knobs
+
+Writing does not train the model. It guesses a letter, picks one using the loaded die from part 2, then feeds that letter back in to guess again. The numbers stay fixed throughout. Its memory holds at most the last 64 letters.
+
+Early samples are mostly noise. Later ones gain familiar letter groups and some real words. A line that looks like a play can still make no sense. Matching the shape of text does not make a sentence true.
+
+## Keep a saved model
+
+A game lets you load a save file instead of playing from the beginning. A saved set of the model's knobs is a checkpoint. Load the trained one uses the same model after 12,000 offline steps. Its 30,055 numbers occupy 120,220 bytes, plus a small file describing where each number belongs.
+
+The file contains the learned numbers. It does not contain Shakespeare, a list of replies, or the trainer's memory of past slopes. Loading it pauses training and replaces the current model. Train again starts a fresh model so you can watch it learn from noise.
+
+The training and writing happen in a background worker in this tab. Training pauses when the demo leaves the screen or you switch tabs. Leaving the page discards your live run. Nothing you train here is uploaded.

@@ -337,7 +337,7 @@ test("the one-letter model stops by itself at its last step, near the counting m
   assert.equal(last?.type === 'progress' && last.step, oneLetter.until);
   assert.equal(last?.type === 'progress' && last.running, false);
   assert.ok(last?.type === 'progress' && Math.abs(last.average! - 2.45) < 0.02, `average ${last}`);
-  await receive({ type: 'sample', model: 'oneLetter' });
+  await receive({ type: 'sample', model: 'oneLetter', requestId: 1 });
   const sample = posted.findLast((m) => m.type === 'sample');
   assert.equal(sample?.type === 'sample' && sample.text.split(' ').length, 10);
 });

@@ -91,3 +91,47 @@ test('the committed checkpoint gives the validation loss pnpm train printed last
   );
   assert.equal(model.exam().validation.toFixed(3), '1.791');
 });
+
+test('the GPT worker pauses, loads the checkpoint, and copies full weights with request IDs', async () => {
+  const { trainingHandler } = await import('./training.ts');
+  const posted: import('./training.ts').Out[] = [];
+  const read = async (path: string) => new Response(fs.readFileSync(`public${path}`));
+  const receive = trainingHandler({ post: (message) => posted.push(message), read });
+  await receive({ type: 'start', model: 'gpt' });
+  await receive({ type: 'pause', model: 'gpt' });
+  const paused = posted.findLast((m) => m.type === 'progress');
+  assert.ok(paused && paused.step > 0);
+  assert.equal(paused.running, false);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  await receive({ type: 'snapshot', model: 'gpt' });
+  assert.equal(posted.findLast((m) => m.type === 'progress')?.step, paused.step);
+  assert.equal(
+    posted.filter((m) => m.type === 'progress').reduce((n, m) => n + m.stepTimes.length, 0),
+    paused.timing.steps,
+  );
+  const checkpoint = await readCheckpoint(read);
+  await receive({
+    type: 'load',
+    model: 'gpt',
+    checkpoint,
+    symbols: shakespeare.symbols,
+    step: 12_000,
+  });
+  const loaded = posted.findLast((m) => m.type === 'progress');
+  assert.equal(loaded?.step, 12_000);
+  assert.equal(loaded?.running, false);
+  assert.equal(loaded?.evaluation?.validation.toFixed(3), '1.791');
+  await receive({ type: 'weights', model: 'gpt', requestId: 41 });
+  const weights = posted.findLast((m) => m.type === 'weights');
+  assert.equal(weights?.requestId, 41);
+  assert.equal(weights?.symbols, shakespeare.symbols);
+  assert.deepEqual(weights?.checkpoint, checkpoint);
+  await receive({ type: 'sample', model: 'gpt', requestId: 42, temperature: 0.8 });
+  const sample = posted.findLast((m) => m.type === 'sample');
+  assert.equal(sample?.requestId, 42);
+  assert.equal(sample?.text, loaded?.evaluation?.text);
+  assert.equal(
+    posted.some((m) => m.type === 'error'),
+    false,
+  );
+});
