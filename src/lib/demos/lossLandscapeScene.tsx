@@ -872,13 +872,21 @@ const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
 const baselines = { middle: 'central', top: 'text-before-edge' } as const;
 
 export function Still() {
-  const figure = contourFigure(471, 360);
+  return (
+    <>
+      <ContourSvg figure={contourFigure(471, 360)} className="max-[640px]:hidden" />
+      <ContourSvg figure={contourFigure(320, 230)} className="hidden max-[640px]:block" />
+    </>
+  );
+}
+
+function ContourSvg({ figure, className }: { figure: ContourFigure; className: string }) {
   const { width, height, plot, axis, labels, rings, pixelsPerUnit } = figure;
   const cube = { x: figure.x(start.fee), y: figure.y(start.price) };
   const degrees = (valley.angle * 180) / Math.PI;
   return (
     <svg
-      className="demo-still"
+      className={`demo-still ${className}`}
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="xMinYMin meet"
       aria-hidden="true"
