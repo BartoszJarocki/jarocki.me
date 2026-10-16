@@ -5,6 +5,7 @@ import {
   type Walk,
   contour,
   descend,
+  ended,
   fareFromRounded,
   lift,
   lossAtLift,
@@ -14,15 +15,24 @@ import {
   step,
   valley,
   walkFrom,
-  walkToEnd,
 } from './lossLandscape.ts';
 import { type FareRule, leastSquares, meanSquaredError, start } from './taxiFares.ts';
 
 const best = meanSquaredError(leastSquares());
 
+// step returns an ended walk unchanged, so a loop without a cap spins forever when a rate regresses.
+const cap = 2000;
+
+function walkToEnd(walk: Walk, rate: number) {
+  for (let k = 0; k < cap && !ended(walk); k++) walk = step(walk, rate);
+  return walk;
+}
+
 test('steps at the good rate reach 1% of the least-squares loss after 46 steps', () => {
   let walk = walkFrom(start);
-  while (meanSquaredError(walk.at) > best * 1.01) walk = step(walk, rates.good);
+  for (let k = 0; k < cap && meanSquaredError(walk.at) > best * 1.01; k++) {
+    walk = step(walk, rates.good);
+  }
   assert.equal(walk.steps, 46);
 });
 
@@ -50,7 +60,7 @@ test('lift is 1 at the highest corner of the map, and lossAtLift undoes it', () 
 test('every step at too big from the start raises the loss, until the next one leaves the map', () => {
   const statuses: Walk['status'][] = [];
   const losses = [meanSquaredError(start)];
-  for (let walk = walkFrom(start); walk.status !== 'off'; ) {
+  for (let walk = walkFrom(start), k = 0; k < cap && walk.status !== 'off'; k++) {
     walk = step(walk, rates.tooBig);
     statuses.push(walk.status);
     if (walk.status !== 'off') losses.push(meanSquaredError(walk.at));

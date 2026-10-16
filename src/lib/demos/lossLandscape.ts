@@ -111,11 +111,6 @@ export function step(walk: Walk, rate: number): Walk {
   return { at, steps: walk.steps + 1, status };
 }
 
-export function walkToEnd(walk: Walk, rate: number) {
-  while (!ended(walk)) walk = step(walk, rate);
-  return walk;
-}
-
 export const rounded = (rule: FareRule) => ({
   fee: rule.fee.toFixed(2),
   price: rule.price.toFixed(2),
