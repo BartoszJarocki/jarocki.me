@@ -44,19 +44,21 @@ function fieldFigure(pic: Picture, data: Point[], name: DatasetName, width: numb
     return Math.min(tones - 1, Math.round(mean * (tones - 1)));
   };
 
-  const runs: { x: number; y: number; width: number; height: number; level: number }[] = [];
+  const shades = Array.from(
+    { length: tones },
+    (): { x: number; y: number; width: number; height: number }[] => [],
+  );
   for (let j = 0; j < grid; j++) {
     for (let i = 0; i < grid; ) {
       const shade = level(i, j);
       let end = i + 1;
       while (end < grid && level(end, j) === shade) end++;
       const top = edge(j);
-      runs.push({
+      shades[shade].push({
         x: strip + edge(i),
         y: top,
         width: edge(end) - edge(i),
         height: edge(j + 1) - top,
-        level: shade,
       });
       i = end;
     }
@@ -92,7 +94,7 @@ function fieldFigure(pic: Picture, data: Point[], name: DatasetName, width: numb
   return {
     width,
     plot: { x: strip, y: 0, size },
-    runs,
+    shades,
     gaps: cell >= 6 ? Array.from({ length: grid }, (_, i) => edge(i + 1) - 1) : [],
     contour,
     dot,
@@ -160,13 +162,10 @@ function paintField(
   const { width, plot, dot } = field;
   ctx.fillStyle = css(tokens.bg);
   ctx.fillRect(0, 0, width, width);
-  const palette = Array.from({ length: tones }, (_, level) =>
-    css(mix(tokens.bg, tokens.ink, toneOf(level))),
-  );
-  for (const run of field.runs) {
-    ctx.fillStyle = palette[run.level];
-    ctx.fillRect(run.x, run.y, run.width, run.height);
-  }
+  field.shades.forEach((rects, level) => {
+    ctx.fillStyle = css(mix(tokens.bg, tokens.ink, toneOf(level)));
+    for (const rect of rects) ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+  });
   ctx.fillStyle = css(tokens.bg);
   for (const gap of field.gaps) {
     ctx.fillRect(plot.x + gap, plot.y, 1, plot.size);
@@ -452,11 +451,9 @@ export function Still() {
   const field = fieldFigure(pic, data, 'days', 418);
   const knobs = knobFigure(pic.firstLayer, 'days', null);
   const { plot, dot } = field;
-  const shades = new Map<number, string>();
-  for (const run of field.runs) {
-    const d = `M${run.x} ${run.y}h${run.width}v${run.height}h${-run.width}z`;
-    shades.set(run.level, (shades.get(run.level) ?? '') + d);
-  }
+  const shades = field.shades.map((rects) =>
+    rects.map((r) => `M${r.x} ${r.y}h${r.width}v${r.height}h${-r.width}z`).join(''),
+  );
   const gaps = field.gaps
     .map(
       (gap) =>
@@ -478,9 +475,9 @@ export function Still() {
             className="aspect-square w-full"
             aria-hidden="true"
           >
-            {[...shades].map(([level, d]) => (
-              <path key={level} d={d} style={{ fill: ink(toneOf(level)) }} />
-            ))}
+            {shades.map(
+              (d, level) => d && <path key={level} d={d} style={{ fill: ink(toneOf(level)) }} />,
+            )}
             <path className="fill-bg" d={gaps} />
             <path d={contour} fill="none" strokeWidth={1} style={{ stroke: ink(0.5) }} />
             <path className="fill-ink" d={filled.map((p) => square(p.x, p.y, dot)).join('')} />
