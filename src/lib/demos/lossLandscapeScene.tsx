@@ -716,6 +716,7 @@ async function valley3d(
   async function warmUp() {
     const current = ++preparation;
     prepared = false;
+    p.valley.style.visibility = 'hidden';
     const next = async () => {
       await nextTask();
       stage.signal.throwIfAborted();
@@ -739,8 +740,22 @@ async function valley3d(
       renderer.setScissorTest(true);
       renderer.render(object, camera);
       renderer.setScissorTest(false);
+      const fence = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+      if (!fence) throw new Error('The valley could not prepare its WebGL context');
+      gl.flush();
+      try {
+        for (;;) {
+          if (!(await next())) return;
+          const status = gl.clientWaitSync(fence, 0, 0);
+          if (status === gl.WAIT_FAILED) throw new Error('The valley could not finish its draw');
+          if (status !== gl.TIMEOUT_EXPIRED) break;
+        }
+      } finally {
+        gl.deleteSync(fence);
+      }
     }
     prepared = true;
+    p.valley.style.visibility = '';
   }
 
   await warmUp();
