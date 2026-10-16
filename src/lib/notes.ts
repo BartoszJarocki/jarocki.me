@@ -153,9 +153,9 @@ function remarkIncludeRegions(fail: Fail) {
     const walk = (node: MdastNode) => {
       if (node.type === 'code') {
         const info = [node.lang, node.meta].filter(Boolean).join(' ');
-        if (/include/i.test(info)) {
+        if (/include\s*=/i.test(info)) {
           const [, file, name] =
-            /^\w+ include=(\S+)#([\w-]+)$/.exec(info) ??
+            /^[^\s=]+ include=(\S+)#([\w-]+)$/.exec(info) ??
             fail(
               `\`\`\`${info} needs a language and only include=<file>#<region> after it, as \`\`\`ts include=src/lib/ml/value.ts#backward`,
             );
