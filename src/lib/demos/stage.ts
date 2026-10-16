@@ -117,6 +117,14 @@ export function defineScene<T extends PartTags>(spec: {
           let seen = false;
           let live = false;
           const liveListeners: ((live: boolean) => void)[] = [];
+          const tell = (listener: (live: boolean) => void) => {
+            if (own.signal.aborted) return;
+            try {
+              listener(live);
+            } catch (error) {
+              fail(error);
+            }
+          };
           cleanup.add(() => cancelAnimationFrame(raf));
 
           const schedule = () => {
@@ -144,11 +152,7 @@ export function defineScene<T extends PartTags>(spec: {
             const next = seen && !document.hidden;
             if (next !== live) {
               live = next;
-              try {
-                for (const listener of liveListeners) listener(live);
-              } catch (error) {
-                return fail(error);
-              }
+              liveListeners.forEach(tell);
             }
             schedule();
           };
@@ -215,11 +219,7 @@ export function defineScene<T extends PartTags>(spec: {
             },
             onLive(listener) {
               liveListeners.push(listener);
-              try {
-                listener(live);
-              } catch (error) {
-                fail(error);
-              }
+              tell(listener);
             },
             get reducedMotion() {
               return motion.matches;
