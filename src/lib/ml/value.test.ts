@@ -33,17 +33,22 @@ test('a value used twice collects the slopes from both uses', () => {
   assert.equal(a.grad, 7);
 });
 
-test('pow, exp, log, and relu each pass back their own slope', () => {
-  const cases: [number, (x: Value) => Value, number][] = [
-    [2, (x) => x.pow(3), 12],
-    [2, (x) => x.exp(), 7.38905609893065],
-    [2, (x) => x.log(), 0.5],
-    [1.5, (x) => x.relu(), 1],
-    [-1.5, (x) => x.relu(), 0],
+test('every operation gives its value and passes back its own slope', () => {
+  const cases: [number, (x: Value) => Value, number, number][] = [
+    [2, (x) => x.add(3), 5, 1],
+    [2, (x) => x.mul(3), 6, 3],
+    [2, (x) => x.pow(3), 8, 12],
+    [2, (x) => x.exp(), 7.38905609893065, 7.38905609893065],
+    [2, (x) => x.log(), 0.6931471805599453, 0.5],
+    [1, (x) => x.tanh(), 0.7615941559557649, 0.41997434161402614],
+    [1.5, (x) => x.relu(), 1.5, 1],
+    [-1.5, (x) => x.relu(), 0, 0],
   ];
-  for (const [at, f, slope] of cases) {
+  for (const [at, f, value, slope] of cases) {
     const x = new Value(at);
-    f(x).backward();
+    const y = f(x);
+    y.backward();
+    close(y.data, value, 1e-9);
     close(x.grad, slope, 1e-9);
   }
 });
