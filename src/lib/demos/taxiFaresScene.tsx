@@ -182,13 +182,29 @@ const anchors = { left: 'start', center: 'middle', right: 'end' } as const;
 const baselines = { middle: 'central', top: 'text-before-edge' } as const;
 
 export function Still() {
-  const { width, height, axis, labels, clip, squareTone, squares, line, dot, dots } = fareFigure(
-    start,
-    672,
-    309,
-  );
   return (
-    <svg className="demo-still" viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
+    <>
+      <FareSvg
+        figure={fareFigure(start, 672, 309)}
+        className="[@container(max-width:478px)]:hidden"
+      />
+      <FareSvg
+        figure={fareFigure(start, 320, 220)}
+        className="hidden [@container(max-width:478px)]:block"
+      />
+    </>
+  );
+}
+
+function FareSvg({ figure, className }: { figure: FareFigure; className: string }) {
+  const { width, height, axis, labels, clip, squareTone, squares, line, dot, dots } = figure;
+  return (
+    <svg
+      className={`demo-still ${className}`}
+      viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMinYMid meet"
+      aria-hidden="true"
+    >
       <rect className="fill-rule" x={axis.x} y={axis.y} width={axis.width} height={1} />
       <g className="fill-faint" fontSize={11}>
         {labels.map((label) => (
