@@ -69,12 +69,12 @@ For names, `symbols` gives each letter its number, with dot at 0 and z at 26. `c
 ```js run=src/notes/snippets/words-as-numbers/counts.js
 ```
 
-`chances` loads the die for one row at a temperature, and `sampleName` rolls it until the end dot comes up. These counts come from just one name. The rolls are written out so Run gives the same result each time. Change one to a number from 0 up to, but not including, 1 to try a different roll.
+`chances` loads the die for one row at a temperature, and `sampleName` rolls it until the end dot comes up. These counts come from just one name, "anna". The rolls are written out so Run gives the same result each time. Change one to a number from 0 up to, but not including, 1 to try a different roll.
 
 ```js run=src/notes/snippets/words-as-numbers/sampling.js
 ```
 
-Now put counting and writing together. This block counts three names and writes ten new ones, using the counts as the shares at temperature 1. It cycles through a short list of rolls so you can repeat the run. The demo uses all 32,033 names and draws fresh rolls.
+Now put counting and writing together. This block counts three names and writes one new name, using the counts as the shares at temperature 1. Its three fixed rolls pick two letters and an end dot. The demo uses all 32,033 names and draws fresh rolls.
 
 ```js run=src/notes/snippets/words-as-numbers/names.js
 ```

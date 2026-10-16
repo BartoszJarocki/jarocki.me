@@ -1,34 +1,48 @@
-function dot(a, b) {
-  return a.reduce((sum, x, i) => sum + x * b[i], 0);
-}
-function softmax(scores) {
-  const sides = scores.map((s) => Math.exp(s - Math.max(...scores)));
-  return sides.map((s) => s / sides.reduce((sum, x) => sum + x, 0));
-}
 function attention(queries, keys, values) {
-  const weights = queries.map((query, t) =>
-    softmax(keys.slice(0, t + 1).map((key) => dot(query, key) / Math.sqrt(query.length))),
-  );
-  const found = weights.map((row) =>
-    values[0].map((_, i) => row.reduce((sum, weight, s) => sum + weight * values[s][i], 0)),
-  );
+  const weights = [];
+  const found = [];
+  for (let t = 0; t < queries.length; t++) {
+    const query = queries[t];
+    const scores = [];
+    for (let j = 0; j <= t; j++) {
+      let match = 0;
+      for (let i = 0; i < query.length; i++) {
+        match += query[i] * keys[j][i];
+      }
+      scores.push(match / Math.sqrt(query.length));
+    }
+    const biggest = Math.max(...scores);
+    const sides = [];
+    let total = 0;
+    for (const score of scores) {
+      const share = Math.exp(score - biggest);
+      sides.push(share);
+      total += share;
+    }
+    const chances = sides.map((share) => share / total);
+    const mix = Array(values[0].length).fill(0);
+    for (let j = 0; j <= t; j++) {
+      for (let i = 0; i < mix.length; i++) {
+        mix[i] += chances[j] * values[j][i];
+      }
+    }
+    weights.push(chances);
+    found.push(mix);
+  }
   return { weights, found };
 }
+
 const queries = [
   [1, 0],
-  [0, 1],
   [1, 1],
 ];
-const keys = [
-  [1, 0],
-  [0, 1],
-  [1, -1],
-];
+const keys = queries;
 const values = [
   [2, 0],
-  [0, 4],
   [1, 1],
 ];
-const result = attention(queries, keys, values);
-console.log('Last weights:', result.weights[2].map((x) => x.toFixed(6)).join(', '));
-console.log('Last mix:', result.found[2].map((x) => x.toFixed(6)).join(', '));
+const { weights, found } = attention(queries, keys, values);
+const shares = weights[1].map((share) => share.toFixed(2));
+const mix = found[1].map((number) => number.toFixed(2));
+console.log('Last weights:', shares.join(', '));
+console.log('Last mix:', mix.join(', '));

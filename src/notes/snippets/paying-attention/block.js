@@ -1,38 +1,45 @@
-function level(row) {
-  const mean = row.reduce((sum, x) => sum + x, 0) / row.length;
-  const variance = row.reduce((sum, x) => sum + (x - mean) ** 2, 0) / row.length;
-  return row.map((x) => (x - mean) / Math.sqrt(variance + 1e-5));
+function level(notebook) {
+  let total = 0;
+  for (const number of notebook) total += number;
+  const mean = total / notebook.length;
+  let spread = 0;
+  for (const number of notebook) {
+    spread += (number - mean) ** 2;
+  }
+  const variance = spread / notebook.length;
+  const scale = Math.sqrt(variance + 1e-5);
+  return notebook.map((number) => (number - mean) / scale);
 }
-function gelu(x) {
-  return 0.5 * x * (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3)));
+
+function gelu(number) {
+  const bend = number + 0.044715 * number ** 3;
+  const squash = Math.tanh(Math.sqrt(2 / Math.PI) * bend);
+  return 0.5 * number * (1 + squash);
 }
-function attention(rows) {
-  return rows.map((query, t) => {
-    const seen = rows.slice(0, t + 1);
-    const scores = seen.map(
-      (key) => query.reduce((sum, q, i) => sum + q * key[i] * 0.5, 0) / Math.sqrt(query.length),
-    );
-    const sides = scores.map((score) => Math.exp(score - Math.max(...scores)));
-    const total = sides.reduce((sum, x) => sum + x, 0);
-    return query.map((_, i) =>
-      seen.reduce((sum, row, s) => sum + (sides[s] / total) * row[i] * 0.25, 0),
-    );
-  });
-}
-function block(notebooks) {
-  const found = attention(notebooks.map(level));
-  const middle = notebooks.map((row, t) => row.map((x, i) => x + found[t][i] * 0.5));
-  const out = middle.map((row) => {
-    const change = level(row).map((x) => gelu(x * 0.7) * 0.5);
-    return row.map((x, i) => x + change[i]);
-  });
+
+function block(notebook) {
+  const copy = level(notebook);
+  // The first token reads only itself, with weight 1.
+  const value = copy.map((number) => number * 0.25);
+  const middle = [];
+  for (let i = 0; i < notebook.length; i++) {
+    const change = value[i] * 0.5;
+    middle.push(notebook[i] + change);
+  }
+  const leveled = level(middle);
+  const out = [];
+  for (let i = 0; i < middle.length; i++) {
+    const hidden = gelu(leveled[i] * 0.7);
+    const change = hidden * 0.5;
+    out.push(middle[i] + change);
+  }
   return { middle, out };
 }
-// Fixed knobs keep both additions visible. Training would adjust them.
-const result = block([
-  [1, 2],
-  [3, 1],
-  [2, 4],
-]);
-console.log('After attention:', result.middle[2].map((x) => x.toFixed(6)).join(', '));
-console.log('After network:', result.out[2].map((x) => x.toFixed(6)).join(', '));
+
+const result = block([1, 2]);
+const middle = result.middle.map((number) =>
+  number.toFixed(2),
+);
+const out = result.out.map((number) => number.toFixed(2));
+console.log('After attention:', middle.join(', '));
+console.log('After network:', out.join(', '));

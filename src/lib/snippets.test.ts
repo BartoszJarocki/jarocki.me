@@ -24,13 +24,13 @@ import { Value } from './ml/value.ts';
 const directory = new URL('../notes/snippets/', import.meta.url);
 const outputs: Record<string, string[]> = {
   'how-a-machine-learns/value.js': ['Loss: 12.25', 'Fee slope: -7', 'Price slope: -2.1'],
-  'how-a-machine-learns/network.js': ['Score: -0.974099', 'Chance: 0.274064'],
+  'how-a-machine-learns/network.js': ['Score: -0.97', 'Chance of yes: 0.27'],
   'how-a-machine-learns/training.js': [
-    'Step 0 loss: 4.4337',
-    'Step 25 loss: 0.6577',
-    'Step 50 loss: 0.3884',
-    'Step 75 loss: 0.3390',
-    'Step 100 loss: 0.3299',
+    'Step 0 loss: 4.43',
+    'Step 25 loss: 0.66',
+    'Step 50 loss: 0.39',
+    'Step 75 loss: 0.34',
+    'Step 100 loss: 0.33',
   ],
   'words-as-numbers/tokenizer.js': [
     'Letters: t | h | e | t | h | i | n | c | a | t',
@@ -38,30 +38,21 @@ const outputs: Record<string, string[]> = {
     'Pieces: the | th | i | n | c | a | t',
   ],
   'words-as-numbers/counts.js': ['Start then e: 3', 'm then m: 2', 'a then end: 4'],
-  'words-as-numbers/sampling.js': ['Name: amma', 'Chance of n after a: 0.068966'],
-  'words-as-numbers/names.js': ['be', 'fj', 'lo', 'ru', 'xb', 'be', 'fj', 'lo', 'ru', 'xb'],
-  'words-as-numbers/softmax.js': [
-    'Chances: 0.090031, 0.244728, 0.665241',
-    'Same after adding 1000: 0.090031, 0.244728, 0.665241',
-  ],
-  'words-as-numbers/cross-entropy.js': ['Surprise: 0.510826', 'Score slopes: 0.1, 0.3, -0.4'],
+  'words-as-numbers/sampling.js': ['Name: amma', 'Chance of n after a: 0.07'],
+  'words-as-numbers/names.js': ['Name: be'],
+  'words-as-numbers/softmax.js': ['Chances in %: 9, 24, 67', 'After adding 1000: 9, 24, 67'],
+  'words-as-numbers/cross-entropy.js': ['Surprise: 0.51', 'Score slopes: 0.1, 0.3, -0.4'],
   'words-as-numbers/one-letter.js': [
-    'Step 0 loss: 3.295837',
-    'Step 10 loss: 1.774901',
-    'Step 20 loss: 1.094005',
+    'Step 0 loss: 3.30',
+    'Step 10 loss: 1.77',
+    'Step 20 loss: 1.09',
   ],
   'words-as-numbers/three-letter.js': [
-    'After ann, score for a: -0.016829',
-    'After ann, score for end: -0.019417',
+    'After ann, score for a: -0.017',
+    'After ann, score for end: -0.019',
   ],
-  'paying-attention/attention.js': [
-    'Last weights: 0.401112, 0.401112, 0.197776',
-    'Last mix: 1.000000, 1.802224',
-  ],
-  'paying-attention/block.js': [
-    'After attention: 1.902098, 4.097902',
-    'After network: 1.817383, 4.363186',
-  ],
+  'paying-attention/attention.js': ['Last weights: 0.33, 0.67', 'Last mix: 1.33, 0.67'],
+  'paying-attention/block.js': ['After attention: 0.88, 2.12', 'After network: 0.79, 2.39'],
 };
 
 function read(file: string) {
@@ -363,20 +354,34 @@ test('snippet agreement: paying-attention/block.js', () => {
     network.hidden.weights.data[i * 8 + i] = 0.7;
     network.write.weights.data[i * 2 + i] = 0.5;
   }
-  const tape = forward(net, Int32Array.of(0, 1, 2)).blocks[0];
+  const tape = forward(net, Int32Array.of(0)).blocks[0];
   close(evaluate('paying-attention/block.js', '[result.middle.flat(), result.out.flat()]'), [
     Array.from(tape.middle),
     Array.from(tape.out),
   ]);
 });
 
-test('snippets are plain scripts of at most 45 lines', () => {
+test('snippets are plain scripts of at most 50 lines', () => {
   for (const file of Object.keys(outputs)) {
     const source = read(file);
-    assert.ok(source.trimEnd().split('\n').length <= 45, file);
+    assert.ok(source.trimEnd().split('\n').length <= 50, file);
     assert.doesNotMatch(source, /\b(class|this|import|export)\b/, file);
     // JavaScript's own parser rejects type annotations.
     assert.doesNotThrow(() => new Function(source), file);
+  }
+});
+
+test('snippet lines fit within 60 columns', () => {
+  for (const file of Object.keys(outputs)) {
+    for (const [index, line] of read(file).split('\n').entries()) {
+      assert.ok(line.length <= 60, `${file}:${index + 1}: ${line.length} columns`);
+    }
+  }
+});
+
+test('snippets use loops for accumulation and array construction', () => {
+  for (const file of Object.keys(outputs)) {
+    assert.doesNotMatch(read(file), /\.(reduce|forEach)\(|Array\.from\(/, file);
   }
 });
 

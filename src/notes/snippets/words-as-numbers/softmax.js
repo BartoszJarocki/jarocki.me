@@ -1,18 +1,22 @@
 function softmax(scores) {
   const biggest = Math.max(...scores);
-  const sides = scores.map((score) => Math.exp(score - biggest));
-  const total = sides.reduce((sum, side) => sum + side, 0);
-  return sides.map((side) => side / total);
+  const sides = [];
+  let total = 0;
+  for (const score of scores) {
+    const share = Math.exp(score - biggest);
+    sides.push(share);
+    total += share;
+  }
+  return sides.map((share) => share / total);
 }
-console.log(
-  'Chances:',
-  softmax([-1, 0, 1])
-    .map((p) => p.toFixed(6))
-    .join(', '),
+
+const chances = softmax([-1, 0, 1]);
+const shifted = softmax([999, 1000, 1001]);
+const percentages = chances.map((chance) =>
+  Math.round(chance * 100),
 );
-console.log(
-  'Same after adding 1000:',
-  softmax([999, 1000, 1001])
-    .map((p) => p.toFixed(6))
-    .join(', '),
+const same = shifted.map((chance) =>
+  Math.round(chance * 100),
 );
+console.log('Chances in %:', percentages.join(', '));
+console.log('After adding 1000:', same.join(', '));

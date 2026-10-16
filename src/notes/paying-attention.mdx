@@ -67,7 +67,7 @@ Nobody told the heads what to look for. Training found it. In this sentence, the
 
 The heads of the first block read close by. Averaged over the sentence after its first letter, each head puts about 80% to 85% of its weight on the letter itself and the two before it. So the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average over the same positions.
 
-For readers who know JavaScript, here is a short version of one attention head. Each query, key, and value has two numbers. For each position `t`, it scores the keys from 0 to `t`, turns those scores into weights with softmax, and mixes the values. `slice(0, t + 1)` keeps it from reading ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. Press Run to see the last position's weights and mix, or Edit to try other vectors.
+For readers who know JavaScript, here is a short version of one attention head. The example has two positions, each with two numbers in its query, key, and value. It uses the queries as keys too. For each position `t`, it scores the keys from 0 to `t`, turns those scores into weights with softmax, and mixes the values. The loop stops at `j <= t`, so it never reads ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. Press Run to see the last position's weights and mix, or Edit to try other vectors.
 
 ```js run=src/notes/snippets/paying-attention/attention.js
 ```
@@ -94,9 +94,9 @@ Three token notebooks travel through one block. Attention reads leveled copies, 
 
 The notebook metaphor is only about keeping and updating numbers. There are no written facts inside these columns. Training decides what the numbers are useful for, through the same loss and backward walk as in part 1.
 
-Here is a short version of a whole block, with two numbers per notebook and one head. `level` makes each leveled copy. Attention uses that copy as its query, half of it as its key, and a quarter as its value. These are fixed example knobs. The tiny model learns separate tables for all three jobs.
+Here is a short version of a block for its first token, with two numbers in its notebook and one head. This token can read only itself, so its attention weight is 1 whatever its query and key are. `level` makes a leveled copy, and a quarter of that copy is the value attention reads. These are fixed example knobs. The tiny model learns separate tables for its queries, keys, and values.
 
-`middle` adds attention's change to the original notebooks. The small network reads a leveled copy of that result, scales it, applies `gelu`, and scales again. `gelu` is an activation function, a smooth way to reduce negative inputs and pass positive ones through. `out` adds the network's change. Press Run to see the last notebook after each addition. The demo's wider block learns all these knobs and keeps the intermediate numbers for training.
+`middle` adds attention's change to the original notebooks. The small network reads a leveled copy of that result, scales it, applies `gelu`, and scales again. `gelu` is an activation function, a smooth way to reduce negative inputs and pass positive ones through. `out` adds the network's change. Press Run to see the first notebook after each addition, or Edit to change its starting numbers, `[1, 2]`. The demo's wider block learns all these knobs and keeps the intermediate numbers for training.
 
 ```js run=src/notes/snippets/paying-attention/block.js
 ```

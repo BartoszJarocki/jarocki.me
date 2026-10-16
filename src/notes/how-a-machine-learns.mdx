@@ -98,12 +98,12 @@ Press train and watch the shape form. This network has two layers of eight neuro
 
 The shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. Each neuron in the first layer gets a row of three squares, one for each input and one for its bias. A filled square is a positive number and a hollow one is a negative number. A bigger square is a number farther from zero. The layers after it decide what those numbers do to the answer. Point at a row to draw that neuron's fence.
 
-Here is a short version of the network's forward pass, with two neurons in the first layer and one in the last. `neuron` adds each input times its weight, plus a bias. The first layer squashes its sums with `tanh`. The last layer leaves a raw score, which we turn into a yes chance. Press Run to see both numbers.
+Here is a short version of the network's forward pass, with two neurons in the first layer and one in the last. `neuron` adds each input times its weight, plus a bias. The first layer squashes its sums with `tanh`. The last layer leaves a raw score, which we turn into a yes chance. Press Run to see the score and the chance of yes, each rounded to two decimal places.
 
 ```js run=src/notes/snippets/how-a-machine-learns/network.js
 ```
 
-For a short training loop, return to the eight taxi rides. `measure` works out their average squared miss and the slope for each knob. These are the same slopes that the backward walk finds, written directly for this one rule. `step` moves both knobs downhill. Press Run to see the loss fall over 100 steps, or edit the learning rate, `0.1`, to try a different step size.
+For a short training loop, return to the eight taxi rides. `measure` works out their average squared miss and the slope for each knob. These are the same slopes that the backward walk finds, written directly for this one rule. `step` moves both knobs downhill. Press Run to see the loss fall from 4.43 to 0.33 over 100 steps, or edit the learning rate, `0.1`, to try a different step size.
 
 ```js run=src/notes/snippets/how-a-machine-learns/training.js
 ```
