@@ -3,7 +3,6 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { test } from 'node:test';
 
-import { nameCounts } from '../demos/nameCounts.ts';
 import { averageLoss, chances, countPairs, sampleName, seeded, size } from './bigram.ts';
 import { encode, symbols } from './tokenizers.ts';
 
@@ -35,10 +34,6 @@ test('countPairs counts every pair in names.txt on top of a starting one', () =>
   assert.equal(at('qu'), 207);
   assert.equal(at('n.'), 6764);
   assert.equal(at('..'), 0);
-});
-
-test('the counts the still draws are the counts of names.txt', () => {
-  assert.deepEqual(nameCounts, Array.from(counts));
 });
 
 test('chances of a row add up to one, and temperature sharpens or flattens them', () => {

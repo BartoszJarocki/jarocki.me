@@ -18,7 +18,7 @@ At a takeaway you can order a 12 and a 31 without spelling out the dishes. Text 
 
 Each piece is a **token**. The whole menu is the **vocabulary**, and the thing that does the cutting is a **tokenizer**.
 
-There is more than one way to cut. The demo below cuts one sentence three ways. Each row says how many items its menu has and how many pieces the sentence became. Every menu was learned from the text of this note, so a word this note never uses is not on the words menu. Type your own sentence to try it.
+There is more than one way to cut. The demo below cuts one sentence three ways. Each row says how many items its menu has and how many pieces the sentence became. Every menu was learned from the words of this note, so a word this note never uses is not on the words menu. A digit or a mark, such as a comma, is on no menu at all. Type your own sentence to try it.
 
 <Tokenizers label="One sentence cut into letters, into words, and into pieces of words">
 
@@ -26,9 +26,11 @@ One sentence cut three ways, into letters, into whole words, and into pieces of 
 
 </Tokenizers>
 
-Letters make a tiny menu but long orders. Whole words make short orders, but the menu is too big to print, and a new word is not on it at all. Pieces of words sit in between. The pieces menu starts as the letters. Then it finds the two pieces that sit side by side most often in this note, glues them into one new piece, and adds it to the menu. It does that 200 times. A word that is not on the menu still comes out as a few pieces that are. ChatGPT cuts text into pieces like these, from a much bigger menu.
+Letters make a tiny menu but long orders. Whole words make short orders, but a words menu needs every word anyone might write. The one in the demo knows only the words of this note, and it is already longer than the pieces menu. A new word is not on it at all.
 
-This note uses letters, because 27 tokens fit on one screen. They are the 26 letters and a dot that marks where a name starts and ends.
+Pieces of words sit in between. The pieces menu starts as the 26 letters. Then it finds the two pieces that sit side by side most often in this note, glues them into one new piece, and adds it to the menu. It does that 200 times, so the menu ends at 226 pieces. A word that is not on the words menu still comes out as a few pieces that are. ChatGPT cuts text into pieces like these, from a much bigger menu.
+
+From here on, this note uses letters, because their menu fits on one screen. Names need the 26 letters and one more token, a dot that marks where a name starts and ends. That makes 27 tokens.
 
 ## The counting model
 

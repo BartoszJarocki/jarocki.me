@@ -19,9 +19,10 @@ export type Cut = { menu: number; pieces: Piece[] };
 export const cuts = ['letters', 'words', 'pieces'] as const;
 export type Cuts = Record<(typeof cuts)[number], Cut>;
 
-const word = /\p{L}+(?:'\p{L}+)*|\p{N}+|[^\s\p{L}\p{N}]/gu;
+const word = /\p{L}+|\p{N}+|[^\s\p{L}\p{N}]/gu;
+const onlyLetters = /^\p{L}+$/u;
 
-export const wordsOf = (text: string) => text.normalize('NFC').toLowerCase().match(word) ?? [];
+const wordsOf = (text: string) => text.normalize('NFC').toLowerCase().match(word) ?? [];
 
 function merge(parts: string[], [left, right]: [string, string]) {
   const merged: string[] = [];
@@ -34,7 +35,7 @@ function merge(parts: string[], [left, right]: [string, string]) {
 
 export function trainMenus(text: string, mergeCount: number): Menus {
   const seen = new Map<string, number>();
-  for (const w of wordsOf(text)) seen.set(w, (seen.get(w) ?? 0) + 1);
+  for (const w of wordsOf(text)) if (onlyLetters.test(w)) seen.set(w, (seen.get(w) ?? 0) + 1);
   const words = [...seen.keys()].sort();
   const letters = [...new Set(words.flatMap((w) => Array.from(w)))].sort();
   let split = [...seen].map(([w, times]) => ({ parts: Array.from(w), times }));
