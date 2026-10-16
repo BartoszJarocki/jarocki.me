@@ -98,6 +98,7 @@ function turnsAway(dx: number, dy: number) {
 function placeLabels(
   anchors: readonly Anchor[],
   squares: readonly { key: string; rect: Rect }[],
+  axes: readonly Segment[],
   box: Box,
   previous: ReadonlyMap<string, Spot>,
 ) {
@@ -136,6 +137,7 @@ function placeLabels(
         return null;
       }
     }
+    if (rule !== 'crossesAnything' && axes.some((axis) => crosses(axis, rect))) return null;
     for (const [key, other] of claims) {
       if (key === anchor.key) continue;
       if (overlaps(roomy, other.rect)) return null;
@@ -316,9 +318,9 @@ export function mapFigure(
     })),
   ];
   const squares = points.map((point) => ({ key: point.symbol, rect: squareBox(point) }));
-  let { claims, tangled } = placeLabels(anchors, squares, box, previous);
+  let { claims, tangled } = placeLabels(anchors, squares, axes, box, previous);
   if (tangled > 0 && previous.size > 0) {
-    const fresh = placeLabels(anchors, squares, box, new Map());
+    const fresh = placeLabels(anchors, squares, axes, box, new Map());
     if (fresh.tangled < tangled) claims = fresh.claims;
   }
   return {

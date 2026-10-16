@@ -28,6 +28,16 @@ function clashes(figure: ReturnType<typeof mapFigure>, box: { width: number; hei
     bottom: y + 2.5,
   }));
   const found: string[] = [];
+  for (const axis of figure.axes) {
+    for (const label of boxes) {
+      const through = Array.from({ length: 99 }, (_, k) => (k + 1) / 100).some((t) => {
+        const x = axis.x1 + (axis.x2 - axis.x1) * t;
+        const y = axis.y1 + (axis.y2 - axis.y1) * t;
+        return x > label.left && x < label.right && y > label.top && y < label.bottom;
+      });
+      if (through) found.push(`axis ${axis.text} through ${label.text}`);
+    }
+  }
   boxes.forEach((a, i) => {
     if (a.left < 0 || a.top < 0 || a.right > box.width || a.bottom > box.height) {
       found.push(`${a.text} outside`);
@@ -41,7 +51,7 @@ function clashes(figure: ReturnType<typeof mapFigure>, box: { width: number; hei
   return found;
 }
 
-test('every label on the trained map clears every other label and square, at both sizes', () => {
+test('every label on the trained map clears every other label, square, and axis, at both sizes', () => {
   for (const box of [desktop, phone]) {
     const figure = mapFigure(trained, symbols, restView, box, fitReach(trained));
     assert.deepEqual(clashes(figure, box), []);
