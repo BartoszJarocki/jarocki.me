@@ -1,7 +1,6 @@
 import type { ReactNode, RefCallback } from 'react';
 
-export const lines = ['price', 'fee', 'ride', 'fare', 'miss', 'loss'] as const;
-export type Line = (typeof lines)[number];
+import { type Line, lines } from '../../lib/demos/receiptLines';
 
 export function ReceiptTable({
   row,

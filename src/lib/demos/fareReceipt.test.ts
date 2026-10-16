@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import type { Line } from '../../components/demos/ReceiptTable';
 import { nudge, receipt, show } from './fareReceipt.ts';
+import type { Line } from './receiptLines.ts';
 
 const close = (actual: number, expected: number) =>
   assert.ok(Math.abs(actual - expected) <= 1e-9, `${actual} is not ${expected}`);

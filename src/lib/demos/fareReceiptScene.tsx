@@ -1,5 +1,6 @@
-import { ReceiptTable, lines } from '../../components/demos/ReceiptTable';
+import { ReceiptTable } from '../../components/demos/ReceiptTable';
 import { nudge, receipt, ride, show } from './fareReceipt';
+import { lines } from './receiptLines';
 import { defineScene } from './stage';
 import { fareRule, start } from './taxiFares';
 

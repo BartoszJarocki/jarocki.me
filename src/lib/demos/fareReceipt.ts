@@ -1,5 +1,5 @@
-import type { Line } from '../../components/demos/ReceiptTable';
 import { Value } from '../ml/value.ts';
+import type { Line } from './receiptLines.ts';
 import { type FareRule, rides } from './taxiFares.ts';
 
 export const ride = rides[0];
