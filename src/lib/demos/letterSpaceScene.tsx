@@ -1,9 +1,10 @@
 import { symbols as nameSymbols } from '../ml/tokenizers';
 import {
   type MapFigure,
-  type Spot,
   type View,
   fitReach,
+  followLabel,
+  labelFontSize,
   mapFigure,
   restView,
   side,
@@ -53,6 +54,7 @@ function drawMap(
   figure: MapFigure,
   { bg, ink, faint }: Tokens,
   font: string,
+  selected: string,
 ) {
   ctx.fillStyle = css(bg);
   ctx.fillRect(0, 0, ctx.width, ctx.height);
@@ -63,25 +65,25 @@ function drawMap(
     ctx.moveTo(axis.x1, axis.y1);
     ctx.lineTo(axis.x2, axis.y2);
   }
-  for (const { label } of [...figure.axes, ...figure.points]) {
-    if (!label.leader) continue;
-    ctx.moveTo(label.leader.x1, label.leader.y1);
-    ctx.lineTo(label.leader.x2, label.leader.y2);
-  }
   ctx.stroke();
   for (const point of figure.points) {
     const { x, y } = square(point);
-    ctx.fillStyle = css(mix(bg, ink, pointTone(point)));
+    ctx.fillStyle = css(mix(bg, ink, pointTone(point) * 0.45));
     ctx.fillRect(x, y, side, side);
   }
   ctx.font = font;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
-  for (const { label, vowel } of [
-    ...figure.axes.map((axis) => ({ label: axis.label, vowel: false })),
-    ...figure.points,
-  ]) {
-    ctx.fillStyle = css(vowel ? ink : faint);
+  ctx.fillStyle = css(faint);
+  for (const { label } of figure.axes) {
+    if (label) ctx.fillText(label.text, label.x, label.y);
+  }
+  const followed = figure.points.find((point) => point.symbol === selected);
+  if (followed) {
+    const { x, y } = square(followed);
+    ctx.fillStyle = css(ink);
+    ctx.fillRect(x, y, side, side);
+    const label = followLabel(followed.text);
     ctx.fillText(label.text, label.x, label.y);
   }
 }
@@ -146,6 +148,7 @@ export function letterSpace({
       step: 'span',
       names: 'div',
       nearest: 'tbody',
+      letter: 'select',
     },
     async mount(stage, p) {
       const on = { signal: stage.signal };
@@ -192,6 +195,13 @@ export function letterSpace({
 
       const snapshot = (update: Snapshot) => {
         const places = placesOf(update);
+        if (motion.symbols !== update.symbols) {
+          const selected = p.letter.value;
+          p.letter.replaceChildren(
+            ...Array.from(update.symbols, (symbol) => new Option(spoken(symbol), symbol)),
+          );
+          p.letter.value = update.symbols.includes(selected) ? selected : update.symbols[0];
+        }
         const now = performance.now();
         const shown = shownAt(motion, now);
         motion = {
@@ -243,6 +253,8 @@ export function letterSpace({
         on,
       );
       p.sample.addEventListener('click', () => trainer.sample(), on);
+
+      p.letter.addEventListener('change', () => stage.wake(), on);
 
       const view: View = { ...restView };
       let target: View = { ...restView };
@@ -306,7 +318,6 @@ export function letterSpace({
         on,
       );
 
-      let spots: ReadonlyMap<string, Spot> = new Map();
       return (now) => {
         let turning = false;
         for (const key of ['yaw', 'pitch'] as const) {
@@ -318,9 +329,8 @@ export function letterSpace({
         }
         const shown = shownAt(motion, now);
         const ctx = stage.canvas(p.map);
-        const figure = mapFigure(shown.places, motion.symbols, view, ctx, shown.reach, spots);
-        spots = figure.spots;
-        drawMap(ctx, figure, stage.tokens, stage.font(11));
+        const figure = mapFigure(shown.places, motion.symbols, view, ctx, shown.reach);
+        drawMap(ctx, figure, stage.tokens, stage.font(labelFontSize), p.letter.value);
         return turning || shown.moving;
       };
     },
@@ -333,37 +343,43 @@ const tenth = (n: number) => Math.round(n * 10) / 10;
 const mixed = (tone: number) =>
   `color-mix(in srgb, var(--ink) ${Math.round(tone * 100)}%, var(--bg))`;
 
+const stills = [
+  { width: 672, height: 420, className: '[@container(max-width:478px)]:hidden' },
+  { width: 320, height: 300, className: 'hidden [@container(max-width:478px)]:block' },
+].map((box) => {
+  const columns = Math.floor(box.width / 28);
+  const keyHeight = Math.ceil(nameSymbols.length / columns) * 28;
+  return {
+    ...box,
+    columns,
+    keyHeight,
+    figure: mapFigure(
+      trainedPlaces,
+      nameSymbols,
+      restView,
+      { width: box.width, height: box.height - keyHeight },
+      fitReach(trainedPlaces),
+    ),
+  };
+});
+
 export function Still() {
   return (
     <>
-      <MapSvg width={672} height={420} className="[@container(max-width:478px)]:hidden" />
-      <MapSvg width={320} height={300} className="hidden [@container(max-width:478px)]:block" />
+      {stills.map((still) => (
+        <MapSvg key={still.width} {...still} />
+      ))}
     </>
   );
 }
 
-function MapSvg({
-  width,
-  height,
-  className,
-}: {
-  width: number;
-  height: number;
-  className: string;
-}) {
-  const figure = mapFigure(
-    trainedPlaces,
-    nameSymbols,
-    restView,
-    { width, height },
-    fitReach(trainedPlaces),
-  );
+function MapSvg({ width, height, className, columns, keyHeight, figure }: (typeof stills)[number]) {
   return (
     <svg
-      className={`demo-still ${className}`}
+      className={`demo-still ${className} [&:has(.letter-key:focus)_.letter-default]:hidden [&:has(.letter-key:focus)_.letter-key:not(:focus)_.letter-follow]:hidden [&:has(.letter-key:hover)_.letter-default]:hidden [&_.letter-key:focus-visible]:outline-none`}
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="xMidYMid meet"
-      aria-hidden="true"
+      aria-label="Letter map. Focus or tap a letter below to follow its square."
     >
       <g style={{ stroke: mixed(axisTone) }}>
         {figure.axes.map((axis) => (
@@ -375,45 +391,82 @@ function MapSvg({
             y2={tenth(axis.y2)}
           />
         ))}
-        {[...figure.axes, ...figure.points].map(({ label }) =>
-          label.leader ? (
-            <line
-              key={label.text}
-              x1={tenth(label.leader.x1)}
-              y1={tenth(label.leader.y1)}
-              x2={tenth(label.leader.x2)}
-              y2={tenth(label.leader.y2)}
-            />
-          ) : null,
+      </g>
+      {figure.points.map((point) => (
+        <rect
+          key={point.symbol}
+          {...square(point)}
+          width={side}
+          height={side}
+          style={{ fill: mixed(pointTone(point) * 0.45) }}
+        />
+      ))}
+      <g fontSize={labelFontSize} dominantBaseline="central" className="fill-faint">
+        {figure.axes.map(
+          ({ text, label }) =>
+            label && (
+              <text key={text} x={label.x} y={label.y}>
+                {label.text}
+              </text>
+            ),
         )}
       </g>
-      {figure.points.map((point) => {
-        const { x, y } = square(point);
-        return (
-          <rect
-            key={point.symbol}
-            x={x}
-            y={y}
-            width={side}
-            height={side}
-            style={{ fill: mixed(pointTone(point)) }}
-          />
-        );
-      })}
-      <g fontSize={11} dominantBaseline="central">
-        {[...figure.axes.map((axis) => ({ ...axis, vowel: false })), ...figure.points].map(
-          ({ label, vowel }) => (
-            <text
-              key={label.text}
-              className={vowel ? 'fill-ink' : 'fill-faint'}
-              x={tenth(label.x)}
-              y={tenth(label.y)}
+      {figure.points
+        .filter((p) => p.symbol === 'a')
+        .map((point) => (
+          <Followed key={point.symbol} point={point} className="letter-default" />
+        ))}
+      {[...figure.points]
+        .sort((a, b) => nameSymbols.indexOf(a.symbol) - nameSymbols.indexOf(b.symbol))
+        .map((point, i) => {
+          const { symbol } = point;
+          const x = (i % columns) * 28;
+          const y = height - keyHeight + Math.floor(i / columns) * 28;
+          return (
+            <g
+              key={symbol}
+              tabIndex={0}
+              role="button"
+              aria-label={`Follow ${spoken(symbol)}`}
+              className="letter-key group/letter cursor-pointer outline-none"
             >
-              {label.text}
-            </text>
-          ),
-        )}
-      </g>
+              <rect
+                x={x + 2}
+                y={y + 2}
+                width={24}
+                height={24}
+                fill="transparent"
+                className="group-hover/letter:stroke-ink group-focus/letter:stroke-ink"
+              />
+              <text
+                x={x + 14}
+                y={y + 15}
+                fontSize={labelFontSize}
+                textAnchor="middle"
+                dominantBaseline="central"
+                className="fill-faint group-hover/letter:fill-ink group-focus/letter:fill-ink"
+              >
+                {symbol}
+              </text>
+              <Followed
+                point={point}
+                className="letter-follow pointer-events-none hidden group-hover/letter:block group-focus/letter:block"
+              />
+            </g>
+          );
+        })}
     </svg>
+  );
+}
+
+function Followed({ point, className }: { point: MapFigure['points'][number]; className: string }) {
+  const label = followLabel(point.text);
+  return (
+    <g className={`${className} fill-ink`} aria-hidden="true">
+      <rect {...square(point)} width={side} height={side} />
+      <text x={label.x} y={label.y} fontSize={labelFontSize} dominantBaseline="central">
+        {label.text}
+      </text>
+    </g>
   );
 }

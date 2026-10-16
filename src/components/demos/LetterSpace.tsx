@@ -1,3 +1,4 @@
+import { symbols } from '../../lib/ml/tokenizers';
 import { type DemoProps, DemoStage } from './DemoStage';
 
 const scene = () => import('../../lib/demos/letterSpaceScene');
@@ -44,6 +45,16 @@ export default function LetterSpace(props: DemoProps) {
         ),
         controls: (
           <>
+            <label className="mb-[8px] flex items-baseline gap-x-[2ch] text-faint">
+              Follow a letter
+              <select ref={part('letter')} defaultValue="a" className="bg-bg text-ink">
+                {Array.from(symbols, (symbol) => (
+                  <option key={symbol} value={symbol}>
+                    {symbol === '.' ? 'the dot' : symbol}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="flex items-baseline gap-x-[3ch]">
               <button ref={part('train')} type="button" className="demo-button">
                 Train

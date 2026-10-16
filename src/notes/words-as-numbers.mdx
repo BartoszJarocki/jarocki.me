@@ -122,7 +122,7 @@ To do better, the model has to see further back. How far back it sees is its **c
 
 So give the model three letters, and give each letter a list of three numbers that training adjusts, like coordinates on a map. That list is the letter's **embedding**. The model reads the places of the three letters, nine numbers in all. A layer reads those nine numbers, as in part 1, but with 32 neurons instead of eight. Each neuron squashes its sum with tanh. Then 27 more neurons turn those outputs into a score for each next letter. Letters that turn up in the same kinds of places often drift close together, because the model can treat them alike. Then what it learns about one letter helps with the others.
 
-The map draws each letter at its three numbers, one number on each axis, while the model trains. A letter too far out to fit is pulled closer to the center, with an arrow toward where it really is. Drag the map or use the arrow keys to turn it. Watch whether the vowels find each other.
+The map draws each letter at its three numbers, one number on each axis, while the model trains. A letter too far out to fit is pulled closer to the center, with an arrow toward where it really is. Choose a letter to follow its darker square. Its label stays above the map. Drag the map or use the arrow keys to turn it. Watch whether the vowels find each other.
 
 <LetterSpace label="The 27 tokens on a 3D map of the three numbers the model learns for each">
 
