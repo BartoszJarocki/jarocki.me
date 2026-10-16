@@ -219,3 +219,15 @@ test('getNoteContent names an image that is not in public/', async (t) => {
     message: 'src/notes/x.mdx: /images/notes/x/missing.jpg is not in public/',
   });
 });
+
+test("part 1's glossary holds exactly the terms the design doc lists for part 1", () => {
+  const repo = new URL('../../', import.meta.url);
+  const design = fs.readFileSync(new URL('docs/ai-series/design.md', repo), 'utf8');
+  const part1 = design.slice(design.indexOf('### 1. how a machine learns'));
+  const [, listed = ''] = /^Terms, in the order the note meets them: (.+)\.$/m.exec(part1) ?? [];
+  const note = fs.readFileSync(new URL('src/notes/how-a-machine-learns.mdx', repo), 'utf8');
+  const [glossary = ''] = /<Glossary>[\s\S]*<\/Glossary>/.exec(note) ?? [];
+  const terms = [...glossary.matchAll(/<Term name="([^"]+)">/g)].map(([, name]) => name);
+
+  assert.deepEqual(terms.toSorted(), listed.split(', ').toSorted());
+});

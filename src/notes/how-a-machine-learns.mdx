@@ -1,12 +1,11 @@
 ---
 title: "How a machine learns"
 description: "How a computer works out a rule that nobody told it"
-publishedAt: 2026-10-15
+publishedAt: 2026-10-16
 tags: ["ai"]
-draft: true
 ---
 
-This is the first of four notes on how a model like ChatGPT works. ChatGPT writes by guessing what comes next, one small piece of text at a time. It learned to guess well by turning a lot of knobs a little, over and over, the way this note shows. Part 2 turns text into numbers, and part 3 shows the transformer blocks that ChatGPT is built from. Part 4 puts the pieces together and trains a tiny model like it in your browser.
+This is the first of four notes on how ChatGPT and programs like it work. ChatGPT writes by guessing what comes next, one small piece of text at a time. It learned to guess well by turning a lot of knobs a little, over and over, the way this note shows. Part 2 turns text into numbers, and part 3 shows the transformer blocks that ChatGPT is built from. Part 4 puts the pieces together and trains a tiny version of it in your browser.
 
 ## Guess the fare
 
@@ -34,9 +33,13 @@ It uses squares for two reasons. A miss of 4 then counts four times as much as a
 
 You could see the chart while you moved the sliders. The machine has to find the settings another way.
 
-Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom. The picture squeezes the tall parts so the whole valley fits. The cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make.
+Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom. The picture squeezes the tall parts so the whole valley fits. The cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make. The floor runs down to -$2 a km. No taxi charges that, but to the machine a price is just a number.
 
-The machine never sees this picture. Two knobs can be drawn, and this fare rule even has a shortcut formula that finds its bottom. But a real model has millions of knobs. Nobody can draw a valley with millions of directions, and a bigger model's valley is usually lumpier, with no formula for its bottom. Walking downhill still works there, though it may stop in a low spot that isn't the lowest. So it is like standing on a hill in thick fog. You can't see the bottom. You can only feel which way the ground slopes under your feet, so you take a step that way and feel again. Turn on the fog to see only what the machine can feel. You can also click a spot to put the cube there. If your browser draws the valley in 3D, you can drag it to turn it.
+This taxi rule has a shortcut formula that finds the lowest loss directly. The machine could jump straight to those two settings. We make it walk here to show a method that also works when there is no shortcut.
+
+A larger model can have millions of knobs. Its valley is usually lumpier, with no formula that takes it straight to the bottom. The machine feels the slope where it stands, takes a step downhill, and feels again. Think of a hill in thick fog. You can feel the ground under your feet, but you can't see where the lowest point is. You may reach a low spot with uphill ground all around and stop there, even though a lower spot lies beyond it. A downhill walk can find a low spot without finding the lowest one.
+
+The machine never sees the whole picture we drew. Turn on the fog to see only what it can feel. You can also click a spot to put the cube there. If your browser draws the valley in 3D, you can drag it to turn it.
 
 <LossLandscape label="The loss for every starting fee and price per km, drawn as a valley, with a cube at your current settings">
 
@@ -44,9 +47,9 @@ A valley over a floor of settings, the starting fee one way and the price per km
 
 </LossLandscape>
 
-Press step a few times. Each step turns both knobs a little, in the direction where the ground drops fastest. The slope under your feet is called the **gradient**. Each step moves every knob downhill by its slope times a number called the **learning rate**, so steeper ground or a bigger learning rate means a bigger step. The step size control under the valley sets the learning rate. Walking downhill one step at a time is **gradient descent**, and walking until the loss stops getting much smaller is **training**.
+Press step a few times. Each step turns both knobs a little, in the direction where the ground drops fastest. The step size control under the valley sets how big the steps are, and that matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
 
-The step size matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
+The slope under your feet is called the **gradient**. Each step moves every knob downhill by its slope times a number called the **learning rate**, so steeper ground or a bigger learning rate means a bigger step. The step size control sets the learning rate. Walking downhill one step at a time is **gradient descent**. Repeatedly adjusting the knobs to make the guesses closer to the examples is **training**. In this fare demo, walk stops when the ground is nearly flat.
 
 Press walk, and once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. Right now the line has a starting fee of <Fare show="fee" /> dollars and a price per km of <Fare show="price" />, so for 1.6 km it says <Fare show="fee" /> + 1.6 × <Fare show="price" factor />, which is about <Fare km="1.6" /> dollars. Using a trained model to answer a new question like this is **inference**.
 
@@ -77,17 +80,19 @@ The code is TypeScript, which is JavaScript with the type of each value written 
 
 A new question. Is a day comfortable indoors? Each point is a day, temperature across and humidity up, filled if people said comfortable and hollow if not. The comfortable days sit in the middle. Not too cold, not too hot, not too dry, not too damp.
 
-Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That is one **neuron**. It draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too.
+Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That rule draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too. A rule like this is one **neuron**.
 
 So put several neurons side by side. That is a **layer**, and it draws several fences. Each neuron hands its number to every neuron in the next layer, which gives each one a weight, adds its bias, and squashes again. That is how a second layer reads those fences and joins them into a shape, and four fences make a box around the comfortable days. The last neuron squashes its answer to between 0 for no and 1 for yes. The squash is called the **activation function**. Without it, stacking fences only ever makes another straight fence. Layers in a row are a **network**.
 
+For a yes or no answer, this playground scores its guesses a little differently from the squares, and part 2 explains how. It also remembers earlier slopes when choosing how to turn each knob. That method is called Adam. Because earlier slopes still count, a knob can sometimes move with its current slope rather than against it. The aim is to lower the loss over many updates, but an individual step can raise it.
+
 <Playground label="A small network learning to fence in the comfortable days">
 
-One hundred made-up days, temperature across and humidity up, filled where people said comfortable and hollow where they did not. The shade behind them is the network's answer for every spot, stronger where it is surer a day is comfortable, with a line where its answer turns from no to yes. Beside the chart, each row of squares is one first-layer neuron's knobs, filled for a positive number and hollow for a negative one. Three more sets of points sit behind a picker.
+One hundred made-up days, temperature across and humidity up, filled where people said comfortable and hollow where they did not. The shade behind them is the network's answer for every spot, stronger where it is surer a day is comfortable, with a line where its answer turns from no to yes. Each row of squares shows one first-layer neuron's knobs, filled for a positive number and hollow for a negative one. Three more sets of points sit behind a picker.
 
 </Playground>
 
-Press train and watch the shape form. This network has two layers of eight neurons and one more neuron that gives the answer. For a yes or no answer, it scores its guesses a little differently from the squares, and part 2 explains how. Its steps also remember the last few slopes, a common trick called adam, so it gets there faster.
+Press train and watch the shape form. This network has two layers of eight neurons and one more neuron that gives the answer. Unlike the fare walk, the playground does not stop when the loss levels off. Press pause when you have seen enough.
 
 The shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. Each neuron in the first layer gets a row of three squares, one for each input and one for its bias. A filled square is a positive number and a hollow one is a negative number. A bigger square is a number farther from zero. The layers after it decide what those numbers do to the answer. Point at a row to draw that neuron's fence.
 
@@ -96,7 +101,30 @@ For readers who know JavaScript, here is the network the playground trains, buil
 ```ts include=src/lib/ml/mlp.ts#mlp
 ```
 
-Here is the training loop. `crossEntropy` is the yes or no score that part 2 explains. It turns the raw score into a chance with `sigmoid` and measures how far that chance is from the real answer, worked out so that a very sure guess never overflows. `adam` turns each knob against its slope, using an average of the last few slopes. `trainStep` scores all 100 points, averages their losses, walks back with `backward`, and turns every knob once. The playground calls it once a frame while it trains.
+Here is the training loop. `crossEntropy` is the yes or no score that part 2 explains. It turns the raw score into a chance with `sigmoid` and measures how far that chance is from the real answer, worked out so that a very sure guess never overflows. `adam` uses averages of current and earlier slopes, and their squares, to choose each knob's update. `trainStep` scores all 100 points, averages their losses, walks back with `backward`, and turns every knob once. The playground calls it repeatedly while it trains.
 
 ```ts include=src/lib/ml/mlp.ts#train
 ```
+
+## The whole loop
+
+Every demo here showed one part of the same loop. A rule with knobs makes its guesses. The loss says how far off they are, as one number. Backpropagation finds the slope for every knob. Training uses those slopes to adjust the knobs, aiming for a smaller loss over many steps. A step can raise the loss, and a downhill walk can stop in a low spot that is not the lowest. The fare walk stops when the ground is nearly flat. In the playground, you decide when to press pause. The fare rule had 2 knobs, and the playground's network has 105. ChatGPT learned with the same loop and far more knobs, from text instead of fares, and part 2 starts there.
+
+<Glossary>
+<Term name="model">A rule with knobs that turns an input into a guess, like the fare rule</Term>
+<Term name="parameter">One of the model's knobs, like the starting fee or the price per km</Term>
+<Term name="weight">A knob that scales an input, like the price per km</Term>
+<Term name="bias">A knob added on its own, without scaling an input, like the starting fee</Term>
+<Term name="prediction">The model's guess for one input, like the fare the line gives for a ride</Term>
+<Term name="loss">One number for how far the guesses are from what really happened, like the average area of the squares</Term>
+<Term name="gradient">The slope under your feet, which way and how steeply the loss changes as each knob turns</Term>
+<Term name="learning rate">How much of the slope each step uses, set by the step size control</Term>
+<Term name="gradient descent">Feeling the slope and stepping downhill, again and again</Term>
+<Term name="training">Repeatedly adjusting the knobs to fit the examples, like the fare walk or the playground's train button</Term>
+<Term name="inference">Using the trained model on a new question, like the fare for a 1.6 km ride</Term>
+<Term name="backpropagation">Finding every knob's slope by walking the receipt from the bottom line up</Term>
+<Term name="neuron">The taxi rule with a weight for each input, a bias, and a squash, which draws one straight fence</Term>
+<Term name="layer">Several neurons side by side, so several fences</Term>
+<Term name="activation function">The squash at the end of a neuron, which lets layers join fences into shapes</Term>
+<Term name="network">Layers in a row, like the one that fenced in the comfortable days</Term>
+</Glossary>
