@@ -17,7 +17,7 @@ export const start: FareRule = { fee: 2, price: 2.5 };
 
 export const fareBox = {
   fee: { min: 0, max: 10, step: 0.01 },
-  price: { min: 0, max: 5, step: 0.01 },
+  price: { min: -2, max: 5, step: 0.01 },
 } as const;
 
 export const money = (dollars: number) => `$${dollars.toFixed(2)}`;

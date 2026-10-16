@@ -143,7 +143,6 @@ export default defineScene({
       { key: 'fee', input: p.fee, text: p.feeText },
       { key: 'price', input: p.price, text: p.priceText },
     ] as const;
-    const read = () => fareRule.set({ fee: p.fee.valueAsNumber, price: p.price.valueAsNumber });
     const show = () => {
       const rule = fareRule.get();
       for (const { key, input, text } of knobs) {
@@ -158,7 +157,11 @@ export default defineScene({
       input.min = String(min);
       input.max = String(max);
       input.step = String(step);
-      input.addEventListener('input', read, { signal: stage.signal });
+      input.addEventListener(
+        'input',
+        () => fareRule.set({ ...fareRule.get(), [key]: input.valueAsNumber }),
+        { signal: stage.signal },
+      );
     }
     show();
     fareRule.subscribe(() => {
