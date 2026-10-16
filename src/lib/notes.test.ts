@@ -140,12 +140,13 @@ test('runnable fences store code once as compact colored runs', async (t) => {
   );
   assert.equal(raw, source.trimEnd());
   assert.equal(snippet, 'src/notes/snippets/x/example.js');
-  assert.match(html, /class="ci">const<\/span>/);
-  assert.match(html, /class="ci">html<\/span>/);
-  assert.match(html, /class="ci"> ?name<\/span>/);
+  assert.match(html, /class="cb">const<\/span>/);
+  assert.match(html, /class="ci"> html <\/span>/);
+  assert.match(html, /class="cn">log<\/span>/);
+  assert.match(html, /class="cv">&lt;b&gt;&amp;&lt;\/b&gt;<\/span>/);
+  assert.match(html, /class="ci"> name<\/span>/);
+  assert.match(html, /class="cv">1<\/span>/);
   assert.match(html, /class="cf">\(/);
-  assert.match(html, /class="cb">/);
-  assert.match(html, /&lt;b&gt;&amp;&lt;\/b&gt;/);
   assert.doesNotMatch(compiled.compiledSource, /data-source|style:|--shiki/);
   assert.ok(compiled.compiledSource.length < 3000);
 });
@@ -162,7 +163,8 @@ test('plain fences are highlighted without runnable source', async (t) => {
           assert.equal(typeof encoded, 'string');
           const { tokens, source } = readCodeTokens(encoded);
           raw = source;
-          assert.deepEqual(tokens[0], ['ci', 'const']);
+          assert.deepEqual(tokens[0], ['cb', 'const']);
+          assert.ok(tokens.some(([tone, text]) => tone === 'cv' && text === '42'));
           assert.equal(Reflect.get(props, 'data-snippet'), undefined);
           return null;
         },

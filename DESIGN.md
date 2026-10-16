@@ -1,6 +1,6 @@
 ---
 name: jarocki.me
-description: Personal site and notebook for Bartosz Jarocki. No accent color, Geist Mono chrome, Geist Sans prose, a Geist Pixel name, and every page built from index rows.
+description: Personal site and notebook for Bartosz Jarocki. One warm tone for values in code and no other accent, Geist Mono chrome, Geist Sans prose, a Geist Pixel name, and every page built from index rows.
 colors:
   bg-light: "oklch(98.4% 0.0025 95)"
   bg-dark: "oklch(15.5% 0.004 70)"
@@ -82,7 +82,7 @@ components:
 
 The site is an engineer's notebook, and every page reads like the index at the front of one. The chrome is set in Geist Mono at 14px. Note bodies switch to Geist Sans at 16px, because long prose reads better in a proportional face. The only display type is the name in the header, set in Geist Pixel Square.
 
-There is no accent color. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, the points of the backdrop, and the points and thumbs in a demo.
+There is no accent color outside code blocks, where numbers and strings take one warm tone, `value`. Hierarchy comes from four text tones on one background, from the switch between mono and sans, and from spacing. Nothing is rounded, nothing casts a shadow, and the only filled surfaces are code blocks, the hover state of a row, the voxels and squares of the GitHub activity graph, the points of the backdrop, and the points and thumbs in a demo.
 
 The theme follows the reader's system setting. There is no toggle.
 
@@ -98,6 +98,7 @@ All colors are CSS custom properties on `:root` in `src/styles/index.css`, redef
 | `faint` | `oklch(54% .005 70)` | `oklch(60% .004 80)` | Dates, section labels, nav, and trails. |
 | `rule` | `oklch(91% .004 80)` | `oklch(27% .004 70)` | Blockquote borders and `hr`. |
 | `wash` | `oklch(95.6% .004 85)` | `oklch(20% .004 70)` | The code block background. |
+| `value` | `oklch(50% .1 60)` | `oklch(80% .09 70)` | Numbers and strings in code blocks, the values a reader changes in edit mode. Code only, with no Tailwind color. |
 
 Every text tone passes WCAG AA against `bg` in both schemes. The ratios below were measured from computed styles in Chromium:
 
@@ -106,6 +107,7 @@ Every text tone passes WCAG AA against `bg` in both schemes. The ratios below we
 | `ink` on `bg` | 16.95:1 | 16.40:1 |
 | `body` on `bg` | 8.83:1 | 9.12:1 |
 | `faint` on `bg` | 4.84:1 | 4.96:1 |
+| `value` on `wash` | 5.44:1 | 9.56:1 |
 
 `faint` is the tone closest to the limit. Do not lighten it in light mode or darken it in dark mode. The prototype values, `oklch(60% .005 70)` and `oklch(56% .004 80)`, measured 3.77:1 and 4.20:1 and failed AA.
 
@@ -318,7 +320,7 @@ Sampled for 60 seconds on every page (home, notes, each note, work, about, 404, 
 - The title follows 14px below. The prose starts 44px below the title and is at most 37rem wide.
 - Paragraphs have a 1.15em bottom margin. Bold text is `ink` at weight 500. Bullet lists use a faint `-` marker, and numbered lists use faint mono numerals at 13px.
 - An image alone in a paragraph renders as a figure as wide as the prose, with a 1.4em bottom margin.
-- Code blocks use quiet highlighting on `wash`. Shiki's CSS variables theme runs at build time. Keywords and names use `ink`, other code uses `body`, and comments and punctuation use `faint`. The compiler maps the theme variables to three short classes, `ci`, `cb`, and `cf`, which CSS maps to the site tokens. It stores adjacent tokens of one tone as a single text run. No highlighter ships to the browser. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. Code keeps its indentation and never wraps. Long lines scroll inside the block at every screen size, while the page stays within the viewport. Inside a list item a code block has a 0.6em top margin, so it does not touch the line above.
+- Code blocks use quiet highlighting on `wash`. Shiki's CSS variables theme runs at build time. Names use `ink`, function names use `ink` at weight 500, keywords use `body`, numbers and strings use `value`, and comments and punctuation use `faint`. The compiler maps the theme variables to five short classes, `ci`, `cn`, `cb`, `cv`, and `cf`, which CSS maps to the site tokens. It stores adjacent tokens of one tone as a single text run. No highlighter ships to the browser. They have 16px by 20px padding and a -20px horizontal margin, so the code text lines up with the prose. Code keeps its indentation and never wraps. Long lines scroll inside the block at every screen size, while the page stays within the viewport. Inside a list item a code block has a 0.6em top margin, so it does not touch the line above.
 - Runnable blocks load a short plain JavaScript file through a `js run=src/notes/snippets/<note>/<name>.js` fence. A controls row below the code uses the existing demo button style for Run, Edit, and Reset when changed. Labels keep natural case in source and inherit the site's lowercase styling. Edit swaps the code for a textarea with the same font, size, padding, and horizontal scrolling. Both views read the same stored text runs, so the page data carries no second copy of the source. Snippets have at most 55 lines and 60 columns per line. A fresh worker runs the current source, captures output and errors below the controls, and stops after five seconds or 200 output lines. The output keeps its case and announces changes politely. Reset restores the original highlighted code. Plain fences have no controls
 - Links in prose are `ink` with a 1px `faint` underline offset by 0.28em. The underline turns `ink` on hover. Ledes use the same style through `.text-link`.
 - Blockquotes have a 1px `rule` left border, `body` text, and no italics.
@@ -438,11 +440,11 @@ The clock renders `--:--` on the server and fills in the `Europe/Warsaw` time af
 ## Do and don't
 
 - Do build new lists from `IndexSection`, `IndexList`, and `IndexRow`. Add a mapper next to `NoteRow` when a data module appears on more than one page.
-- Do pick colors from the six tokens. If a new element needs a color the tokens don't have, the element is probably too loud.
+- Do pick colors from the seven tokens. If a new element needs a color the tokens don't have, the element is probably too loud.
 - Do keep Geist Mono for chrome and Geist Sans for long prose.
 - Do write copy in its natural case, handles and acronyms included. The root lowercases it.
 - Don't show uppercase text anywhere a reader sees it, except the name and code. Don't add a handle or an acronym to the list in `src/lib/lowercase.ts`.
-- Don't add an accent color, a gradient, a shadow, or rounded corners.
+- Don't add an accent color beyond `value` in code, a gradient, a shadow, or rounded corners.
 - Don't add a theme toggle. The site follows the system setting.
 - Don't use Geist Pixel Square for anything but the name, the clock, and the icon.
 - Don't lower the contrast of `faint`.

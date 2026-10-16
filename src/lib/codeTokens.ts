@@ -1,4 +1,6 @@
-export type CodeToken = [tone: 'ci' | 'cb' | 'cf', text: string];
+const tones = ['ci', 'cn', 'cb', 'cv', 'cf'] as const;
+
+export type CodeToken = [tone: (typeof tones)[number], text: string];
 
 // The note compiler writes these runs once; both highlighting and editing read them.
 export function readCodeTokens(encoded: string) {
@@ -8,7 +10,7 @@ export function readCodeTokens(encoded: string) {
   for (const token of parsed) {
     if (!Array.isArray(token) || token.length !== 2) throw new Error('Invalid code run');
     const [tone, text] = token;
-    if ((tone !== 'ci' && tone !== 'cb' && tone !== 'cf') || typeof text !== 'string') {
+    if (!tones.includes(tone) || typeof text !== 'string') {
       throw new Error('Invalid code tone or text');
     }
     tokens.push([tone, text]);

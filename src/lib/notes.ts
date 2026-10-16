@@ -230,6 +230,15 @@ function remarkSnippets(fail: Fail) {
   };
 }
 
+// Values a reader can change in edit mode get the warm tone; keywords step back to body.
+function toneOf(color: string): CodeToken[0] {
+  if (/comment|punctuation/.test(color)) return 'cf';
+  if (/string|constant/.test(color)) return 'cv';
+  if (/keyword/.test(color)) return 'cb';
+  if (/function/.test(color)) return 'cn';
+  return 'ci';
+}
+
 function rehypeNoteCode() {
   return async (tree: HastNode) => {
     const { bundledLanguages, codeToTokens, createCssVariablesTheme } = await import('shiki');
@@ -244,13 +253,21 @@ function rehypeNoteCode() {
       {
         scope: [
           'variable',
-          'entity.name',
-          'support',
+          'support.variable',
+          'support.class',
+          'support.constant',
           'meta.object-literal.key',
-          ...scopes.filter((scope) =>
-            /^(variable\.|entity\.name|support\.|meta\.property-name)/.test(scope),
+          ...scopes.filter(
+            (scope) =>
+              /^(variable\.|support\.(variable|class|constant)|meta\.property-name|meta\.definition\.variable)/.test(
+                scope,
+              ) && !scope.includes('function'),
           ),
         ],
+        settings: { foreground: 'var(--shiki-token-parameter)' },
+      },
+      {
+        scope: ['entity.name.function', 'support.function', 'variable.function'],
         settings: { foreground: 'var(--shiki-token-function)' },
       },
       {
@@ -288,13 +305,8 @@ function rehypeNoteCode() {
           else tokens.push([tone, text]);
         }
         for (const [index, line] of highlighted.tokens.entries()) {
-          if (index > 0) append('cb', '\n');
-          for (const token of line) {
-            let tone: CodeToken[0] = 'cb';
-            if (/keyword|function|parameter/.test(token.color ?? '')) tone = 'ci';
-            if (/comment|punctuation/.test(token.color ?? '')) tone = 'cf';
-            append(tone, token.content);
-          }
+          if (index > 0) append('ci', '\n');
+          for (const token of line) append(toneOf(token.color ?? ''), token.content);
         }
         const snippet = code.properties?.['data-snippet'];
         node.properties = { 'data-code': JSON.stringify(tokens) };
