@@ -17,7 +17,7 @@ export class Unsupported extends Error {
 }
 
 export type Scene<P> = {
-  /** Runs the scene until signal aborts, then resolves. Calls ready after the first frame. Rejects when the mount, a frame, or an onLive listener throws. */
+  /** Runs the scene until signal aborts, then resolves. Calls ready after the first frame. Rejects when the mount, a frame, ready, or an onLive listener throws, or the scene calls fail. */
   start(
     root: HTMLElement,
     parts: Partial<P>,
@@ -33,6 +33,8 @@ export interface Stage {
   readonly signal: AbortSignal;
   /** Runs at teardown, last added first, or at once after teardown. */
   defer(step: () => void): void;
+  /** Ends the scene with this error, as a throwing frame does, so the demo shows its still. */
+  fail(error: unknown): void;
   /** Asks for one frame. The first frame draws at mount; later ones wait until the stage is live. */
   wake(): void;
   /** In the viewport, and the tab is visible. */
@@ -105,6 +107,7 @@ export function defineScene<T extends PartTags>(spec: {
               throw new Error(`The demo part ${key} is not a <${tag}>`);
             }
           }
+          const parts = { ...collected } as PartsOf<T>;
 
           let frame: Frame | null = null;
           let raf = 0;
@@ -127,11 +130,10 @@ export function defineScene<T extends PartTags>(spec: {
             first = woken = false;
             try {
               running = frame!(now, live) === true;
+              if (opening && !own.signal.aborted) ready();
             } catch (error) {
               return fail(error);
             }
-            if (own.signal.aborted) return;
-            if (opening) ready();
             schedule();
           };
           const wake = () => {
@@ -206,6 +208,7 @@ export function defineScene<T extends PartTags>(spec: {
           const stage: Stage = {
             signal: own.signal,
             defer,
+            fail,
             wake,
             get live() {
               return live;
@@ -248,7 +251,7 @@ export function defineScene<T extends PartTags>(spec: {
 
           await Promise.all([document.fonts.load(stage.font(11)), sighting]);
           own.signal.throwIfAborted();
-          const mounted = await spec.mount(stage, collected as PartsOf<T>);
+          const mounted = await spec.mount(stage, parts);
           own.signal.throwIfAborted();
           frame = mounted;
           schedule();
