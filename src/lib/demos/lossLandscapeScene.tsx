@@ -34,7 +34,15 @@ import {
   walkFrom,
 } from './lossLandscape';
 import { type PartsOf, type Rgb, type Stage, type Tokens, css, defineScene } from './stage';
-import { type FareRule, fareBox, fareRule, meanSquaredError, start } from './taxiFares';
+import {
+  type FareRule,
+  fareBox,
+  fareRule,
+  inCents,
+  meanSquaredError,
+  sameRule,
+  start,
+} from './taxiFares';
 import { drawFares, fareFigure } from './taxiFaresScene';
 
 const parts = {
@@ -149,7 +157,7 @@ export default defineScene({
     }
 
     function show() {
-      put(p.loss, meanSquaredError(walk.at).toFixed(2));
+      put(p.loss, meanSquaredError(fareRule.get()).toFixed(2));
       put(p.steps, walk.steps.toLocaleString('en-US'));
       put(p.unit, walk.steps === 1 ? 'step' : 'steps');
       put(p.status, remark());
@@ -167,7 +175,7 @@ export default defineScene({
     }
 
     fareRule.subscribe(() => {
-      if (fareRule.get() !== walk.at) restart(fareRule.get());
+      if (!sameRule(fareRule.get(), inCents(walk.at))) restart(fareRule.get());
       show();
       stage.wake();
     }, stage.signal);

@@ -45,14 +45,25 @@ export function leastSquares(): FareRule {
   return { fee: paid - price * km, price };
 }
 
+const cents = (dollars: number) => Math.round(dollars * 100) / 100;
+
+export const inCents = ({ fee, price }: FareRule): FareRule => ({
+  fee: cents(fee),
+  price: cents(price),
+});
+
+export const sameRule = (a: FareRule, b: FareRule) => a.fee === b.fee && a.price === b.price;
+
 let rule = start;
 const listeners = new Set<() => void>();
 
+// The sliders show whole cents, so the settings keep whole cents, and every number printed from them adds up.
 export const fareRule = {
   get: () => rule,
   set(next: FareRule) {
-    if (next.fee === rule.fee && next.price === rule.price) return;
-    rule = next;
+    const shown = inCents(next);
+    if (sameRule(shown, rule)) return;
+    rule = shown;
     for (const listener of listeners) listener();
   },
   subscribe(listener: () => void, signal: AbortSignal) {
