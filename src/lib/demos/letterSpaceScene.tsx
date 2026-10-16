@@ -1,4 +1,13 @@
 import { symbols as nameSymbols } from '../ml/tokenizers';
+import {
+  type MapFigure,
+  type Spot,
+  type View,
+  fitReach,
+  mapFigure,
+  restView,
+  side,
+} from './letterMap';
 import { places as trainedPlaces } from './letterPlaces';
 import { type Rgb, type Stage, type Tokens, css, defineScene } from './stage';
 import {
@@ -10,16 +19,8 @@ import {
   openTrainer,
 } from './trainer';
 
-export type View = { yaw: number; pitch: number };
-
-const restView: View = { yaw: -30, pitch: 20 };
 const easeMs = 250;
-const margin = 18;
-const side = 5;
-const labelGap = 6;
 const axisTone = 0.25;
-const vowels = 'aeiou';
-const deg = Math.PI / 180;
 
 const arrows: Record<string, View> = {
   ArrowLeft: { yaw: -8, pitch: 0 },
@@ -33,16 +34,6 @@ const clampView = ({ yaw, pitch }: View): View => ({
   pitch: Math.max(-80, Math.min(80, pitch)),
 });
 
-function fitReach(places: ArrayLike<number>) {
-  const radii: number[] = [];
-  for (let i = 0; i < places.length; i += 3) {
-    radii.push(Math.hypot(places[i], places[i + 1], places[i + 2]));
-  }
-  radii.sort((a, b) => a - b);
-  const median = radii[radii.length >> 1];
-  return Math.max(1, Math.min(1.15 * radii[radii.length - 1], 3 * median));
-}
-
 const square = ({ x, y }: { x: number; y: number }) => ({
   x: Math.round(x - side / 2),
   y: Math.round(y - side / 2),
@@ -50,65 +41,6 @@ const square = ({ x, y }: { x: number; y: number }) => ({
 
 const pointTone = ({ vowel, depth }: { vowel: boolean; depth: number }) =>
   (vowel ? 1 : 0.55) * (0.45 + 0.55 * depth);
-
-export type MapFigure = ReturnType<typeof mapFigure>;
-
-export function mapFigure(
-  places: ArrayLike<number>,
-  symbols: string,
-  view: View,
-  box: { width: number; height: number },
-  reach: number,
-) {
-  const cosYaw = Math.cos(view.yaw * deg);
-  const sinYaw = Math.sin(view.yaw * deg);
-  const cosPitch = Math.cos(view.pitch * deg);
-  const sinPitch = Math.sin(view.pitch * deg);
-  const scale = (Math.min(box.width, box.height) / 2 - margin) / reach;
-  const place = (a: number, b: number, c: number) => {
-    const across = a * cosYaw + c * sinYaw;
-    const toward = c * cosYaw - a * sinYaw;
-    return {
-      x: box.width / 2 + across * scale,
-      y: box.height / 2 - (b * cosPitch - toward * sinPitch) * scale,
-      depth: 0.5 + (b * sinPitch + toward * cosPitch) / (2 * reach),
-    };
-  };
-  const points = Array.from(symbols, (symbol, i) => {
-    const [a, b, c] = [places[i * 3], places[i * 3 + 1], places[i * 3 + 2]];
-    const beyond = Math.hypot(a, b, c) > reach;
-    const pull = beyond ? reach / Math.hypot(a, b, c) : 1;
-    return {
-      ...place(a * pull, b * pull, c * pull),
-      symbol,
-      vowel: vowels.includes(symbol),
-      beyond,
-    };
-  }).sort((m, n) => m.depth - n.depth);
-  const center = place(0, 0, 0);
-  const ends = [
-    [reach, 0, 0],
-    [0, reach, 0],
-    [0, 0, reach],
-  ] as const;
-  const axes = ends.map(([a, b, c], i) => {
-    const tip = place(a, b, c);
-    const tail = place(-a, -b, -c);
-    const dx = tip.x - center.x;
-    const dy = tip.y - center.y;
-    const length = Math.hypot(dx, dy) || 1;
-    return {
-      x1: tail.x,
-      y1: tail.y,
-      x2: tip.x,
-      y2: tip.y,
-      label: String(i + 1),
-      labelX: tip.x + (dx / length) * 10,
-      labelY: tip.y + (dy / length) * 10,
-    };
-  });
-  return { points, axes };
-}
 
 const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
   from[0] + (to[0] - from[0]) * t,
@@ -131,25 +63,26 @@ function drawMap(
     ctx.moveTo(axis.x1, axis.y1);
     ctx.lineTo(axis.x2, axis.y2);
   }
+  for (const { label } of [...figure.axes, ...figure.points]) {
+    if (!label.leader) continue;
+    ctx.moveTo(label.leader.x1, label.leader.y1);
+    ctx.lineTo(label.leader.x2, label.leader.y2);
+  }
   ctx.stroke();
+  for (const point of figure.points) {
+    const { x, y } = square(point);
+    ctx.fillStyle = css(mix(bg, ink, pointTone(point)));
+    ctx.fillRect(x, y, side, side);
+  }
   ctx.font = font;
   ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = css(faint);
-  for (const axis of figure.axes) ctx.fillText(axis.label, axis.labelX, axis.labelY);
   ctx.textAlign = 'left';
-  for (const point of figure.points) {
-    const tone = css(mix(bg, ink, pointTone(point)));
-    const { x, y } = square(point);
-    if (point.beyond) {
-      ctx.strokeStyle = tone;
-      ctx.strokeRect(x + 0.5, y + 0.5, side - 1, side - 1);
-    } else {
-      ctx.fillStyle = tone;
-      ctx.fillRect(x, y, side, side);
-    }
-    ctx.fillStyle = css(point.vowel ? ink : faint);
-    ctx.fillText(point.symbol, point.x + labelGap, point.y);
+  for (const { label, vowel } of [
+    ...figure.axes.map((axis) => ({ label: axis.label, vowel: false })),
+    ...figure.points,
+  ]) {
+    ctx.fillStyle = css(vowel ? ink : faint);
+    ctx.fillText(label.text, label.x, label.y);
   }
 }
 
@@ -373,6 +306,7 @@ export function letterSpace({
         on,
       );
 
+      let spots: ReadonlyMap<string, Spot> = new Map();
       return (now) => {
         let turning = false;
         for (const key of ['yaw', 'pitch'] as const) {
@@ -384,12 +318,9 @@ export function letterSpace({
         }
         const shown = shownAt(motion, now);
         const ctx = stage.canvas(p.map);
-        drawMap(
-          ctx,
-          mapFigure(shown.places, motion.symbols, view, ctx, shown.reach),
-          stage.tokens,
-          stage.font(11),
-        );
+        const figure = mapFigure(shown.places, motion.symbols, view, ctx, shown.reach, spots);
+        spots = figure.spots;
+        drawMap(ctx, figure, stage.tokens, stage.font(11));
         return turning || shown.moving;
       };
     },
@@ -437,49 +368,51 @@ function MapSvg({
       <g style={{ stroke: mixed(axisTone) }}>
         {figure.axes.map((axis) => (
           <line
-            key={axis.label}
+            key={axis.text}
             x1={tenth(axis.x1)}
             y1={tenth(axis.y1)}
             x2={tenth(axis.x2)}
             y2={tenth(axis.y2)}
           />
         ))}
+        {[...figure.axes, ...figure.points].map(({ label }) =>
+          label.leader ? (
+            <line
+              key={label.text}
+              x1={tenth(label.leader.x1)}
+              y1={tenth(label.leader.y1)}
+              x2={tenth(label.leader.x2)}
+              y2={tenth(label.leader.y2)}
+            />
+          ) : null,
+        )}
       </g>
+      {figure.points.map((point) => {
+        const { x, y } = square(point);
+        return (
+          <rect
+            key={point.symbol}
+            x={x}
+            y={y}
+            width={side}
+            height={side}
+            style={{ fill: mixed(pointTone(point)) }}
+          />
+        );
+      })}
       <g fontSize={11} dominantBaseline="central">
-        <g className="fill-faint" textAnchor="middle">
-          {figure.axes.map((axis) => (
-            <text key={axis.label} x={tenth(axis.labelX)} y={tenth(axis.labelY)}>
-              {axis.label}
+        {[...figure.axes.map((axis) => ({ ...axis, vowel: false })), ...figure.points].map(
+          ({ label, vowel }) => (
+            <text
+              key={label.text}
+              className={vowel ? 'fill-ink' : 'fill-faint'}
+              x={tenth(label.x)}
+              y={tenth(label.y)}
+            >
+              {label.text}
             </text>
-          ))}
-        </g>
-        {figure.points.map((point) => {
-          const { x, y } = square(point);
-          const tone = mixed(pointTone(point));
-          return (
-            <g key={point.symbol}>
-              {point.beyond ? (
-                <rect
-                  x={x + 0.5}
-                  y={y + 0.5}
-                  width={side - 1}
-                  height={side - 1}
-                  fill="none"
-                  style={{ stroke: tone }}
-                />
-              ) : (
-                <rect x={x} y={y} width={side} height={side} style={{ fill: tone }} />
-              )}
-              <text
-                className={point.vowel ? 'fill-ink' : 'fill-faint'}
-                x={tenth(point.x + labelGap)}
-                y={tenth(point.y)}
-              >
-                {point.symbol}
-              </text>
-            </g>
-          );
-        })}
+          ),
+        )}
       </g>
     </svg>
   );
