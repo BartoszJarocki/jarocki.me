@@ -25,7 +25,6 @@ export function gridFigure(side: number, counts: ArrayLike<number>) {
   }
   const middle = (index: number) => gutter + (index + 0.5) * cell;
   return {
-    side,
     cell,
     squares,
     rowLabels: Array.from(symbols, (text, row) => ({ text, x: gutter / 2, y: middle(row) })),
@@ -45,6 +44,8 @@ const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
 
 const spoken = (symbol: string) => (symbol === '.' ? 'the dot' : symbol);
 const percent = (chance: number) => (chance < 0.001 ? '<0.1%' : `${(chance * 100).toFixed(1)}%`);
+
+const nextTask = () => new Promise((resolve) => setTimeout(resolve));
 
 let names: Promise<string[]> | null = null;
 const loadNames = () =>
@@ -75,7 +76,9 @@ export default defineScene({
   },
   async mount(stage, p) {
     const all = await loadNames();
+    await nextTask();
     const counts = countPairs(all);
+    await nextTask();
     const lossTimer = setTimeout(() => {
       p.loss.textContent = averageLoss(counts, all).toFixed(2);
     });
@@ -128,10 +131,10 @@ export default defineScene({
           return entry;
         }),
       );
-      const top = order
+      const likeliest = order
         .slice(0, 5)
         .map((next) => `${spoken(symbols[next])} ${percent(odds[next])}`);
-      p.announce.textContent = `${selected === 0 ? 'First letters' : `After ${spoken(letter)}`}: ${top.join(', ')}`;
+      p.announce.textContent = `${selected === 0 ? 'First letters' : `After ${spoken(letter)}`}: ${likeliest.join(', ')}`;
     };
 
     const select = (row: number | null) => {
@@ -195,6 +198,13 @@ export default defineScene({
       for (const square of figure.squares) {
         ctx.fillStyle = selected === null || square.row === selected ? css(ink) : dim;
         ctx.fillRect(square.x, square.y, square.side, square.side);
+      }
+      if (selected !== null) {
+        const top = Math.round(gutter + selected * figure.cell);
+        const bottom = Math.round(gutter + (selected + 1) * figure.cell);
+        ctx.strokeStyle = css(faint);
+        ctx.lineWidth = 1;
+        ctx.strokeRect(gutter - 0.5, top - 0.5, Math.round(ctx.width - gutter), bottom - top + 1);
       }
     };
   },
