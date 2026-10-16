@@ -262,7 +262,7 @@ Every page draws a toy embedding space over its top 460px. It shows one thing a 
 
 - Tokens are square points, each a mix of `bg` and `ink` that fades toward `bg` with depth. There are no lights, as in the skyline. Lines are 1px. Labels are Geist Mono at 11px and 13px.
 - The stage is a `position: absolute` element, rendered by `_app` before the page, 460px tall, at 40% opacity. A mask fades its lower 45% to nothing. It ignores the pointer, so the header and lede under it stay clickable. `_app` clips it to the page, or to the screen when the page is shorter, so the stage never makes a page scroll.
-- On a wide stage the space is squashed vertically to fill the band. On a portrait stage, such as a phone, the camera rolls 90° so the clusters run down the screen.
+- On a wide stage the space is squashed vertically to fill the band, and lifted into the top 55% that the mask leaves unfaded. That stop is written once, as `--unfaded` on `.backdrop` in `src/styles/index.css`. On a portrait stage, such as a phone, the camera rolls 90° so the clusters run down the screen.
 - A portrait stage shows no words: no neighbor list, no trail or analogy labels, no cosines. The header covers much of the band there, and any word can drift behind it. The points, the lines, and the boxes around the current token and the analogy's sum stay.
 - A mouse resting on a cluster point shows that token's neighbors. On a portrait stage the hover draws the lines to the neighbors and the box around the token, but no words. Touch does nothing.
 - The stage stays mounted across client-side navigation, so the space is built once per visit and the animation carries on from page to page.

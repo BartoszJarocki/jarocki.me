@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { chunkLoadFailed } from '../lib/chunkLoad';
 import type { BackdropHandle } from '../lib/embeddingsScene';
 import { release } from '../lib/teardown';
 
@@ -25,10 +26,8 @@ export function EmbeddingsBackdrop() {
           scene = handle;
           setReady(handle !== null);
         },
-        // A chunk that fails to load, which webpack reports as a ChunkLoadError, leaves the page
-        // without a backdrop and logs nothing, like the skyline's. Any other import error is logged.
         (error) => {
-          if (error?.name !== 'ChunkLoadError') throw error;
+          if (!chunkLoadFailed(error)) throw error;
         },
       )
       .catch((error) => {

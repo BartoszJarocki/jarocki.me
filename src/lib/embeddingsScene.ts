@@ -25,7 +25,6 @@ import { tokenReader } from './colorTokens';
 import {
   ANALOGIES,
   CORPUS,
-  D,
   DRAWN,
   Neighbor,
   analogy,
@@ -36,6 +35,7 @@ import {
   tokenize,
   topK,
 } from './embeddingSpace';
+import { nextTask } from './nextTask';
 import { Teardown, teardown } from './teardown';
 
 export type BackdropHandle = { destroy: () => void };
@@ -67,15 +67,13 @@ const SWING = 96;
 const YAW = 0.32;
 const PITCH = 0.2;
 const FOV = 30;
-// A linear map from the three drawn embedding axes to world units, so sums and differences stay
-// exact on screen.
-const SCALE = [18, 15, 18];
+const SCALE = [18, 15, 18] as const satisfies { length: typeof DRAWN };
 const HALF_W = 11.6;
 const HALF_H = 6;
 const DEPTH = 6;
 // A very wide stage, like the band behind the header, squashes y and lifts the band. Both ramp in
 // as the aspect grows from WIDE_FROM to WIDE_FROM + WIDE_SPAN. The lift, a share of the stage
-// height, keeps the band inside the top 55% that the .backdrop mask in index.css leaves unfaded.
+// height, keeps the band inside the unfaded top that --unfaded sets on .backdrop in index.css.
 const WIDE_FROM = 2.4;
 const WIDE_SPAN = 0.8;
 const WIDE_SQUASH = 0.42;
@@ -87,6 +85,8 @@ const REST_T = 6;
 const FPS = 30;
 const POINTER_MS = 3000;
 const HOVER_RADIUS = 14;
+const LABEL_SPACING = 12;
+const LABEL_CLEARANCE = 12;
 // The loops of the mount yield once a slice has run this long, so on a slow phone none of its tasks
 // comes near the 50ms of a long task.
 const SLICE_MS = 16;
@@ -98,7 +98,11 @@ const smooth = (a: number, b: number, x: number) => {
 };
 const show = (tok: string) => (tok.startsWith(' ') ? '·' + tok.slice(1) : tok);
 const fmt = (s: number) => s.toFixed(2);
-const nextTask = () => new Promise((resolve) => setTimeout(resolve));
+const toWorld = (v: ArrayLike<number>, out = new Vector3()) => {
+  out.set(0, 0, 0);
+  for (let d = 0; d < DRAWN; d++) out.setComponent(d, v[d] * SCALE[d]);
+  return out;
+};
 
 function atlas(
   strings: Iterable<string>,
@@ -204,6 +208,8 @@ async function mountScene(
     if (performance.now() - sliceStart >= SLICE_MS) await nextSlice();
   };
 
+  // The lines' material converts its colors to the output color space, and those colors already
+  // mix the page's sRGB bytes, so a linear output keeps them as mixed.
   renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -230,13 +236,12 @@ async function mountScene(
   let step = build.next();
   for (; !step.done; step = build.next()) await yieldIfSpent();
   const space = step.value;
-  const { N, tokens, vec } = space;
+  const { N, tokens } = space;
   const capitalized = tokens.map((t) => t !== t.toLowerCase());
 
-  const P = new Float32Array(N * DRAWN);
-  for (let i = 0; i < N; i++)
-    for (let d = 0; d < DRAWN; d++) P[i * DRAWN + d] = vec[i * D + d] * SCALE[d];
-  const at = (i: number, out = new Vector3()) => out.fromArray(P, i * DRAWN);
+  const positions = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) toWorld(row(space, i)).toArray(positions, i * 3);
+  const at = (i: number, out = new Vector3()) => out.fromArray(positions, i * 3);
 
   const seq = words.map((w) => space.index.get(w)!);
   const nnMemo = new Map<number, Neighbor[]>();
@@ -254,7 +259,7 @@ async function mountScene(
   }
   const analogies = ANALOGIES.map((query) => {
     const r = analogy(space, query);
-    const qPos = new Vector3(r.q[0] * SCALE[0], r.q[1] * SCALE[1], r.q[2] * SCALE[2]);
+    const qPos = toWorld(r.q);
     const caption = `${query.b.trim()} - ${query.a.trim()} + ${query.c.trim()} → ${tokens[r.answer].trim()}`;
     return { ...r, qPos, caption };
   });
@@ -329,7 +334,7 @@ async function mountScene(
     baseMix[i] = isDust ? 0.34 : 0.62;
     baseSize[i] = isDust ? 1.4 : 2.1;
   }
-  cloudGeo.setAttribute('position', new BufferAttribute(P, DRAWN));
+  cloudGeo.setAttribute('position', new BufferAttribute(positions, 3));
   cloudGeo.setAttribute('aMix', new BufferAttribute(baseMix, 1));
   cloudGeo.setAttribute('aSize', new BufferAttribute(baseSize, 1));
   const cloudMat = pointMat(0.62);
@@ -456,18 +461,23 @@ async function mountScene(
     if (w === undefined) return { x: p.x, y: p.y, w: 0 };
     const full = w + extra;
     const sides = p.x + 7 + full > W - 6 ? [-1, 1] : [1, -1];
-    const spots = [0, -12, 12, -24, 24].flatMap((off) =>
-      sides.map((side) => ({ x: side > 0 ? p.x + 7 : p.x - 7 - full, y: p.y + dy + off })),
+    const spots = [0, -1, 1, -2, 2].flatMap((k) =>
+      sides.map((side) => ({
+        x: side > 0 ? p.x + 7 : p.x - 7 - full,
+        y: p.y + dy + k * LABEL_SPACING,
+      })),
     );
     const best = spots.find((r) => !hits(r.x, r.y, full)) ?? (optional ? null : spots[0]);
     if (!best) return { x: p.x, y: p.y, w: 0 };
-    placed.push({ x: best.x, y: best.y, w: full, halfH: 12 });
+    placed.push({ x: best.x, y: best.y, w: full, halfH: LABEL_CLEARANCE });
     labels.draw(s, best.x, best.y, m);
     return { x: best.x, y: best.y, w };
   };
   const hoverSets = new Map<number, { atlas: Atlas; set: TextSet }>();
   cleanup.add(() => {
-    for (const { atlas: a } of hoverSets.values()) a.texture.dispose();
+    const each = teardown();
+    for (const { atlas: a } of hoverSets.values()) each.add(() => a.texture.dispose());
+    each.run();
   });
   const hoverSet = (tok: number) => {
     let entry = hoverSets.get(tok);
@@ -482,9 +492,9 @@ async function mountScene(
       entry = { atlas: a, set: textSet(a, hoverText) };
       hoverSets.set(tok, entry);
       if (hoverSets.size > 24) {
-        const [oldest] = hoverSets.keys();
-        hoverSets.get(oldest)?.atlas.texture.dispose();
+        const [[oldest, evicted]] = hoverSets;
         hoverSets.delete(oldest);
+        evicted.atlas.texture.dispose();
       }
     }
     hoverText.mat.uniforms.map.value = entry.atlas.texture;
@@ -580,13 +590,19 @@ async function mountScene(
     const blockW = Math.max(colW + wMax, head.w(name));
     const blockH = headAtlas.h + 6 + nn.length * rowH;
     const gap = 22;
+    const marginY = 12;
     const roomR = W - 16 - (p.x + gap + blockW);
     const roomL = p.x - gap - blockW - 16;
     const outward = p.x < W / 2 ? roomL > 0 : roomR < 0;
     const x0 = outward ? p.x - gap - blockW : p.x + gap;
-    const y0 = clamp(p.y - headAtlas.h / 2, 12, Hh - blockH - 12);
+    const y0 = clamp(p.y - headAtlas.h / 2, marginY, Hh - blockH - marginY);
     plates.quad(x0 - 8, y0 - 6, blockW + 16, blockH + 10, [0, 0, 1, 1], -fade);
-    placed.push({ x: x0 - 8, y: y0 + blockH / 2, w: blockW + 16, halfH: blockH / 2 + 12 });
+    placed.push({
+      x: x0 - 8,
+      y: y0 + blockH / 2,
+      w: blockW + 16,
+      halfH: blockH / 2 + LABEL_CLEARANCE,
+    });
     head.draw(name, x0, y0 + headAtlas.h / 2, fade);
     oseg(x0, y0 + headAtlas.h + 2, x0 + blockW, y0 + headAtlas.h + 2, 0.25 * fade);
     nn.forEach((n, r) => {
@@ -663,9 +679,9 @@ async function mountScene(
     let bd = HOVER_RADIUS * HOVER_RADIUS;
     for (let i = 0; i < N; i++) {
       if (space.cluster[i] === dust || capitalized[i]) continue;
-      const x = P[i * DRAWN];
-      const y = P[i * DRAWN + 1];
-      const z = P[i * DRAWN + 2];
+      const x = positions[i * 3];
+      const y = positions[i * 3 + 1];
+      const z = positions[i * 3 + 2];
       const cw = e[3] * x + e[7] * y + e[11] * z + e[15];
       const sx = ((e[0] * x + e[4] * y + e[8] * z + e[12]) / cw) * 0.5 * W + W / 2 - pointer.x;
       const sy = Hh / 2 - ((e[1] * x + e[5] * y + e[9] * z + e[13]) / cw) * 0.5 * Hh - pointer.y;
@@ -792,7 +808,6 @@ async function mountScene(
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const darkScheme = matchMedia('(prefers-color-scheme: dark)');
   const t0 = performance.now();
-  const now = () => (reducedMotion.matches ? REST_T : (performance.now() - t0) / 1000);
 
   // The shaders, the textures, the buffers of each scene, and the drawing buffer each take a task
   // here, so the first frame only draws.
@@ -805,19 +820,25 @@ async function mountScene(
     () => renderer.render(scene, camera),
     () => renderer.render(overlay, ortho),
     resize,
-    () => frame(now()),
   ];
   for (const step of warmUp) {
     await nextSlice();
     step();
   }
+  await nextSlice();
+  // Chrome drops the change event when .matches is read between a change and its event, as a frame
+  // loop does, so the query is read once, in the task that starts listening, and then only through
+  // its events.
+  let reduced = reducedMotion.matches;
+  const now = () => (reduced ? REST_T : (performance.now() - t0) / 1000);
+  frame(now());
   stage.append(renderer.domElement);
 
   let visible = false;
   let raf = 0;
   cleanup.add(() => cancelAnimationFrame(raf));
   let last = -Infinity;
-  const running = () => visible && !document.hidden && !reducedMotion.matches;
+  const running = () => visible && !document.hidden && !reduced;
 
   function tick(time: number) {
     raf = 0;
@@ -849,8 +870,9 @@ async function mountScene(
   document.addEventListener('visibilitychange', play, { signal });
   reducedMotion.addEventListener(
     'change',
-    () => {
-      if (reducedMotion.matches) frame(REST_T);
+    (event) => {
+      reduced = event.matches;
+      if (reduced) frame(REST_T);
       else play();
     },
     { signal },

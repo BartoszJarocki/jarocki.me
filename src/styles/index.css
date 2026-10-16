@@ -188,10 +188,11 @@
     opacity: 0.4;
     pointer-events: none;
     overflow: hidden;
-    /* the scene lifts a wide stage's band into this unfaded top 55% (WIDE_LIFT in
+    /* the scene lifts a wide stage's band into this unfaded top (WIDE_LIFT in
        src/lib/embeddingsScene.ts) */
-    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
-    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    --unfaded: 55%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 var(--unfaded), transparent);
+    mask-image: linear-gradient(to bottom, #000 var(--unfaded), transparent);
   }
   @media (prefers-color-scheme: dark) {
     .backdrop {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { activityStats, monthlyTotals } from '../lib/activityStats';
+import { chunkLoadFailed } from '../lib/chunkLoad';
 import { dayMonth } from '../lib/date';
 import { Activity, weeklyTotals } from '../lib/githubActivity';
 import type { SkylineHandle } from '../lib/skylineScene';
@@ -48,20 +49,28 @@ export function ContributionSkyline({ activity }: { activity: Activity }) {
     });
     // Download now but rise only near the viewport, so a visitor who scrolls down sees the city grow.
     Promise.all([import('../lib/skylineScene'), nearby])
-      .then(async ([{ mountSkyline }]) => {
+      .then(
+        async ([{ mountSkyline }]) => {
+          if (unmount.signal.aborted) return;
+          const heights = () => (stats[latestSelected.current] ?? stats[0]).heights;
+          const handle = await mountSkyline(element, dates, heights, setDay, unmount.signal);
+          // An unmount after the mount's last check of the signal still delivers the scene.
+          if (unmount.signal.aborted) {
+            release(handle);
+            return;
+          }
+          scene.current = handle;
+          setPhase(handle ? 'ready' : 'fallback');
+        },
+        (error) => {
+          if (!chunkLoadFailed(error)) throw error;
+          if (!unmount.signal.aborted) setPhase('fallback');
+        },
+      )
+      .catch((error) => {
         if (unmount.signal.aborted) return;
-        const heights = () => (stats[latestSelected.current] ?? stats[0]).heights;
-        const handle = await mountSkyline(element, dates, heights, setDay, unmount.signal);
-        // An unmount after the mount's last check of the signal still delivers the scene.
-        if (unmount.signal.aborted) {
-          release(handle);
-          return;
-        }
-        scene.current = handle;
-        setPhase(handle ? 'ready' : 'fallback');
-      })
-      .catch(() => {
-        if (!unmount.signal.aborted) setPhase('fallback');
+        setPhase('fallback');
+        console.error(error);
       });
     return () => {
       unmount.abort();

@@ -2,10 +2,8 @@ import {
   Box3,
   BoxGeometry,
   Color,
-  ColorManagement,
   InstancedBufferAttribute,
   InstancedMesh,
-  LinearSRGBColorSpace,
   Matrix4,
   OrthographicCamera,
   Raycaster,
@@ -18,6 +16,7 @@ import {
 
 import { LEVELS } from './activityStats';
 import { tokenReader } from './colorTokens';
+import { nextTask } from './nextTask';
 import { Teardown, teardown } from './teardown';
 
 type View = { yaw: number; pitch: number };
@@ -134,11 +133,8 @@ async function mountScene(
   // Creating the renderer takes about as long as building and drawing the scene on a slow CPU, so
   // the two run in separate tasks. Input that arrives in between runs first, so heights() is read
   // after the wait.
-  await new Promise((resolve) => setTimeout(resolve));
+  await nextTask();
   if (cancel.aborted) throw cancel.reason;
-  // Without color management the shader's mix of the token colors reaches the screen unchanged.
-  ColorManagement.enabled = false;
-  renderer.outputColorSpace = LinearSRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
 
   const overlay = document.createElement('div');
@@ -319,11 +315,12 @@ async function mountScene(
   }
 
   function tick(now: number) {
+    const elapsed = reducedMotion.matches ? Infinity : now - morphStart;
     let changed = false;
     let moving = false;
     for (let i = 0; i < shown.length; i++) {
       if (shown[i] === goal[i]) continue;
-      const steps = Math.floor(Math.max(0, now - morphStart - columns[i].delay) / 28);
+      const steps = Math.floor(Math.max(0, elapsed - columns[i].delay) / 28);
       const distance = goal[i] - from[i];
       const next = from[i] + Math.sign(distance) * Math.min(Math.abs(distance), steps);
       if (next !== shown[i]) {
