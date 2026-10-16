@@ -66,12 +66,36 @@ test('block 1 head 3 reads the space before its word most at 20 of the 29 letter
   assert.equal(hits.length, 20);
 });
 
+test("the first block's heads read close by, and the second block's reach further", () => {
+  const heads = [0, 1].flatMap((b) => [0, 1, 2, 3].map((h) => ({ b, h })));
+  const perLetter = (measure: (row: Float32Array, t: number) => number) =>
+    heads.map(({ b, h }) => {
+      let total = 0;
+      for (let t = 1; t < text.length; t++) total += measure(readingOf(found, b, h, t), t);
+      return total / (text.length - 1);
+    });
+  const near = perLetter((row, t) => row.reduce((sum, w, s) => (t - s <= 2 ? sum + w : sum), 0));
+  const back = perLetter((row, t) => row.reduce((sum, w, s) => sum + w * (t - s), 0));
+  assert.deepEqual(
+    near.slice(0, 4).map((share) => Math.round(share * 100)),
+    [85, 82, 81, 80],
+  );
+  assert.deepEqual(
+    back.slice(4).map((letters) => letters.toFixed(1)),
+    ['3.6', '5.1', '5.5', '6.6'],
+  );
+});
+
 test('the committed stills are what the checkpoint gives', () => {
   assert.deepEqual(
     headsStill,
     stillNumbers(found),
     'Run `node src/lib/demos/writeData.ts` and commit src/lib/demos/headsStill.ts.',
   );
+});
+
+test('the sentence puts 20 letters and spaces between car and small', () => {
+  assert.equal(text.indexOf('small') - (text.indexOf('car') + 'car'.length), 20);
 });
 
 test('letterName names a letter by its word', () => {
