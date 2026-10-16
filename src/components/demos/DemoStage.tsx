@@ -36,9 +36,6 @@ export function DemoStage<P>({
   scene: () => Promise<SceneModule<P>>;
   render: (part: Part<P>) => { body: ReactNode; caption: ReactNode; controls: ReactNode };
 }) {
-  if (typeof window === 'undefined' && !(label && children)) {
-    throw new Error('A demo needs a label and a description');
-  }
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
   const [parts] = useState(() => ({}) as Partial<P>);
