@@ -1,0 +1,51 @@
+export const recording = [
+  {
+    training: 3.6553541085267898,
+    validation: 3.6570688113354253,
+    step: 0,
+    text: "\n!zoicf3ip:,qh-b;i;y:v-',;iq$wiknylxs ,ae\n$rbdfyon?a''w?,l? nwitmx&hmwytkyyit\nh?piqzjtdmqi?.\n\nxtl\nljpz;zmslt'zhj'c.suqmzlpyg.jsu-ifh,3ef,\n,\n$vz ,cgpbbspsisdj:ir$:utreax3bgtczjdai;wjzuhenxim'nckuc;$nqy",
+    wordShare: 0,
+  },
+  {
+    training: 2.4526571923027167,
+    validation: 2.452755005848079,
+    step: 150,
+    text: "acwinch, that d'd hulo.\n\naro whenthou d l athedorg, ces de,\nsthipr ngruthpuro merery there f avio sotuly thicy o l tisowhete prs one fan 'd\n\ntt danomerloothe no grothes inomy mancory.\n\nourd t:\nte botr",
+    wordShare: 0.2777777777777778,
+  },
+  {
+    training: 2.3719995387545705,
+    validation: 2.391642856029452,
+    step: 300,
+    text: 'adtfe ollld thance y thak pocoremy wialan\nat meshe if we shasthist outourtpat\nong tsit sthan\naven spoway thifurd ldithevert gout phe heil\ncaits d nonderorine ouceroup w.\n\nthureancseth moven ther hasow',
+    wordShare: 0.125,
+  },
+  {
+    training: 2.261121222022061,
+    validation: 2.2865355891922965,
+    step: 450,
+    text: 'acus; marig thand hy ulakeer wings, teand\nathedond hait do:\nsursht moutints tapererves poof a? thard yower.\n\nyouliessery, wierms nor for al atuced shermperem;\nte tord weens, nome uryencht! bones hases',
+    wordShare: 0.22580645161290322,
+  },
+  {
+    training: 2.183143677280045,
+    validation: 2.211190310108487,
+    step: 600,
+    text: 'aby:\nin or coome:\neves ceens thert us cin ase, wis i comard surspreeotsinst tand ots thefe faby,\n\npory yourd you lerst your elove me fin:\na but chen it thing no ford it ing you of pusingher sirs hasht',
+    wordShare: 0.425,
+  },
+  {
+    training: 2.109530137081982,
+    validation: 2.136487331972589,
+    step: 750,
+    text: '\nay:\ni hen doe i ofrdle conof?\n\nluptlagea:\nthe wit iber for sthis.\n\notst your menirs, is of a wit sory you, crord errowthdir oth ond\nbef ale to ding ishmare, on grot it iflly me hout.\n\nrupienent hat y',
+    wordShare: 0.5,
+  },
+  {
+    training: 2.048963968845535,
+    validation: 2.1052648737682857,
+    step: 900,
+    text: '\nawill for but i newat canit whert woh in but my she comana:\nwhout nout, wore mare your the a wit proweser,\nay-hard tofords eeto on deele\na but conncerss, in muchter, we my youll? out ist semellan!\n\nw',
+    wordShare: 0.48717948717948717,
+  },
+];

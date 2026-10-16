@@ -1,7 +1,8 @@
+import type { Checkpoint } from '../ml/params';
 import type { In, ModelKind, Out, Updates } from '../ml/training';
 import type { Stage } from './stage';
 
-export type { ModelKind, Progress, Sample, Snapshot } from '../ml/training';
+export type { Evaluation, ModelKind, Progress, Sample, Snapshot, Weights } from '../ml/training';
 
 export type Listeners = { readonly [T in keyof Updates]?: (update: Updates[T]) => void };
 
@@ -12,7 +13,9 @@ export type Trainer = {
   /** Fresh numbers from the seed, step 0, paused, for every demo on this model. */
   reset(): void;
   /** Asks for text from the current numbers. It arrives at listeners.sample. */
-  sample(): void;
+  sample(temperature?: number): number;
+  weights(): number;
+  load(checkpoint: Checkpoint, symbols: string, step: number): void;
   /** The reader pressed train and hasn't paused or reset since, and the model isn't done. */
   readonly training: boolean;
 };
@@ -20,6 +23,7 @@ export type Trainer = {
 type Handle = {
   readonly stage: Stage;
   readonly listeners: Listeners;
+  requests: Set<number>;
   wanted: boolean;
   live: boolean;
   readonly seen: Set<keyof Updates>;
@@ -34,6 +38,8 @@ type Session = {
 };
 
 let page: { readonly worker: Worker; readonly sessions: Map<ModelKind, Session> } | null = null;
+
+let requestId = 0;
 
 const post = (message: In) => page?.worker.postMessage(message);
 
@@ -52,6 +58,7 @@ function spawn() {
     if (message.type === 'error') return failAll(session.handles, new Error(message.message));
     if (message.type === 'progress') session.done = message.done;
     for (const handle of [...session.handles]) {
+      if ('requestId' in message && !handle.requests.delete(message.requestId)) continue;
       try {
         (handle.listeners[message.type] as ((update: typeof message) => void) | undefined)?.(
           message,
@@ -115,6 +122,7 @@ export function openTrainer(stage: Stage, model: ModelKind, listeners: Listeners
       stage,
       listeners,
       wanted: false,
+      requests: new Set(),
       live: false,
       seen: new Set(),
       opened: null,
@@ -134,7 +142,23 @@ export function openTrainer(stage: Stage, model: ModelKind, listeners: Listeners
         own.sent = 'pause';
         post({ type: 'reset', model });
       },
-      sample: () => post({ type: 'sample', model }),
+      sample(temperature) {
+        const id = ++requestId;
+        handle.requests.add(id);
+        post({ type: 'sample', model, requestId: id, temperature });
+        return id;
+      },
+      weights() {
+        const id = ++requestId;
+        handle.requests.add(id);
+        post({ type: 'weights', model, requestId: id });
+        return id;
+      },
+      load(checkpoint, symbols, step) {
+        for (const each of own.handles) each.wanted = false;
+        own.sent = 'pause';
+        post({ type: 'load', model, checkpoint, symbols, step });
+      },
       get training() {
         return handle.wanted && !own.done;
       },

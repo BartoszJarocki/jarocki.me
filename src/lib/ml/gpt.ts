@@ -519,7 +519,13 @@ export function write(
   net: Transformer,
   settings: { length?: number; temperature?: number; seed?: number } = {},
 ) {
-  const { length, temperature, seed } = { ...fixture.sample, ...settings };
+  const {
+    length = fixture.sample.length,
+    temperature = fixture.sample.temperature,
+    seed = fixture.sample.seed,
+  } = settings;
+  if (!Number.isFinite(temperature) || temperature <= 0)
+    throw new Error('Temperature must be above zero');
   const { symbols, context } = net.config;
   const roll = seeded(seed);
   const ids = [symbols.indexOf('\n')];
@@ -597,7 +603,7 @@ export const gpt = {
       net,
       practice: () =>
         practice(net, drawBatch(corpus.training, batchRows, shakespeare.context, batchRoll)),
-      write: () => write(net),
+      write: (settings) => write(net, settings),
       exam: () => ({ training: mean(training), validation: mean(validation) }),
       wordShare: (sample) => wordShare(corpus, sample),
     };
