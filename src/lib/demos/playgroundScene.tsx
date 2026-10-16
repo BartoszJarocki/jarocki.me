@@ -22,6 +22,8 @@ const toneOf = (level: number) => 0.03 + (0.21 * level) / (tones - 1);
 const knobCell = 36;
 const knobHead = 20;
 const batchMs = 8;
+const warmupSteps = 40;
+const warmupPoints = 10;
 
 const sides = [
   [0, 0, 1, 0],
@@ -395,7 +397,11 @@ export default defineScene({
     });
 
     let queued = 0;
-    stage.defer(() => clearTimeout(queued));
+    let warming = 0;
+    stage.defer(() => {
+      clearTimeout(queued);
+      clearTimeout(warming);
+    });
     const ownTask = (work: () => void) =>
       window.setTimeout(() => {
         try {
@@ -416,6 +422,16 @@ export default defineScene({
         if (steps >= run.until) run = 'paused';
       }
     };
+
+    // The first trainStep runs backward's loop before V8 optimizes it, a task of up to 75 ms at
+    // 4x CPU throttling.
+    const spare = network(0);
+    const few = data.slice(0, warmupPoints);
+    const warm = (left: number) => {
+      trainStep(spare.model, few, spare.step);
+      if (left > 1) warming = ownTask(() => warm(left - 1));
+    };
+    warming = ownTask(() => warm(warmupSteps));
 
     write();
 
