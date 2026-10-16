@@ -14,7 +14,8 @@ export function TaxiFares(props: DemoProps) {
         caption: (
           <>
             <span>
-              <span className="text-faint">Loss</span> <span ref={part('loss')} />
+              <span className="text-faint">Loss</span>&nbsp;
+              <span ref={part('loss')} />
             </span>
             <span>Eight made-up rides</span>
           </>

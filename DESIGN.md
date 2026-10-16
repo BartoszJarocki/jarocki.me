@@ -381,7 +381,7 @@ The shell gets a ref for each element from `part(name)`, typed from the scene's 
 - Canvas text is Geist Mono 11px in `faint`, written in lowercase in the code, because the root's `text-transform` does not reach a canvas.
 - A mark that grows with the reader's settings, such as a miss square, is clipped to the plot, the box above the axis and right of the value labels.
 - Sliders have a 1px `faint` track and a 12px square `ink` thumb, with a `faint` label on the left and the value on the right. A thumb stays hidden until the stage is `ready`.
-- The caption shows numbers in `ink` and words in `faint`, as in `loss 4.43`, with a `faint` note on the right.
+- The caption shows numbers in `ink` and words in `faint`, as in `loss 4.43`, with a `faint` note on the right. A no-break space joins the word and the number, because a plain space before the empty number collapses, and the caption would widen when the scene fills it in.
 - Buttons use `.demo-button`, which looks like the skyline's stat buttons.
 
 ## Share image
