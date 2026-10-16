@@ -49,7 +49,7 @@ export const example: Cuts = {
     ],
   },
   words: {
-    menu: 290,
+    menu: 430,
     pieces: [
       { text: 'your', known: true },
       { text: 'keyboard', known: true },
@@ -62,15 +62,18 @@ export const example: Cuts = {
   pieces: {
     menu: 226,
     pieces: [
-      { text: 'your', known: true },
+      { text: 'y', known: true },
+      { text: 'o', known: true },
+      { text: 'ur', known: true },
       { text: 'ke', known: true },
       { text: 'y', known: true },
       { text: 'b', known: true },
       { text: 'o', known: true },
       { text: 'ar', known: true },
       { text: 'd', known: true },
-      { text: 'guess', known: true },
-      { text: 'e', known: true },
+      { text: 'gu', known: true },
+      { text: 'es', known: true },
+      { text: 'se', known: true },
       { text: 'd', known: true },
       { text: 'the', known: true },
       { text: 'un', known: true },
