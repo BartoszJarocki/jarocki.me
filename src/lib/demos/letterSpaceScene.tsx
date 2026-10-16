@@ -76,7 +76,6 @@ export function mapFigure(
   };
   const points = Array.from(symbols, (symbol, i) => {
     const [a, b, c] = [places[i * 3], places[i * 3 + 1], places[i * 3 + 2]];
-    // A letter past the reach sits on its edge, so one far letter can't squeeze the rest together.
     const beyond = Math.hypot(a, b, c) > reach;
     const pull = beyond ? reach / Math.hypot(a, b, c) : 1;
     return {
@@ -163,8 +162,6 @@ type Motion = {
   readonly start: number;
 };
 
-// Linear, because snapshots arrive as often as an ease lasts, and a curve that slows at its ends
-// would stop the points four times a second.
 function shownAt(motion: Motion, now: number) {
   const t = Math.min(1, Math.max(0, (now - motion.start) / easeMs));
   if (t === 1) return { places: motion.to, reach: motion.reachTo, moving: false };
@@ -358,7 +355,6 @@ export function letterSpace({
       p.map.addEventListener(
         'dblclick',
         () => {
-          // The rest yaw nearest the current one, so a double-click never spins through whole turns.
           const back = restView.yaw - view.yaw;
           turnTo({ yaw: view.yaw + back - 360 * Math.round(back / 360), pitch: restView.pitch });
         },
@@ -370,7 +366,6 @@ export function letterSpace({
           const step = arrows[event.key];
           if (!step) return;
           const next = clampView({ yaw: target.yaw + step.yaw, pitch: target.pitch + step.pitch });
-          // At a limit the key keeps its default, so the page scrolls instead of nothing happening.
           if (next.yaw === target.yaw && next.pitch === target.pitch) return;
           event.preventDefault();
           turnTo(next);

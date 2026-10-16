@@ -9,8 +9,12 @@ type Label = { text: string; x: number; y: number; align: 'left' | 'center' | 'r
 
 export type CurveFigure = ReturnType<typeof curveFigure>;
 
-/** The loss chart: steps across, loss up, and the counting model's 2.45 as a faint line. */
-export function curveFigure(losses: ArrayLike<number>, every: number, width: number, height: number) {
+export function curveFigure(
+  losses: ArrayLike<number>,
+  every: number,
+  width: number,
+  height: number,
+) {
   const pad = { l: 36, r: 6, t: 12, b: 26 };
   const plotWidth = width - pad.l - pad.r;
   const plotHeight = height - pad.t - pad.b;
@@ -18,10 +22,17 @@ export function curveFigure(losses: ArrayLike<number>, every: number, width: num
   const y = (loss: number) => pad.t + ((chart.high - loss) / (chart.high - chart.low)) * plotHeight;
   const floor = y(chart.low);
   const labels: Label[] = [
-    ...[2.5, 3].map((loss): Label => ({ text: loss.toFixed(1), x: pad.l - 8, y: y(loss), align: 'right' })),
+    ...[2.5, 3].map(
+      (loss): Label => ({ text: loss.toFixed(1), x: pad.l - 8, y: y(loss), align: 'right' }),
+    ),
     { text: 'loss', x: 0, y: 5, align: 'left' },
     ...[0, 500, 1000, 1500].map(
-      (step): Label => ({ text: step.toLocaleString('en-US'), x: x(step), y: floor + 14, align: 'center' }),
+      (step): Label => ({
+        text: step.toLocaleString('en-US'),
+        x: x(step),
+        y: floor + 14,
+        align: 'center',
+      }),
     ),
     { text: 'steps', x: width - pad.r, y: floor + 14, align: 'right' },
     {
@@ -31,10 +42,10 @@ export function curveFigure(losses: ArrayLike<number>, every: number, width: num
       align: 'right',
     },
   ];
-  // A demo that opens a model another demo already trained gets no earlier losses, so its line has a gap.
   const lines: [number, number][][] = [[]];
   for (let i = 0; i < losses.length; i++) {
-    if (Number.isFinite(losses[i])) lines[lines.length - 1].push([x((i + 1) * every), y(losses[i])]);
+    if (Number.isFinite(losses[i]))
+      lines[lines.length - 1].push([x((i + 1) * every), y(losses[i])]);
     else if (lines[lines.length - 1].length) lines.push([]);
   }
   return {
@@ -54,7 +65,12 @@ const mix = (from: Rgb, to: Rgb, t: number): Rgb => [
   from[2] + (to[2] - from[2]) * t,
 ];
 
-function drawCurve(ctx: CanvasRenderingContext2D, figure: CurveFigure, tokens: Tokens, font: string) {
+function drawCurve(
+  ctx: CanvasRenderingContext2D,
+  figure: CurveFigure,
+  tokens: Tokens,
+  font: string,
+) {
   const { axis, counting, clip, lines } = figure;
   ctx.fillStyle = css(tokens.bg);
   ctx.fillRect(0, 0, figure.width, figure.height);
@@ -100,11 +116,11 @@ export default defineScene({
       p.train.textContent = finished ? 'Train again' : trainer?.training ? 'Pause' : 'Train';
     };
     trainer = await openTrainer(stage, 'oneLetter', {
-      progress({ step, losses: fresh, average, timing, done }) {
-        const start = step - fresh.length;
+      progress({ step, newLosses, average, timing, done }) {
+        const start = step - newLosses.length;
         if (losses.length > start) losses.length = start;
         while (losses.length < start) losses.push(NaN);
-        losses.push(...fresh);
+        losses.push(...newLosses);
         finished = done;
         p.loss.textContent = average === null ? '' : average.toFixed(2);
         p.step.textContent = step.toLocaleString('en-US');
@@ -214,7 +230,9 @@ function CurveSvg({ figure, className }: { figure: CurveFigure; className: strin
           fill="none"
           strokeWidth={1.5}
           d={lines
-            .flatMap((line) => line.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`))
+            .flatMap((line) =>
+              line.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`),
+            )
             .join('')}
         />
       </svg>

@@ -1,42 +1,28 @@
-// Training for every model kind: the contract a model meets, one run of it, and the worker's
-// message handler. train.worker.ts only wires this to the worker, so Node tests drive the real
-// handler.
 import { oneLetter, threeLetter } from './letters.ts';
 import { type Adam, type FloatType, type Params, type Tensor, adamw } from './params.ts';
 
-/** What a model kind is, as the trainer sees it. One object per kind, holding its calibrated settings. */
 export type Kind = {
-  /** The text it trains on, a path under public/, such as /data/names.txt. */
-  readonly data: string;
+  readonly textPath: string;
   readonly adam: Adam;
-  /** Training stops by itself after this many steps. Infinity trains until paused. */
   readonly until: number;
-  /** A model with fresh numbers from `seed`, in float32 unless `float` says otherwise. */
   create(text: string, options?: { seed?: number; float?: FloatType }): Model;
 };
 
 export type Model = {
   readonly params: Params;
-  /** The alphabet, one character per token id. */
   readonly symbols: string;
-  /** One row per symbol, the numbers the letter map draws. */
   readonly letters: Tensor;
   /** Draws the next batch, writes every slope into params.grad, and returns the batch's average loss. */
   practice(): number;
-  /** Writes text with the current numbers, such as ten names. */
   write(): string;
 };
 
-/** One model training: its numbers, its optimizer, and how far it got. */
 export type Run = {
   readonly model: Model;
-  /** Steps taken since the numbers were made. */
   readonly steps: number;
-  /** One training step, a batch and one turn of adamw. Returns the batch's average loss. */
   step(): number;
 };
 
-/** The only way a model trains, in the worker, in tests, and in scripts. */
 export function startRun(
   kind: Kind,
   text: string,
@@ -59,24 +45,17 @@ export function startRun(
   };
 }
 
-/** The window of every "100-step average loss" the gates use. */
 export const averageOver = 100;
 
 const kinds = { oneLetter, threeLetter } satisfies Record<string, Kind>;
 export type ModelKind = keyof typeof kinds;
 
 export type Progress = {
-  /** Steps taken since the numbers were made. */
   readonly step: number;
-  /** The loss of each step since the previous progress, oldest first. */
-  readonly losses: Float32Array<ArrayBuffer>;
-  /** The average of the last averageOver step losses, or null before the first step. */
+  readonly newLosses: Float32Array<ArrayBuffer>;
   readonly average: number | null;
-  /** Steps this worker ran on these numbers and the milliseconds spent inside them, without reporting. */
   readonly timing: { readonly steps: number; readonly ms: number };
-  /** The worker is stepping this model. */
   readonly running: boolean;
-  /** The model reached its kind's last step, so start does nothing until reset. */
   readonly done: boolean;
 };
 
@@ -84,18 +63,14 @@ export type Snapshot = {
   readonly step: number;
   readonly running: boolean;
   readonly symbols: string;
-  /** Numbers per symbol. */
   readonly width: number;
-  /** symbols.length rows of width numbers, a copy. */
   readonly vectors: Float32Array<ArrayBuffer>;
 };
 
 export type Sample = { readonly step: number; readonly text: string };
 
-/** What the worker reports. Out is derived from this list, and so are the page's listeners. */
 export type Updates = { progress: Progress; snapshot: Snapshot; sample: Sample };
 
-/** Every message names its model, which is also its session in the worker. */
 export type In = {
   /**
    * start trains until pause or done, making the model first if this worker has none. pause stops
@@ -108,17 +83,16 @@ export type In = {
 };
 
 export type Out =
-  | { [T in keyof Updates]: { readonly type: T; readonly model: ModelKind } & Updates[T] }[keyof Updates]
+  | {
+      [T in keyof Updates]: { readonly type: T; readonly model: ModelKind } & Updates[T];
+    }[keyof Updates]
   | { readonly type: 'error'; readonly model: ModelKind; readonly message: string };
 
-/** What the handler needs from where it runs: a worker's postMessage and fetch, or a test's fakes. */
 export type Io = {
   post(message: Out, transfer: Transferable[]): void;
-  /** Reads a file under public/ by its path. */
   read(path: string): Promise<Response>;
 };
 
-/** Training stops this often to read messages. */
 export const sliceMs = 50;
 export const progressEvery = 100;
 export const snapshotEvery = 250;
@@ -163,7 +137,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
 
   const postProgress = (s: Session) => {
     const run = s.run!;
-    const losses = Float32Array.from(s.losses);
+    const newLosses = Float32Array.from(s.losses);
     s.losses = [];
     s.lastProgress = performance.now();
     io.post(
@@ -171,13 +145,13 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
         type: 'progress',
         model: s.model,
         step: run.steps,
-        losses,
+        newLosses,
         average: s.recent.length ? s.recent.reduce((a, b) => a + b) / s.recent.length : null,
         timing: { ...s.timing },
         running: s.want,
         done: done(s),
       },
-      [losses.buffer],
+      [newLosses.buffer],
     );
   };
 
@@ -205,7 +179,7 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
   };
 
   const fresh = async (s: Session) => {
-    s.run = startRun(s.kind, await read(s.kind.data));
+    s.run = startRun(s.kind, await read(s.kind.textPath));
     s.losses = [];
     s.recent = [];
     s.timing = { steps: 0, ms: 0 };
@@ -261,7 +235,14 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
   const fail = (s: Session, error: unknown) => {
     s.want = false;
     s.run = null;
-    io.post({ type: 'error', model: s.model, message: error instanceof Error ? error.message : String(error) }, []);
+    io.post(
+      {
+        type: 'error',
+        model: s.model,
+        message: error instanceof Error ? error.message : String(error),
+      },
+      [],
+    );
   };
 
   async function apply(s: Session, type: In['type']) {
@@ -280,7 +261,10 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
       case 'snapshot':
         return report(s);
       case 'sample':
-        io.post({ type: 'sample', model: s.model, step: s.run!.steps, text: s.run!.model.write() }, []);
+        io.post(
+          { type: 'sample', model: s.model, step: s.run!.steps, text: s.run!.model.write() },
+          [],
+        );
         return;
       default:
         throw new Error(`Unknown message ${type satisfies never}`);
@@ -306,7 +290,9 @@ export function trainingHandler(io: Io): (message: In) => Promise<void> {
       sessions.set(model, s);
     }
     const session = s;
-    session.queue = session.queue.then(() => apply(session, type)).catch((error) => fail(session, error));
+    session.queue = session.queue
+      .then(() => apply(session, type))
+      .catch((error) => fail(session, error));
     return session.queue;
   };
 }

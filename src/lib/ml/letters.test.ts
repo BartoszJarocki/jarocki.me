@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
-import { seeded } from './bigram.ts';
 import { places } from '../demos/letterPlaces.ts';
+import { seeded } from './bigram.ts';
 import {
   crossEntropy,
   examples,
@@ -41,7 +43,7 @@ test('every slope of the three-letter model matches a central difference in floa
   const params = createParams({
     model: 'threeLetter',
     config: { hidden: 4 },
-    knobs: threeLetterKnobs(4),
+    knobs: threeLetterKnobs,
     roll: seeded(5),
     float: Float64Array,
   });
@@ -72,7 +74,10 @@ test('a slope check fails a wrong slope and names the number', () => {
 test('softmax and the surprise give the numbers the note uses', () => {
   const chances = new Float64Array(3);
   softmax(Float64Array.from([-1, 0, 1]), chances);
-  assert.deepEqual(Array.from(chances, (c) => `${Math.round(c * 100)}%`), ['9%', '24%', '67%']);
+  assert.deepEqual(
+    Array.from(chances, (c) => `${Math.round(c * 100)}%`),
+    ['9%', '24%', '67%'],
+  );
   assert.equal(crossEntropy(Float64Array.from([0.5, 0.5]), 0).toFixed(2), '0.69');
   assert.equal(crossEntropy(Float64Array.from([0.99, 0.01]), 1).toFixed(1), '4.6');
 });
@@ -97,17 +102,41 @@ test("the still's map has the vowels near one another, y next to i, and q far fr
   const distance = (a: number, b: number) =>
     Math.hypot(...[0, 1, 2].map((k) => places[a * 3 + k] - places[b * 3 + k]));
   const nearest = (symbol: string) =>
-    [...symbols].filter((other) => other !== symbol).sort((x, y) => distance(id(symbol), id(x)) - distance(id(symbol), id(y)));
+    [...symbols]
+      .filter((other) => other !== symbol)
+      .sort((x, y) => distance(id(symbol), id(x)) - distance(id(symbol), id(y)));
   for (const vowel of 'aeiou') {
     const toVowels = [...'aeiou'].filter((v) => v !== vowel).map((v) => distance(id(vowel), id(v)));
     const toAll = nearest(vowel).map((other) => distance(id(vowel), id(other)));
     const average = toVowels.reduce((a, b) => a + b) / toVowels.length;
-    assert.ok(average < toAll[13], `${vowel} is ${average} from the other vowels, median ${toAll[13]}`);
+    assert.ok(
+      average < toAll[13],
+      `${vowel} is ${average} from the other vowels, median ${toAll[13]}`,
+    );
   }
   assert.equal(nearest('y')[0], 'i');
-  const fromMiddle = (symbol: string) => Math.hypot(...[0, 1, 2].map((k) => places[id(symbol) * 3 + k]));
+  const fromMiddle = (symbol: string) =>
+    Math.hypot(...[0, 1, 2].map((k) => places[id(symbol) * 3 + k]));
   const radii = [...symbols].map(fromMiddle).sort((a, b) => a - b);
   assert.ok(fromMiddle('q') > 3 * radii[13], `q at ${fromMiddle('q')}, median ${radii[13]}`);
+});
+
+test('a slope check fails a loss that adds to the slopes without clearing them first', () => {
+  const params = createParams({
+    model: 'oneLetter',
+    config: {},
+    knobs: oneLetterKnobs,
+    roll: seeded(3),
+    float: Float64Array,
+  });
+  const batch = examples(['ab'], 1);
+  const check = checkSlopes(params, () => {
+    const kept = Float64Array.from(params.grad);
+    const loss = oneLetterLoss(params, batch);
+    for (let i = 0; i < kept.length; i++) params.grad[i] += kept[i];
+    return loss;
+  });
+  assert.equal(check.failures.length, params.data.length);
 });
 
 test('a slope check fails a slope or a loss that is not a number', () => {
@@ -161,7 +190,9 @@ test('a checkpoint with one changed byte in its layout fails and names the field
   const fails = (json: string, message: string) =>
     assert.throws(
       () => load(params, { ...file, json }),
-      (error) => error instanceof CheckpointError && error.message === `The checkpoint's layout differs at ${message}`,
+      (error) =>
+        error instanceof CheckpointError &&
+        error.message === `The checkpoint's layout differs at ${message}`,
     );
   fails(
     file.json.replace('"offset": 81', '"offset": 82'),
@@ -175,10 +206,34 @@ test('a checkpoint with one changed byte in its layout fails and names the field
     file.json.replace('"size"', '"sizf"'),
     'size, where the file has "\\"sizf\\": 1292," and the code expects "\\"size\\": 1292,"',
   );
-  fails(file.json.replace('{\n', '{\r\n'), 'the opening brace, where the file has "{\\r" and the code expects "{"');
+  fails(
+    file.json.replace('{\n', '{\r\n'),
+    'the opening brace, where the file has "{\\r" and the code expects "{"',
+  );
   fails(file.json + '\n', 'the closing brace, where the file goes on after it');
   fails(file.json.slice(0, -1), 'the closing brace, where the file has no line break after it');
   fails(file.json.split('\n').slice(0, 3).join('\n'), 'config, where the file ends');
+  fails(file.json + 'x', 'the closing brace, where the file goes on after it');
+  fails(
+    file.json.replace('  "size"', ' \t"size"'),
+    'size, where the file has "\\t\\"size\\": 1292," and the code expects "\\"size\\": 1292,"',
+  );
+});
+
+test('a checkpoint read back from files on disk loads, even from a small pooled buffer', () => {
+  const trained = startRun(threeLetter, text, { seed: 1 });
+  trained.step();
+  const file = save(trained.model.params);
+  const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'checkpoint-'));
+  fs.writeFileSync(path.join(folder, 'letters.json'), file.json);
+  fs.writeFileSync(path.join(folder, 'letters.bin'), file.bytes);
+  const fresh = startRun(threeLetter, text, { seed: 2 });
+  load(fresh.model.params, {
+    json: fs.readFileSync(path.join(folder, 'letters.json'), 'utf8'),
+    bytes: fs.readFileSync(path.join(folder, 'letters.bin')),
+  });
+  assert.deepEqual(fresh.model.params.data, trained.model.params.data);
+  fs.rmSync(folder, { recursive: true });
 });
 
 test('a checkpoint with too few bytes or a number that is not finite fails', () => {
@@ -188,10 +243,10 @@ test('a checkpoint with too few bytes or a number that is not finite fails', () 
     () => load(params, { ...file, bytes: file.bytes.slice(0, 5000) }),
     /^CheckpointError: The checkpoint has 5000 bytes, and the layout needs 5168, 1292 numbers of 4 bytes$/,
   );
-  const broken = new Float32Array(file.bytes.slice(0));
+  const broken = new Float32Array(file.bytes.slice().buffer);
   broken[81 + 7] = NaN;
   assert.throws(
-    () => load(params, { ...file, bytes: broken.buffer }),
+    () => load(params, { ...file, bytes: new Uint8Array(broken.buffer) }),
     /^CheckpointError: The checkpoint's number hiddenWeights\[7\] is NaN$/,
   );
 });
@@ -215,7 +270,7 @@ test('the worker handler stops stepping when it is paused', async () => {
   assert.equal(snapshot?.type === 'snapshot' && snapshot.vectors.length, 81);
 });
 
-test('the worker handler resets to step 0 and the seed\'s numbers', async () => {
+test("the worker handler resets to step 0 and the seed's numbers", async () => {
   const posted: Out[] = [];
   const receive = trainingHandler({ post: (message) => posted.push(message), read });
   await receive({ type: 'snapshot', model: 'threeLetter' });
@@ -232,7 +287,7 @@ test('the worker handler resets to step 0 and the seed\'s numbers', async () => 
   );
 });
 
-test('the one-letter model stops by itself at its last step, near the counting model\'s loss', async () => {
+test("the one-letter model stops by itself at its last step, near the counting model's loss", async () => {
   const posted: Out[] = [];
   const receive = trainingHandler({ post: (message) => posted.push(message), read });
   await receive({ type: 'start', model: 'oneLetter' });

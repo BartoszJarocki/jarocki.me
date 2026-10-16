@@ -1,18 +1,12 @@
-// Calibrates part 2's learned models: node src/lib/ml/calibrate.ts [seconds]
-// Trains each model with seeds 1 to 5, one run at a time, and prints one JSON line per run.
 import fs from 'node:fs';
 
-import { type Snapshot, averageOver, startRun } from './training.ts';
 import { oneLetter, threeLetter } from './letters.ts';
 import { symbols } from './tokenizers.ts';
+import { type Snapshot, averageOver, startRun } from './training.ts';
 
 const seconds = Number(process.argv[2] ?? 60);
 const text = fs.readFileSync('public/data/names.txt', 'utf8');
 
-/**
- * The vowel statistic: the average distance over the ten pairs of a, e, i, o, and u is below the
- * median distance over all 351 pairs of the 27 symbols.
- */
 export function vowelStatistic({ vectors, width }: Pick<Snapshot, 'vectors' | 'width'>) {
   const distance = (a: number, b: number) => {
     let sum = 0;
@@ -26,11 +20,11 @@ export function vowelStatistic({ vectors, width }: Pick<Snapshot, 'vectors' | 'w
   all.sort((x, y) => x - y);
   const median = all[(all.length - 1) / 2];
   const vowels = Array.from('aeiou', (v) => symbols.indexOf(v));
-  let total = 0;
+  const pairs: number[] = [];
   for (let i = 0; i < vowels.length; i++) {
-    for (let j = i + 1; j < vowels.length; j++) total += distance(vowels[i], vowels[j]);
+    for (let j = i + 1; j < vowels.length; j++) pairs.push(distance(vowels[i], vowels[j]));
   }
-  const average = total / 10;
+  const average = pairs.reduce((a, b) => a + b) / pairs.length;
   return { holds: average < median, average, median };
 }
 
@@ -53,7 +47,8 @@ function calibrateThreeLetter(seed: number) {
     if (run.steps % 10 === 0) {
       const { data, shape } = run.model.letters;
       const holds = vowelStatistic({ vectors: Float32Array.from(data), width: shape[1] }).holds;
-      if (holds && !record.vowels) record.vowels = { step: run.steps, seconds: round(ms / 1000, 2) };
+      if (holds && !record.vowels)
+        record.vowels = { step: run.steps, seconds: round(ms / 1000, 2) };
       if (!holds) record.vowelsMissedAt = { step: run.steps, seconds: round(ms / 1000, 2) };
     }
     if (!record.below2_3 && recent.length === averageOver && average < 2.3) {

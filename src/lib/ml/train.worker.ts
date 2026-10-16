@@ -1,4 +1,3 @@
-// The worker the demos train in. All of it is in training.ts, so a Node test drives the same handler.
 import { type In, trainingHandler } from './training.ts';
 
 const receive = trainingHandler({

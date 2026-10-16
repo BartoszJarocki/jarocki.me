@@ -1,4 +1,3 @@
-// Writes what the stills of part 2's learned models draw: node src/lib/demos/writeStills.ts
 import fs from 'node:fs';
 import prettier from 'prettier';
 
@@ -9,7 +8,10 @@ const text = fs.readFileSync('public/data/names.txt', 'utf8');
 
 async function write(file: string, statements: string[]) {
   const options = await prettier.resolveConfig(file);
-  fs.writeFileSync(file, await prettier.format(statements.join('\n'), { ...options, filepath: file }));
+  fs.writeFileSync(
+    file,
+    await prettier.format(statements.join('\n'), { ...options, filepath: file }),
+  );
 }
 
 const counting = startRun(oneLetter, text, { seed: 1 });
