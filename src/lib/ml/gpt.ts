@@ -184,10 +184,10 @@ function multiplyBack(outSlopes: Floats, x: Floats, { weights, bias }: Layer) {
         s3 += d3 * wj;
         dw[r + j] += a0 * d0 + a1 * d1 + a2 * d2 + a3 * d3;
       }
-      slopes[i * inputs + k] += s0;
-      slopes[(i + 1) * inputs + k] += s1;
-      slopes[(i + 2) * inputs + k] += s2;
-      slopes[(i + 3) * inputs + k] += s3;
+      slopes[i * inputs + k] = s0;
+      slopes[(i + 1) * inputs + k] = s1;
+      slopes[(i + 2) * inputs + k] = s2;
+      slopes[(i + 3) * inputs + k] = s3;
     }
     for (let j = 0; j < outputs; j++) db[j] += d[o0 + j] + d[o1 + j] + d[o2 + j] + d[o3 + j];
   }
@@ -201,7 +201,7 @@ function multiplyBack(outSlopes: Floats, x: Floats, { weights, bias }: Layer) {
         s += d[o + j] * w[r + j];
         dw[r + j] += a * d[o + j];
       }
-      slopes[i * inputs + k] += s;
+      slopes[i * inputs + k] = s;
     }
     for (let j = 0; j < outputs; j++) db[j] += d[o + j];
   }
@@ -282,7 +282,7 @@ function geluBack(outSlopes: Floats, x: Floats) {
     const u = x[i];
     const th = Math.tanh(geluK * (u + 0.044715 * u * u * u));
     const local = 0.5 * (1 + th) + 0.5 * u * (1 - th * th) * geluK * (1 + 3 * 0.044715 * u * u);
-    slopes[i] += local * outSlopes[i];
+    slopes[i] = local * outSlopes[i];
   }
   return slopes;
 }
@@ -312,7 +312,7 @@ export type BlockTape = {
   readonly out: Floats;
 };
 
-/** Everything a forward pass computed. Nothing writes to it afterwards, so it is safe to keep. */
+/** Everything a forward pass computed. This module never writes to it afterwards, so it is safe to keep. */
 export type Tape = {
   readonly tokens: Int32Array;
   readonly sizes: Sizes;
@@ -500,15 +500,23 @@ export function practice(net: Transformer, { tokens, targets, length }: Batch) {
 }
 // #endregion
 
+/**
+ * The evaluation fixture. A loss is the mean over `batches` batches of `rows` rows of `length`
+ * symbols, drawn once from the training text with `trainingSeed` and from the validation text with
+ * `validationSeed`. A sample is written after a newline with `sample`'s settings.
+ */
+export const fixture = {
+  batches: 8,
+  rows: 16,
+  length: shakespeare.context,
+  trainingSeed: 98,
+  validationSeed: 99,
+  sample: { length: 200, temperature: 0.8, seed: 7 },
+} as const;
+
 /** Writes `length` symbols after a newline. Each call starts its roll again, so the same knobs write the same text. */
-export function write(
-  net: Transformer,
-  {
-    length = 200,
-    temperature = 0.8,
-    seed = 7,
-  }: { length?: number; temperature?: number; seed?: number } = {},
-) {
+export function write(net: Transformer, settings: Partial<typeof fixture.sample> = {}) {
+  const { length, temperature, seed } = { ...fixture.sample, ...settings };
   const { symbols, context } = net.config;
   const roll = seeded(seed);
   const ids = [symbols.indexOf('\n')];
@@ -541,7 +549,6 @@ export async function readCheckpoint(
   return { json: await json.text(), bytes: new Uint8Array(await bytes.arrayBuffer()) };
 }
 
-/** The fixture's losses: the mean over 8 batches of 16 rows of 64, drawn once from the training text with seed 98 and the validation text with seed 99. */
 export type Exam = { readonly training: number; readonly validation: number };
 
 export type GptModel = Model & {
@@ -550,7 +557,7 @@ export type GptModel = Model & {
   wordShare(text: string): number;
 };
 
-const rows = 16;
+const batchRows = 16;
 
 export const gpt = {
   textPath: shakespeareFiles.text,
@@ -567,10 +574,12 @@ export const gpt = {
     const batchRoll = seeded(seed + 1000);
     const examBatches = (tokens: Int32Array, examSeed: number) => {
       const roll = seeded(examSeed);
-      return Array.from({ length: 8 }, () => drawBatch(tokens, rows, shakespeare.context, roll));
+      return Array.from({ length: fixture.batches }, () =>
+        drawBatch(tokens, fixture.rows, fixture.length, roll),
+      );
     };
-    const training = examBatches(corpus.training, 98);
-    const validation = examBatches(corpus.validation, 99);
+    const training = examBatches(corpus.training, fixture.trainingSeed);
+    const validation = examBatches(corpus.validation, fixture.validationSeed);
     const mean = (batches: Batch[]) => {
       let total = 0;
       for (const { tokens, targets, length } of batches) {
@@ -584,7 +593,7 @@ export const gpt = {
       letters: net.letters,
       net,
       practice: () =>
-        practice(net, drawBatch(corpus.training, rows, shakespeare.context, batchRoll)),
+        practice(net, drawBatch(corpus.training, batchRows, shakespeare.context, batchRoll)),
       write: () => write(net),
       exam: () => ({ training: mean(training), validation: mean(validation) }),
       wordShare: (sample) => wordShare(corpus, sample),

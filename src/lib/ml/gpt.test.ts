@@ -62,6 +62,13 @@ test("seed 1 takes the prototype's first ten steps, to a loss of 3.1366722466101
   assert.equal(losses[9], 3.1366722466101202);
 });
 
+test("the fixture gives the prototype's losses for seed 1's first knobs", () => {
+  assert.deepEqual(gpt.create(text).exam(), {
+    training: 3.6553541085267898,
+    validation: 3.6570688113354253,
+  });
+});
+
 test('the corpus is lowercase tiny shakespeare, 39 symbols, cut 90% to 10%', () => {
   const corpus = readCorpus(text);
   assert.equal(corpus.symbols, shakespeare.symbols);

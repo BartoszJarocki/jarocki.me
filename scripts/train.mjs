@@ -2,7 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { gpt, readCheckpoint, shakespeareFiles, write } from '../src/lib/ml/gpt.ts';
+import { fixture, gpt, readCheckpoint, shakespeareFiles, write } from '../src/lib/ml/gpt.ts';
 import { load, save } from '../src/lib/ml/params.ts';
 import { startRun } from '../src/lib/ml/training.ts';
 
@@ -19,8 +19,14 @@ if (
 }
 
 const file = (path) => fileURLToPath(new URL(`../public${path}`, import.meta.url));
-const run = startRun(gpt, readFileSync(file(gpt.textPath), 'utf8'), { seed: 1 });
+const seed = 1;
+const run = startRun(gpt, readFileSync(file(gpt.textPath), 'utf8'), { seed });
 const { model } = run;
+const step = () => {
+  const loss = run.step();
+  if (!Number.isFinite(loss)) throw new Error(`The loss became ${loss} at step ${run.steps}`);
+  return loss;
+};
 const minutes = (ms) => {
   const seconds = Math.round(ms / 1000);
   return `${Math.floor(seconds / 60)} min ${seconds % 60} s`;
@@ -36,7 +42,7 @@ if (flag === '--bench') {
   const seen = [];
   while (run.steps < warmup + count) {
     const started = performance.now();
-    seen.push(run.step());
+    seen.push(step());
     if (run.steps > warmup) times.push(performance.now() - started);
   }
   times.sort((a, b) => a - b);
@@ -58,15 +64,16 @@ if (flag === '--bench') {
   load(model.params, await readCheckpoint(async (path) => new Response(readFileSync(file(path)))));
   const sample = write(model.net, { length: count });
   console.log(`the checkpoint in public/models: ${losses()}`);
-  console.log(`${count} symbols at temperature 0.8 with seed 7:\n${sample}`);
+  const { temperature, seed: rollSeed } = fixture.sample;
+  console.log(`${count} symbols at temperature ${temperature} with seed ${rollSeed}:\n${sample}`);
   console.log(`words found in the corpus: ${(model.wordShare(sample) * 100).toFixed(1)}%`);
 } else {
   const started = performance.now();
   console.log(
-    `training on lowercase tiny shakespeare: ${model.params.data.length.toLocaleString('en')} knobs, ${gpt.until.toLocaleString('en')} steps, seed 1`,
+    `training on lowercase tiny shakespeare: ${model.params.data.length.toLocaleString('en')} knobs, ${gpt.until.toLocaleString('en')} steps, seed ${seed}`,
   );
   while (run.steps < gpt.until) {
-    run.step();
+    step();
     if (run.steps % 100 === 0) {
       console.log(`step ${run.steps}  ${losses()}  ${minutes(performance.now() - started)}`);
     }

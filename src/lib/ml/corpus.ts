@@ -19,7 +19,7 @@ export function readCorpus(text: string): Corpus {
   const lower = text.toLowerCase();
   const symbols = [...new Set(lower + '\n')].sort().join('');
   const ids = encode(symbols, lower);
-  const cut = Math.floor(lower.length * 0.9);
+  const cut = Math.floor(ids.length * 0.9);
   return {
     symbols,
     training: ids.subarray(0, cut),
@@ -37,8 +37,10 @@ export function encode(symbols: string, text: string) {
   });
 }
 
-export const decode = (symbols: string, ids: ArrayLike<number>) =>
-  Array.from(ids, (id) => symbols[id]).join('');
+export function decode(symbols: string, ids: ArrayLike<number>) {
+  const list = Array.from(symbols);
+  return Array.from(ids, (id) => list[id]).join('');
+}
 
 export function drawBatch(tokens: Int32Array, rows: number, length: number, roll: () => number) {
   const batch: Batch = {
