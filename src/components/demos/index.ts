@@ -1,6 +1,7 @@
 import { type ComponentType, Suspense, createElement, lazy } from 'react';
 
 import type { DemoProps } from './DemoStage';
+import type { FareProps } from './Fare';
 
 // Each shell is its own chunk, so a note loads only the demos its MDX uses. The boundary lets
 // React hydrate the rest of the page before the shell's chunk arrives. If the chunk fails, the
@@ -21,3 +22,17 @@ function demo(load: () => Promise<{ default: ComponentType<DemoProps> }>) {
 export const TaxiFares = demo(() => import('./TaxiFares'));
 export const FareReceipt = demo(() => import('./FareReceipt'));
 export const LossLandscape = demo(() => import('./LossLandscape'));
+
+// React keeps the server's children of an element with dangerouslySetInnerHTML when it hydrates, so a
+// failed chunk leaves the server's numbers in place.
+const LiveFare = lazy<ComponentType<FareProps>>(() =>
+  import('./Fare').catch(() => ({
+    default: () =>
+      createElement('span', {
+        dangerouslySetInnerHTML: { __html: '' },
+        suppressHydrationWarning: true,
+      }),
+  })),
+);
+export const Fare = (props: FareProps) =>
+  createElement(Suspense, null, createElement(LiveFare, props));

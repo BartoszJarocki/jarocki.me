@@ -5,16 +5,18 @@ import {
   type Walk,
   contour,
   descend,
+  fareFromRounded,
   lift,
   lossAtLift,
   rateLimit,
   rates,
+  rounded,
   step,
   valley,
   walkFrom,
   walkToEnd,
 } from './lossLandscape.ts';
-import { leastSquares, meanSquaredError, start } from './taxiFares.ts';
+import { type FareRule, leastSquares, meanSquaredError, start } from './taxiFares.ts';
 
 const best = meanSquaredError(leastSquares());
 
@@ -90,9 +92,10 @@ test('a walk stops on flat ground after 69 steps at good, 195 at zigzag, and 467
   for (const walk of ends) assert.ok(meanSquaredError(walk.at) < best * 1.001);
 });
 
-test('the good walk ends at a fee of 5.21 and a price of 1.48, which ask 7.58 for 1.6 km', () => {
+test('the 1.6 km fare adds up the fee and price rounded to cents', () => {
   const { at } = walkToEnd(walkFrom(start), rates.good);
-  const [fee, price] = [at.fee.toFixed(2), at.price.toFixed(2)];
-  assert.deepEqual([fee, price], ['5.21', '1.48']);
-  assert.equal((Number(fee) + 1.6 * Number(price)).toFixed(2), '7.58');
+  const ask = (rule: FareRule) => [rounded(rule), fareFromRounded(rule, 1.6)];
+  assert.deepEqual(ask(start), [{ fee: '2.00', price: '2.50' }, '6.00']);
+  assert.deepEqual(ask(at), [{ fee: '5.21', price: '1.48' }, '7.58']);
+  assert.deepEqual(ask({ fee: 5.214, price: 1.484 }), [{ fee: '5.21', price: '1.48' }, '7.58']);
 });

@@ -115,3 +115,13 @@ export function walkToEnd(walk: Walk, rate: number) {
   while (!ended(walk)) walk = step(walk, rate);
   return walk;
 }
+
+export const rounded = (rule: FareRule) => ({
+  fee: rule.fee.toFixed(2),
+  price: rule.price.toFixed(2),
+});
+
+export function fareFromRounded(rule: FareRule, km: number) {
+  const { fee, price } = rounded(rule);
+  return (Number(fee) + km * Number(price)).toFixed(2);
+}
