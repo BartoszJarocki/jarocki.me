@@ -32,7 +32,23 @@ It uses squares for two reasons. A miss of 4 then counts four times as much as a
 
 ## Downhill in fog
 
-The valley goes here, with every setting of the two knobs and a cube that walks downhill.
+You could see the chart while you moved the sliders. The machine has to find the settings another way.
+
+Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom. The picture squeezes the tall parts so the whole valley fits. The cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make.
+
+The machine never sees this picture. Two knobs can be drawn, and this fare rule even has a shortcut formula that finds its bottom. But a real model has millions of knobs. Nobody can draw a valley with millions of directions, and a network's valley is usually lumpier, with no formula for its bottom. Walking downhill still works there, though it may stop in a low spot that isn't the lowest. So it is like standing on a hill in thick fog. You can't see the bottom. You can only feel which way the ground slopes under your feet, so you take a step that way and feel again. Turn on the fog to see only what the machine can feel. You can also drag the valley to turn it, or click a spot to put the cube there.
+
+<LossLandscape label="The loss for every starting fee and price per km, drawn as a valley, with a cube at your current settings">
+
+A valley over a floor of settings, the starting fee one way and the price per km the other. Each spot is raised by the loss at those settings, squeezed so the steep walls fit. A cube stands at your current settings, and a small chart beside the valley shows the fare line they make. Step moves the cube one step downhill, walk keeps stepping until the ground is flat, and fog hides everything except the ground near the cube.
+
+</LossLandscape>
+
+Press step a few times. Each step turns both knobs a little, in the direction where the ground drops fastest. The slope under your feet is called the **gradient**. Each step moves every knob downhill by its slope times a number called the **learning rate**, so steeper ground or a bigger learning rate means a bigger step. Walking downhill one step at a time is **gradient descent**, and walking until the loss stops getting much smaller is **training**.
+
+The step size matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
+
+Once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. After a walk at the good step size, the line has a starting fee of 5.21 dollars and a price per km of 1.48, so for 1.6 km it says 5.21 + 1.6 × 1.48, which is about 7.58 dollars. Using a trained model to answer a new question like this is **inference**.
 
 ## Which way is downhill?
 
