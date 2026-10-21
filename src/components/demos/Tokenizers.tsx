@@ -66,7 +66,11 @@ export default function Tokenizers(props: DemoProps) {
             <CutRow name="Letters" cut={example.letters} row={part('letters')} />
             <CutRow name="Words" cut={example.words} row={part('words')} />
             <CutRow name="Pieces" cut={example.pieces} row={part('pieces')} />
-            <div className="mt-[14px] text-faint">A dashed piece is not on its menu.</div>
+            <div className="mt-[14px] text-faint">
+              A dashed piece is not on its menu. Every menu was learned from the words of this note,
+              so a word this note never uses is not on the words menu. A digit or a mark, such as a
+              comma, is on no menu.
+            </div>
           </>
         ),
         caption: null,

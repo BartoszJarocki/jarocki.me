@@ -1,102 +1,108 @@
 ---
 title: "Paying attention"
-description: "How a word works out which earlier words matter to it"
+description: "How each piece of text works out which earlier pieces matter to it"
 publishedAt: 2026-10-16
 tags: ["ai"]
 series: ai
 part: 3
 ---
 
-Read this sentence. "The bag didn't fit in the car because it was too small." What was too small? The car. Now change one word. "The bag didn't fit in the car because it was too big." Now the bag was too big.
+Read this sentence. "The bag didn't fit in the car because it was too small." What was too small? The car. Now change one word. "The bag didn't fit in the car because it was too big." Now it's the bag.
 
-You did that without thinking. When you reached "small", you looked back at the earlier words and picked the one that fit. A model has to do the same, and the way it does it is called attention.
+You did that without thinking. When you reached "small", you looked back at the earlier words and picked the one that fit. A model has to do the same thing, and the way it does it is called attention.
 
-Part 2's best model saw three letters back. Here the word that matters is far behind. Between "car" and "small" sit 20 other letters and spaces. The model needs a larger window and a way to choose which pieces inside it matter. Attention makes that choice. It still cannot read beyond its context window.
+Part 2's best model could only see three letters back. Here the word that matters is way behind: between "car" and "small" sit 20 other letters and spaces. So the model needs two things, a bigger window and a way to pick what inside it matters. Attention does the picking. (It still can't see past the window.)
 
-The model in this series is too small to solve that sentence. It learned from Shakespeare's plays, one letter at a time. So the sentence explains why attention exists, and the demos show what the tiny model really looks at.
+The model in this series is too small to solve that sentence. It learned from Shakespeare's plays, one letter at a time. So the sentence is here to show why attention exists, and the demos show what the tiny model really looks at. From here on it works on letters, not words, but the idea is the same.
+
+{/* [Bartosz: a line in your own words, only if you want to say up front that this model is too small for that sentence. For example, the honest aside from the review. Leave it out if it isn't how you'd put it.] */}
 
 ## A soft lookup
 
-Think of a library search. You type what you are looking for. That is the **query**. Each book has a label on its spine, its **key**, and what is inside, its **value**. A normal search hands back the one book whose label matches best.
+Think of a library search. What you type is the **query**. Each book has a label on its spine, its **key**, and what's inside, its **value**. A normal search hands back the one book whose label matches best.
 
-Attention reads a little of every book, and more of the ones whose labels match better. To score a match, multiply two lists of numbers pair by pair and add the results. This calculation is the **dot product**. For the lists 2, 1 and 3, 0 that is 2 × 3 + 1 × 0 = 6. Draw each list as an arrow, and the total is bigger when the arrows point the same way. Longer arrows count more.
+Attention is softer. It reads a little of every book, and more of the ones whose labels match better.
 
-Part 2's softmax turns the match scores into shares that add up to 100%. Those shares are the **attention weights**. Then the word adds up the values, each scaled by its weight, and that mix is what it takes away.
+To score a match, multiply two lists of numbers pair by pair and add up the results. That's the **dot product**. For the lists (2, 1) and (3, 0), it's 2 × 3 + 1 × 0 = 6. Draw each list as an arrow, and the score is bigger when the arrows point the same way. Longer arrows count more.
 
-In the demo, four earlier words from the sentence are arrows, and each arrow is that word's key. The thick arrow is the query for "small". Drag it, or focus it and use the arrow keys. The bars show how much "small" reads from each word, and the chart under them shows the four values and the mix that "small" gets back.
+Part 2's softmax turns those scores into shares that add up to 100%. Those shares are the **attention weights**. The word then takes a mix of all the values, each scaled by its weight, and that mix is what it walks away with.
+
+In the demo, four earlier words from the sentence are arrows, and each arrow is that word's key. The thick arrow is the query for "small". Drag the thick arrow. The bars show how much "small" reads from each word, and the chart under them shows the four values and the mix that "small" gets back.
 
 <SoftLookup label="The query for small matched against the keys of four earlier words">
 
-Four earlier words of the sentence, bag, fit, car, and because, drawn as arrows from the middle of a flat chart. A thicker arrow is the query for small. Bars show the softmax of the dot product of the query with each word's arrow, and a second chart shows each word's value and the mix of values that small gets back. At the start small reads car 65.6%, bag 25.1%, because 6.1%, and fit 3.1%.
+Four earlier words of the sentence, bag, fit, car, and because, drawn as arrows from the middle of a flat chart. A thicker arrow is the query for small. Drag it, or focus it and use the arrow keys. Bars show the softmax of the dot product of the query with each word's arrow, and a second chart shows each word's value and the mix of values that small gets back. At the start small reads car 65.6%, bag 25.1%, because 6.1%, and fit 3.1%.
 
 </SoftLookup>
 
 Move the query toward a word's arrow and watch its share change. Both the direction and the length of each arrow affect the match. Point it between two words and they share. Pull it in toward the middle and the shares even out, because every score shrinks toward 0. At the very middle each word gets 25%.
 
-These arrows are made up, with two numbers each so they fit on a flat chart. In a real model, each word's query, key, and value come from its own list of numbers through three sets of learned knobs, the same knobs at every position. The tiny model starts each letter as a list of 32 numbers. Its code stores the three sets of knobs side by side in one table.
+These arrows are made up, with two numbers each so they fit on a flat chart. In a real model, each word's query, key, and value come from its own list of numbers through three sets of learned knobs, the same knobs at every position. The tiny model starts each letter as a list of 32 numbers.
 
 ## No peeking
 
-When the model writes, it writes one letter at a time, and the next letter does not exist yet. So a letter may read itself and the letters before it, never the ones after. That rule is the **causal mask**.
+When the model writes, it writes one letter at a time, and the next letter doesn't exist yet. So a letter may read itself and the letters before it, never the ones after. That rule is the **causal mask**.
 
-The triangle below is the trained model reading the sentence. Each row is a letter doing the reading, and each column is a letter being read. A square's area is how much the row's letter reads the column's letter, and each row adds up to 100%. Point at a row to read it, or focus the triangle and use the up and down arrow keys. Nothing sits above the diagonal, because no letter reads ahead.
+The triangle below is the trained model reading the sentence. Each row is a letter doing the reading, and each column is a letter being read. A square's area is how much the row's letter reads the column's letter, and each row adds up to 100%. Point at a row to read it. Nothing sits above the diagonal, because no letter reads ahead.
 
 <AttentionTriangle label="How much each letter of the sentence reads each earlier letter, in one head of the trained model">
 
-A triangle of squares for the 54 letters and spaces of the sentence, one row for each letter doing the reading and one column for each letter being read. Each square's area is how much the row's letter reads the column's letter, in the fourth head of the trained model's second block. No square sits above the diagonal.
+A triangle of squares for the 54 letters and spaces of the sentence, one row for each letter doing the reading and one column for each letter being read. Point at a row to read it, or focus the triangle and use the up and down arrow keys. Each square's area is how much the row's letter reads the column's letter, in the fourth head of the trained model's second block. No square sits above the diagonal.
 
 </AttentionTriangle>
 
 The model has eight of these triangles, and the next section shows why. This one often puts its biggest square on a space. Read the row for any letter after the first in a word, and the biggest square is usually the space just before that word.
 
-Attention on its own does not know which letter came first. Shuffle the earlier letters, and each one gets the same score it had before. So each position also gets a learned list of numbers added to its letter's list, its **position embedding**, like a seat number. The tiny model has 64 seats, so it reads at most the last 64 letters.
+Attention on its own doesn't know which letter came first. Shuffle the earlier letters, and each one gets the same score it had before. So each position also gets a learned list of numbers added to its letter's list, its **position embedding**, like a seat number. The tiny model has 64 seats, so it reads at most the last 64 letters.
 
 ## Several readers at once
 
 One attention makes one mix of what it reads. A model runs several side by side, each with its own knobs for queries, keys, and values, so each can learn to look for something different. Each one is a **head**, and together they are **multi-head attention**. The tiny model repeats attention followed by a small network twice. Each repeat is a block, with four heads, so the model has eight heads in all.
 
-The demo loads the tiny model, trained ahead of time with part 4's trainer. Point at a letter, or focus the demo and use the left and right arrow keys, to see where each head looks from it. Each arc runs from the letter back to a letter it reads, and the darker the arc, the more it reads.
+The demo loads the tiny model, trained ahead of time with part 4's trainer. Point at a letter to see where each head looks from it. Each arc runs from the letter back to a letter it reads, and the darker the arc, the more it reads.
 
 <Heads label="Where each of the trained model's eight heads looks from one letter of the sentence">
 
-Eight strips, one for each head of the trained model, each with the 54 letters and spaces of the sentence. Arcs run from one letter back to the letters it reads, darker for a bigger share. It starts at the last letter of small.
+Eight strips, one for each head of the trained model, each with the 54 letters and spaces of the sentence. Point at a letter, or focus the demo and use the left and right arrow keys, to see where each head looks from it. Arcs run from one letter back to the letters it reads, darker for a bigger share. It starts at the last letter of small.
 
 </Heads>
 
-Nobody told the heads what to look for. Training found it. In this sentence, the second head of the first block gives its largest weight to the previous character at 39 of the 53 positions that have one. The fourth head of the second block often reads the space before a word. Choose a character after a word's first letter, with a space before the word. At 20 of those 29 positions, this head gives that space its largest weight.
+Nobody told the heads what to look for. Training found it. The second head of the first block mostly watches the character just before. In this sentence, that's where it looks hardest at 39 of the 53 positions that have one. The fourth head of the second block has learned to find the start of the current word. Choose a character after a word's first letter, with a space before the word. At 20 of those 29 positions, this head gives that space its largest weight.
 
 The heads of the first block read close by. Averaged over the sentence after its first letter, each head puts about 80% to 85% of its weight on the letter itself and the two before it. So the four overlap. The heads of the second block reach further, 3.6 to 6.6 letters back on average over the same positions.
 
-For readers who know JavaScript, here is a short version of one attention head. The example has two positions, each with two numbers in its query, key, and value. It uses the queries as keys too. For each position `t`, it scores the keys from 0 to `t` with a dot product, turns those scores into weights with part 2's softmax, and mixes the values. The loop stops at `j <= t`, so it never reads ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. Press Run to see the last position's weights and mix, or Edit to try other vectors.
+For readers who know JavaScript, here is a short version of one attention head. The example has two positions, each with two numbers in its query, key, and value. It uses the queries as keys too. For each position `t`, it scores the keys from 0 to `t` with a dot product, turns those scores into weights with part 2's softmax, and mixes the values. The loop stops at `j <= t`, so it never reads ahead. Dividing the dot product by the square root of the list's length keeps longer lists from making the scores too big for softmax. The tiny model's code stores the three sets of knobs side by side in one table. Press Run to see the last position's weights and mix, or Edit to try other vectors.
 
 ```js run=src/notes/snippets/paying-attention/attention.js
 ```
+
+Attention is the part that chooses what to read. The rest of the block keeps that working when you stack more than one.
 
 ## Keeping what was already there
 
 <ResidualSection>
 
-Each letter carries its list of numbers through the model, like a notebook. Attention reads the notebooks and works out something to add to each one. A small network like part 1's then reads each updated notebook and works out another addition. Attention can mix information between letters. The small network works on each letter separately, with the same learned knobs at every position.
+Each letter carries its list of numbers through the model, like a notebook. Attention reads the notebooks and works out something to add to each one. A small network like part 1's, with a smoother squash called GELU, then reads each updated notebook and works out another addition. Attention can mix information between letters. The small network works on each letter separately, with the same learned knobs at every position.
 
-The model adds each change to the numbers already there. If a notebook holds 2 and a part proposes -0.5, the result is 1.5. A change can strengthen or weaken what was there. The old numbers keep a straight path through each addition. This path is called a **residual connection**. It does not guarantee that the old information survives unchanged. Later additions can cancel it.
+The model adds each change to the numbers already there. If a notebook holds 2 and a part proposes -0.5, the result is 1.5. A change can strengthen or weaken what was there. The old numbers always have a straight path through each addition. That path is the **residual connection**. It doesn't lock anything in, since a later addition can still cancel what was there.
 
-Before either part reads a notebook, it takes a copy whose numbers have been brought to a steadier size. Think of a TV's automatic volume control keeping a loud channel and a quiet channel at similar levels. For each letter separately, the model subtracts the average of its numbers and adjusts their spread. Learned knobs can then scale and shift the copy. This is **layer normalization**. It changes the copy that a part reads, while the original notebook stays on the straight path.
+Before either part reads a notebook, it makes a copy and evens out the numbers, the way a TV's automatic volume keeps a loud channel and a quiet one at about the same level. For each letter separately, the model subtracts the average of its numbers and adjusts their spread. Learned knobs can then scale and shift the copy. This is **layer normalization**. It changes the copy that a part reads, while the original notebook stays on the straight path.
 
-Attention, the small network, the two leveled copies, and the two additions together form a **transformer block**. The same pattern repeats in each block. The tiny model has two of them.
+And that's it. Attention, the small network, the two leveled copies, and the two additions together make a **transformer block**, the thing part 1 said ChatGPT is built from. The tiny model has two of them, stacked.
 
-Press step below to follow one block. The diagram uses three tokens and three made-up numbers per token so every addition is visible. These are teaching numbers, not values from the trained model. Each column is one token's notebook. The first addition comes from attention. The second comes from the small network. The bottom columns show the notebooks now and change at each addition. The darker outline marks the current step.
+Press step to follow three notebooks through one block. Watch them change twice, once when attention adds its part and once when the small network adds its own. These are made-up teaching numbers, not values from the trained model.
 
 <ResidualStream label="Two additions inside one transformer block">
 
-Three token notebooks travel through one block. Attention reads leveled copies, then adds its changes to the original notebooks. The small network reads leveled copies of those updated notebooks, then adds its own changes. For the first token, 1, 2, 3 becomes 1.5, 1.5, 4 after attention and 0.5, 2, 4 after the small network. The straight path carries the old numbers into each addition.
+Three token notebooks travel through one block. Each column is one token's notebook. The first addition comes from attention. The second comes from the small network. The bottom columns show the notebooks now and change at each addition. The darker outline marks the current step. Attention reads leveled copies, then adds its changes to the original notebooks. The small network reads leveled copies of those updated notebooks, then adds its own changes. For the first token, 1, 2, 3 becomes 1.5, 1.5, 4 after attention and 0.5, 2, 4 after the small network. The straight path carries the old numbers into each addition.
 
 </ResidualStream>
 
-The notebook metaphor is only about keeping and updating numbers. There are no written facts inside these columns. Training decides what the numbers are useful for, through the same loss and backward walk as in part 1.
+The notebooks hold numbers, not notes. Training decides what those numbers end up being useful for, through the same loss and backward walk as in part 1.
 
 Here is a short version of a block for its first token, with two numbers in its notebook and one head. This token can read only itself, so its attention weight is 1 whatever its query and key are. `level` makes a leveled copy, and a quarter of that copy is the value attention reads. These are fixed example knobs. The tiny model learns separate tables for its queries, keys, and values.
 
-`middle` adds attention's change to the original notebooks. The small network reads a leveled copy of that result, scales it, applies `gelu`, and scales again. `gelu` is an activation function, a smooth way to reduce negative inputs and pass positive ones through. `out` adds the network's change. Press Run to see the first notebook after each addition, or Edit to change its starting numbers, `[1, 2]`. The demo's wider block learns all these knobs and keeps the intermediate numbers for training.
+`middle` adds attention's change to the original notebooks. The small network reads a leveled copy of that result, scales it, applies `gelu`, and scales again. `gelu` is that smoother squash, a smooth way to reduce negative inputs and pass positive ones through. `out` adds the network's change. Press Run to see the first notebook after each addition, or Edit to change its starting numbers, `[1, 2]`. The demo's wider block learns all these knobs and keeps the intermediate numbers for training.
 
 ```js run=src/notes/snippets/paying-attention/block.js
 ```
@@ -105,9 +111,9 @@ Here is a short version of a block for its first token, with two numbers in its 
 
 The first notebooks start with each letter's embedding plus its position embedding. Each block reads those notebooks and adds its changes twice. Later blocks therefore read numbers that already include information from earlier letters.
 
-After the last block, the model levels one more copy and turns it into a score for every possible next letter. Part 2's softmax turns those scores into chances. To write, the model picks a letter from the last position's chances, adds it to the text, and repeats. That use of the trained model does not change its knobs.
+After the last block, the model levels one more copy and turns it into a score for every possible next letter. Part 2's softmax turns those scores into chances. To write, the model picks a letter from the last position's chances, adds it to the text, and repeats. That use of the trained model doesn't change its knobs.
 
-Attention lets a letter choose what to read inside the available context. The small networks process what it found. Training adjusts all their knobs together to make the next-letter guesses less surprising. Part 4 puts those pieces to work on Shakespeare's plays and lets you train the tiny model in your browser.
+That's every piece. Attention picks what to read, the small networks work on what it found, and training tunes all their knobs together so the next-letter guesses get less surprising. In part 4 you get to train the whole thing yourself, on Shakespeare, in this browser tab.
 
 <Glossary>
 <Term name="query">What a token is looking for, like the words you type into a library search</Term>
