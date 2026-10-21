@@ -7,17 +7,23 @@ series: ai
 part: 1
 ---
 
-This is the first of four notes on how ChatGPT and programs like it work. ChatGPT writes by guessing what comes next, one small piece of text at a time. It learned to guess well by turning a lot of knobs a little, over and over, the way this note shows. Part 2 turns text into numbers, and part 3 shows the transformer blocks that ChatGPT is built from. Part 4 puts the pieces together and trains a tiny version of it in your browser.
+ChatGPT writes by guessing what comes next, one small piece of text at a time. That's the whole trick. It got good at guessing by turning a lot of knobs a little, over and over, and this note shows you how that works, with taxi fares instead of text.
+
+{/* [Bartosz: one or two sentences in your own words on why you wrote this series, only if true. For example, what you wanted to understand, or what bugged you about other explanations.] */}
+
+This is the first of four notes on how ChatGPT and programs like it work. Part 2 turns text into numbers. Part 3 shows the transformer blocks ChatGPT is built from. Part 4 puts the pieces together and trains a tiny version of it in your browser.
 
 ## Guess the fare
 
-A taxi ride costs a starting fee plus a price for every kilometer. If the fee is 3 dollars and a kilometer costs 2, a 5 kilometer ride costs 3 + 5 × 2 = 13 dollars.
+A taxi ride costs a starting fee plus a price for every kilometer. If the fee is 3 dollars and a kilometer costs 2, a 5 kilometer ride costs 3 + 5 × 2 = 13 dollars. Easy.
 
-Now turn it around. You have eight old rides from another city. You know how far each one went and what you paid, but nobody tells you the fee or the price. Can you find a fee and a price that guess these fares well?
+Now turn it around. You have eight old rides from another city. You know how far each one went and what you paid, but nobody tells you the fee or the price. Can you find a fee and a price that come close?
 
-The chart has your eight rides. The line is your guess. Move the two sliders until the line runs close to every ride. Each square shows how far off the guess is for one ride, so a bad guess has big squares. No line touches every ride, because some of them sat in traffic. The number under the chart, next to the word loss, is the average area of the squares. Smaller is better.
+Try it on the chart below. The line is your guess, and the two sliders move it. Each ride gets a square as wide as your miss, so a bad guess has big squares.
 
-That is all learning means here. There is a rule with a few knobs, and the machine looks for the knob settings that make its guesses close to what really happened.
+The number under the chart is the average area of those squares, one number for how far the guesses are from what the riders really paid. Smaller is better. That number is the loss. You won't get a line through every ride, because some of them sat in traffic.
+
+That's all learning means here. There's a rule with a few knobs, and the machine looks for the settings that make its guesses land close to what really happened.
 
 <TaxiFares label="Eight taxi rides and the fare line your two settings make">
 
@@ -25,39 +31,51 @@ Eight made-up taxi rides, distance across and fare up. The line is the fare your
 
 </TaxiFares>
 
-The rule you just tuned is a **model**. It takes a distance and gives back a fare. The two sliders are its **parameters**, the knobs you turn to make it fit. The price per km is called a **weight**, because it scales the input. A longer ride gets more of it. The starting fee is called a **bias**, because it moves every guess up or down by the same amount. The fare the line gives for one ride is a **prediction**.
+What you just tuned has a name. The rule is a **model**: give it a distance, it gives back a fare. Each slider is a **parameter**, a knob you turn to make it fit. The fare it gives for one ride is its **prediction**.
 
-That average area is the **loss**, one number for how far all the guesses are from what the riders really paid. The machine's whole job is to make it small. However you set the sliders, it never gets below 0.33, because no line touches every ride.
+The two knobs even have their own names. The price per km is a **weight**, because it scales the input, so a longer ride gets more of it. The starting fee is a **bias**, because it shifts every guess up or down by the same amount.
 
-It uses squares for two reasons. A miss of 4 then counts four times as much as a miss of 2, so big misses matter most. And an area is never negative, so a guess that is too high can't cancel one that is too low.
+The machine's whole job is to make the **loss** small. Set the sliders however you like. It never gets below 0.33, because no line touches every ride.
+
+Why squares? A miss of 4 counts four times as much as a miss of 2, so the big misses matter most. And an area is never negative, so a guess that's too high can't cancel one that's too low.
 
 ## Downhill in fog
 
-You could see the chart while you moved the sliders. The machine has to find the settings another way.
+You could see the chart while you moved the sliders. The machine doesn't. It has to find the settings another way.
 
-Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom. The picture squeezes the tall parts so the whole valley fits. The cube stands at your current settings, the same ones the sliders set, and the small chart shows the line they make. The floor runs down to -$2 a km. No taxi charges that, but to the machine a price is just a number.
+Every setting of the two knobs has a loss. Lay all the settings out as a floor, the starting fee one way and the price per km the other, and raise each spot by its loss. You get a valley, and the best settings sit at the bottom.
 
-This taxi rule has a shortcut formula that finds the lowest loss directly. The machine could jump straight to those two settings. We make it walk here to show a method that also works when there is no shortcut.
+The cube is you. It stands wherever the sliders say, and the small chart shows the line those settings make. (I squeezed the tall parts so the whole valley fits.) The floor even runs down to -$2 a km. No taxi charges that, but to the machine a price is just a number.
 
-A larger model can have millions of knobs. Its valley is usually lumpier, with no formula that takes it straight to the bottom. The machine feels the slope where it stands, takes a step downhill, and feels again. Think of a hill in thick fog. You can feel the ground under your feet, but you can't see where the lowest point is. You may reach a low spot with uphill ground all around and stop there, even though a lower spot lies beyond it. A downhill walk can find a low spot without finding the lowest one.
+This taxi rule has a shortcut formula that finds the lowest loss directly. The machine could jump straight to those two settings. I make it walk here, so you can see a method that also works when there's no shortcut.
 
-The machine never sees the whole picture we drew. Turn on the fog to see only what it can feel. You can also click a spot to put the cube there. If your browser draws the valley in 3D, you can drag it to turn it.
+A larger model can have millions of knobs. Its valley is usually lumpier, and there's no formula that takes it straight to the bottom. So the machine feels the slope where it stands, takes a step downhill, and feels again.
+
+Think of a hill in thick fog. You can feel the ground under your feet, but you can't see where the lowest point is. You may reach a low spot with uphill ground all around and stop there, even though a lower spot lies beyond it.
+
+The machine never sees the whole picture we drew. Turn on the fog to see only what the machine can feel.
 
 <LossLandscape label="The loss for every starting fee and price per km, drawn as a valley, with a cube at your current settings">
 
-A valley over a floor of settings, the starting fee one way and the price per km the other. Each spot is raised by the loss at those settings, squeezed so the steep walls fit. A cube stands at your current settings, and a small chart beside the valley shows the fare line they make. Step moves the cube one step downhill, walk keeps stepping until the ground is flat, and fog hides everything except the ground near the cube.
+A valley over a floor of settings, the starting fee one way and the price per km the other. Each spot is raised by the loss at those settings, squeezed so the steep walls fit. A cube stands at your current settings, and a small chart beside the valley shows the fare line they make. Step moves the cube one step downhill, walk keeps stepping until the ground is flat, and fog hides everything except the ground near the cube. Click a spot to put the cube there. If the browser draws the valley in 3D, drag to turn it.
 
 </LossLandscape>
 
-Press step a few times. Each step turns both knobs a little, in the direction where the ground drops fastest. The step size control under the valley sets how big the steps are, and that matters. Crawl takes tiny steps and needs hundreds of them. Good walks down the wall and then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even when the first few steps look fine, unless it starts right at the bottom.
+Press step a few times. Each step turns both knobs a little, toward where the ground drops fastest. How big that step is matters. The step size control under the valley sets it.
 
-The slope under your feet is called the **gradient**. Each step moves every knob downhill by its slope times a number called the **learning rate**, so steeper ground or a bigger learning rate means a bigger step. The step size control sets the learning rate. Walking downhill one step at a time is **gradient descent**. Repeatedly adjusting the knobs to make the guesses closer to the examples is **training**. In this fare demo, walk stops when the ground is nearly flat.
+Crawl takes tiny steps and needs hundreds of them. Good walks down the wall, then along the floor of the valley. Zigzag overshoots and lands on the far wall, again and again, so it wastes steps. Too big jumps across the valley and lands higher than it started. From where the cube starts, it does that on every step, so the loss grows instead of shrinking.
 
-Press walk, and once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. Right now the line has a starting fee of <Fare show="fee" /> dollars and a price per km of <Fare show="price" />, so for 1.6 km it says <Fare show="fee" /> + 1.6 × <Fare show="price" factor />, which is about <Fare km="1.6" /> dollars. Using a trained model to answer a new question like this is **inference**.
+Here's the sneaky part. For these eight rides, any step size above about 0.33 climbs out of the valley sooner or later, even if the first few steps look fine. The only exception is starting right at the bottom.
+
+That slope under your feet is the **gradient**. Each step moves every knob downhill by its slope times one number, the **learning rate**, which is what the step size control sets. Steeper ground or a bigger learning rate means a bigger step.
+
+Walking downhill like this, one step at a time, is **gradient descent**. Doing it over and over, turning the knobs so the guesses get closer to the examples, is **training**.
+
+Press walk. Once the cube stops, ask the line about a ride it has never seen. None of the eight rides went 1.6 km. Right now the line has a starting fee of <Fare show="fee" /> dollars and a price per km of <Fare show="price" />, so for 1.6 km it says <Fare show="fee" /> + 1.6 × <Fare show="price" factor />, which is about <Fare km="1.6" /> dollars. Using a trained model to answer a new question like this is **inference**.
 
 ## Which way is downhill?
 
-Each step needs the slope for every knob. Here is how the machine gets it. Take one ride and work out its loss like a receipt, one line at a time. Distance times price per km. Plus the starting fee, which gives the guessed fare. Minus what the rider paid, which gives the miss. Then the miss times itself, which is this ride's loss.
+Each step needs the slope for every knob. Here's how the machine figures that out. Take one ride and work out its loss like a receipt, one line at a time. Distance times price per km. Plus the starting fee, which gives the guessed fare. Minus what the rider paid, which gives the miss. Then the miss times itself, which is this ride's loss.
 
 Press nudge to add one cent to the price per km and watch the bottom line. It changes a little. That change divided by one cent is very close to the slope for this knob. It says how fast the loss moves when the knob turns, and which way. A negative slope means turning the knob up makes the loss smaller.
 
@@ -67,26 +85,43 @@ One 0.3 km ride, worked out like a receipt from your starting fee and price per 
 
 </FareReceipt>
 
-Nudging works, but a real model has millions of knobs, and nudging each one in turn would take forever. So the machine walks the receipt from the bottom line up instead, like tracing a wrong total back to the items that caused it. A line's slope says how much the bottom line moves for each unit that line moves, and each line works it out from the line after it.
+Nudging works. A real model has millions of knobs, though, and nudging each one in turn would take forever. So the machine walks the receipt from the bottom line up instead, like tracing a wrong total back to the items that caused it.
 
-The bottom line is the miss times itself. If the miss is 3, this ride's loss is 9. Make the miss 3.01 and the loss is 9.0601, about 0.06 more, which is 2 × 3 × 0.01. So the loss moves about two times the miss for each unit the miss moves, and the miss gets a slope of two times the miss. The guessed fare moves the miss one for one, so it gets the same slope, and so does the starting fee. The price per km moves its line only 0.3 times as much, because the ride was 0.3 km, so its slope is 0.3 times that. Press backward to watch it. The slope it gets for the price per km is almost exactly what the nudge gave, and the starting fee got its slope in the same walk. This walk backwards is **backpropagation**. Do it for all eight rides, average the slopes, and you have the gradient from the valley.
+A line's slope says how much the bottom line moves for each unit that line moves. Each line works its slope out from the line after it.
 
-For readers who know JavaScript, here is a short version of the receipt's backward walk. `value` makes a plain object with a number in `data`, its slope in `grad`, and the values it was made from. Each input comes paired with how much the result moves when that input moves by one. `backward` visits the inputs before the result, then walks that order in reverse. Each value passes its slope back, times the number on that connection. A value used twice adds up both slopes. The loss uses the miss twice, so the miss gets two times the miss.
+- **Loss.** If the miss is 3, the loss is 9. Make the miss 3.01 and the loss is 9.0601, about 0.06 more, which is 2 × 3 × 0.01. So the miss's slope is two times the miss.
+- **Miss.** The guessed fare moves the miss one for one, so it gets the same slope.
+- **Starting fee.** It moves the guess one for one too. Same slope.
+- **Price per km.** It moves its line only 0.3 times as much, because the ride was 0.3 km, so its slope is 0.3 times that.
 
-Press Run to see one ride's loss and the slopes for the fee and price. Edit lets you change the numbers and run it again. Each block runs on its own in your browser, with nothing to install.
+Press backward and watch it fill in. The slope it gets for the price per km is almost exactly what the nudge gave, and the starting fee got its slope on the same walk, for free. Do that for all eight rides, average the slopes, and you have the gradient from the valley. That walk backward is **backpropagation**.
+
+For readers who know JavaScript. `value` is a line of the receipt: a plain object with the number in `data`, its slope in `grad`, and the values it was made from. Each input is paired with how much the result moves when that input moves by one. `backward` visits the inputs before the result, walks that order in reverse, and passes the slope back times the number on that connection. A value used twice adds up both slopes. The loss uses the miss twice, so the miss gets two times the miss.
+
+Each block runs on its own in your browser, with nothing to install. Press Run to see this ride's loss and the slopes for the fee and the price.
 
 ```js run=src/notes/snippets/how-a-machine-learns/value.js
 ```
 
 ## When a straight line isn't enough
 
-A new question. Is a day comfortable indoors? Each point is a day, temperature across and humidity up, filled if people said comfortable and hollow if not. The comfortable days sit in the middle. Not too cold, not too hot, not too dry, not too damp.
+A new question. Is a day comfortable indoors?
 
-Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That rule draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too. A rule like this is one **neuron**.
+Each point is a day, temperature across and humidity up. Filled if people said comfortable, hollow if not. The comfortable days sit in the middle. Not too cold, not too hot, not too dry, not too damp.
 
-So put several neurons side by side. That is a **layer**, and it draws several fences. Each neuron hands its number to every neuron in the next layer, which gives each one a weight, adds its bias, and squashes again. That is how a second layer reads those fences and joins them into a shape, and four fences make a box around the comfortable days. The last neuron squashes its answer to between 0 for no and 1 for yes. The squash is called the **activation function**. Without it, stacking fences only ever makes another straight fence. Layers in a row are a **network**.
+Take the taxi rule and give it two inputs, temperature and humidity, each with its own weight, plus a bias. Then squash the result so big sums level off. That draws one straight fence across the chart and says how far onto the yes side a day is. One fence can't pen in the middle. Wherever it runs, the side that holds all the comfortable days holds some uncomfortable ones too.
 
-For a yes or no answer, this playground scores its guesses a little differently from the squares, and part 2 explains how. It also remembers earlier slopes when choosing how to turn each knob. That method is called Adam. Because earlier slopes still count, a knob can sometimes move with its current slope rather than against it. The aim is to lower the loss over many updates, but an individual step can raise it.
+That rule is one **neuron**.
+
+So put several neurons side by side, and you get several fences. That's a **layer**.
+
+Each neuron hands its number to every neuron in the next layer. That next neuron gives each number a weight, adds its bias, and squashes again. That's how a second layer reads the fences and joins them into a shape. Four fences make a box around the comfortable days.
+
+The last neuron squashes its answer to between 0 for no and 1 for yes. Without that squash, stacking fences only ever makes another straight fence. The squash is the **activation function**.
+
+Layers in a row are a **network**.
+
+For a yes or no answer, this playground scores its guesses a little differently from the squares. Part 2 explains how. It also uses a method called Adam, which remembers earlier slopes when it turns each knob. So now and then a step goes uphill. That's fine. The aim is a smaller loss over many steps, not every single one.
 
 <Playground label="A small network learning to fence in the comfortable days">
 
@@ -94,23 +129,27 @@ One hundred made-up days, temperature across and humidity up, filled where peopl
 
 </Playground>
 
-Press train and watch the shape form. This network has two layers of eight neurons and one more neuron that gives the answer. Unlike the fare walk, the playground does not stop when the loss levels off. Press pause when you have seen enough.
+Press train and watch the shape form. This network has two layers of eight neurons, plus one more neuron that gives the answer. Unlike the fare walk, it doesn't stop when the loss levels off. Press pause when you've seen enough.
 
-The shade behind the points is its answer for every spot, stronger where it is surer the day is comfortable. Each neuron in the first layer gets a row of three squares, one for each input and one for its bias. A filled square is a positive number and a hollow one is a negative number. A bigger square is a number farther from zero. The layers after it decide what those numbers do to the answer. Point at a row to draw that neuron's fence.
+The shade behind the points is its answer for every spot, stronger where it's surer the day is comfortable.
 
-Here is a short version of the network's forward pass, with two neurons in the first layer and one in the last. `neuron` adds each input times its weight, plus a bias. The first layer squashes its sums with `tanh`. The last layer leaves a raw score, which we turn into a yes chance. Press Run to see the score and the chance of yes, each rounded to two decimal places.
+Each row of squares is one first-layer neuron's knobs. Filled means positive, hollow means negative, and bigger means farther from zero. The layers after it decide what those numbers do to the answer.
+
+Point at a row to see the fence that neuron draws.
+
+For readers who know JavaScript, a short forward pass. Two neurons in the first layer, one in the last. `neuron` adds each input times its weight, plus a bias. The first layer squashes its sums with `tanh`, and the last layer leaves a raw score, which we turn into a chance of yes. The score and the chance are each rounded to two decimal places.
 
 ```js run=src/notes/snippets/how-a-machine-learns/network.js
 ```
 
-For a short training loop, return to the eight taxi rides. `measure` works out their average squared miss and the slope for each knob. These are the same slopes that the backward walk finds, written directly for this one rule. `step` moves both knobs downhill. Press Run to see the loss fall from 4.43 to 0.33 over 100 steps, or edit the learning rate, `0.1`, to try a different step size.
+Back to the eight taxi rides, for a short training loop. `measure` works out their average squared miss and the slope for each knob. These are the same slopes the backward walk finds, written directly for this one rule. `step` moves both knobs downhill. Over 100 steps at a learning rate of `0.1`, the loss falls from 4.43 to 0.33.
 
 ```js run=src/notes/snippets/how-a-machine-learns/training.js
 ```
 
 ## The whole loop
 
-Every demo here showed one part of the same loop. A rule with knobs makes its guesses. The loss says how far off they are, as one number. Backpropagation finds the slope for every knob. Training uses those slopes to adjust the knobs, aiming for a smaller loss over many steps. A step can raise the loss, and a downhill walk can stop in a low spot that is not the lowest. The fare walk stops when the ground is nearly flat. In the playground, you decide when to press pause. The fare rule had 2 knobs, and the playground's network has 105. ChatGPT learned with the same loop and far more knobs, from text instead of fares, and part 2 starts there.
+So that's the loop. Guess, measure how wrong you were, find which way is downhill for every knob, take a small step, repeat. The fare rule had 2 knobs. The playground's network has 105. ChatGPT learned with the same loop and far more knobs, from text instead of fares. Text has to become numbers. That's where part 2 starts.
 
 <Glossary>
 <Term name="model">A rule with knobs that turns an input into a guess, like the fare rule</Term>

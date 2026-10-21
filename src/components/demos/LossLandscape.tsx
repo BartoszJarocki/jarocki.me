@@ -81,6 +81,10 @@ export default function LossLandscape(props: DemoProps) {
                 Too big
               </button>
             </div>
+            <div className="mt-[10px] text-faint">
+              Click a spot to put the cube there. Drag to turn the valley if your browser draws it
+              in 3D. Walk keeps stepping until the ground is nearly flat.
+            </div>
           </>
         ),
       })}
