@@ -1,71 +1,73 @@
 ---
-title: A tiny GPT, trained in your browser
-description: Put the pieces together and watch a small language model learn from Shakespeare.
-publishedAt: '2026-10-16'
-tags: ['ai', 'learning']
+title: "A tiny GPT, trained in your browser"
+description: "Put the pieces together and watch a small language model learn from Shakespeare."
+publishedAt: "2026-10-16"
+tags: ["ai", "learning"]
 series: ai
 part: 4
 ---
 
-A model is a rule with knobs. Training adjusts those knobs using the slopes of its mistakes. Letters become lists of numbers, and attention lets each letter read the letters before it. Now we put those pieces together and let the model read Shakespeare.
+This is the part where you train a GPT. A tiny one, on Shakespeare's plays, right here in this tab, and you get to watch it go from noise to familiar letter groups and some real words.
 
-This is the phone keyboard from part 2, with a longer memory and a different reading list. It guesses one letter at a time. It has no instructions about characters, speeches, or spelling. All it gets is text and the task of guessing what comes next.
+It's the phone keyboard from part 2 with a longer memory and a different reading list. It still guesses one letter at a time. Nobody tells it about characters, speeches, or spelling. All it gets is the text and one job: guess what comes next.
+
+Everything from the first three parts is inside. It's a rule with knobs, tuned using the slopes of its mistakes. It reads letters as lists of numbers. And attention lets each letter read the ones before it.
 
 ## A handful of passages
 
-Each turn, the trainer picks a handful of short passages from the text. That handful is a batch. Reading `to be`, the model sees `t` and guesses `o`, sees `to` and guesses the space, and so on. It scores all those guesses together. The rule from part 3 keeps each position from seeing its answer, even while the computer works on many positions at once.
+Each turn, the trainer grabs a handful of short passages from the text. That handful is a **batch**. Reading `to be`, the model sees `t` and guesses `o`, sees `to` and guesses the space, and so on, and it scores all those guesses together. Part 3's no-peeking rule keeps each position from seeing its own answer, even though the computer works on many positions at once.
 
-The trainer averages the model's surprise over the batch, works out every knob's slope, and adjusts the knobs. That whole turn is one step. This trainer uses Adam, which remembers recent slopes and their sizes. A turn need not lower the loss immediately. The aim is to improve over many turns.
+Then the trainer averages the model's surprise over the batch, works out every knob's slope, and adjusts the knobs. That whole turn is one **step**. Like part 1's playground, it uses Adam, which remembers recent slopes and their sizes. A single step won't always help. What counts is the trend over many of them.
 
 ## Practice and an exam
 
-We keep a tenth of the text out of training. Think of practice cards and an exam with different questions. A model that only remembers the practice cards may do badly on the exam.
+We hold back a tenth of the text and never train on it. Think of practice cards and an exam with different questions. A model that only memorized the practice cards can still flunk the exam.
 
-The model's average surprise on practice text is its training loss. Its average surprise on the text it never trains on is its validation loss. Lower means it gave the actual next letters higher chances on average.
+The model's average surprise on practice text is its **training loss**. Its average surprise on the text it never trains on is its **validation loss**. Lower is better: it means the model gave the real next letters higher chances.
 
-The chart calls these lines practice and exam. Both use the same fixed sets of passages at each check, so the comparisons are fair. The horizontal axis counts training steps. A slow phone takes longer to reach a point, but the point still means the same amount of training.
+The chart calls these lines practice and exam. Both use the same fixed sets of passages at each check, so the comparisons are fair. The horizontal axis counts training steps. The chart counts steps, not seconds, so a slow phone draws the same lines, just later.
 
-If the practice line keeps falling while the exam line flattens or rises, the model is learning details that do not carry over. That is overfitting. A single bump is not enough to diagnose it. Look for the lines pulling apart over several checks.
+If the practice line keeps falling while the exam line flattens or rises, the model is learning details that don't carry over. That is **overfitting**. A single bump isn't enough to diagnose it. Look for the lines pulling apart over several checks.
 
-Press Train to start from random knobs. Pause keeps the current numbers. Load the trained one replaces them with saved numbers from a longer run. A new sample appears every 150 steps. Evaluating the two lines and writing a sample take time too, so the counter briefly waits at each check.
+Press **Train** to start from random knobs. **Pause** whenever you like, and the current numbers stay. If you don't want to wait, **Load the trained one** swaps in saved numbers from a longer run. Every 150 steps the model writes a new sample. The counter stalls briefly while it does, along with the check of both lines.
 
 <TrainGpt label="Train a tiny GPT on Shakespeare">The practice and exam losses fall as a small model learns from lowercase Shakespeare. Three recorded samples show how its writing changes. With JavaScript, train your own model or load the saved one.</TrainGpt>
 
 ## Write with the current knobs
 
-Writing does not train the model. It guesses a letter, picks one using the loaded die from part 2, then feeds that letter back in to guess again. The numbers stay fixed throughout. Its memory holds at most the last 64 letters.
+Writing doesn't train the model. It guesses a letter, picks one using the loaded die from part 2, then feeds that letter back in to guess again. The numbers stay fixed throughout. Its memory holds at most the last 64 letters.
 
-Early samples are mostly noise. Later ones gain familiar letter groups and some real words. A line that looks like a play can still make no sense. Matching the shape of text does not make a sentence true.
+Early samples are mostly noise. Later ones pick up familiar letter groups and some real words. Some lines look like a play and mean nothing at all.
 
 ## Keep a saved model
 
-A game lets you load a save file instead of playing from the beginning. A saved set of the model's knobs is a checkpoint. Load the trained one uses the same model after 12,000 offline steps. Its 30,055 numbers occupy 120,220 bytes, plus a small file describing where each number belongs.
+A saved set of knobs is a **checkpoint**, like a save file in a game. This one is the same model after 12,000 offline steps: 30,055 numbers in 120,220 bytes, plus a small file saying where each number goes. That's all it is. There's no Shakespeare in there, no list of replies, just numbers. It doesn't hold the trainer's memory of past slopes either.
 
-The file contains the learned numbers. It does not contain Shakespeare, a list of replies, or the trainer's memory of past slopes. Loading it pauses training and replaces the current model. Train again starts a fresh model so you can watch it learn from noise.
+Loading it pauses training and replaces the current model. Train again starts a fresh model so you can watch it learn from noise.
 
-The training and writing happen in a background worker in this tab. Training pauses when the demo leaves the screen or you switch tabs. Leaving the page discards your live run. Nothing you train here is uploaded.
+Everything runs in a background worker in this tab. Training pauses when the demo leaves the screen or you switch tabs. Nothing you train here gets uploaded, and leaving the page throws your run away.
 
 ## Look inside the model
 
-The letter map from part 2 and the attention arcs from part 3 give us two views of the learned numbers. The map shows the numbers assigned to each symbol before it reads a sentence. The arcs depend on the sentence as well as those numbers.
+The letter map from part 2 and the attention arcs from part 3 give two views of the learned numbers. The map shows the numbers assigned to each symbol before it reads a sentence. The arcs depend on the sentence as well as those numbers.
 
-This model reads all 39 symbols in the lowercase text, including spaces, line breaks, and punctuation. Each symbol has 32 learned numbers. A screen cannot show all those directions at once. We squeeze the 32 numbers into three directions that preserve as much of their spread as possible. This method is called principal component analysis, or PCA.
+This model reads all 39 symbols in the lowercase text, including spaces, line breaks, and punctuation. Each symbol has 32 learned numbers. A screen can't show all those directions at once. We squeeze the 32 numbers into three directions that preserve as much of their spread as possible. This method is called principal component analysis, or PCA.
 
-The picture loses information. Two symbols can look close here while their full lists differ. The axes are mixtures of the original numbers, not named properties such as vowel or meaning. The directions can change as the model learns, so a turning cloud does not by itself show progress. The exam line is the better check.
+Squeezing 32 numbers into 3 loses a lot, so take the picture with a grain of salt. Two symbols can look close here and still be far apart in the full 32. The axes are mixtures of the original numbers, not named properties such as vowel or meaning. And if the cloud spins while the model trains, that's not progress by itself. The exam line is the real check.
 
 Train or load the saved model above, then scroll down. These views use the current model in your tab. Training pauses while its controls are off screen. You can also train, reset, or sample from the map. Reset returns the shared model to its starting numbers. Without JavaScript, both pictures show the recorded saved model instead.
 
 <LetterSpace reader label="Your model's 39 symbols in three PCA directions">All 39 symbols from lowercase Shakespeare are shown. Each symbol's 32 learned numbers are squeezed into three PCA directions. The recorded picture uses the saved model. A middle dot marks a space and an arrow marks a line break.</LetterSpace>
 
-The attention heads answer a different question. At this point in this sentence, which earlier letters does each head read? A dark arc means a larger share. It does not prove that the model understands the sentence, or that a head always has one job. The tiny model still cannot reliably solve the bag-and-car example from part 3.
+The attention heads answer a different question. At this point in this sentence, which earlier letters does each head read? A dark arc means a bigger share. It doesn't prove that the model understands the sentence, or that a head always has one job. The tiny model still can't reliably solve the bag-and-car example from part 3.
 
 <Heads reader label="Attention from your current model">Eight heads read the sentence about the bag and the car. Select a letter to see what each head reads from that position. These arcs use your current model's complete weights. Without JavaScript, the arcs show the saved model's last letter.</Heads>
 
 ## How small is tiny?
 
-Count every learned number in the model and you get its parameter count. These are the knobs training can turn, including the embeddings and the numbers inside each block. More knobs give a model room to learn more patterns, but it also needs enough examples to learn useful settings.
+Count every learned number in the model and you get its **parameter count**. These are the knobs training can turn, including the embeddings and the numbers inside each block. More knobs give a model room to learn more patterns, but it also needs enough examples to learn useful settings.
 
-The table compares our saved model with the largest models in the GPT-2 and GPT-3 papers. A training token here means a next-token target processed during a training step. Reading the same passage again counts again. It is not the number of different words in the reading list.
+The table compares our saved model with the largest models in the GPT-2 and GPT-3 papers. A training token here means a next-token target processed during a training step. Reading the same passage again counts again. It isn't the number of different words in the reading list.
 
 <div className="overflow-x-auto" tabIndex="0" role="region" aria-label="Model sizes and training text">
 <table>
@@ -79,23 +81,25 @@ The table compares our saved model with the largest models in the GPT-2 and GPT-
 </table>
 </div>
 
-Our total is 12,000 steps times 16 passages times 64 next-letter guesses. It excludes the checks and generated samples, which do not update the knobs. A shorter run in your tab has processed fewer targets. The saved weights use four bytes per parameter, so 30,055 times 4 gives the 120,220 bytes mentioned above.
+Our total is 12,000 steps times 16 passages times 64 next-letter guesses. It excludes the checks and generated samples, which don't update the knobs. A shorter run in your tab has processed fewer targets. The saved weights use four bytes per parameter, so 30,055 times 4 gives the 120,220 bytes mentioned above.
 
-GPT-2's 40 GB is the size of its collected text, not a count of training tokens. The paper does not give the total number of tokens processed during training, so the table leaves it unknown. GPT-3 does report that total. Its reading list contains about 499 billion tokens, obtained by adding the dataset sizes in [table 2.2](https://arxiv.org/pdf/2005.14165#page=9). It trains on 300 billion draws from that mixture, repeating some sources more often than others. Dataset size and training tokens are different quantities.
+GPT-2's 40 GB is the size of its collected text, not a count of training tokens. The paper doesn't give the total number of tokens processed during training, so the table leaves it unknown. GPT-3 does report that total. Its reading list contains about 499 billion tokens, obtained by adding the dataset sizes in [table 2.2](https://arxiv.org/pdf/2005.14165#page=9). It trains on 300 billion draws from that mixture, repeating some sources more often than others. Dataset size and training tokens are different quantities.
 
-Our tokens are single characters. GPT-2 and GPT-3 use pieces of words, so their token counts do not measure the same amount of text per token. The comparison shows the difference in size, not a fair contest of their losses. Increasing the model and its training together is what people mean here by scale.
+Our tokens are single characters. GPT-2 and GPT-3 use pieces of words, so their token counts don't measure the same amount of text per token. The comparison shows the difference in size, not a fair contest of their losses. Increasing the model and its training together is what people mean here by **scale**.
 
 ## What we left out
 
-Training on a large reading list to predict the next piece of text gives a model that can continue text. That first broad training is pretraining. Our Shakespeare run is a small example of it. It learns the shape of plays, not how to hold a helpful conversation.
+Training on a large reading list to predict the next piece of text gives a model that can continue text. That first broad training is **pretraining**. Our Shakespeare run is a small example of it. It learns the shape of plays, not how to hold a helpful conversation.
 
-You can then take an existing model and train its knobs further on a more focused set of examples. That is fine-tuning. One route to an assistant trains on example conversations, then uses people's rankings of different replies to guide more training. The [InstructGPT paper](https://arxiv.org/abs/2203.02155) describes this route. It is a concrete example of what separates a text continuation model from a system that tries to follow instructions.
+You can then take an existing model and train its knobs further on a more focused set of examples. That is **fine-tuning**. One route to an assistant trains on example conversations, then uses people's rankings of different replies to guide more training. The [InstructGPT paper](https://arxiv.org/abs/2203.02155) describes this route. It's a concrete example of what separates a text continuation model from a system that tries to follow instructions.
 
-An assistant such as ChatGPT has far more knobs and learns from far more text than this demo. Training on conversations and feedback also changes which replies it tends to choose. None of those steps makes an answer true. A model can learn to produce a convincing mistake. The papers in the table describe published models, not the undisclosed size or training budget of today's ChatGPT.
+An assistant such as ChatGPT has far more knobs and learns from far more text than this demo. Training on conversations and feedback also changes which replies it tends to choose. And none of that makes an answer true. A model can learn to produce a convincing mistake. The papers in the table describe published models, not the undisclosed size or training budget of today's ChatGPT.
 
-We also left out the engineering that makes large models practical. They split work across specialized hardware. They reuse calculations while writing. Their tokenizers handle more languages and symbols than this small alphabet. Choosing and checking the training text takes work too. A model can repeat errors and prejudices from what it reads.
+We also skipped the engineering that makes big models practical: splitting work across specialized hardware, reusing calculations while writing, tokenizers for more languages than our little alphabet, and the hard work of choosing and checking the training text. That last one matters, because a model can repeat the errors and prejudices in what it reads.
 
-Those omissions matter, but you have now run the learning loop itself. A passage supplies the next-letter answers. The model turns its current knobs into guesses, measures its surprise, and works backward to find slopes. Training adjusts the knobs and tries again. Writing uses the resulting guesses without adjusting them. The phone keyboard from part 2 now has a reading list, a longer context, and attention. You can inspect the numbers it learned in your own tab.
+Still, you just ran the real thing. A passage supplies the next-letter answers. The model turns its current knobs into guesses, measures its surprise, and works backward to find slopes. Training adjusts the knobs and tries again. Writing uses the resulting guesses without adjusting them. That's the loop from the taxi fares in part 1, now with a reading list, a longer memory, and attention. And the numbers it learned are sitting right there in your tab.
+
+{/* [Bartosz: optional closing line in your own words, such as what you took away from building this, only if true.] */}
 
 <Glossary>
 <Term name="batch">A handful of practice passages whose next-letter guesses are scored together</Term>

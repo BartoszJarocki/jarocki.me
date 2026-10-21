@@ -49,7 +49,7 @@ export const example: Cuts = {
     ],
   },
   words: {
-    menu: 524,
+    menu: 527,
     pieces: [
       { text: 'your', known: true },
       { text: 'keyboard', known: true },

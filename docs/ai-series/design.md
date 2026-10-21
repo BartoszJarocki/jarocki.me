@@ -68,7 +68,7 @@ The opening should read like this. It is the voice target for ai-06.
 
 The question is how a computer reads and writes text when all it can do is arithmetic.
 
-The example is the row of word suggestions above a phone keyboard. It guesses your next word from the words so far. The note builds the simplest version of that guess, one letter at a time, from 32,000 first names.
+The example is the row of word suggestions above a phone keyboard. It guesses your next word from the words so far. The note builds the simplest version of that guess, one letter at a time, from about 32,000 first names.
 
 After the note, a reader can answer these five questions. A lane in ai-09 checks the note against them.
 
@@ -89,15 +89,15 @@ Code shown, for readers who know JavaScript: the tokenizer, the counting model, 
 
 The note opens like this.
 
-> your phone's keyboard guesses your next word. it has seen a lot of text, and it knows which words tend to follow which. chatgpt does the same thing at a much bigger size. it guesses what comes next, writes it down, and guesses again.
+> your phone's keyboard guesses your next word. it has seen a lot of text, so it knows which words tend to follow which. a language model makes the same kind of guess, one piece of text at a time. to write, it picks a piece, adds it to the text so far, and guesses again. chatgpt works this way too. it just has a much larger model and much more training behind it.
 >
-> we'll build the smallest version of that guess. it reads one letter and guesses the next one, and it learns from 32,000 first names.
+> in this note we'll build the smallest version of that guess: a model that reads one letter and guesses the next, after learning from about 32,000 first names.
 >
-> first, a problem. a computer can only do arithmetic, and a letter is not a number. so we give each letter a number, the way a takeaway menu numbers its dishes.
+> but first, a problem. a computer can only do arithmetic, and a letter isn't a number.
 
 ### 3. paying attention
 
-The question is how a word works out which earlier words matter to it.
+The question is how each piece of text works out which earlier pieces matter to it.
 
 The example is one sentence, "the bag didn't fit in the car because it was too small". To make sense of the end of the sentence, the word "small" has to look back and find what was too small, the bag or the car. Change "small" to "big" and the answer flips to the bag. Both nouns come before "small", so a model that only looks back can still use them. Attention is how each word looks back. The tiny model in this series is too small to solve that sentence. So the sentence explains why attention exists, and the demos show what the tiny model really looks at.
 
@@ -120,9 +120,9 @@ Code shown, for readers who know JavaScript: attention in about 30 lines and the
 
 The note opens like this.
 
-> read this sentence. "the bag didn't fit in the car because it was too small." what was too small? the car. now change one word. "the bag didn't fit in the car because it was too big." now the bag was too big.
+> read this sentence. "the bag didn't fit in the car because it was too small." what was too small? the car. now change one word. "the bag didn't fit in the car because it was too big." now it's the bag.
 >
-> you did that without thinking. when you reached "small", you looked back at the earlier words and picked the one that fit. a model has to do the same, and the way it does it is called attention.
+> you did that without thinking. when you reached "small", you looked back at the earlier words and picked the one that fit. a model has to do the same thing, and the way it does it is called attention.
 
 ### 4. a tiny gpt, trained in your browser
 
@@ -132,7 +132,7 @@ The example is the phone keyboard from part 2, trained on shakespeare's plays in
 
 After the note, a reader can answer these five questions. A lane in ai-14 checks the note against them.
 
-1. What happens in one training step? The model reads a handful of short passages and guesses every next letter. It averages its surprise over the batch, works out every knob's slope, and turns the knobs. The trainer is adam, which also remembers recent slopes.
+1. What happens in one training step? The model reads a handful of short passages and guesses every next letter. It averages its surprise over the batch, works out every knob's slope, and turns the knobs. The trainer is Adam, which also remembers recent slopes.
 2. Why does the model never train on some of the text? That text is the exam. It shows whether what the model learns on the practice text carries over to text it never trains on.
 3. What does overfitting look like on the chart? The practice line keeps falling while the exam line flattens or rises.
 4. What does load the trained one load? A checkpoint, the saved knob settings of the same model after longer training, about 120 KB.
@@ -140,16 +140,16 @@ After the note, a reader can answer these five questions. A lane in ai-14 checks
 
 Terms, in the order the note meets them: batch, step, training loss, validation loss, overfitting, checkpoint, parameter count, scale, pretraining, fine-tuning.
 
-1. **Press train.** The model from parts 2 and 3 trains in the background, in a Web Worker. Each step it reads a handful of short passages picked at random, a batch, like practicing on a few flash cards instead of the whole deck. The training text is its own answer key. Reading "to be", the model sees "t" and must guess "o", sees "to" and must guess " ", and so on, every position at once. Part 3's causal mask keeps this fair, because no position can see its own answer. The model averages its surprise over the batch, works out every knob's slope, and turns the knobs. The trainer here is adam, which also remembers recent slopes, so its steps are smoother than part 1's plain walk. That is one step. The chart draws two lines. The practice line is the training loss, on the text the model trains on. The exam line is the validation loss, on a tenth of the text it never trains on. If the practice line keeps falling while the exam line stops, the model is picking up quirks of the practice text that don't carry over to new text, like learning the practice cards by heart instead of the subject, and that is overfitting. Every few seconds a sample from the current knobs appears under the chart. To write, the model picks a letter with part 2's loaded die, feeds it back in, and picks again. It reads at most the last 64 letters, and writing never changes the knobs. The samples go from noise to letters to words. On the laptop the prototype ran on, a 30,000-knob model writes lines that look like shakespeare after about two minutes of training. The chart counts steps, not seconds, so a slower device draws the same lines, only later.
+1. **Press train.** The model from parts 2 and 3 trains in the background, in a Web Worker. Each step it reads a handful of short passages picked at random, a batch, like practicing on a few flash cards instead of the whole deck. The training text is its own answer key. Reading "to be", the model sees "t" and must guess "o", sees "to" and must guess " ", and so on, every position at once. Part 3's causal mask keeps this fair, because no position can see its own answer. The model averages its surprise over the batch, works out every knob's slope, and turns the knobs. The trainer here is Adam, which also remembers recent slopes, so its steps are smoother than part 1's plain walk. That is one step. The chart draws two lines. The practice line is the training loss, on the text the model trains on. The exam line is the validation loss, on a tenth of the text it never trains on. If the practice line keeps falling while the exam line stops, the model is picking up quirks of the practice text that don't carry over to new text, like learning the practice cards by heart instead of the subject, and that is overfitting. Every few seconds a sample from the current knobs appears under the chart. To write, the model picks a letter with part 2's loaded die, feeds it back in, and picks again. It reads at most the last 64 letters, and writing never changes the knobs. The samples go from noise to letters to words. On the laptop the prototype ran on, a 30,000-knob model writes lines that look like shakespeare after about two minutes of training. The chart counts steps, not seconds, so a slower device draws the same lines, only later.
 2. **Load the trained one.** A checkpoint is the saved knob settings, like a save file in a game. This one is the same model trained offline for 12,000 steps, and it weighs about 120 KB. The button is there from the start, so nobody waits on a slow laptop. The file loads only when the reader asks.
 3. **What it learned.** Its letters on part 2's map and its heads as part 3's arcs, drawn from the reader's own trained knobs. This model gives each letter 32 numbers, not three, so the map shows them squeezed down to three directions that keep the biggest differences, and the prose says so. The map takes the alphabet as a setting, 27 symbols for names and 39 for lowercase shakespeare.
 4. **From here to ChatGPT.** The number of knobs is the parameter count. A table puts this model next to GPT-2 and GPT-3 by knobs and by how much text each one read, from their published papers. Growing both is scale. Reading a huge amount of text to guess the next piece is pretraining, and it gives a model that continues text. Further training of a model that already exists is fine-tuning. A second, shorter training on example conversations, plus feedback on which answers people preferred, turns it into an assistant. None of it makes the answers true. Bigger tokenizers are the third thing the series skipped.
 
 The note opens like this.
 
-> everything so far fits on one page. a model is a rule with knobs. training turns the knobs a little downhill, again and again. letters become lists of numbers, and attention lets each letter look back. now we put it all together and let it read shakespeare.
+> this is the part where you train a gpt. a tiny one, on shakespeare's plays, right here in this tab, and you get to watch it go from noise to familiar letter groups and some real words.
 >
-> press train. the model knows nothing yet, so the first lines are noise. keep an eye on the faint line in the chart. it is the exam, text the model never practices on.
+> it's the phone keyboard from part 2 with a longer memory and a different reading list. it still guesses one letter at a time. nobody tells it about characters, speeches, or spelling. all it gets is the text and one job: guess what comes next.
 
 ## Shared rules
 

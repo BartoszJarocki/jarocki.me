@@ -7,29 +7,29 @@ series: ai
 part: 2
 ---
 
-Your phone's keyboard guesses your next word. It has seen a lot of text, and it knows which words tend to follow which. A language model makes this kind of guess, one piece of text at a time. To write, it picks a piece, adds it to the text so far, and guesses again. ChatGPT uses this process too, with much more training and a much larger model.
+Your phone's keyboard guesses your next word. It has seen a lot of text, so it knows which words tend to follow which. A language model makes the same kind of guess, one piece of text at a time. To write, it picks a piece, adds it to the text so far, and guesses again. ChatGPT works this way too. It just has a much larger model and much more training behind it.
 
-We'll build the smallest version of that guess. It reads one letter and guesses the next one, and it learns from 32,000 first names.
+In this note we'll build the smallest version of that guess: a model that reads one letter and guesses the next, after learning from about 32,000 first names.
 
-First, a problem. A computer can only do arithmetic, and a letter is not a number. So we give each letter a number, the way a takeaway menu numbers its dishes.
+But first, a problem. A computer can only do arithmetic, and a letter isn't a number.
 
 ## Cutting text into pieces
 
-At a takeaway you can order a 12 and a 31 without spelling out the dishes. Text works the same way. Cut the text into pieces, give each piece its number from a menu, and the computer works with the numbers.
+Think of a takeaway menu. You can order a 12 and a 31 without spelling out the dishes. Text works the same way. Cut it into pieces, give each piece its number from a menu, and let the computer work with the numbers.
 
-The computer reads each piece as a unit and looks up its number. That piece is a **token**. The list of all the pieces it knows is its **vocabulary**. The program that cuts the text and looks up those numbers is its **tokenizer**.
+Each piece is a **token**. The whole menu of pieces is the **vocabulary**. The program that does the cutting and the looking up is the **tokenizer**.
 
-There is more than one way to cut. The demo below cuts one sentence three ways. Each row says how many items its menu has and how many pieces the sentence became. Every menu was learned from the words of this note, so a word this note never uses is not on the words menu. A digit or a mark, such as a comma, is on no menu at all. Type your own sentence to try it.
+There's more than one way to cut, and the demo below cuts one sentence three ways. Type your own sentence and see which menu copes best.
 
 <Tokenizers label="One sentence cut into letters, into words, and into pieces of words">
 
-One sentence cut three ways, into letters, into whole words, and into pieces of words. Each row shows how many items its menu holds and how many pieces the sentence becomes. A piece that is not on its menu is marked.
+One sentence cut three ways, into letters, into whole words, and into pieces of words. Each row shows how many items its menu holds and how many pieces the sentence becomes. Every menu was learned from the words of this note, so a word this note never uses is not on the words menu. A digit or a mark, such as a comma, is on no menu at all. A piece that is not on its menu is marked.
 
 </Tokenizers>
 
-Letters make a tiny menu but long orders. Whole words make short orders, but a words menu needs every word anyone might write. The one in the demo knows only the words of this note, and it is already longer than the pieces menu. A new word is not on it at all.
+Letters make a tiny menu but long orders. Whole words make short orders, but a words menu needs every word anyone might write. The one in the demo knows only the words of this note, and it's already longer than the pieces menu. A new word isn't on it at all.
 
-Pieces of words sit in between. The pieces menu starts as the 26 letters. Then it finds the two pieces that sit side by side most often in this note, glues them into one new piece, and adds it to the menu. It does that 200 times, so the menu ends at 226 pieces. A word that is not on the words menu still comes out as a few pieces that are. OpenAI's [tiktoken tokenizer](https://github.com/openai/tiktoken) uses the same idea with a much bigger menu. It also handles spaces, punctuation, and other languages. This demo keeps only lowercase English letters, so its missing marks are a limitation of this toy.
+Pieces of words sit in between. The pieces menu starts as the 26 letters. Then it finds the two pieces that sit side by side most often in this note, glues them into one new piece, and adds that piece to the menu. It does that 200 times, so the menu ends at 226 pieces. A word that isn't on the words menu still comes out as a few pieces that are. OpenAI's [tiktoken tokenizer](https://github.com/openai/tiktoken) uses the same idea with a much bigger menu. It also handles spaces, punctuation, and other languages. This toy knows only lowercase English letters, which is why digits and commas get marked.
 
 From here on, this note uses letters, because their menu fits on one screen. Names need the 26 letters and one more token, a dot that marks where a name starts and ends. That makes 27 tokens.
 
@@ -47,19 +47,69 @@ A grid of 27 rows and 27 columns, one for each letter and one for the dot that s
 
 </CountingModel>
 
-Type a letter and its row lights up, and a list shows each next letter's share of the row, its count divided by the row's total. That share is the letter's **probability**, the model's chance that this letter comes next. The shares in a row add up to 100%.
+Type a letter and its row lights up. A list shows each next letter's share of the row, its count divided by the row's total. That share is the letter's **probability**, the model's chance that this letter comes next. The shares in a row add up to 100%.
 
-Every count starts at one, even for a pair that no name has, so every letter keeps a small chance. That is why u gets 69.2% after q, not the 76% that 206 out of 272 would give. The 26 other choices share the rest. The one pair that stays at zero is the end dot right after the start dot, because a name has at least one letter.
+One small cheat: every count starts at one, even for pairs no name has, so no letter's chance is ever zero. That's why u gets 69.2% after q in the demo, a bit less than the 76% you'd get from 206 out of 272. The other 26 choices share the rest. The one pair that stays at zero is the end dot right after the start dot, because a name has at least one letter.
 
 To write a name, the model rolls a loaded die. Each letter gets sides in proportion to its share in the current row. Roll, write the letter down, move to that letter's row, and roll again until the end dot comes up. That is **sampling**. Press sample to write ten names.
 
 You can change how often the die picks an unlikely letter without changing any counts. Turn the control down and the letters the model already likes get even more sides, so the names come out samey. Turn it up and the choices spread out, so the names get strange. This control is called **temperature**. It changes how we pick from the model, not what the model has learned.
 
-The number under the grid is the counting model's loss on all 32,033 names, 2.45. A later section explains how it is measured. For now, smaller is better, and 2.45 is the number to beat.
+The number under the grid is the counting model's loss on all 32,033 names, 2.45. A later section explains how it's measured. For now, smaller is better, and 2.45 is the number to beat.
+
+## Learning instead of counting
+
+Counting works when the model reads one letter. It gets hard as soon as the model has to look further back, as the next section shows. A network like the one in part 1 can learn the same guess instead, and it can grow from there.
+
+For the letter it just read, the network gives every possible next letter a score. A score can be any number, big or small, positive or negative. Those raw scores are the **logits**.
+
+A score isn't a chance yet. Chances can't be negative, and they have to add up to 100%. To turn scores into chances, raise a fixed number, about 2.72, to the power of each score. That gives a positive result even for a negative score and makes the big scores count a lot more. Divide each result by their total, and the shares add up to 100%. This conversion is called **softmax**. Scores of -1, 0, and 1 become chances of 9%, 24%, and 67%.
+
+To learn, the network needs a loss, like the squares in part 1. For letters, we measure how surprised it was by the letter that really came next. Giving that letter a 50% chance is a small surprise, 0.69. Giving it a 1% chance is a big one, 4.6. This way of scoring its guesses is called **cross-entropy**. The counting model's 2.45 is this same surprise, averaged over every letter in the names. Training tries to lower the average surprise. An individual step can still make it rise. Part 1's playground scored its yes or no answers the same way, with two possible answers instead of 27.
+
+The network in the demo is small. It's a table of 27 rows of 27 scores, one row for each letter it might read, and every score starts at 0. Each step, it reads 4,096 letter pairs picked at random from the names. It works out its average surprise and the slope of every score, then nudges every score a little downhill using Adam, the same method as part 1's playground. Those nudges need not follow the current downhill direction exactly. Press train.
+
+<LearnToCount label="The one-letter network's loss while it trains, next to the counting model's loss">
+
+A chart of the one-letter network's loss over 1,762 training steps, with the counting model's loss of 2.45 as a faint line. The loss starts at 3.30 and flattens just above 2.45. Training stops at 1,762 steps, twice the 881 the slowest of five trial runs needed to come within 0.02 of 2.45.
+
+</LearnToCount>
+
+At the start every score is 0, so every letter gets the same chance, 1 in 27, and the surprise is 3.30. The loss falls fast, then flattens just above the counting model's 2.45. It can't go much lower. A model that sees one letter knows no more than the counts do. Its trained rows end up giving nearly the same chances as the counting model's.
+
+## Letters on a map
+
+To do better, the model has to see further back. How far back it sees is its **context**. The counting model's context is one letter. Counting three letters back would need a row for every run of three letters, 19,683 rows, and 13,997 of those runs never appear in the names.
+
+A letter's menu number is just a label. Giving q number 17 doesn't mean it's similar to the letter with number 18. Instead, give each letter a list of three numbers that training can adjust, like coordinates on a map. Letters that behave alike can sit close together, so what the model learns about one can help with the others. This learned list is the letter's **embedding**.
+
+Give the model the lists for the last three letters, nine numbers in all. A layer of 32 neurons reads them, as in part 1, each squashing its sum with tanh. Then 27 more neurons turn that into a score for each possible next letter.
+
+You've already seen one of these maps. The cloud at the top of every page on this site is a hand-built toy of the same idea, where nothing is trained. {/* [Bartosz: why you put the cloud there, if you want.] */} This demo trains one for real.
+
+The map draws each letter at its three numbers, one number on each axis, while the model trains. A letter too far out to fit is pulled closer to the center, with an arrow toward where it really is. Choose a letter to follow its darker square. Its label stays above the map. Turn the map and watch whether the vowels find each other.
+
+<LetterSpace label="The 27 tokens on a 3D map of the three numbers the model learns for each">
+
+A 3D map of the 26 letters and the dot, each drawn at the three numbers the three-letter model learns for it. Training moves the letters. Drag the map or use the arrow keys to turn it. After 20,000 steps the five vowels sit closer to one another than to most other letters, and q sits far from all of them.
+
+</LetterSpace>
+
+Watch the vowels. At the start every letter sits in a small heap in the middle, because every number starts close to 0. As training runs, the five vowels drift toward each other until they're closer to one another than to most other letters, and y's nearest neighbor is i. The letter q, which is rare and comes before u three times out of four, ends up far from everything. That's why the map pulls it in and marks it with an arrow.
+
+Meanwhile the loss beats the counting model's 2.45 after about 300 steps, dips below 2.3 after about 5,000, and settles near 2.28 after about 30,000. It wobbles along the way because each step practices on just 128 random letters, and some picks are harder than others.
+
+## Beyond three letters
+
+The model now has a way to read text as numbers, learn from the letter that followed, and write by making one choice after another. The names can look real without being real. A likely next letter isn't a checked fact, and that stays true all the way up to ChatGPT.
+
+Three letters isn't much. Your phone can use a word from much further back. How does a model know which earlier words to look at? That's part 3.
+
+## For JavaScript readers
 
 For readers who know JavaScript, these are short versions of the demos. Each block has its own data and runs on its own. Press Run to see the result, or Edit to change it.
 
-First, cut a sentence three ways. This version starts with two already learned merges, `t` with `h`, then `th` with `e`. `merge` joins matching neighbors in order. The demo learns a longer merge list from this note; this small list makes the cuts easy to follow.
+Cut a sentence three ways. This version starts with two already learned merges, `t` with `h`, then `th` with `e`. `merge` joins matching neighbors in order. The demo learns a longer merge list from this note. This small list makes the cuts easy to follow.
 
 ```js run=src/notes/snippets/words-as-numbers/tokenizer.js
 ```
@@ -74,32 +124,12 @@ For names, `symbols` gives each letter its number, with dot at 0 and z at 26. `c
 ```js run=src/notes/snippets/words-as-numbers/sampling.js
 ```
 
-Now put counting and writing together. This block counts three names and writes one new name, using the counts as the shares at temperature 1. Its three fixed rolls pick two letters and an end dot. The demo uses all 32,033 names and draws fresh rolls.
+This block counts three names and writes one new name, using the counts as the shares at temperature 1. Its three fixed rolls pick two letters and an end dot. The demo uses all 32,033 names and draws fresh rolls.
 
 ```js run=src/notes/snippets/words-as-numbers/names.js
 ```
 
-## Learning instead of counting
-
-Counting works when the model reads one letter. It gets hard as soon as the model has to look further back, as the next section shows. A network like the one in part 1 can learn the same guess instead, and it can grow from there.
-
-For the letter it just read, the network gives every possible next letter a score. A score can be any number, big or small, positive or negative. Those raw scores are the **logits**.
-
-A score is not a chance yet. Chances can't be negative, and they have to add up to 100%. To turn scores into chances, raise a fixed number, about 2.72, to the power of each score. That gives a positive result even for a negative score and makes the big scores count a lot more. Divide each result by their total, and the shares add up to 100%. This conversion is called **softmax**. Scores of -1, 0 and 1 become chances of 9%, 24% and 67%.
-
-To learn, the network needs a loss, like the squares in part 1. For letters, we measure how surprised it was by the letter that really came next. Giving that letter a 50% chance is a small surprise, 0.69. Giving it a 1% chance is a big one, 4.6. This way of scoring its guesses is called **cross-entropy**. The counting model's 2.45 is this same surprise, averaged over every letter in the names. Training tries to lower the average surprise. An individual step can still make it rise. Part 1's playground scored its yes or no answers the same way, with two possible answers instead of 27.
-
-The network in the demo is small. It is a table of 27 rows of 27 scores, one row for each letter it might read, and every score starts at 0. Each step, it reads 4,096 letter pairs picked at random from the names. It works out its average surprise and the slope of every score, then moves the scores a little downhill with adam, a method that uses recent slopes as well as the current one. Its updates need not follow the current downhill direction exactly. Press train.
-
-<LearnToCount label="The one-letter network's loss while it trains, next to the counting model's loss">
-
-A chart of the one-letter network's loss over 1,762 training steps, with the counting model's loss of 2.45 as a faint line. The loss starts at 3.30 and flattens just above 2.45.
-
-</LearnToCount>
-
-At the start every score is 0, so every letter gets the same chance, 1 in 27, and the surprise is 3.30. The loss falls fast, then flattens just above the counting model's 2.45. It can't go much lower. A model that sees only one letter knows no more than the counts do, and its trained rows give nearly the same chances as the counting model's. In five trial runs, the slowest took 881 steps to come within 0.02 of 2.45, so training stops at twice that, 1,762 steps.
-
-Here are short versions you can run. `softmax` turns scores into chances. It first takes the biggest score away from every score, which gives the same chances and keeps `Math.exp` from overflowing. `crossEntropy` measures the surprise, and `surpriseSlopes` gives the slope of the surprise for each score. That slope is just the letter's chance, less 1 for the letter that really came next.
+`softmax` turns scores into chances. It first takes the biggest score away from every score, which gives the same chances and keeps `Math.exp` from making numbers too big for the computer. `crossEntropy` measures the surprise, and `surpriseSlopes` gives the slope of the surprise for each score. That slope is the letter's chance, less 1 for the letter that really came next.
 
 ```js run=src/notes/snippets/words-as-numbers/softmax.js
 ```
@@ -107,39 +137,15 @@ Here are short versions you can run. `softmax` turns scores into chances. It fir
 ```js run=src/notes/snippets/words-as-numbers/cross-entropy.js
 ```
 
-The one-letter model keeps a row of scores for every letter. `oneLetterLoss` reads the pairs in one name, measures their average surprise, and adds up the slopes in `grad`. This short version takes ordinary downhill steps so you can see the update directly. The demo trains on batches of names and uses adam.
+The one-letter model keeps a row of scores for every letter. `oneLetterLoss` reads the pairs in one name, measures their average surprise, and adds up the slopes in `grad`. This short version takes ordinary downhill steps so you can see the update directly. The demo trains on a handful of names at a time and uses Adam.
 
 ```js run=src/notes/snippets/words-as-numbers/one-letter.js
 ```
 
-## Letters on a map
-
-To do better, the model has to see further back. How far back it sees is its **context**. The counting model's context is one letter. Counting three letters back would need a row for every run of three letters, 19,683 rows, and 13,997 of those runs never appear in the names.
-
-A letter's menu number is just a label. Giving q number 17 does not mean it is similar to the letter with number 18. Instead, give each letter a list of three numbers that training can adjust, like coordinates on a map. Letters that behave alike can sit close together, so what the model learns about one can help with the others. This learned list is the letter's **embedding**. Give the model the lists for the last three letters. The model reads the places of the three letters, nine numbers in all. A layer reads those nine numbers, as in part 1, but with 32 neurons instead of eight. Each neuron squashes its sum with tanh. Then 27 more neurons turn those outputs into a score for each next letter. Letters that turn up in the same kinds of places often drift close together, because the model can treat them alike. Then what it learns about one letter helps with the others.
-
-The map draws each letter at its three numbers, one number on each axis, while the model trains. A letter too far out to fit is pulled closer to the center, with an arrow toward where it really is. Choose a letter to follow its darker square. Its label stays above the map. Drag the map or use the arrow keys to turn it. Watch whether the vowels find each other.
-
-<LetterSpace label="The 27 tokens on a 3D map of the three numbers the model learns for each">
-
-A 3D map of the 26 letters and the dot, each drawn at the three numbers the three-letter model learns for it. Training moves the letters. After 20,000 steps the five vowels sit closer to one another than to most other letters, and q sits far from all of them.
-
-</LetterSpace>
-
-At the start every letter sits in a small heap in the middle, because every number starts close to 0. After about 300 steps the loss passes the counting model's 2.45. From there it falls slowly and wobbles, because each step practices on 128 letters picked at random, and some picks are harder than others. It starts to dip below 2.3 after about 5,000 steps, and after about 30,000 it stays near 2.28. The vowels find each other. The five of them end up closer to one another than to most other letters, and y's nearest letter is i. The letter q, which is rare and comes before u three times out of four, ends up far from everything, so the map pulls it closer and marks it with an arrow.
-
-The cloud at the top of every page on this site is a hand-built toy of the same idea, where nothing is trained. This demo trains one for real.
-
-Here is a short forward pass through the three-letter model. `threeLetterScores` looks up the last three letters' lists, joins their nine numbers, and passes them through two layers. This version has two hidden neurons and fixed knobs, so it prints scores before any training. The demo has 32 hidden neurons and learns the knobs, including the letter lists, by walking backward from the loss.
+`threeLetterScores` looks up the last three letters' lists, joins their nine numbers, and passes them through two layers. This version has two neurons in the middle layer and fixed knobs, so it prints scores before any training. The demo has 32 neurons in the middle layer and learns the knobs, including the letter lists, by walking backward from the loss.
 
 ```js run=src/notes/snippets/words-as-numbers/three-letter.js
 ```
-
-## Beyond three letters
-
-The model now has a way to read text as numbers, learn from the letter that followed, and write by making one choice after another. The choices can look like names without being real names. A likely continuation is not a checked fact.
-
-Three letters still leave out most of a sentence. Your phone can use a word from much further back to make its next suggestion. Part 3 shows how a model learns which earlier pieces to read when it makes the next guess.
 
 <Glossary>
 <Term name="token">One piece of text read as a unit, with its own menu number</Term>

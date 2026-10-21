@@ -9,7 +9,13 @@ export default function LearnToCount(props: DemoProps) {
       scene={scene}
       render={(part) => ({
         body: (
-          <canvas ref={part('chart')} className="aspect-[672/309] max-h-[320px] min-h-[220px]" />
+          <>
+            <canvas ref={part('chart')} className="aspect-[672/309] max-h-[320px] min-h-[220px]" />
+            <div className="mt-[10px] text-faint">
+              Training stops at 1,762 steps, twice the 881 the slowest of five trial runs needed to
+              come within 0.02 of 2.45.
+            </div>
+          </>
         ),
         caption: (
           <>
