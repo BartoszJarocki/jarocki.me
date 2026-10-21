@@ -91,7 +91,7 @@ Each live lane runs in its own local worktree at the PR head. No `control-ui` sk
 
 - [ ] `parseNote` in `src/lib/notes.ts` accepts an optional `draft: true`. `getNotes` drops drafts when `process.env.VERCEL_ENV === 'production'`. Every consumer, the notes list, the home page, the RSS route, and `getStaticPaths`, reads `getNotes`, so none of them changes.
 - [ ] A draft note page passes `noindex` to `PageShell`.
-- [ ] Add part 1 as a draft with its frontmatter, the five-sentence map of the series from `docs/ai-series/design.md`, and one `h2` per demo with a one-line placeholder.
+- [ ] Add part 1 as a draft with its frontmatter, the opening from `docs/ai-series/design.md` (the hook, then a short map of the series), and one `h2` per demo with a one-line placeholder.
 - [ ] Document `draft` in the Notes section of `CLAUDE.md`.
 
 **You see.**
