@@ -24,14 +24,18 @@
     "next-seo": "^6.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "remark-mdx": "3.1.1",
+    "remark-parse": "11.0.0",
     "rss": "^1.2.2",
     "sharp": "^0.35.5",
     "shiki": "^4.5.0",
-    "three": "0.186.1"
+    "three": "0.186.1",
+    "unified": "11.0.5"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.0.0",
     "@types/js-yaml": "^4.0.9",
+    "@types/mdast": "4.0.4",
     "@types/node": "^20.6.5",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",

@@ -15,7 +15,7 @@ fs.mkdirSync(notesDir, { recursive: true });
 process.chdir(root);
 after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-const { getNoteContent, getNotes, seriesParts } = await import('./notes.ts');
+const { getNoteContent, getNoteTree, getNotes, seriesParts } = await import('./notes.ts');
 
 function writeNote(slug: string, publishedAt: string, extra = '') {
   const frontmatter = `title: ${slug}\ndescription: about ${slug}\npublishedAt: ${publishedAt}\ntags: [test]\n${extra}`;
@@ -96,7 +96,7 @@ test('getNotes rejects a misspelled draft field even in production', (t) => {
 
 const source = 'const html = "<b>&</b>";\nconsole.log(html);\nconst object = { name: 1 };\n';
 
-function compileNote(t: TestContext, markdown: string) {
+function writeExample(t: TestContext, markdown: string) {
   const note = path.join(notesDir, 'x.mdx');
   const snippets = path.join(notesDir, 'snippets/x');
   fs.mkdirSync(snippets, { recursive: true });
@@ -108,6 +108,10 @@ function compileNote(t: TestContext, markdown: string) {
     fs.rmSync(note, { force: true });
     fs.rmSync(snippets, { recursive: true, force: true });
   });
+}
+
+function compileNote(t: TestContext, markdown: string) {
+  writeExample(t, markdown);
   return getNoteContent('x');
 }
 
@@ -195,6 +199,18 @@ test('runnable fences reject missing files, bodies, and invalid paths or metadat
       message: `src/notes/x.mdx: \`\`\`${info} needs js run=src/notes/snippets/<note>/<name>.js`,
     });
   }
+});
+
+test('getNoteTree fills runnable fences and names the note when a file is missing', async (t) => {
+  writeExample(t, fence('run=src/notes/snippets/x/example.js'));
+  const [code] = (await getNoteTree('x')).children;
+  assert.ok(code.type === 'code');
+  assert.deepEqual([code.lang, code.value], ['js', source.trimEnd()]);
+
+  writeExample(t, fence('run=src/notes/snippets/x/missing.js'));
+  await assert.rejects(getNoteTree('x'), {
+    message: 'src/notes/x.mdx: src/notes/snippets/x/missing.js does not exist',
+  });
 });
 
 test('getNoteContent rejects a code block that is empty after the build fills it', async (t) => {
