@@ -1,5 +1,5 @@
-import { dayMonth, monthYear } from './date';
-import type { Activity } from './githubActivity';
+import { dayMonth, monthYear } from './date.ts';
+import type { Activity } from './githubActivity.ts';
 
 export const LEVELS = 12;
 
