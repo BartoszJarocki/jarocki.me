@@ -63,3 +63,28 @@ test('tones become ANSI styles', () => {
   );
   assert.match(ansi, /with \x1b\[1mstrong words\x1b\[0m, \x1b\[3memphasis\x1b\[0m,/);
 });
+
+test('a row whose main wraps and whose trail is empty ends at its last word', () => {
+  const blocks: Block[] = [
+    {
+      kind: 'section',
+      rows: [
+        {
+          lead: [lowered('Title')],
+          main: [lowered('A description long enough that it has to wrap onto a second line')],
+          trail: [],
+        },
+        { lead: [lowered('Next')], main: [lowered('Row')] },
+      ],
+    },
+  ];
+  assert.equal(
+    renderText(blocks).replace(/\x1b\[\d+m/g, ''),
+    `
+  title        a description long enough that it has to wrap onto a second
+               line
+  next         row
+
+`,
+  );
+});

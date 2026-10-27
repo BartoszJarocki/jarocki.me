@@ -114,7 +114,7 @@ function rowLines({ lead, main, trail }: Row, indent: number, room: number): Lin
   const first = [...lead, pad(indent - columns(lead))];
   const gap = room - columns(main) - columns(trail ?? []);
   if (trail && gap >= 3) return [[...first, ...main, pad(gap), ...trail]];
-  return [...wrap(main, room), ...(trail ? wrap(trail, room) : [])].map((line, i) => [
+  return [...wrap(main, room), ...(trail?.length ? wrap(trail, room) : [])].map((line, i) => [
     ...(i ? [pad(indent)] : first),
     ...line,
   ]);
