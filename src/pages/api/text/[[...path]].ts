@@ -67,6 +67,7 @@ const text: NextApiHandler = async (req, res) => {
   res.status(route.page === 'missing' ? 404 : 200);
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+  res.setHeader('Vary', 'User-Agent');
   res.send(body);
 };
 
