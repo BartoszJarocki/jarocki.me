@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { imageSize } from 'image-size';
 import yaml from 'js-yaml';
+import type { Nodes, Root } from 'mdast';
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote';
 import path from 'path';
 import type { BundledLanguage } from 'shiki';
@@ -85,6 +86,20 @@ export async function getNoteContent(slug: string): Promise<MDXRemoteSerializeRe
     // next-mdx-remote rewraps what a plugin throws, which would bury the plugin's message.
     throw problem ?? new Error(`src/notes/${file}: ${(error as Error).message}`);
   }
+}
+
+export async function getNoteTree(slug: string): Promise<Root> {
+  const file = `${slug}.mdx`;
+  const [{ unified }, { default: remarkParse }, { default: remarkMdx }] = await Promise.all([
+    import('unified'),
+    import('remark-parse'),
+    import('remark-mdx'),
+  ]);
+  const tree = unified().use(remarkParse).use(remarkMdx).parse(readNote(file).content);
+  remarkSnippets((message) => {
+    throw new Error(`src/notes/${file}: ${message}`);
+  })(tree);
+  return tree;
 }
 
 type Fail = (message: string) => never;
@@ -195,19 +210,9 @@ function rehypeNoteImages(fail: Fail) {
   };
 }
 
-type MdastNode = {
-  type: string;
-  lang?: string | null;
-  meta?: string | null;
-  value?: string;
-  position?: { start: { line: number } };
-  children?: MdastNode[];
-  data?: { hProperties: Record<string, string> };
-};
-
 function remarkSnippets(fail: Fail) {
-  return (tree: MdastNode) => {
-    const walk = (node: MdastNode) => {
+  return (tree: Root) => {
+    const walk = (node: Nodes) => {
       if (node.type === 'code') {
         const info = [node.lang, node.meta].filter(Boolean).join(' ');
         if (/run\s*=/i.test(info)) {
@@ -224,7 +229,7 @@ function remarkSnippets(fail: Fail) {
         if (!node.value?.trim())
           fail(`the code block at line ${node.position?.start.line} is empty`);
       }
-      node.children?.forEach(walk);
+      if ('children' in node) node.children.forEach(walk);
     };
     walk(tree);
   };

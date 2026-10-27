@@ -32,7 +32,9 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 - `src/components/EmbeddingsBackdrop.tsx` - The backdrop over the top 460px of every page. It paints above the page text with a blend, so the text keeps subpixel antialiasing. `_app.tsx` mounts it once, so it keeps running across client-side navigation. Its mask starts to fade at `--unfaded` on `.backdrop` in `src/styles/index.css`, the only place that stop is written. Faint and body text it can reach sits on a plate that rises above it (see `DESIGN.md`)
 - `src/components/JsonLd.tsx` - Writes a JSON-LD script into the head. Use it instead of next-seo's JSON-LD components, which escape `&` as `&amp;` and break URLs
 - `src/components/Index.tsx` - The index row components every page is built from (see `DESIGN.md`)
-- `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote, fills runnable code blocks from snippet files, and highlights code at build time
+- `src/lib/notes.ts` - The only module that reads `src/notes/`. It checks each note's frontmatter and compiles its body with next-mdx-remote, fills runnable code blocks from snippet files, and highlights code at build time. `getNoteTree` returns a note's parsed mdast, with runnable code blocks filled, for the text pages
+- `src/pages/api/text/[[...path]].ts` - The text version of each page, for curl, HTTPie, and xh. `src/middleware.ts` rewrites their page requests to it and keeps the RSS rewrite. The route reads the page path from its own URL, with or without `/api/text` in front, because `next start` passes an API route the URL from before a middleware rewrite, without the catch-all param
+- `src/lib/textPage.ts` - The blocks a text page is made of, the 80-column layout, and the ANSI styles. `src/lib/textNote.ts` turns a note's mdast into blocks, and `src/lib/textPages.ts` builds each page (see `DESIGN.md`)
 - `src/lib/ml/value.ts` - `value` and the arithmetic functions, the plain objects and backward walk the part 1 demos run on. `src/lib/ml/mlp.ts` builds plain networks and provides their forward pass, knobs, and training step. The notes teach the same calculations with short plain JavaScript functions
 - `src/components/NoteContent.tsx` - Renders a compiled note, with `next/image` for images
 - `src/components/` - Reusable React components
@@ -66,6 +68,7 @@ This is a personal website built with Next.js. Notes are MDX files in the repo.
 
 - **Notes** - MDX files in `src/notes/`, each with tags shown on the note and in the notes list
 - **Backdrop** - `src/lib/embeddingsScene.ts` draws a toy embedding space with three.js over the top of every page, blended above the page text, from the table in `src/lib/embeddingSpace.ts`. Faint and body text it can reach sits on a raised `.plate` (see `DESIGN.md`)
+- **Text mode** - `curl https://jarocki.me` prints each page as 80-column text with ANSI styles. A plain `curl jarocki.me` hits Vercel's 308 from HTTP to HTTPS first, which can't be turned off, so use `curl https://jarocki.me` or `curl -L jarocki.me` (see `DESIGN.md`)
 - **Share Images** - `src/pages/api/og.tsx` draws each page's Open Graph image with `next/og` on Node, in the light tokens and Geist (see `DESIGN.md`)
 - **SEO Optimization** - NextSEO integration with sitemap generation
 - **Analytics** - Vercel Analytics integration

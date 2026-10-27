@@ -1,4 +1,4 @@
-import { Name } from '../data/bio';
+import { Name } from '../data/bio.ts';
 
 const keepCase = [Name].filter(Boolean);
 
