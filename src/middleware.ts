@@ -10,8 +10,10 @@ export function middleware(request: NextRequest) {
   return NextResponse.rewrite(text);
 }
 
-// A next.config.mjs rewrite would work too, but it adds about 3 kB of client-side route matching
-// to every page. Next analyzes this config at build time, so it has to stay a literal.
+// Next's client tests these paths without the user-agent condition, so a browser prefetches /work
+// and /about here and gets back an empty x-middleware-skip response. A next.config.mjs rewrite
+// avoids that, but its client-side route matching adds 2.4 kB of brotli to every page. Next
+// analyzes this config at build time, so it has to stay a literal.
 export const config = {
   matcher: [
     '/rss.xml',
