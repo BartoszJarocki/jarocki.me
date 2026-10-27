@@ -1,8 +1,19 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { renderText } from './textPage.ts';
-import { contributionBars } from './textPages.ts';
+import {
+  aboutPage,
+  contributionBars,
+  homePage,
+  missingPage,
+  notesPage,
+  workPage,
+} from './textPages.ts';
+
+process.chdir(fileURLToPath(new URL('../..', import.meta.url)));
+const { getNotes } = await import('./notes.ts');
 
 test('each week is a bar of half blocks scaled to the busiest week, with empty weeks dotted', () => {
   const dates = Array.from({ length: 67 }, (_, i) =>
@@ -31,4 +42,34 @@ test('each week is a bar of half blocks scaled to the busiest week, with empty w
 
 `,
   );
+});
+
+test("the home, notes, work, about, and 404 pages render the site's data within 78 columns", () => {
+  const notes = getNotes();
+  const days = Array.from({ length: 371 }, (_, i) => ({
+    date: new Date(Date.UTC(2025, 9, 26 + i)).toISOString().slice(0, 10),
+    count: i % 9,
+  }));
+  const pages = {
+    home: homePage(notes, days),
+    notes: notesPage(notes),
+    work: workPage(),
+    about: aboutPage(),
+    missing: missingPage(),
+  };
+  for (const [name, blocks] of Object.entries(pages)) {
+    const lines = renderText(blocks)
+      .replace(/\x1b\[\d+m/g, '')
+      .split('\n');
+    assert.equal(
+      lines[1],
+      '  Bartosz Jarocki                                           notes  work  about',
+      name,
+    );
+    assert.deepEqual(
+      lines.filter((line) => [...line].length > 78),
+      [],
+      name,
+    );
+  }
 });
