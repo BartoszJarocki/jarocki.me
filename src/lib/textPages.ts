@@ -5,7 +5,7 @@ import { PastProjects, type Project, SideProjects } from '../data/projects.ts';
 import { Work, type WorkEntry } from '../data/work.ts';
 import { LEVELS } from './activityStats.ts';
 import { dotDate, monthYear } from './date.ts';
-import { type Activity, weeklyTotals } from './githubActivity.ts';
+import { type ContributionDay, weeklyTotals } from './githubActivity.ts';
 import type { Note, SeriesPart } from './notes.ts';
 import { type Block, type Row, type Run, literal, lowered } from './textPage.ts';
 
@@ -41,14 +41,17 @@ const projectRow = (project: Project): Row => ({
 
 const paragraph = (...runs: Run[]): Block => ({ kind: 'paragraph', runs });
 
-export function homePage(notes: Note[], activity: Activity | null): Block[] {
-  const github: Block[] = activity
+export function homePage(notes: Note[], days: ContributionDay[] | null): Block[] {
+  const github: Block[] = days
     ? [
         {
           kind: 'art',
           label: 'github',
           more: [literal(`github.com/${GitHubUser}`, 'faint')],
-          lines: contributionBars(activity.dates, activity.contributions),
+          lines: contributionBars(
+            days.map((day) => day.date),
+            days.map((day) => day.count),
+          ),
         },
       ]
     : [];

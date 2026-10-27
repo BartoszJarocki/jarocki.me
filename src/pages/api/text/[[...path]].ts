@@ -1,7 +1,7 @@
 import { NextApiHandler } from 'next';
 
 import { GitHubUser } from '../../../data/links';
-import { fetchActivity } from '../../../lib/githubActivity';
+import { fetchContributionDays } from '../../../lib/githubActivity';
 import { Note, getNoteTree, getNotes, seriesParts } from '../../../lib/notes';
 import { noteBlocks } from '../../../lib/textNote';
 import { Block, renderText } from '../../../lib/textPage';
@@ -38,7 +38,7 @@ function parseRequest(url: string, notes: Note[]) {
 async function pageBlocks(route: Route, notes: Note[]): Promise<Block[]> {
   switch (route.page) {
     case 'home':
-      return homePage(notes, await fetchActivity(GitHubUser));
+      return homePage(notes, await fetchContributionDays(GitHubUser));
     case 'notes':
       return notesPage(notes);
     case 'note': {

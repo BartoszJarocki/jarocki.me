@@ -54,7 +54,7 @@ export function weeklyTotals(dates: string[], values: number[]): WeekTotal[] {
   return weeks;
 }
 
-async function fetchContributionDays(user: string) {
+export async function fetchContributionDays(user: string) {
   try {
     const response = await fetch(`https://github.com/users/${user}/contributions`, {
       headers: {
