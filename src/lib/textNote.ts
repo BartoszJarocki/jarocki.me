@@ -6,10 +6,10 @@ import {
   type Block,
   type Row,
   type Run,
+  type TableRow,
   type Tone,
   literal,
   lowered,
-  noBreakSpace,
 } from './textPage.ts';
 
 type Jsx = Extract<Nodes, { type: 'mdxJsxFlowElement' | 'mdxJsxTextElement' }>;
@@ -17,15 +17,13 @@ type Jsx = Extract<Nodes, { type: 'mdxJsxFlowElement' | 'mdxJsxTextElement' }>;
 const comment = /^\s*\/\*[\s\S]*\*\/\s*$/;
 
 export function noteBlocks(tree: Root, slug: string): Block[] {
-  const links: string[] = [];
   const fail = (node: Nodes, problem: string): never => {
     throw new Error(`src/notes/${slug}.mdx: ${problem} at line ${node.position?.start.line}`);
   };
 
-  function reference(href: string): Run {
+  function link(nodes: RootContent[], tone: Tone, href: string): Run[] {
     const url = href.startsWith('/') ? `${SiteUrl}${href}` : href;
-    const number = links.includes(url) ? links.indexOf(url) + 1 : links.push(url);
-    return literal(`${noBreakSpace}[${number}]`, 'faint');
+    return phrasing(nodes, tone).map((run) => ({ ...run, href: url }));
   }
 
   function flow(nodes: RootContent[]): Block[] {
@@ -78,9 +76,9 @@ export function noteBlocks(tree: Root, slug: string): Block[] {
         case 'strong':
           return phrasing(node.children, 'strong');
         case 'inlineCode':
-          return [literal(`\`${node.value}\``, 'code')];
+          return [literal(node.value, 'code')];
         case 'link':
-          return [...phrasing(node.children, tone), reference(node.url)];
+          return link(node.children, tone, node.url);
         case 'break':
           return [literal('\n', tone)];
         case 'image':
@@ -89,9 +87,7 @@ export function noteBlocks(tree: Root, slug: string): Block[] {
           return [...phrasing(node.children, tone), literal(' ', tone)];
         case 'mdxJsxTextElement':
           if (node.name === 'Fare') return [literal(fare(node), tone)];
-          if (node.name === 'a') {
-            return [...phrasing(node.children, tone), reference(required(node, 'href'))];
-          }
+          if (node.name === 'a') return link(node.children, tone, required(node, 'href'));
           return phrasing(node.children, tone);
         case 'mdxTextExpression':
           return comment.test(node.value) ? [] : fail(node, 'an expression has no text form');
@@ -109,12 +105,17 @@ export function noteBlocks(tree: Root, slug: string): Block[] {
       case 'ResidualSection':
         return flow(node.children);
       case 'table':
-        return table(node);
+        return [table(node)];
       default:
         return [
           {
-            kind: 'paragraph',
-            runs: [literal(`[interactive demo at ${SiteUrl}/notes/${slug}]`, 'faint')],
+            kind: 'demo',
+            label: required(node, 'label'),
+            blocks:
+              node.type === 'mdxJsxTextElement'
+                ? [{ kind: 'paragraph', runs: phrasing(node.children, 'body') }]
+                : flow(node.children),
+            href: `${SiteUrl}/notes/${slug}`,
           },
         ];
     }
@@ -133,33 +134,29 @@ export function noteBlocks(tree: Root, slug: string): Block[] {
     return children(node).flatMap(terms);
   }
 
-  function table(node: Jsx): Block[] {
+  function table(node: Jsx): Block {
     const [caption] = find(node, 'caption');
     const [thead] = find(node, 'thead');
     const [tbody] = find(node, 'tbody');
     if (!thead || !tbody) return fail(node, 'a table needs a thead and a tbody');
-    const [, ...columns] = find(thead, 'th');
-    const rows = find(tbody, 'tr').map((tr): Block => {
+    const columns = find(thead, 'th').map((th) => phrasing(th.children, 'faint'));
+    const rows = find(tbody, 'tr').map((tr): TableRow => {
       const [header] = find(tr, 'th');
       const cells = find(tr, 'td');
-      if (!header || cells.length !== columns.length) {
+      if (!header || cells.length !== columns.length - 1) {
         return fail(tr, 'a table row needs a header and one cell per column');
       }
       return {
-        kind: 'section',
-        label: phrasing(header.children, 'faint')
-          .map((part) => part.text)
-          .join(''),
-        rows: cells.map((cell, i) => ({
-          lead: phrasing(columns[i].children, 'faint'),
-          main: phrasing(cell.children, 'ink'),
-        })),
+        header: phrasing(header.children, 'faint'),
+        cells: cells.map((cell) => phrasing(cell.children, 'ink')),
       };
     });
-    const head: Block[] = caption
-      ? [{ kind: 'paragraph', runs: phrasing(caption.children, 'faint') }]
-      : [];
-    return [...head, ...rows];
+    return {
+      kind: 'table',
+      caption: caption ? phrasing(caption.children, 'faint') : [],
+      columns,
+      rows,
+    };
   }
 
   function fare(node: Jsx) {
@@ -185,19 +182,7 @@ export function noteBlocks(tree: Root, slug: string): Block[] {
     }
   }
 
-  const blocks = flow(tree.children);
-  if (!links.length) return blocks;
-  return [
-    ...blocks,
-    {
-      kind: 'section',
-      label: 'links',
-      rows: links.map((url, i) => ({
-        lead: [literal(`[${i + 1}]`, 'faint')],
-        main: [literal(url)],
-      })),
-    },
-  ];
+  return [...flow(tree.children), { kind: 'links' }];
 }
 
 function isElement(node: Nodes, name: string): node is Jsx {
