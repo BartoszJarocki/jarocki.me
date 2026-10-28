@@ -88,3 +88,34 @@ test('a row whose main wraps and whose trail is empty ends at its last word', ()
 `,
   );
 });
+
+test('a demo shows its label and description in an index row, then where to try it', () => {
+  const blocks: Block[] = [
+    {
+      kind: 'demo',
+      label: 'Train a tiny GPT on Shakespeare',
+      blocks: [
+        {
+          kind: 'paragraph',
+          runs: [
+            lowered(
+              'The practice and exam losses fall as a small model learns from lowercase Shakespeare.',
+              'body',
+            ),
+          ],
+        },
+      ],
+      href: 'https://jarocki.me/notes/a-tiny-gpt',
+    },
+  ];
+  assert.equal(
+    renderText(blocks),
+    `
+  \x1b[2mdemo         \x1b[0mtrain a tiny gpt on shakespeare.
+               the practice and exam losses fall as a small model learns from
+               lowercase shakespeare.
+               \x1b[2mtry it at https://jarocki.me/notes/a-tiny-gpt\x1b[0m
+
+`,
+  );
+});

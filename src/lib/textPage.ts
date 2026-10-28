@@ -106,7 +106,11 @@ function textForm(block: Block, links: string[]): Block[] {
     }
     case 'demo':
       return [
-        { kind: 'paragraph', runs: [literal(`[interactive demo at ${block.href}]`, 'faint')] },
+        {
+          ...block,
+          label: lowercase(block.label),
+          blocks: block.blocks.flatMap((item) => textForm(item, links)),
+        },
       ];
     case 'links':
       return links.length
@@ -167,9 +171,19 @@ function layout(block: Block, room: number): Line[] {
       return [...head(block, room), ...block.lines];
     case 'rule':
       return [[literal('─'.repeat(prose), 'faint')]];
+    case 'demo':
+      // The label and description start where an index row's main does.
+      return hang(
+        literal('demo'.padEnd(13), 'faint'),
+        [
+          { kind: 'paragraph', runs: [literal(`${block.label}.`)] },
+          ...block.blocks,
+          { kind: 'paragraph', runs: [literal(`try it at ${block.href}`, 'faint')] },
+        ],
+        room,
+      );
     // renderText turns these into other blocks before the layout.
     case 'table':
-    case 'demo':
     case 'links':
     case 'curl':
       return [];
@@ -191,10 +205,15 @@ function list(ordered: boolean, items: Block[][], room: number): Line[] {
   const markers = items.map((_, i) => (ordered ? `${i + 1}.` : '-'));
   const indent = Math.max(...markers.map((marker) => marker.length)) + 1;
   return items.flatMap((blocks, i) =>
-    blocks
-      .flatMap((block) => layout(block, room - indent))
-      .map((line, j) => [j ? pad(indent) : literal(markers[i].padEnd(indent), 'faint'), ...line]),
+    hang(literal(markers[i].padEnd(indent), 'faint'), blocks, room),
   );
+}
+
+function hang(first: Run, blocks: Block[], room: number): Line[] {
+  const indent = columns([first]);
+  return blocks
+    .flatMap((block) => layout(block, room - indent))
+    .map((line, j) => [j ? pad(indent) : first, ...line]);
 }
 
 function head({ label, more = [] }: { label?: string; more?: Run[] }, room: number): Line[] {
