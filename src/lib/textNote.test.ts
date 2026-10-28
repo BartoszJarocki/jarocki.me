@@ -35,7 +35,9 @@ test('a note numbers its links once each and replaces glossaries and demos', () 
   words from this note
   loss         how far off a guess is
 
-  [interactive demo at https://jarocki.me/notes/x]
+  demo         fares.
+               the chart.
+               try it at https://jarocki.me/notes/x
 
   links
   [1]          https://jarocki.me/notes
