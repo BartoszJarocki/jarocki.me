@@ -70,7 +70,7 @@ function row({ lead, main, trail = [], href }: Row) {
 
 function table({ columns, rows }: Table) {
   const line = (cells: Run[][]) =>
-    `| ${cells.map((cell) => inline(cell).replace(/\n/g, ' ').replaceAll('|', '\\|')).join(' | ')} |`;
+    `| ${cells.map((cell) => inline(cell).replace(/\\\n/g, ' ').replaceAll('|', '\\|')).join(' | ')} |`;
   return [
     line(columns),
     `|${' --- |'.repeat(columns.length)}`,
@@ -107,7 +107,9 @@ function styled(runs: Run[]) {
     .map(({ text, mark }) => {
       if (mark === '`') return code(text);
       const [, before, core, after] = /^(\s*)([\s\S]*?)(\s*)$/.exec(text) ?? [];
-      return core ? `${before}${mark}${escape(core)}${mark}${after}` : text;
+      const span = core ? `${before}${mark}${escape(core)}${mark}${after}` : text;
+      // A bare newline is a soft break, which markdown reads as a space.
+      return span.replaceAll('\n', '\\\n');
     })
     .join('');
 }
