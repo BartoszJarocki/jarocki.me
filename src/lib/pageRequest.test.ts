@@ -15,6 +15,7 @@ test('a request names its page with or without the route prefix and .md', () => 
   assert.deepEqual(
     [
       '/notes/time.md',
+      '/notes/time.MD',
       '/index.md',
       '/api/markdown/notes/time',
       '/api/text',
@@ -22,6 +23,6 @@ test('a request names its page with or without the route prefix and .md', () => 
       '/notes/nope.md',
       '/api/texts',
     ].map(page),
-    ['note time', 'home', 'note time', 'home', 'work', 'missing', 'missing'],
+    ['note time', 'note time', 'home', 'note time', 'home', 'work', 'missing', 'missing'],
   );
 });

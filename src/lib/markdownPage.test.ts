@@ -92,7 +92,7 @@ const markdown = `[Bartosz Jarocki](https://jarocki.me/index.md) · [notes](http
 
 # Words as Numbers
 
-Some **strong words**, *emphasis*, \`code\`, and [a link](https://example.com)
+Some **strong words**, *emphasis*, \`code\`, and [a link](https://example.com)\\
 on a second line.
 
 ## A Heading
@@ -174,6 +174,29 @@ test('text with markdown syntax in it parses back as written', () => {
   assert.deepEqual(
     tree.children.map((node) => [node.type, plain(node)]),
     written.map((text) => ['paragraph', text]),
+  );
+});
+
+test('a line break parses back as a break, and a table cell joins its lines', () => {
+  const output = renderMarkdown([
+    {
+      kind: 'quote',
+      blocks: [paragraph(lowered('A quote.', 'em'), literal('\n'), lowered('— Someone'))],
+    },
+    {
+      kind: 'table',
+      caption: [],
+      columns: [[lowered('A')]],
+      rows: [{ header: [lowered('one'), literal('\n'), lowered('two')], cells: [] }],
+    },
+  ]);
+  assert.equal(output, '> *A quote.*\\\n> — Someone\n\n| A |\n| --- |\n| one two |\n');
+  const [quote] = unified().use(remarkParse).parse(output).children;
+  assert.deepEqual(
+    quote.type === 'blockquote' && quote.children[0].type === 'paragraph'
+      ? quote.children[0].children.map((node) => node.type)
+      : [],
+    ['emphasis', 'break', 'text'],
   );
 });
 

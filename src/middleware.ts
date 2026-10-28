@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/api${pathname}`, request.url));
   }
   const markdown =
-    pathname.endsWith('.md') || /text\/markdown/i.test(request.headers.get('accept') ?? '');
+    /\.md$/i.test(pathname) || /text\/markdown/i.test(request.headers.get('accept') ?? '');
   const route = `/api/${markdown ? 'markdown' : 'text'}${pathname === '/' ? '' : pathname}`;
   return NextResponse.rewrite(new URL(route, request.url));
 }
