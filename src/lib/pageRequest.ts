@@ -23,7 +23,7 @@ export function parseRequest(url: string, notes: Note[]): Route {
   const { pathname } = new URL(url, 'http://localhost');
   const path = pathname
     .replace(/^\/api\/(?:text|markdown)(?=\/|$)/, '')
-    .replace(/\.md$/, '')
+    .replace(/\.md$/i, '')
     .replace(/^\/|\/$/g, '');
   const note = notes.find((item) => `notes/${item.slug}` === path);
   return note ? { page: 'note', note } : { page: pages.get(path) ?? 'missing' };
