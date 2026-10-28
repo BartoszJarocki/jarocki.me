@@ -3,7 +3,7 @@ import { lowercase } from './lowercase.ts';
 
 export type Tone = 'display' | 'ink' | 'body' | 'faint' | 'strong' | 'em' | 'code' | 'current';
 export type Run = { text: string; tone: Tone; href?: string; lower?: true };
-export type Row = { lead: Run[]; main: Run[]; trail?: Run[] };
+export type Row = { lead: Run[]; main: Run[]; trail?: Run[]; href?: string };
 export type Nav = 'notes' | 'work' | 'about';
 export type Block =
   | { kind: 'header'; current?: Nav }
@@ -18,6 +18,7 @@ export type Block =
   | { kind: 'table'; caption: Run[]; columns: Run[][]; rows: TableRow[] }
   | { kind: 'demo'; label: string; blocks: Block[]; href: string }
   | { kind: 'links' }
+  | { kind: 'curl'; runs: Run[] }
   | { kind: 'rule' };
 // columns[0] heads the row headers, and cells[i] sits under columns[i + 1].
 export type TableRow = { header: Run[]; cells: Run[][] };
@@ -28,7 +29,7 @@ const screen = 80;
 const margin = '  ';
 const width = screen - 2 * margin.length;
 const measure = 72;
-const nav: Nav[] = ['notes', 'work', 'about'];
+export const nav: Nav[] = ['notes', 'work', 'about'];
 
 const sgr: Record<Tone, number | null> = {
   display: 1,
@@ -63,6 +64,8 @@ function textForm(block: Block, links: string[]): Block[] {
     case 'title':
     case 'heading':
       return [{ ...block, runs: runs(block.runs) }];
+    case 'curl':
+      return [{ kind: 'paragraph', runs: runs(block.runs) }];
     case 'quote':
       return [{ ...block, blocks: block.blocks.flatMap((item) => textForm(item, links)) }];
     case 'list':
@@ -168,6 +171,7 @@ function layout(block: Block, room: number): Line[] {
     case 'table':
     case 'demo':
     case 'links':
+    case 'curl':
       return [];
   }
 }

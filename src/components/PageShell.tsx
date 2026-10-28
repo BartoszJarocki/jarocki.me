@@ -33,6 +33,7 @@ export function PageShell({
   // On Vercel, a regeneration renders the home page with asPath /index.
   const path = router.pathname === '/' ? '' : router.asPath.split(/[?#]/)[0];
   const canonical = `${process.env.NEXT_PUBLIC_URL}${path}`;
+  const markdown = `${process.env.NEXT_PUBLIC_URL}${path || '/index'}.md`;
   const title = seoTitle ?? Name;
   const metaTitle = seoTitle && lowercase(seoTitle);
   const metaDescription = seoDescription && lowercase(seoDescription);
@@ -48,6 +49,9 @@ export function PageShell({
         description={metaDescription}
         canonical={noindex ? undefined : canonical}
         noindex={noindex}
+        additionalLinkTags={
+          noindex ? [] : [{ rel: 'alternate', type: 'text/markdown', href: markdown }]
+        }
         openGraph={{
           title: lowercase(title),
           type: article ? 'article' : undefined,

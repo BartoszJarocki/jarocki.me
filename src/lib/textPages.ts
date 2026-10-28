@@ -17,12 +17,14 @@ const pathRow = (label: string, path: string): Row => ({
   lead: [],
   main: [lowered(label, 'faint')],
   trail: pathTrail(path),
+  href: path,
 });
 
 const noteRow = (note: Note): Row => ({
   lead: [lowered(dotDate(note.publishedAt), 'faint')],
   main: [lowered(note.title)],
   trail: pathTrail(`/notes/${note.slug}`),
+  href: `/notes/${note.slug}`,
 });
 
 const workRow = (entry: WorkEntry): Row => ({
@@ -37,6 +39,7 @@ const projectRow = (project: Project): Row => ({
   trail: project.href
     ? [literal(new URL(project.href).hostname.replace(/^www\./, ''), 'faint')]
     : [],
+  href: project.href,
 });
 
 const paragraph = (...runs: Run[]): Block => ({ kind: 'paragraph', runs });
@@ -89,12 +92,16 @@ export function homePage(notes: Note[], days: ContributionDay[] | null): Block[]
             link.href.startsWith('mailto:') ? link.value : link.href.replace(/^https?:\/\//, ''),
           ),
         ],
+        href: link.href,
       })),
     },
-    paragraph(
-      lowered('read a note: curl ', 'faint'),
-      literal(`${SiteUrl}/notes/${notes[0].slug}`, 'faint'),
-    ),
+    {
+      kind: 'curl',
+      runs: [
+        lowered('read a note: curl ', 'faint'),
+        literal(`${SiteUrl}/notes/${notes[0].slug}`, 'faint'),
+      ],
+    },
   ];
 }
 
@@ -131,6 +138,7 @@ export function notePage({ note, prose, older, parts }: NotePage): Block[] {
             lead: [lowered(`part ${item.part}`, item.part === note.part ? 'current' : 'faint')],
             main: [lowered(item.title)],
             trail: item.slug ? pathTrail(`/notes/${item.slug}`) : [lowered('coming soon', 'faint')],
+            href: item.slug ? `/notes/${item.slug}` : undefined,
           })),
         },
       ]
@@ -162,6 +170,7 @@ export function workPage(): Block[] {
       rows: PastProjects.slice(0, 2).map((project) => ({
         lead: [lowered(project.title)],
         main: [lowered(project.description, 'body')],
+        href: project.href,
       })),
     },
     paragraph(

@@ -14,15 +14,12 @@ import {
 } from '../components/Index';
 import { JsonLd } from '../components/JsonLd';
 import { PageShell } from '../components/PageShell';
-import { Name, SiteUrl } from '../data/bio';
+import { Name, SiteDescription, SiteUrl } from '../data/bio';
 import { Elsewhere, GitHubUser } from '../data/links';
 import { SideProjects } from '../data/projects';
 import { Work } from '../data/work';
 import { Activity, fetchActivity } from '../lib/githubActivity';
 import { Note, getNotes } from '../lib/notes';
-
-const seoDescription =
-  'Building AI at Motion. Exploring what software engineering looks like when agents do most of the typing.';
 
 const currentJob = Work.find((entry) => entry.end === 'Present');
 
@@ -54,7 +51,7 @@ type Props = {
 
 export default function Home({ latestNotes, noteCount, activity }: Props) {
   return (
-    <PageShell seoDescription={seoDescription}>
+    <PageShell seoDescription={SiteDescription}>
       <JsonLd data={profilePage} />
       <JsonLd data={website} />
       <Lede>
