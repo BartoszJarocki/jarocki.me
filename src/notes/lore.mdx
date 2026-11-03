@@ -1,0 +1,35 @@
+---
+title: "Lore"
+description: "A different way to read a repository's history."
+publishedAt: "2026-11-03"
+tags: ["projects", "git"]
+draft: true
+---
+
+A repository tells you what the code looks like now. Its history can tell you how it got there, but a commit log is a difficult way to see changes that span months and hundreds of files. [Lore](https://loreof.vercel.app) is an experiment in making that history visible.
+
+Give it a public GitHub repository and it builds a three-dimensional view of its files over time. You can explore the history yourself or watch a 90-second tour. There is also a gallery of 24 repositories to try without choosing one first. The [source is on GitHub](https://github.com/BartoszJarocki/loreof).
+
+## What belongs next to what?
+
+A directory tree gives files a place based on their paths. That is useful, but it misses relationships between files in different directories. A component and its tests might change together for years while living far apart in the tree.
+
+Lore uses co-change to draw those relationships. When files appear in the same commits, they contribute edges to a graph. The layout uses that graph to position files, so proximity has a reason behind it. It is still a clue, not proof that two files depend on each other. A large commit can touch unrelated files, and a relationship can exist without both files changing at once.
+
+Time adds another constraint. If the layout changed completely at every commit, it would be hard to follow anything. The view keeps file positions stable while playback shows files appearing, changing, and disappearing.
+
+## Reading Git's history
+
+Git history is a graph, not a single timeline. Lore follows the first parent of each commit to make a timeline of the repository's main line. At a merge, the resulting tree includes the merged changes. That gives playback a sequence of repository states without pretending that every branch was developed one commit after another.
+
+File names also change. Lore tracks file lifecycles through renames where the history provides enough evidence. The distinction matters when an old path is reused for a different file: the two should not automatically become one object on the screen.
+
+## A tour with receipts
+
+The tour groups history into chapters and selects facts from the commits behind them. A chapter can point back to its evidence. The selection is an aid to reading the history, not a verified account of the architecture or the intent behind a change. Git records what changed, but it cannot tell us everything the people involved knew.
+
+A shared link pins the repository to a particular revision, so another reader can open the same history instead of a moving default branch. Chrome can also attempt a 20-second video export. Export is best effort, and the app has a static view when the 3D view is unavailable.
+
+Lore builds on a long history of tools for looking at repositories. [Gource](https://gource.io/) animates repository activity, [Git Truck](https://github.com/git-truck/git-truck) explores structure and history, and [Gource View](https://github.com/schlunsen/gource-view) brings animated history to the browser. Lore combines a co-change layout with playback and chapters tied to commit evidence.
+
+The first version is an experiment. The layout and gallery still need human review, and the choices in the visualization will keep changing as that review happens.

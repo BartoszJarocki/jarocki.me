@@ -6,6 +6,11 @@ export type Project = {
 
 export const SideProjects: Project[] = [
   {
+    title: 'lore',
+    href: 'https://loreof.vercel.app',
+    description: 'repository history in 3D',
+  },
+  {
     title: 'monito',
     href: 'https://monito.dev',
     description: 'AI QA engineer',
