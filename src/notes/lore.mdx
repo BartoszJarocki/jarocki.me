@@ -8,7 +8,9 @@ draft: true
 
 A repository tells you what the code looks like now. Its history can tell you how it got there, but a commit log is a difficult way to see changes that span months and hundreds of files. [Lore](https://loreof.vercel.app) is an experiment in making that history visible.
 
-Give it a public GitHub repository and it builds a three-dimensional view of its files over time. You can explore the history yourself or watch a 90-second tour. There is also a gallery of 24 repositories to try without choosing one first. The [source is on GitHub](https://github.com/BartoszJarocki/loreof).
+Give it a public GitHub repository and it builds a three-dimensional view of its files over time. The page plays that history as a 90-second tour, chapter by chapter, and you can stop it at any point to explore on your own. There is also a gallery of 24 repositories to try without choosing one first. The [source is on GitHub](https://github.com/BartoszJarocki/loreof).
+
+![React's first chapter in Lore: a field of points, one ringed cluster lit by the commit f43449d33, and a card listing the four commits behind the chapter](/images/notes/lore/1.jpg)
 
 ## What belongs next to what?
 
@@ -26,7 +28,13 @@ File names also change. Lore tracks file lifecycles through renames where the hi
 
 ## A tour with receipts
 
-The tour groups history into chapters and selects facts from the commits behind them. A chapter can point back to its evidence. The selection is an aid to reading the history, not a verified account of the architecture or the intent behind a change. Git records what changed, but it cannot tell us everything the people involved knew.
+The tour splits the history into at most ten chapters. A new chapter starts where the repository changes course: a new part of the tree appears and keeps getting work, or a word in commit subjects suddenly becomes common and stays. Each chapter gets the same share of the 90 seconds, however many commits it holds.
+
+A chapter shows two to four of its commits, each as its own subject line, with its date and a short SHA that links to the commit on GitHub. A language model chooses which commits to show and which one names the chapter, but it writes no text. The chapter's title is that commit's subject, with a conventional-commit prefix and a pull request number removed. Everything on the card is something the repository already says about itself.
+
+As playback passes one of those commits, it slows down. The files the commit touched light up, a ring gathers them, and the camera moves toward them, so you can see where in the repository the change landed.
+
+The choice of commits is still a judgment. It is an aid to reading the history, not a verified account of the architecture or the intent behind a change. Git records what changed, but it cannot tell us everything the people involved knew.
 
 A shared link pins the repository to a particular revision, so another reader can open the same history instead of a moving default branch. Chrome can also attempt a 20-second video export. Export is best effort, and the app has a static view when the 3D view is unavailable.
 
